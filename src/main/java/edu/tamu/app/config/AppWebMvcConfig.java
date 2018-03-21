@@ -26,8 +26,8 @@ import edu.tamu.weaver.validation.resolver.WeaverValidatedModelMethodProcessor;
 
 @EnableWebMvc
 @Configuration
-@EntityScan(basePackages = { "edu.tamu.app.model", "edu.tamu.weaver.wro.model" })
-@EnableJpaRepositories(basePackages = { "edu.tamu.app.model.repo", "edu.tamu.weaver.wro.model.repo" })
+@EntityScan(basePackages = { "edu.tamu.app.model" })
+@EnableJpaRepositories(basePackages = { "edu.tamu.app.model.repo" })
 public class AppWebMvcConfig extends WebMvcConfigurerAdapter {
 
     @Value("${app.security.allow-access}")

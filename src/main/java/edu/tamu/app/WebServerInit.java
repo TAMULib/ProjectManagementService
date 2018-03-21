@@ -12,7 +12,7 @@ import org.springframework.context.annotation.ComponentScan;
  */
 @SpringBootApplication
 @ComponentScan(basePackages = { "edu.tamu.*" })
-public class SeedApplication extends SpringBootServletInitializer {
+public class WebServerInit extends SpringBootServletInitializer {
 
     /**
      * Entry point to the application from within servlet.
@@ -22,7 +22,7 @@ public class SeedApplication extends SpringBootServletInitializer {
      *
      */
     public static void main(String[] args) {
-        SpringApplication.run(SeedApplication.class, args);
+        SpringApplication.run(WebServerInit.class, args);
     }
 
     /**
@@ -36,7 +36,7 @@ public class SeedApplication extends SpringBootServletInitializer {
      */
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-        return application.sources(SeedApplication.class);
+        return application.sources(WebServerInit.class);
     }
 
 }
