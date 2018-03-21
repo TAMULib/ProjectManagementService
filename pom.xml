@@ -8,8 +8,8 @@
 	<artifactId>project-management-service</artifactId>
 	<version>2.0.0</version>
 
-	<name>Project Management Service</name>
-	<description>An service for managing projects.</description>
+	<name>Project-Management-Service</name>
+	<description>A Webservice to manage Projects</description>
 
 	<parent>
     <groupId>edu.tamu.weaver</groupId>
