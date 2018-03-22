@@ -22,6 +22,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.User;
 import edu.tamu.app.model.repo.ProjectRepo;
+import edu.tamu.app.service.registry.ManagementBeanRegistry;
 import edu.tamu.weaver.auth.model.Credentials;
 import edu.tamu.weaver.response.ApiResponse;
 
@@ -47,6 +48,9 @@ public class ProjectControllerTest {
 
     @Mock
     protected ProjectRepo projectRepo;
+
+    @Mock
+    private ManagementBeanRegistry managementBeanRegistry;
 
     @InjectMocks
     protected ProjectController projectController;
@@ -98,4 +102,10 @@ public class ProjectControllerTest {
         response = projectController.deleteProject(TEST_PROJECT1);
         assertEquals("Not successful at deleting Project", SUCCESS, response.getMeta().getStatus());
     }
+
+    @Test
+    public void testPushRequest() {
+
+    }
+
 }

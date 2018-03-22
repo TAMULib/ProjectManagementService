@@ -19,7 +19,7 @@ public class Project extends ValidatingBaseEntity {
     @Column(unique = true, nullable = false)
     private String name;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = { DETACH, REFRESH, MERGE, PERSIST })
+    @ManyToOne(fetch = FetchType.EAGER, cascade = { DETACH, REFRESH, MERGE, PERSIST }, optional = true)
     private VersionManagementSoftware versionManagementSoftware;
 
     public Project() {
