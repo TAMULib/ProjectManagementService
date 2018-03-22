@@ -29,27 +29,26 @@ import edu.tamu.weaver.response.ApiResponse;
 @RunWith(SpringRunner.class)
 public class ProjectControllerTest {
 
-    protected static User TEST_USER1 = new User("123456789");
-
-    protected static final String TEST_PROJECT_NAME1 = "Test Project Name 1";
-    protected static final String TEST_PROJECT_NAME2 = "Test Project Name 2";
+    private static final String TEST_PROJECT_NAME1 = "Test Project Name 1";
+    private static final String TEST_PROJECT_NAME2 = "Test Project Name 2";
     protected static final String TEST_MODIFIED_PROJECT_NAME = "Modified Project Name";
 
-    protected static Project TEST_PROJECT1 = new Project(TEST_PROJECT_NAME1);
-    protected static Project TEST_PROJECT2 = new Project(TEST_PROJECT_NAME2);
-    protected static Project TEST_MODIFIED_PROJECT = new Project(TEST_MODIFIED_PROJECT_NAME);
-    protected static List<Project> mockProjectList = new ArrayList<Project>(Arrays.asList(new Project[] { TEST_PROJECT1, TEST_PROJECT2 }));
+    private static Project TEST_PROJECT1 = new Project(TEST_PROJECT_NAME1);
+    private static Project TEST_PROJECT2 = new Project(TEST_PROJECT_NAME2);
+    private static Project TEST_MODIFIED_PROJECT = new Project(TEST_MODIFIED_PROJECT_NAME);
+    private static List<Project> mockProjectList = new ArrayList<Project>(
+            Arrays.asList(new Project[] { TEST_PROJECT1, TEST_PROJECT2 }));
 
-    protected static ApiResponse response;
-
-    @Mock
-    protected static Credentials credentials;
+    private static ApiResponse response;
 
     @Mock
-    protected ProjectRepo projectRepo;
+    private static Credentials credentials;
+
+    @Mock
+    private ProjectRepo projectRepo;
 
     @InjectMocks
-    protected ProjectController projectController;
+    private ProjectController projectController;
 
     @Before
     public void setUp() {
