@@ -1,4 +1,4 @@
-package edu.tamu.app.model.repo;
+package edu.tamu.app.model.repo.custom;
 
 import edu.tamu.app.enums.Role;
 import edu.tamu.app.model.User;

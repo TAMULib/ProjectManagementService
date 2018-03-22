@@ -5,6 +5,7 @@ target/
 .factorypath
 .project
 .settings
+.springBeans
 bin/
 logs/
 *.log*

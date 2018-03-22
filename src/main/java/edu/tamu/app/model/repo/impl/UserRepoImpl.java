@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import edu.tamu.app.enums.Role;
 import edu.tamu.app.model.User;
 import edu.tamu.app.model.repo.UserRepo;
-import edu.tamu.app.model.repo.UserRepoCustom;
+import edu.tamu.app.model.repo.custom.UserRepoCustom;
 import edu.tamu.weaver.data.model.repo.impl.AbstractWeaverRepoImpl;
 
 public class UserRepoImpl extends AbstractWeaverRepoImpl<User, UserRepo> implements UserRepoCustom {
