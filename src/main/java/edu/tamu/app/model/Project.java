@@ -1,5 +1,10 @@
 package edu.tamu.app.model;
 
+import static javax.persistence.CascadeType.DETACH;
+import static javax.persistence.CascadeType.MERGE;
+import static javax.persistence.CascadeType.PERSIST;
+import static javax.persistence.CascadeType.REFRESH;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -14,7 +19,7 @@ public class Project extends ValidatingBaseEntity {
     @Column(unique = true, nullable = false)
     private String name;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = { DETACH, REFRESH, MERGE, PERSIST })
     private VersionManagementSoftware versionManagementSoftware;
 
     public Project() {
