@@ -25,31 +25,31 @@ public class AppWebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer
         registry.setApplicationDestinationPrefixes("/ws");
         registry.setUserDestinationPrefix("/private");
     }
-     
-     /**
-      * {@inheritDoc}
-      */
-     @Override
-     public void configureClientInboundChannel(ChannelRegistration registration) {
-         registration.taskExecutor().corePoolSize(16).maxPoolSize(Integer.MAX_VALUE);
-     }
 
-     /**
-      * {@inheritDoc}
-      */
-     @Override
-     public void configureWebSocketTransport(WebSocketTransportRegistration registration) {
-         registration.setMessageSizeLimit(Integer.MAX_VALUE);
-         registration.setSendBufferSizeLimit(Integer.MAX_VALUE);
-         registration.setSendTimeLimit(2 * 10 * 10000);
-     }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        registration.taskExecutor().corePoolSize(16).maxPoolSize(Integer.MAX_VALUE);
+    }
 
-     /**
-      * {@inheritDoc}
-      */
-     @Override
-     public void registerStompEndpoints(StompEndpointRegistry registry) {
-         registry.addEndpoint("/connect").setAllowedOrigins("*").withSockJS();
-     }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void configureWebSocketTransport(WebSocketTransportRegistration registration) {
+        registration.setMessageSizeLimit(Integer.MAX_VALUE);
+        registration.setSendBufferSizeLimit(Integer.MAX_VALUE);
+        registration.setSendTimeLimit(2 * 10 * 10000);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void registerStompEndpoints(StompEndpointRegistry registry) {
+        registry.addEndpoint("/connect").setAllowedOrigins("*").withSockJS();
+    }
 
 }

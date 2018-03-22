@@ -13,12 +13,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import edu.tamu.app.WebServerInit;
 import edu.tamu.app.enums.Role;
 import edu.tamu.app.model.repo.UserRepo;
 import edu.tamu.weaver.auth.model.Credentials;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest()
+@SpringBootTest(classes = { WebServerInit.class })
 public class UserTest {
 
     @Autowired
