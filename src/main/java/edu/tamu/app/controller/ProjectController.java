@@ -65,4 +65,13 @@ public class ProjectController {
         projectRepo.delete(project);
         return new ApiResponse(SUCCESS);
     }
+
+    @RequestMapping(value = "/{id}", method = RequestMethod.POST)
+    @PreAuthorize("hasRole('MANAGER')")
+    public ApiResponse pushRequest(@PathVariable Long id) {
+        // Project project = projectRepo.findOne(id);
+
+        return new ApiResponse(SUCCESS);
+    }
+
 }

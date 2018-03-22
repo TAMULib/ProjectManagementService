@@ -14,11 +14,11 @@ import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
 import edu.tamu.app.enums.ServiceType;
-import edu.tamu.weaver.data.model.BaseEntity;
+import edu.tamu.app.model.validation.ManagementServiceValidator;
+import edu.tamu.weaver.validation.model.ValidatingBaseEntity;
 
-// TODO: change to an abstract class
 @MappedSuperclass
-public abstract class ManagementService extends BaseEntity {
+public abstract class ManagementService extends ValidatingBaseEntity {
 
     @Column
     protected String name;
@@ -32,6 +32,7 @@ public abstract class ManagementService extends BaseEntity {
 
     public ManagementService() {
         super();
+        this.modelValidator = new ManagementServiceValidator();
         settings = new ArrayList<ManagementSetting>();
     }
 
