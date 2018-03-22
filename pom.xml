@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>edu.tamu</groupId>
   <artifactId>project-management-service</artifactId>
-  <version>2.0.0</version>
+  <version>1.0.0</version>
 
   <name>Project-Management-Service</name>
   <description>A Webservice to manage Projects</description>
