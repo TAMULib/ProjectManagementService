@@ -57,6 +57,7 @@ public class ProjectControllerTest {
         when(credentials.getUin()).thenReturn("123456789");
         when(projectRepo.findAll()).thenReturn(mockProjectList);
         when(projectRepo.create(any(Project.class))).thenReturn(TEST_PROJECT1);
+        when(projectRepo.findOne(any(Long.class))).thenReturn(TEST_PROJECT1);
         when(projectRepo.update(any(Project.class))).thenReturn(TEST_MODIFIED_PROJECT);
         doNothing().when(projectRepo).delete(any(Project.class));
     }
@@ -68,6 +69,14 @@ public class ProjectControllerTest {
         assertEquals("Not successful at getting requested Project", SUCCESS, response.getMeta().getStatus());
         List<Project> projects = (List<Project>) response.getPayload().get("ArrayList<Project>");
         assertEquals("Did not get the expected Projects", mockProjectList, projects);
+    }
+
+    @Test
+    public void testGetProjectById() {
+        response = projectController.getOne(1L);
+        assertEquals("Not successful at getting requested Project", SUCCESS, response.getMeta().getStatus());
+        Project project = (Project) response.getPayload().get("Project");
+        assertEquals("Did not get the expected Project", TEST_PROJECT1, project);
     }
 
     @Test
