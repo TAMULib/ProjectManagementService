@@ -28,42 +28,26 @@ public class VersionOneService implements VersionManagementSoftwareBean {
 
     @Override
     public Object push(ProjectRequest request) {
-        String scopeQueryUrl = getUrl() + "/rest-1.v1/Data/Scope?Accept=application/json&sel=Name&find=" + request.getProject().getName() + "&findin=Name";
+        request.setId(getProjectScopeId(request.getProject()));
+        return restTemplate.postForObject(craftDataRequestUrl(), templateService.templateRequest(request), Object.class);
+    }
 
-        System.out.println("\n\n" + scopeQueryUrl + "\n\n");
-
+    private String getProjectScopeId(String projectName) {
+        String scopeQueryUrl = craftScopeQueryUrl(projectName);
         JsonNode scope = (JsonNode) restTemplate.getForObject(scopeQueryUrl, ObjectNode.class);
-
-        System.out.println("\n\n" + scope + "\n\n");
-
         Optional<String> id = getId(scope);
-
         if (id.isPresent()) {
-
-            request.setId(id.get().replace("Scope:", ""));
-            
-            System.out.println("\n\n" + templateService.templateRequest(request) + "\n\n");
-
-            String requestUrl = getUrl() + "/rest-1.v1/Data/Request";
-            
-            System.out.println("\n\n" + requestUrl + "\n\n");
-            
-            return restTemplate.postForObject(requestUrl, templateService.templateRequest(request), Object.class);
-
+            return id.get().replace("Scope:", "");
         }
-        throw new RuntimeException("Unable to fetch scope for project " + request.getProject().getName());
+        throw new RuntimeException("Unable to fetch scope id for project " + projectName);
     }
 
-    public String getUrl() {
-        return getSettingValue("url");
+    private String craftScopeQueryUrl(String projectName) {
+        return getUrl() + "/rest-1.v1/Data/Scope?Accept=application/json&sel=Name&find=" + projectName + "&findin=Name";
     }
 
-    public String getUsername() {
-        return getSettingValue("username");
-    }
-
-    public String getPassword() {
-        return getSettingValue("password");
+    private String craftDataRequestUrl() {
+        return getUrl() + "/rest-1.v1/Data/Request";
     }
 
     private Optional<String> getId(JsonNode scope) {
@@ -74,7 +58,19 @@ public class VersionOneService implements VersionManagementSoftwareBean {
         }
         return id;
     }
-    
+
+    private String getUrl() {
+        return getSettingValue("url");
+    }
+
+    private String getUsername() {
+        return getSettingValue("username");
+    }
+
+    private String getPassword() {
+        return getSettingValue("password");
+    }
+
     private String getSettingValue(String key) {
         return hasSettingValues(key) ? managementService.getSettingValues(key).get(0) : "";
     }

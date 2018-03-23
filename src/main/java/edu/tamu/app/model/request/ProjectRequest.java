@@ -2,8 +2,6 @@ package edu.tamu.app.model.request;
 
 import java.io.Serializable;
 
-import edu.tamu.app.model.Project;
-
 public class ProjectRequest implements Serializable {
 
     private static final long serialVersionUID = -7150986466522854974L;
@@ -12,7 +10,7 @@ public class ProjectRequest implements Serializable {
 
     private String description;
 
-    private Project project;
+    private String project;
 
     private String id;
 
@@ -20,7 +18,7 @@ public class ProjectRequest implements Serializable {
         super();
     }
 
-    public ProjectRequest(String title, String description, Project project) {
+    public ProjectRequest(String title, String description, String project) {
         this();
         this.title = title;
         this.description = description;
@@ -43,11 +41,11 @@ public class ProjectRequest implements Serializable {
         this.description = description;
     }
 
-    public Project getProject() {
+    public String getProject() {
         return project;
     }
 
-    public void setProject(Project project) {
+    public void setProject(String project) {
         this.project = project;
     }
 

@@ -99,14 +99,18 @@ public class ProjectController {
 
     @RequestMapping(value = "/request", method = RequestMethod.POST)
     public ApiResponse pushRequest(@RequestBody ProjectRequest request) {
-        Project project = request.getProject();
-        Optional<VersionManagementSoftware> versionManagementSoftware = Optional.ofNullable(project.getVersionManagementSoftware());
+        Optional<Project> project = projectRepo.findByName(request.getProject());
         ApiResponse response;
-        if (versionManagementSoftware.isPresent()) {
-            VersionManagementSoftwareBean versionManagementSoftwareBean = (VersionManagementSoftwareBean) managementBeanRegistry.getService(versionManagementSoftware.get().getName());
-            response = new ApiResponse(SUCCESS, versionManagementSoftwareBean.push(request));
+        if (project.isPresent()) {
+            Optional<VersionManagementSoftware> versionManagementSoftware = Optional.ofNullable(project.get().getVersionManagementSoftware());
+            if (versionManagementSoftware.isPresent()) {
+                VersionManagementSoftwareBean versionManagementSoftwareBean = (VersionManagementSoftwareBean) managementBeanRegistry.getService(versionManagementSoftware.get().getName());
+                response = new ApiResponse(SUCCESS, versionManagementSoftwareBean.push(request));
+            } else {
+                response = new ApiResponse(ERROR, request.getProject() + " project does not have a version management software!");
+            }
         } else {
-            response = new ApiResponse(ERROR, project.getName() + " project does not have a version management software!");
+            response = new ApiResponse(ERROR, "Project " + request.getProject() + " not found!");
         }
         return response;
     }
