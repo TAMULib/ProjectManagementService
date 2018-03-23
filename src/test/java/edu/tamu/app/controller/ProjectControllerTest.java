@@ -34,7 +34,6 @@ import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.model.request.ProjectRequest;
 import edu.tamu.app.service.registry.ManagementBeanRegistry;
 import edu.tamu.app.service.versioning.VersionOneService;
-import edu.tamu.weaver.auth.model.Credentials;
 import edu.tamu.weaver.response.ApiResponse;
 
 @ActiveProfiles("test")
@@ -59,21 +58,17 @@ public class ProjectControllerTest {
     private static ApiResponse response;
 
     @Mock
-    protected static Credentials credentials;
-
-    @Mock
-    protected ProjectRepo projectRepo;
+    private ProjectRepo projectRepo;
 
     @Mock
     private ManagementBeanRegistry managementBeanRegistry;
 
     @InjectMocks
-    protected ProjectController projectController;
+    private ProjectController projectController;
 
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        when(credentials.getUin()).thenReturn("123456789");
         when(projectRepo.findAll()).thenReturn(mockProjectList);
         when(projectRepo.create(any(Project.class))).thenReturn(TEST_PROJECT1);
         when(projectRepo.findOne(any(Long.class))).thenReturn(TEST_PROJECT1);
