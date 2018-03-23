@@ -4,8 +4,10 @@ import static edu.tamu.weaver.response.ApiStatus.SUCCESS;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -16,13 +18,22 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import edu.tamu.app.enums.ServiceType;
+import edu.tamu.app.model.ManagementSetting;
 import edu.tamu.app.model.Project;
-import edu.tamu.app.model.User;
+import edu.tamu.app.model.VersionManagementSoftware;
 import edu.tamu.app.model.repo.ProjectRepo;
+import edu.tamu.app.model.request.ProjectRequest;
 import edu.tamu.app.service.registry.ManagementBeanRegistry;
+import edu.tamu.app.service.versioning.VersionOneService;
 import edu.tamu.weaver.auth.model.Credentials;
 import edu.tamu.weaver.response.ApiResponse;
 
@@ -30,18 +41,22 @@ import edu.tamu.weaver.response.ApiResponse;
 @RunWith(SpringRunner.class)
 public class ProjectControllerTest {
 
-    protected static User TEST_USER1 = new User("123456789");
+    private static final String TEST_PROJECT1_NAME = "Test Project 1 Name";
+    private static final String TEST_PROJECT1_SCOPE = "1000";
+    private static final String TEST_PROJECT2_NAME = "Test Project 2 Name";
+    private static final String TEST_MODIFIED_PROJECT_NAME = "Modified Project Name";
 
-    protected static final String TEST_PROJECT_NAME1 = "Test Project Name 1";
-    protected static final String TEST_PROJECT_NAME2 = "Test Project Name 2";
-    protected static final String TEST_MODIFIED_PROJECT_NAME = "Modified Project Name";
+    private static final VersionManagementSoftware TEST_PROJECT1_VERSION_MANAGERMENT_SOFTWARE = new VersionManagementSoftware("Test Version Management Software", ServiceType.VERSION_ONE, new ArrayList<ManagementSetting>());
 
-    protected static Project TEST_PROJECT1 = new Project(TEST_PROJECT_NAME1);
-    protected static Project TEST_PROJECT2 = new Project(TEST_PROJECT_NAME2);
-    protected static Project TEST_MODIFIED_PROJECT = new Project(TEST_MODIFIED_PROJECT_NAME);
-    protected static List<Project> mockProjectList = new ArrayList<Project>(Arrays.asList(new Project[] { TEST_PROJECT1, TEST_PROJECT2 }));
+    private static Project TEST_PROJECT1 = new Project(TEST_PROJECT1_NAME, TEST_PROJECT1_SCOPE, TEST_PROJECT1_VERSION_MANAGERMENT_SOFTWARE);
 
-    protected static ApiResponse response;
+    private static Project TEST_PROJECT2 = new Project(TEST_PROJECT2_NAME);
+
+    private static Project TEST_MODIFIED_PROJECT = new Project(TEST_MODIFIED_PROJECT_NAME);
+
+    private static List<Project> mockProjectList = new ArrayList<Project>(Arrays.asList(new Project[] { TEST_PROJECT1, TEST_PROJECT2 }));
+
+    private static ApiResponse response;
 
     @Mock
     protected static Credentials credentials;
@@ -56,7 +71,7 @@ public class ProjectControllerTest {
     protected ProjectController projectController;
 
     @Before
-    public void setUp() {
+    public void setup() {
         MockitoAnnotations.initMocks(this);
         when(credentials.getUin()).thenReturn("123456789");
         when(projectRepo.findAll()).thenReturn(mockProjectList);
@@ -92,7 +107,7 @@ public class ProjectControllerTest {
     @Test
     public void testUpdate() {
         response = projectController.updateProject(TEST_MODIFIED_PROJECT);
-        assertEquals("Note successful at updating Project", SUCCESS, response.getMeta().getStatus());
+        assertEquals("Not successful at updating Project", SUCCESS, response.getMeta().getStatus());
         Project project = (Project) response.getPayload().get("Project");
         assertEquals("Project title was not properly updated", TEST_MODIFIED_PROJECT.getName(), project.getName());
     }
@@ -104,8 +119,17 @@ public class ProjectControllerTest {
     }
 
     @Test
-    public void testPushRequest() {
-
+    public void testPushRequest() throws JsonProcessingException, IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode expectedResponse = objectMapper.readTree(new ClassPathResource("mock/response.json").getInputStream());
+        VersionOneService versionOneService = mock(VersionOneService.class);
+        when(versionOneService.push(any(ProjectRequest.class))).thenReturn(expectedResponse);
+        when(managementBeanRegistry.getService(any(String.class))).thenReturn(versionOneService);
+        ProjectRequest request = new ProjectRequest("Test Request", "This is only a test!", 1L, "7869");
+        response = projectController.pushRequest(request);
+        assertEquals("Pushing request was not successful!", SUCCESS, response.getMeta().getStatus());
+        JsonNode actualResponse = objectMapper.convertValue(response.getPayload().get("ObjectNode"), JsonNode.class);
+        assertEquals("Response of push to version one not as expected!", expectedResponse, actualResponse);
     }
 
 }

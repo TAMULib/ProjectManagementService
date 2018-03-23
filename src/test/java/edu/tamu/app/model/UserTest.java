@@ -28,8 +28,8 @@ public class UserTest {
     @Autowired
     private UserRepo userRepo;
 
-    protected static final Credentials TEST_CREDENTIALS = new Credentials();
-    {
+    private static final Credentials TEST_CREDENTIALS = new Credentials();
+    static {
         TEST_CREDENTIALS.setUin("123456789");
         TEST_CREDENTIALS.setEmail("aggieJack@tamu.edu");
         TEST_CREDENTIALS.setFirstName("Aggie");

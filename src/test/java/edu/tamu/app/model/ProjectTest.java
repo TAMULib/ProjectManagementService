@@ -21,6 +21,7 @@ import edu.tamu.app.model.repo.ProjectRepo;
 public class ProjectTest {
 
     private static final String TEST_PROJECT_NAME = "Test Project Name";
+
     private static final String TEST_ALTERNATE_PROJECT_NAME = "Alternate Project Name";
 
     @Autowired
