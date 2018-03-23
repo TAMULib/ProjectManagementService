@@ -15,7 +15,7 @@ public class TemplateService {
     @Autowired
     private SpringTemplateEngine templateEngine;
 
-    public String templateRequest(ProjectRequest request) {
+    public String craftVersionOneXmlRequestBody(ProjectRequest request) {
         return templateEngine.process("request", createContext("request", request));
     }
 

@@ -32,18 +32,19 @@ public class ProjectInitialization implements CommandLineRunner {
 
         // TODO: remove all the following
 
-        List<ManagementSetting> settings = new ArrayList<ManagementSetting>();
-
-        settings.add(new ManagementSetting("url", "https://www15.v1host.com/TexasAMLibrary"));
-
-        settings.add(new ManagementSetting("username", ""));
-        settings.add(new ManagementSetting("password", ""));
+        List<ManagementSetting> settings = new ArrayList<ManagementSetting>() {
+            private static final long serialVersionUID = 2020874481642498006L;
+            {
+                add(new ManagementSetting("url", "http://localhost:9101/TexasAMLibrary"));
+                add(new ManagementSetting("username", "username"));
+                add(new ManagementSetting("password", "password"));
+            }
+        };
 
         VersionManagementSoftware versionManagementSoftware = new VersionManagementSoftware("Version One", ServiceType.VERSION_ONE, settings);
 
         Project project = projectRepo.create(new Project("Cap", "7869", versionManagementSoftware));
 
         managementBeanRegistry.register(project, versionManagementSoftware);
-
     }
 }

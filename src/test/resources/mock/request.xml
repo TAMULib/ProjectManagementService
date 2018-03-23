@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<Asset href="/TexasAMLibrary/rest-1.v1/New/Request">
+  <Attribute name="Name" act="set">Test Request</Attribute>
+  <Attribute name="Description" act="set">This is a test description!</Attribute>
+  <Relation name="Scope" act="set">
+    <Asset idref="Scope:1000" href="/TexasAMLibrary/rest-1.v1/Data/Scope/1000"/>
+  </Relation>
+</Asset>

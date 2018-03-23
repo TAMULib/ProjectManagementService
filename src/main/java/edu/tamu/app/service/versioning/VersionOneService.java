@@ -23,7 +23,7 @@ public class VersionOneService implements VersionManagementSoftwareBean {
 
     @Override
     public Object push(ProjectRequest request) {
-        return restTemplate.postForObject(craftDataRequestUrl(), templateService.templateRequest(request), Object.class);
+        return restTemplate.postForObject(craftDataRequestUrl(), templateService.craftVersionOneXmlRequestBody(request), Object.class);
     }
 
     private String craftDataRequestUrl() {

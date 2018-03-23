@@ -25,6 +25,11 @@ public class ProjectRequest implements Serializable {
         this.projectId = projectId;
     }
 
+    public ProjectRequest(String title, String description, Long projectId, String scopeId) {
+        this(title, description, projectId);
+        this.scopeId = scopeId;
+    }
+
     public String getTitle() {
         return title;
     }

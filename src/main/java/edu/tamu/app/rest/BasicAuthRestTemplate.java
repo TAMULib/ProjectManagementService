@@ -11,6 +11,7 @@ import org.springframework.web.client.RestTemplate;
 public class BasicAuthRestTemplate extends RestTemplate {
 
     private String username;
+
     private String password;
 
     public BasicAuthRestTemplate(String username, String password) {
