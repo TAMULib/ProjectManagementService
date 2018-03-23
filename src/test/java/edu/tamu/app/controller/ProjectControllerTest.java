@@ -20,9 +20,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import edu.tamu.app.model.Project;
-import edu.tamu.app.model.User;
 import edu.tamu.app.model.repo.ProjectRepo;
-import edu.tamu.weaver.auth.model.Credentials;
 import edu.tamu.weaver.response.ApiResponse;
 
 @ActiveProfiles("test")
@@ -36,13 +34,9 @@ public class ProjectControllerTest {
     private static Project TEST_PROJECT1 = new Project(TEST_PROJECT_NAME1);
     private static Project TEST_PROJECT2 = new Project(TEST_PROJECT_NAME2);
     private static Project TEST_MODIFIED_PROJECT = new Project(TEST_MODIFIED_PROJECT_NAME);
-    private static List<Project> mockProjectList = new ArrayList<Project>(
-            Arrays.asList(new Project[] { TEST_PROJECT1, TEST_PROJECT2 }));
+    private static List<Project> mockProjectList = new ArrayList<Project>(Arrays.asList(new Project[] { TEST_PROJECT1, TEST_PROJECT2 }));
 
     private static ApiResponse response;
-
-    @Mock
-    private static Credentials credentials;
 
     @Mock
     private ProjectRepo projectRepo;
@@ -53,7 +47,6 @@ public class ProjectControllerTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        when(credentials.getUin()).thenReturn("123456789");
         when(projectRepo.findAll()).thenReturn(mockProjectList);
         when(projectRepo.create(any(Project.class))).thenReturn(TEST_PROJECT1);
         when(projectRepo.findOne(any(Long.class))).thenReturn(TEST_PROJECT1);
