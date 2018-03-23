@@ -35,9 +35,9 @@ public class ProjectInitialization implements CommandLineRunner {
         List<ManagementSetting> settings = new ArrayList<ManagementSetting>() {
             private static final long serialVersionUID = 2020874481642498006L;
             {
-                add(new ManagementSetting("url", "http://localhost:9101/TexasAMLibrary"));
-                add(new ManagementSetting("username", "username"));
-                add(new ManagementSetting("password", "password"));
+                add(new ManagementSetting("url", "https://www15.v1host.com/TexasAMLibrary"));
+                add(new ManagementSetting("username", ""));
+                add(new ManagementSetting("password", ""));
             }
         };
 

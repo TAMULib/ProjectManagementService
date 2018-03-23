@@ -1,5 +1,7 @@
 package edu.tamu.app.service.versioning;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.tamu.app.model.ManagementService;
@@ -43,11 +45,11 @@ public class VersionOneService implements VersionManagementSoftwareBean {
     }
 
     private String getSettingValue(String key) {
-        return hasSettingValues(key) ? managementService.getSettingValues(key).get(0) : "";
-    }
-
-    private boolean hasSettingValues(String key) {
-        return managementService.getSettingValues(key) != null && managementService.getSettingValues(key).size() > 0;
+        Optional<String> setting = managementService.getSettingValue(key);
+        if (setting.isPresent()) {
+            return setting.get();
+        }
+        throw new RuntimeException("No setting " + key + " found in settings for service " + managementService.getName());
     }
 
 }

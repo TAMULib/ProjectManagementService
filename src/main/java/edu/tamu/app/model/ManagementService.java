@@ -2,6 +2,7 @@ package edu.tamu.app.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -74,11 +75,11 @@ public abstract class ManagementService extends ValidatingBaseEntity {
         this.settings = settings;
     }
 
-    public List<String> getSettingValues(String key) {
-        List<String> targetSetting = null;
+    public Optional<String> getSettingValue(String key) {
+        Optional<String> targetSetting = Optional.empty();
         for (ManagementSetting setting : settings) {
             if (setting.getKey().equals(key)) {
-                targetSetting = setting.getValues();
+                targetSetting = Optional.of(setting.getValue());
                 break;
             }
         }
