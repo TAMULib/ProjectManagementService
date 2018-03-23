@@ -102,7 +102,7 @@ public class ProjectController {
     }
 
     @RequestMapping(value = "/request", method = RequestMethod.POST)
-    @PreAuthorize("hasRole('ANONYMOUS')")
+    @PreAuthorize("hasRole('MANAGER')")
     public ApiResponse pushRequest(@RequestBody ProjectRequest request) {
         Optional<Project> project = Optional.ofNullable(projectRepo.findOne(request.getProjectId()));
         ApiResponse response;
@@ -126,7 +126,7 @@ public class ProjectController {
     }
 
     @RequestMapping(value = "/{vmsId}/version-projects", method = RequestMethod.GET)
-    @PreAuthorize("hasRole('ANONYMOUS')")
+    @PreAuthorize("hasRole('MANAGER')")
     public ApiResponse getAllVersionProjects(@PathVariable Long vmsId) {
         Optional<VersionManagementSoftware> vms = Optional.ofNullable(versionManagementSoftwareRepo.findOne(vmsId));
         ApiResponse response;
@@ -144,7 +144,7 @@ public class ProjectController {
     }
 
     @RequestMapping(value = "/{vmsId}/version-projects/{scopeId}", method = RequestMethod.GET)
-    @PreAuthorize("hasRole('ANONYMOUS')")
+    @PreAuthorize("hasRole('MANAGER')")
     public ApiResponse getVersionProjectByScopeId(@PathVariable Long vmsId, @PathVariable String scopeId) {
         Optional<VersionManagementSoftware> vms = Optional.ofNullable(versionManagementSoftwareRepo.findOne(vmsId));
         ApiResponse response;
