@@ -1,0 +1,26 @@
+{
+  "_type":"Asset",
+  "href":"/TexasAMLibrary/rest-1.v1/Data/Request/8143/29695",
+  "id":"Request:8143:29695",
+  "Attributes":{
+    "Name":{
+      "_type":"Attribute",
+      "name":"Name",
+      "value":"Test Request"
+    },
+    "Description":{
+      "_type":"Attribute",
+      "name":"Description",
+      "value":"This is only a test!"
+    },
+    "Scope":{
+      "_type":"Relation",
+      "name":"Scope",
+      "value":{
+        "_type":"Asset",
+        "href":"/TexasAMLibrary/rest-1.v1/Data/Scope/7869",
+        "idref":"Scope:7869"
+      }
+    }
+  }
+}

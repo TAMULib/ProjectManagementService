@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Asset href="/TexasAMLibrary/rest-1.v1/New/Request">
+  <Attribute name="Name" act="set" th:text="${request.title}"></Attribute>
+  <Attribute name="Description" act="set" th:text="${request.description}"></Attribute>
+  <Relation name="Scope" act="set">
+    <Asset th:href="${'/TexasAMLibrary/rest-1.v1/Data/Scope/' + request.scopeId}" th:attr="idref=${'Scope:' + request.scopeId}"/>
+  </Relation>
+</Asset>

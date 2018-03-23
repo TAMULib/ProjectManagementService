@@ -2,6 +2,7 @@ package edu.tamu.app.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -12,6 +13,8 @@ import javax.persistence.OneToMany;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import edu.tamu.app.enums.ServiceType;
 import edu.tamu.app.model.validation.ManagementServiceValidator;
@@ -28,6 +31,7 @@ public abstract class ManagementService extends ValidatingBaseEntity {
 
     @OneToMany(fetch = FetchType.EAGER, cascade = { CascadeType.DETACH, CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.REMOVE }, orphanRemoval = true)
     @Fetch(FetchMode.SELECT)
+    @JsonIgnore
     protected List<ManagementSetting> settings;
 
     public ManagementService() {
@@ -71,11 +75,11 @@ public abstract class ManagementService extends ValidatingBaseEntity {
         this.settings = settings;
     }
 
-    public List<String> getSettingValues(String key) {
-        List<String> targetSetting = null;
+    public Optional<String> getSettingValue(String key) {
+        Optional<String> targetSetting = Optional.empty();
         for (ManagementSetting setting : settings) {
             if (setting.getKey().equals(key)) {
-                targetSetting = setting.getValues();
+                targetSetting = Optional.of(setting.getValue());
                 break;
             }
         }

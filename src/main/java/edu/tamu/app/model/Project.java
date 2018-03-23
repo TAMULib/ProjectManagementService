@@ -1,5 +1,10 @@
 package edu.tamu.app.model;
 
+import static javax.persistence.CascadeType.DETACH;
+import static javax.persistence.CascadeType.MERGE;
+import static javax.persistence.CascadeType.PERSIST;
+import static javax.persistence.CascadeType.REFRESH;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -14,7 +19,10 @@ public class Project extends ValidatingBaseEntity {
     @Column(unique = true, nullable = false)
     private String name;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @Column(nullable = true)
+    private String scopeId;
+
+    @ManyToOne(fetch = FetchType.EAGER, cascade = { DETACH, REFRESH, MERGE, PERSIST }, optional = true)
     private VersionManagementSoftware versionManagementSoftware;
 
     public Project() {
@@ -31,12 +39,25 @@ public class Project extends ValidatingBaseEntity {
         this.versionManagementSoftware = versionManagementSoftware;
     }
 
+    public Project(String name, String scopeId, VersionManagementSoftware versionManagementSoftware) {
+        this(name, versionManagementSoftware);
+        this.scopeId = scopeId;
+    }
+
     public String getName() {
         return name;
     }
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getScopeId() {
+        return scopeId;
+    }
+
+    public void setScopeId(String scopeId) {
+        this.scopeId = scopeId;
     }
 
     public VersionManagementSoftware getVersionManagementSoftware() {
