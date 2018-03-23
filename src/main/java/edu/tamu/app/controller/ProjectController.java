@@ -77,6 +77,26 @@ public class ProjectController {
         return new ApiResponse(SUCCESS);
     }
 
+    @RequestMapping(value = "/issue", method = RequestMethod.POST)
+    @PreAuthorize("hasRole('ANONYMOUS')")
+    public ApiResponse submitIssueRequest(@RequestBody ProjectRequest request) {
+        // Project project = projectRepo.findOne(request.getProject());
+        // TODO: push directly to Ticket Managment Software
+        ApiResponse response;
+        response = new ApiResponse(SUCCESS, "Feature not implemented yet!");
+        return response;
+    }
+
+    @RequestMapping(value = "/feature", method = RequestMethod.POST)
+    @PreAuthorize("hasRole('ANONYMOUS')")
+    public ApiResponse submitFeatureRequest(@RequestBody ProjectRequest request) {
+        // Project project = projectRepo.findOne(request.getProject());
+        // TODO: persist as an idea
+        ApiResponse response;
+        response = new ApiResponse(SUCCESS, "Feature not implemented yet!");
+        return response;
+    }
+
     @RequestMapping(value = "/request", method = RequestMethod.POST)
     @PreAuthorize("hasRole('MANAGER')")
     public ApiResponse pushRequest(@RequestBody ProjectRequest request) {
