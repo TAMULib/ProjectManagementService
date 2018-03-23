@@ -106,12 +106,16 @@ public class ProjectController {
             if (versionManagementSoftware.isPresent()) {
                 VersionManagementSoftwareBean versionManagementSoftwareBean = (VersionManagementSoftwareBean) managementBeanRegistry.getService(versionManagementSoftware.get().getName());
                 request.setScopeId(project.get().getScopeId());
-                response = new ApiResponse(SUCCESS, versionManagementSoftwareBean.push(request));
+                try {
+                    response = new ApiResponse(SUCCESS, versionManagementSoftwareBean.push(request));
+                } catch (Exception e) {
+                    response = new ApiResponse(ERROR, "Error pushing request to " + versionManagementSoftware.get().getName() + " for project " + project.get().getName() + "!");
+                }
             } else {
-                response = new ApiResponse(ERROR, request.getProjectId() + " project does not have a version management software!");
+                response = new ApiResponse(ERROR, project.get().getName() + " project does not have a version management software!");
             }
         } else {
-            response = new ApiResponse(ERROR, "Project " + request.getProjectId() + " not found!");
+            response = new ApiResponse(ERROR, "Project with id " + request.getProjectId() + " not found!");
         }
         return response;
     }
