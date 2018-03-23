@@ -13,6 +13,7 @@ import edu.tamu.app.model.ManagementSetting;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.VersionManagementSoftware;
 import edu.tamu.app.model.repo.ProjectRepo;
+import edu.tamu.app.model.repo.VersionManagementSoftwareRepo;
 import edu.tamu.app.service.registry.ManagementBeanRegistry;
 
 @Component
@@ -24,6 +25,9 @@ public class ProjectInitialization implements CommandLineRunner {
 
     @Autowired
     private ProjectRepo projectRepo;
+
+    @Autowired
+    private VersionManagementSoftwareRepo versionManagementSoftwareRepo;
 
     @Override
     public void run(String... args) throws Exception {
@@ -41,7 +45,7 @@ public class ProjectInitialization implements CommandLineRunner {
             }
         };
 
-        VersionManagementSoftware versionManagementSoftware = new VersionManagementSoftware("Version One", ServiceType.VERSION_ONE, settings);
+        VersionManagementSoftware versionManagementSoftware = versionManagementSoftwareRepo.create(new VersionManagementSoftware("Version One", ServiceType.VERSION_ONE, settings));
 
         Project project = projectRepo.create(new Project("Cap", "7869", versionManagementSoftware));
 

@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.VersionManagementSoftware;
 import edu.tamu.app.model.repo.ProjectRepo;
+import edu.tamu.app.model.repo.VersionManagementSoftwareRepo;
 import edu.tamu.app.model.request.ProjectRequest;
 import edu.tamu.app.service.registry.ManagementBeanRegistry;
 import edu.tamu.app.service.versioning.VersionManagementSoftwareBean;
@@ -37,6 +38,9 @@ public class ProjectController {
 
     @Autowired
     private ManagementBeanRegistry managementBeanRegistry;
+
+    @Autowired
+    private VersionManagementSoftwareRepo versionManagementSoftwareRepo;
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -121,25 +125,38 @@ public class ProjectController {
         return response;
     }
 
-    @RequestMapping(value = "/{projectId}/version-managed", method = RequestMethod.GET)
+    @RequestMapping(value = "/{vmsId}/version-projects", method = RequestMethod.GET)
     @PreAuthorize("hasRole('ANONYMOUS')")
-    public ApiResponse getAllManagedProjects(@PathVariable Long projectId) {
-        Optional<Project> project = Optional.ofNullable(projectRepo.findOne(projectId));
+    public ApiResponse getAllVersionProjects(@PathVariable Long vmsId) {
+        Optional<VersionManagementSoftware> vms = Optional.ofNullable(versionManagementSoftwareRepo.findOne(vmsId));
         ApiResponse response;
-        if (project.isPresent()) {
-            Optional<VersionManagementSoftware> versionManagementSoftware = Optional.ofNullable(project.get().getVersionManagementSoftware());
-            if (versionManagementSoftware.isPresent()) {
-                VersionManagementSoftwareBean versionManagementSoftwareBean = (VersionManagementSoftwareBean) managementBeanRegistry.getService(versionManagementSoftware.get().getName());
-                try {
-                    response = new ApiResponse(SUCCESS, versionManagementSoftwareBean.getProjects());
-                } catch (Exception e) {
-                    response = new ApiResponse(ERROR, "Error pushing request to " + versionManagementSoftware.get().getName() + " for project " + project.get().getName() + "!");
-                }
-            } else {
-                response = new ApiResponse(ERROR, project.get().getName() + " project does not have a version management software!");
+        if (vms.isPresent()) {
+            VersionManagementSoftwareBean versionManagementSoftwareBean = (VersionManagementSoftwareBean) managementBeanRegistry.getService(vms.get().getName());
+            try {
+                response = new ApiResponse(SUCCESS, versionManagementSoftwareBean.getVersionProjects());
+            } catch (Exception e) {
+                response = new ApiResponse(ERROR, "Error fetching version projects from " + vms.get().getName() + "!");
             }
         } else {
-            response = new ApiResponse(ERROR, "Project with id " + projectId + " not found!");
+            response = new ApiResponse(ERROR, "Version Management Software with id " + vmsId + " not found!");
+        }
+        return response;
+    }
+
+    @RequestMapping(value = "/{vmsId}/version-projects/{scopeId}", method = RequestMethod.GET)
+    @PreAuthorize("hasRole('ANONYMOUS')")
+    public ApiResponse getVersionProjectByScopeId(@PathVariable Long vmsId, @PathVariable String scopeId) {
+        Optional<VersionManagementSoftware> vms = Optional.ofNullable(versionManagementSoftwareRepo.findOne(vmsId));
+        ApiResponse response;
+        if (vms.isPresent()) {
+            VersionManagementSoftwareBean versionManagementSoftwareBean = (VersionManagementSoftwareBean) managementBeanRegistry.getService(vms.get().getName());
+            try {
+                response = new ApiResponse(SUCCESS, versionManagementSoftwareBean.getVersionProjectByScopeId(scopeId));
+            } catch (Exception e) {
+                response = new ApiResponse(ERROR, "Error fetching version project with scope id " + scopeId + " from " + vms.get().getName() + "!");
+            }
+        } else {
+            response = new ApiResponse(ERROR, "Version Management Software with id " + vmsId + " not found!");
         }
         return response;
     }

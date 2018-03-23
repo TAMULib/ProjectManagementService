@@ -1,16 +1,16 @@
 package edu.tamu.app.service.versioning;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.app.model.ManagementService;
 import edu.tamu.app.model.request.ProjectRequest;
+import edu.tamu.app.model.response.VersionProject;
 import edu.tamu.app.rest.BasicAuthRestTemplate;
 import edu.tamu.app.service.TemplateService;
 
@@ -23,18 +23,28 @@ public class VersionOneService implements VersionManagementSoftwareBean {
     @Autowired
     private TemplateService templateService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
     public VersionOneService(ManagementService managementService) {
         this.managementService = managementService;
         this.restTemplate = new BasicAuthRestTemplate(getUsername(), getPassword());
     }
 
     @Override
-    public List<JsonNode> getProjects() {
-        JsonNode response = restTemplate.getForObject(craftProjectQueryUrl(), JsonNode.class);
-        return objectMapper.convertValue(response.get("Assets"), new TypeReference<List<JsonNode>>() {});
+    public List<VersionProject> getVersionProjects() {
+        List<VersionProject> versionProjects = new ArrayList<VersionProject>();
+        JsonNode response = restTemplate.getForObject(craftProjectsQueryUrl(), JsonNode.class);
+        response.get("Assets").forEach(asset -> {
+            String name = getVersionProjectName(asset);
+            String scopeId = getVersionProjectScopeId(asset);
+            versionProjects.add(new VersionProject(name, scopeId));
+        });
+        return versionProjects;
+    }
+
+    @Override
+    public VersionProject getVersionProjectByScopeId(String scopeId) {
+        JsonNode asset = restTemplate.getForObject(craftProjectByScopeIdQueryUrl(scopeId), JsonNode.class);
+        String name = getVersionProjectName(asset);
+        return new VersionProject(name, scopeId);
     }
 
     @Override
@@ -42,12 +52,24 @@ public class VersionOneService implements VersionManagementSoftwareBean {
         return restTemplate.postForObject(craftDataRequestUrl(), templateService.craftVersionOneXmlRequestBody(request), JsonNode.class);
     }
 
-    private String craftProjectQueryUrl() {
+    private String craftProjectsQueryUrl() {
         return getUrl() + "/rest-1.v1/Data/Scope?Accept=application/json&sel=Name";
+    }
+
+    private String craftProjectByScopeIdQueryUrl(String scopeId) {
+        return getUrl() + "/rest-1.v1/Data/Scope/" + scopeId + "?Accept=application/json&sel=Name";
     }
 
     private String craftDataRequestUrl() {
         return getUrl() + "/rest-1.v1/Data/Request";
+    }
+
+    private String getVersionProjectName(JsonNode asset) {
+        return asset.get("Attributes").get("Name").get("value").asText();
+    }
+
+    private String getVersionProjectScopeId(JsonNode asset) {
+        return asset.get("id").asText().replaceAll("Scope:", "");
     }
 
     private String getUrl() {

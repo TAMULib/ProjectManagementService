@@ -25,6 +25,7 @@ import edu.tamu.app.model.ManagementSetting;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.VersionManagementSoftware;
 import edu.tamu.app.model.repo.ProjectRepo;
+import edu.tamu.app.model.repo.VersionManagementSoftwareRepo;
 import edu.tamu.app.model.request.ProjectRequest;
 import edu.tamu.app.service.registry.ManagementBeanRegistry;
 import edu.tamu.app.service.versioning.VersionOneService;
@@ -41,6 +42,9 @@ public class VersionOneServiceTest {
     private ProjectRepo projectRepo;
 
     @Autowired
+    private VersionManagementSoftwareRepo versionManagementSoftwareRepo;
+
+    @Autowired
     private ObjectMapper objectMapper;
 
     @Test
@@ -53,8 +57,7 @@ public class VersionOneServiceTest {
                 add(new ManagementSetting("password", "password"));
             }
         };
-
-        VersionManagementSoftware versionManagementSoftware = new VersionManagementSoftware("Version One", ServiceType.VERSION_ONE, settings);
+        VersionManagementSoftware versionManagementSoftware = versionManagementSoftwareRepo.create(new VersionManagementSoftware("Version One", ServiceType.VERSION_ONE, settings));
 
         Project project = projectRepo.create(new Project("Cap", "7869", versionManagementSoftware));
 
@@ -74,6 +77,7 @@ public class VersionOneServiceTest {
     @After
     public void cleanup() {
         projectRepo.deleteAll();
+        versionManagementSoftwareRepo.deleteAll();
     }
 
 }

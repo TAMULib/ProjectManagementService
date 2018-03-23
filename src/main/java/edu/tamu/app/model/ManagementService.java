@@ -1,18 +1,19 @@
 package edu.tamu.app.model;
 
+import static javax.persistence.CascadeType.ALL;
+import static javax.persistence.FetchType.EAGER;
+import static org.hibernate.annotations.FetchMode.SELECT;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.OneToMany;
 
 import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -29,8 +30,8 @@ public abstract class ManagementService extends ValidatingBaseEntity {
     @Enumerated
     protected ServiceType type;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = { CascadeType.DETACH, CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.REMOVE }, orphanRemoval = true)
-    @Fetch(FetchMode.SELECT)
+    @OneToMany(fetch = EAGER, cascade = ALL, orphanRemoval = true)
+    @Fetch(SELECT)
     @JsonIgnore
     protected List<ManagementSetting> settings;
 
