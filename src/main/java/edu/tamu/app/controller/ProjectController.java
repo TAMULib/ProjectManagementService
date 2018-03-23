@@ -98,6 +98,7 @@ public class ProjectController {
     }
 
     @RequestMapping(value = "/request", method = RequestMethod.POST)
+    @PreAuthorize("hasRole('ANONYMOUS')")
     public ApiResponse pushRequest(@RequestBody ProjectRequest request) {
         Optional<Project> project = Optional.ofNullable(projectRepo.findOne(request.getProjectId()));
         ApiResponse response;
@@ -116,6 +117,29 @@ public class ProjectController {
             }
         } else {
             response = new ApiResponse(ERROR, "Project with id " + request.getProjectId() + " not found!");
+        }
+        return response;
+    }
+
+    @RequestMapping(value = "/{projectId}/version-managed", method = RequestMethod.GET)
+    @PreAuthorize("hasRole('ANONYMOUS')")
+    public ApiResponse getAllManagedProjects(@PathVariable Long projectId) {
+        Optional<Project> project = Optional.ofNullable(projectRepo.findOne(projectId));
+        ApiResponse response;
+        if (project.isPresent()) {
+            Optional<VersionManagementSoftware> versionManagementSoftware = Optional.ofNullable(project.get().getVersionManagementSoftware());
+            if (versionManagementSoftware.isPresent()) {
+                VersionManagementSoftwareBean versionManagementSoftwareBean = (VersionManagementSoftwareBean) managementBeanRegistry.getService(versionManagementSoftware.get().getName());
+                try {
+                    response = new ApiResponse(SUCCESS, versionManagementSoftwareBean.getProjects());
+                } catch (Exception e) {
+                    response = new ApiResponse(ERROR, "Error pushing request to " + versionManagementSoftware.get().getName() + " for project " + project.get().getName() + "!");
+                }
+            } else {
+                response = new ApiResponse(ERROR, project.get().getName() + " project does not have a version management software!");
+            }
+        } else {
+            response = new ApiResponse(ERROR, "Project with id " + projectId + " not found!");
         }
         return response;
     }
