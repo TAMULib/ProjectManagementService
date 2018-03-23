@@ -13,6 +13,8 @@ import javax.persistence.OneToMany;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import edu.tamu.app.enums.ServiceType;
 import edu.tamu.app.model.validation.ManagementServiceValidator;
 import edu.tamu.weaver.validation.model.ValidatingBaseEntity;
@@ -28,6 +30,7 @@ public abstract class ManagementService extends ValidatingBaseEntity {
 
     @OneToMany(fetch = FetchType.EAGER, cascade = { CascadeType.DETACH, CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.REMOVE }, orphanRemoval = true)
     @Fetch(FetchMode.SELECT)
+    @JsonIgnore
     protected List<ManagementSetting> settings;
 
     public ManagementService() {

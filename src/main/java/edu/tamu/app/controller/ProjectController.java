@@ -78,9 +78,8 @@ public class ProjectController {
     }
 
     @RequestMapping(value = "/request", method = RequestMethod.POST)
-    @PreAuthorize("hasRole('MANAGER')")
     public ApiResponse pushRequest(@RequestBody ProjectRequest request) {
-        Project project = projectRepo.findOne(request.getProject());
+        Project project = request.getProject();
         Optional<VersionManagementSoftware> versionManagementSoftware = Optional.ofNullable(project.getVersionManagementSoftware());
         ApiResponse response;
         if (versionManagementSoftware.isPresent()) {
