@@ -1,0 +1,12 @@
+{
+  "_type":"Asset",
+  "href":"/TexasAMLibrary/rest-1.v1/Data/Scope/7869",
+  "id":"Scope:7869",
+  "Attributes":{
+    "Name":{
+      "_type":"Attribute",
+      "name":"Name",
+      "value":"Cap"
+    }
+  }
+}

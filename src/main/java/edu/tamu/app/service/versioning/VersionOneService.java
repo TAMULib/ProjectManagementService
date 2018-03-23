@@ -1,6 +1,5 @@
 package edu.tamu.app.service.versioning;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,6 +12,7 @@ import edu.tamu.app.model.request.ProjectRequest;
 import edu.tamu.app.model.response.VersionProject;
 import edu.tamu.app.rest.BasicAuthRestTemplate;
 import edu.tamu.app.service.TemplateService;
+import edu.tamu.app.utility.JsonNodeUtility;
 
 public class VersionOneService implements VersionManagementSoftwareBean {
 
@@ -30,20 +30,14 @@ public class VersionOneService implements VersionManagementSoftwareBean {
 
     @Override
     public List<VersionProject> getVersionProjects() {
-        List<VersionProject> versionProjects = new ArrayList<VersionProject>();
         JsonNode response = restTemplate.getForObject(craftProjectsQueryUrl(), JsonNode.class);
-        response.get("Assets").forEach(asset -> {
-            String name = getVersionProjectName(asset);
-            String scopeId = getVersionProjectScopeId(asset);
-            versionProjects.add(new VersionProject(name, scopeId));
-        });
-        return versionProjects;
+        return JsonNodeUtility.getVersionProjects(response.get("Assets"));
     }
 
     @Override
     public VersionProject getVersionProjectByScopeId(String scopeId) {
         JsonNode asset = restTemplate.getForObject(craftProjectByScopeIdQueryUrl(scopeId), JsonNode.class);
-        String name = getVersionProjectName(asset);
+        String name = JsonNodeUtility.getVersionProjectName(asset);
         return new VersionProject(name, scopeId);
     }
 
@@ -62,14 +56,6 @@ public class VersionOneService implements VersionManagementSoftwareBean {
 
     private String craftDataRequestUrl() {
         return getUrl() + "/rest-1.v1/Data/Request";
-    }
-
-    private String getVersionProjectName(JsonNode asset) {
-        return asset.get("Attributes").get("Name").get("value").asText();
-    }
-
-    private String getVersionProjectScopeId(JsonNode asset) {
-        return asset.get("id").asText().replaceAll("Scope:", "");
     }
 
     private String getUrl() {
