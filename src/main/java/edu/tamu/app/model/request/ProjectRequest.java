@@ -10,19 +10,19 @@ public class ProjectRequest implements Serializable {
 
     private String description;
 
-    private String project;
+    private Long projectId;
 
-    private String id;
+    private String scopeId;
 
     public ProjectRequest() {
         super();
     }
 
-    public ProjectRequest(String title, String description, String project) {
+    public ProjectRequest(String title, String description, Long projectId) {
         this();
         this.title = title;
         this.description = description;
-        this.project = project;
+        this.projectId = projectId;
     }
 
     public String getTitle() {
@@ -41,20 +41,20 @@ public class ProjectRequest implements Serializable {
         this.description = description;
     }
 
-    public String getProject() {
-        return project;
+    public Long getProjectId() {
+        return projectId;
     }
 
-    public void setProject(String project) {
-        this.project = project;
+    public void setProjectId(Long projectId) {
+        this.projectId = projectId;
     }
 
-    public String getId() {
-        return id;
+    public String getScopeId() {
+        return scopeId;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setScopeId(String scopeId) {
+        this.scopeId = scopeId;
     }
 
 }

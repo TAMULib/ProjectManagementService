@@ -28,20 +28,20 @@ public class ProjectInitialization implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
-        // TODO: get the management software entity from the projects or database
+        // TODO: register beans for management services that are persisted
+
+        // TODO: remove all the following
 
         List<ManagementSetting> settings = new ArrayList<ManagementSetting>();
 
         settings.add(new ManagementSetting("url", "https://www15.v1host.com/TexasAMLibrary"));
-        
+
         settings.add(new ManagementSetting("username", ""));
         settings.add(new ManagementSetting("password", ""));
 
         VersionManagementSoftware versionManagementSoftware = new VersionManagementSoftware("Version One", ServiceType.VERSION_ONE, settings);
 
-        // TODO: loop over persisted projects and register their management software entity beans
-
-        Project project = projectRepo.create(new Project("Cap", versionManagementSoftware));
+        Project project = projectRepo.create(new Project("Cap", "7869", versionManagementSoftware));
 
         managementBeanRegistry.register(project, versionManagementSoftware);
 

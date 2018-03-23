@@ -3,6 +3,6 @@
    <Attribute name="Name" act="set" th:text="${request.title}"></Attribute>
    <Attribute name="Description" act="set" th:text="${request.description}"></Attribute>
    <Relation name="Scope" act="set">
-      <Asset th:href="${'/TexasAMLibrary/rest-1.v1/Data/Scope/' + request.id}" th:attr="idref=${'Scope:' + request.id}" />
+      <Asset th:href="${'/TexasAMLibrary/rest-1.v1/Data/Scope/' + request.scopeId}" th:attr="idref=${'Scope:' + request.scopeId}" />
    </Relation>
 </Asset>
