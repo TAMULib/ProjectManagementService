@@ -22,8 +22,10 @@ import edu.tamu.app.model.Project;
 import edu.tamu.app.model.VersionManagementSoftware;
 import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.model.repo.VersionManagementSoftwareRepo;
-import edu.tamu.app.model.request.ProjectRequest;
+import edu.tamu.app.model.request.FeatureRequest;
+import edu.tamu.app.model.request.TicketRequest;
 import edu.tamu.app.service.registry.ManagementBeanRegistry;
+import edu.tamu.app.service.ticketing.SugarService;
 import edu.tamu.app.service.versioning.VersionManagementSoftwareBean;
 import edu.tamu.weaver.response.ApiResponse;
 import edu.tamu.weaver.validation.aspect.annotation.WeaverValidatedModel;
@@ -41,6 +43,9 @@ public class ProjectController {
 
     @Autowired
     private VersionManagementSoftwareRepo versionManagementSoftwareRepo;
+
+    @Autowired
+    private SugarService sugarService;
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -83,17 +88,15 @@ public class ProjectController {
 
     @RequestMapping(value = "/issue", method = RequestMethod.POST)
     @PreAuthorize("hasRole('ANONYMOUS')")
-    public ApiResponse submitIssueRequest(@RequestBody ProjectRequest request) {
-        // Project project = projectRepo.findOne(request.getProject());
-        // TODO: push directly to Ticket Management Software
-        ApiResponse response;
-        response = new ApiResponse(SUCCESS, "Feature not implemented yet!");
-        return response;
+    public ApiResponse submitIssueRequest(@RequestBody TicketRequest request) {
+        return new ApiResponse(SUCCESS, sugarService.submit(request));
     }
+
+    // TODO: following endpoint will have to whitelist from LSSS application
 
     @RequestMapping(value = "/feature", method = RequestMethod.POST)
     @PreAuthorize("hasRole('MANAGER')")
-    public ApiResponse pushRequest(@RequestBody ProjectRequest request) {
+    public ApiResponse pushRequest(@RequestBody FeatureRequest request) {
         Optional<Project> project = Optional.ofNullable(projectRepo.findOne(request.getProjectId()));
         ApiResponse response;
         if (project.isPresent()) {

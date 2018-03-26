@@ -27,7 +27,7 @@ import edu.tamu.app.model.Project;
 import edu.tamu.app.model.VersionManagementSoftware;
 import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.model.repo.VersionManagementSoftwareRepo;
-import edu.tamu.app.model.request.ProjectRequest;
+import edu.tamu.app.model.request.FeatureRequest;
 import edu.tamu.app.model.response.VersionProject;
 import edu.tamu.app.service.registry.ManagementBeanRegistry;
 import edu.tamu.app.service.versioning.VersionOneService;
@@ -56,7 +56,7 @@ public class VersionOneServiceTest {
 
     private VersionOneService versionOneService;
 
-    private ProjectRequest request;
+    private FeatureRequest request;
 
     @Before
     public void setup() {
@@ -72,7 +72,7 @@ public class VersionOneServiceTest {
         project = projectRepo.create(new Project("Cap", "7869", versionManagementSoftware));
         managementBeanRegistry.register(project, versionManagementSoftware);
         versionOneService = (VersionOneService) managementBeanRegistry.getService(versionManagementSoftware.getName());
-        request = new ProjectRequest("Test Request", "This is only a test!", 1L, "7869");
+        request = new FeatureRequest("Test Request", "This is only a test!", 1L, "7869");
     }
 
     @Test

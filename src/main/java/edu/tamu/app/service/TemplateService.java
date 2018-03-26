@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring4.SpringTemplateEngine;
 
-import edu.tamu.app.model.request.ProjectRequest;
+import edu.tamu.app.model.request.FeatureRequest;
 
 @Service
 public class TemplateService {
@@ -15,7 +15,7 @@ public class TemplateService {
     @Autowired
     private SpringTemplateEngine templateEngine;
 
-    public String craftVersionOneXmlRequestBody(ProjectRequest request) {
+    public String craftVersionOneXmlRequestBody(FeatureRequest request) {
         return templateEngine.process("request", createContext("request", request));
     }
 

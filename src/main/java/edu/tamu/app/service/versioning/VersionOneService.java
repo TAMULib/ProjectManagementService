@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import edu.tamu.app.model.ManagementService;
-import edu.tamu.app.model.request.ProjectRequest;
+import edu.tamu.app.model.request.FeatureRequest;
 import edu.tamu.app.model.response.VersionProject;
 import edu.tamu.app.rest.BasicAuthRestTemplate;
 import edu.tamu.app.service.TemplateService;
@@ -42,7 +42,7 @@ public class VersionOneService implements VersionManagementSoftwareBean {
     }
 
     @Override
-    public JsonNode push(ProjectRequest request) {
+    public JsonNode push(FeatureRequest request) {
         return restTemplate.postForObject(craftDataRequestUrl(), templateService.craftVersionOneXmlRequestBody(request), JsonNode.class);
     }
 
