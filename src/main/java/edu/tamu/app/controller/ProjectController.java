@@ -92,16 +92,6 @@ public class ProjectController {
     }
 
     @RequestMapping(value = "/feature", method = RequestMethod.POST)
-    @PreAuthorize("hasRole('ANONYMOUS')")
-    public ApiResponse submitFeatureRequest(@RequestBody ProjectRequest request) {
-        // Project project = projectRepo.findOne(request.getProject());
-        // TODO: persist as an idea
-        ApiResponse response;
-        response = new ApiResponse(SUCCESS, "Feature not implemented yet!");
-        return response;
-    }
-
-    @RequestMapping(value = "/request", method = RequestMethod.POST)
     @PreAuthorize("hasRole('MANAGER')")
     public ApiResponse pushRequest(@RequestBody ProjectRequest request) {
         Optional<Project> project = Optional.ofNullable(projectRepo.findOne(request.getProjectId()));
