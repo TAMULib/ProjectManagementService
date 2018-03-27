@@ -4,9 +4,11 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,9 +26,12 @@ import edu.tamu.app.enums.ServiceType;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.VersionManagementSoftware;
 import edu.tamu.app.model.repo.ProjectRepo;
-import edu.tamu.app.model.request.ProjectRequest;
+import edu.tamu.app.model.repo.VersionManagementSoftwareRepo;
+import edu.tamu.app.model.request.FeatureRequest;
+import edu.tamu.app.model.response.VersionProject;
 import edu.tamu.app.service.registry.ManagementBeanRegistry;
 import edu.tamu.app.service.versioning.VersionOneService;
+import edu.tamu.app.utility.JsonNodeUtility;
 
 @ActiveProfiles("test")
 @RunWith(SpringRunner.class)
@@ -40,35 +45,68 @@ public class VersionOneServiceTest {
     private ProjectRepo projectRepo;
 
     @Autowired
+    private VersionManagementSoftwareRepo versionManagementSoftwareRepo;
+
+    @Autowired
     private ObjectMapper objectMapper;
 
-    @Test
-    public void testPush() throws IOException {
+    private VersionManagementSoftware versionManagementSoftware;
+
+    private Project project;
+
+    private VersionOneService versionOneService;
+
+    private FeatureRequest request;
+
+    @Before
+    public void setup() {
         Map<String, String> settings = new HashMap<String, String>();
         settings.put("url", "http://localhost:9101/TexasAMLibrary");
         settings.put("username", "username");
         settings.put("password", "password");
 
-        VersionManagementSoftware versionManagementSoftware = new VersionManagementSoftware("Version One", ServiceType.VERSION_ONE, settings);
-
-        Project project = projectRepo.create(new Project("Cap", "7869", versionManagementSoftware));
-
+        versionManagementSoftware = versionManagementSoftwareRepo.create(new VersionManagementSoftware("Version One", ServiceType.VERSION_ONE, settings));
+        project = projectRepo.create(new Project("Cap", "7869", versionManagementSoftware));
         managementBeanRegistry.register(project, versionManagementSoftware);
+        versionOneService = (VersionOneService) managementBeanRegistry.getService(versionManagementSoftware.getName());
+        request = new FeatureRequest("Test Request", "This is only a test!", 1L, "7869");
+    }
 
-        VersionOneService versionOneService = (VersionOneService) managementBeanRegistry.getService(versionManagementSoftware.getName());
-
-        ProjectRequest request = new ProjectRequest("Test Request", "This is only a test!", 1L, "7869");
-
+    @Test
+    public void testPush() throws IOException {
         JsonNode actualResponse = objectMapper.convertValue(versionOneService.push(request), JsonNode.class);
-
         JsonNode expectedResponse = objectMapper.readTree(new ClassPathResource("mock/response.json").getInputStream());
-
         assertEquals("Response of push to version one not as expected!", expectedResponse, actualResponse);
+    }
+
+    @Test
+    public void testGetVersionProjects() throws IOException {
+        List<VersionProject> projects = versionOneService.getVersionProjects();
+        JsonNode expectedResponse = objectMapper.readTree(new ClassPathResource("mock/projects.json").getInputStream());
+        JsonNode assets = expectedResponse.get("Assets");
+        for (int i = 0; i < projects.size(); i++) {
+            assertVersionProject(projects.get(i), assets.get(i));
+        }
+    }
+
+    @Test
+    public void testGetVersionProjectByScopeId() throws IOException {
+        VersionProject project = versionOneService.getVersionProjectByScopeId("7869");
+        JsonNode asset = objectMapper.readTree(new ClassPathResource("mock/project.json").getInputStream());
+        assertVersionProject(project, asset);
+    }
+
+    private void assertVersionProject(VersionProject project, JsonNode asset) {
+        String name = JsonNodeUtility.getVersionProjectName(asset);
+        String scopeId = JsonNodeUtility.getVersionProjectScopeId(asset);
+        assertEquals("Version project had the incorrect name!", name, project.getName());
+        assertEquals("Version project had the incorrect scope id!", scopeId, project.getScopeId());
     }
 
     @After
     public void cleanup() {
         projectRepo.deleteAll();
+        versionManagementSoftwareRepo.deleteAll();
     }
 
 }

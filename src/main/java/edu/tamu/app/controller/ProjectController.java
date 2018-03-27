@@ -21,8 +21,11 @@ import org.springframework.web.bind.annotation.RestController;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.VersionManagementSoftware;
 import edu.tamu.app.model.repo.ProjectRepo;
-import edu.tamu.app.model.request.ProjectRequest;
+import edu.tamu.app.model.repo.VersionManagementSoftwareRepo;
+import edu.tamu.app.model.request.FeatureRequest;
+import edu.tamu.app.model.request.TicketRequest;
 import edu.tamu.app.service.registry.ManagementBeanRegistry;
+import edu.tamu.app.service.ticketing.SugarService;
 import edu.tamu.app.service.versioning.VersionManagementSoftwareBean;
 import edu.tamu.weaver.response.ApiResponse;
 import edu.tamu.weaver.validation.aspect.annotation.WeaverValidatedModel;
@@ -37,6 +40,12 @@ public class ProjectController {
 
     @Autowired
     private ManagementBeanRegistry managementBeanRegistry;
+
+    @Autowired
+    private VersionManagementSoftwareRepo versionManagementSoftwareRepo;
+
+    @Autowired
+    private SugarService sugarService;
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -79,26 +88,15 @@ public class ProjectController {
 
     @RequestMapping(value = "/issue", method = RequestMethod.POST)
     @PreAuthorize("hasRole('ANONYMOUS')")
-    public ApiResponse submitIssueRequest(@RequestBody ProjectRequest request) {
-        // Project project = projectRepo.findOne(request.getProject());
-        // TODO: push directly to Ticket Management Software
-        ApiResponse response;
-        response = new ApiResponse(SUCCESS, "Feature not implemented yet!");
-        return response;
+    public ApiResponse submitIssueRequest(@RequestBody TicketRequest request) {
+        return new ApiResponse(SUCCESS, sugarService.submit(request));
     }
+
+    // TODO: following endpoint will have to whitelist from LSSS application
 
     @RequestMapping(value = "/feature", method = RequestMethod.POST)
-    @PreAuthorize("hasRole('ANONYMOUS')")
-    public ApiResponse submitFeatureRequest(@RequestBody ProjectRequest request) {
-        // Project project = projectRepo.findOne(request.getProject());
-        // TODO: persist as an idea
-        ApiResponse response;
-        response = new ApiResponse(SUCCESS, "Feature not implemented yet!");
-        return response;
-    }
-
-    @RequestMapping(value = "/request", method = RequestMethod.POST)
-    public ApiResponse pushRequest(@RequestBody ProjectRequest request) {
+    @PreAuthorize("hasRole('MANAGER')")
+    public ApiResponse pushRequest(@RequestBody FeatureRequest request) {
         Optional<Project> project = Optional.ofNullable(projectRepo.findOne(request.getProjectId()));
         ApiResponse response;
         if (project.isPresent()) {
@@ -116,6 +114,42 @@ public class ProjectController {
             }
         } else {
             response = new ApiResponse(ERROR, "Project with id " + request.getProjectId() + " not found!");
+        }
+        return response;
+    }
+
+    @RequestMapping(value = "/{vmsId}/version-projects", method = RequestMethod.GET)
+    @PreAuthorize("hasRole('MANAGER')")
+    public ApiResponse getAllVersionProjects(@PathVariable Long vmsId) {
+        Optional<VersionManagementSoftware> vms = Optional.ofNullable(versionManagementSoftwareRepo.findOne(vmsId));
+        ApiResponse response;
+        if (vms.isPresent()) {
+            VersionManagementSoftwareBean versionManagementSoftwareBean = (VersionManagementSoftwareBean) managementBeanRegistry.getService(vms.get().getName());
+            try {
+                response = new ApiResponse(SUCCESS, versionManagementSoftwareBean.getVersionProjects());
+            } catch (Exception e) {
+                response = new ApiResponse(ERROR, "Error fetching version projects from " + vms.get().getName() + "!");
+            }
+        } else {
+            response = new ApiResponse(ERROR, "Version Management Software with id " + vmsId + " not found!");
+        }
+        return response;
+    }
+
+    @RequestMapping(value = "/{vmsId}/version-projects/{scopeId}", method = RequestMethod.GET)
+    @PreAuthorize("hasRole('MANAGER')")
+    public ApiResponse getVersionProjectByScopeId(@PathVariable Long vmsId, @PathVariable String scopeId) {
+        Optional<VersionManagementSoftware> vms = Optional.ofNullable(versionManagementSoftwareRepo.findOne(vmsId));
+        ApiResponse response;
+        if (vms.isPresent()) {
+            VersionManagementSoftwareBean versionManagementSoftwareBean = (VersionManagementSoftwareBean) managementBeanRegistry.getService(vms.get().getName());
+            try {
+                response = new ApiResponse(SUCCESS, versionManagementSoftwareBean.getVersionProjectByScopeId(scopeId));
+            } catch (Exception e) {
+                response = new ApiResponse(ERROR, "Error fetching version project with scope id " + scopeId + " from " + vms.get().getName() + "!");
+            }
+        } else {
+            response = new ApiResponse(ERROR, "Version Management Software with id " + vmsId + " not found!");
         }
         return response;
     }

@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
 import edu.tamu.app.ProjectApplication;
-import edu.tamu.app.model.request.ProjectRequest;
+import edu.tamu.app.model.request.FeatureRequest;
 
 @ActiveProfiles("test")
 @RunWith(SpringRunner.class)
@@ -35,7 +35,7 @@ public class TemplateServiceTest {
     @Test
     public void testCraftVersionOneXmlRequestBody() throws JsonParseException, JsonMappingException, IOException {
         String mockBody = StreamUtils.copyToString(new ClassPathResource("mock/request.xml").getInputStream(), Charset.defaultCharset());
-        ProjectRequest request = new ProjectRequest("Test Request", "This is a test description!", 1L, "1000");
+        FeatureRequest request = new FeatureRequest("Test Request", "This is a test description!", 1L, "1000");
         String body = templateService.craftVersionOneXmlRequestBody(request);
         XmlMapper xmlMapper = new XmlMapper();
         JsonNode value = (JsonNode) xmlMapper.readValue(body, ObjectNode.class);

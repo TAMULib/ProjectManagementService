@@ -2,12 +2,11 @@ package edu.tamu.app.model;
 
 import static javax.persistence.CascadeType.DETACH;
 import static javax.persistence.CascadeType.MERGE;
-import static javax.persistence.CascadeType.PERSIST;
 import static javax.persistence.CascadeType.REFRESH;
+import static javax.persistence.FetchType.EAGER;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 
 import edu.tamu.app.model.validation.ProjectValidator;
@@ -22,7 +21,7 @@ public class Project extends ValidatingBaseEntity {
     @Column(nullable = true)
     private String scopeId;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = { DETACH, REFRESH, MERGE, PERSIST }, optional = true)
+    @ManyToOne(fetch = EAGER, cascade = { DETACH, REFRESH, MERGE }, optional = true)
     private VersionManagementSoftware versionManagementSoftware;
 
     public Project() {
