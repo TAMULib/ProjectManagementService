@@ -70,6 +70,8 @@ public class ProjectTest {
             private static final long serialVersionUID = 2020874481642498006L;
             {
                 put("url", "https://localhost:9101/TexasAMLibrary");
+                put("username", "username");
+                put("password", "password");
             }
         };
 

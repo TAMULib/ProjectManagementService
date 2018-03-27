@@ -10,7 +10,6 @@ import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.stereotype.Service;
 
 import edu.tamu.app.model.ManagementService;
-import edu.tamu.app.model.Project;
 import edu.tamu.app.service.versioning.VersionOneService;
 
 @Service
@@ -27,7 +26,7 @@ public class ManagementBeanRegistry {
         services = new HashMap<String, ManagementBean>();
     }
 
-    public void register(Project project, ManagementService managementService) {
+    public void register(ManagementService managementService) {
 
         logger.info("Registering service: " + managementService.getName());
 
