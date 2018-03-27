@@ -1,22 +1,20 @@
 package edu.tamu.app.model;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.Convert;
+import javax.persistence.ElementCollection;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.MappedSuperclass;
-import javax.persistence.OneToMany;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import edu.tamu.app.enums.ServiceType;
+import edu.tamu.app.model.converter.CryptoConverter;
 import edu.tamu.app.model.validation.ManagementServiceValidator;
 import edu.tamu.weaver.validation.model.ValidatingBaseEntity;
 
@@ -29,15 +27,15 @@ public abstract class ManagementService extends ValidatingBaseEntity {
     @Enumerated
     protected ServiceType type;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = { CascadeType.DETACH, CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.REMOVE }, orphanRemoval = true)
+    @ElementCollection
     @Fetch(FetchMode.SELECT)
-    @JsonIgnore
-    protected List<ManagementSetting> settings;
+    @Convert(attributeName = "value", converter = CryptoConverter.class)
+    protected Map<String, String> settings;
 
     public ManagementService() {
         super();
         this.modelValidator = new ManagementServiceValidator();
-        settings = new ArrayList<ManagementSetting>();
+        settings = new HashMap<String, String>();
     }
 
     public ManagementService(String name, ServiceType type) {
@@ -46,7 +44,7 @@ public abstract class ManagementService extends ValidatingBaseEntity {
         this.type = type;
     }
 
-    public ManagementService(String name, ServiceType type, List<ManagementSetting> settings) {
+    public ManagementService(String name, ServiceType type, Map<String, String> settings) {
         this(name, type);
         this.settings = settings;
     }
@@ -67,17 +65,17 @@ public abstract class ManagementService extends ValidatingBaseEntity {
         this.type = type;
     }
 
-    public List<ManagementSetting> getSettings() {
+    public Map<String, String> getSettings() {
         return settings;
     }
 
-    public void setSettings(List<ManagementSetting> settings) {
+    public void setSettings(HashMap<String, String> settings) {
         this.settings = settings;
     }
 
     public Optional<String> getSettingValue(String key) {
         Optional<String> targetSetting = Optional.empty();
-        for (ManagementSetting setting : settings) {
+        for (Map.Entry<String, String> setting : settings.entrySet()) {
             if (setting.getKey().equals(key)) {
                 targetSetting = Optional.of(setting.getValue());
                 break;

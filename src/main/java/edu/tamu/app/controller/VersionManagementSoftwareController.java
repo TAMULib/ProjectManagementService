@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import edu.tamu.app.enums.ServiceType;
 import edu.tamu.app.model.VersionManagementSoftware;
 import edu.tamu.app.model.repo.VersionManagementSoftwareRepo;
 import edu.tamu.weaver.response.ApiResponse;
@@ -45,6 +46,7 @@ public class VersionManagementSoftwareController {
     @PreAuthorize("hasRole('USER')")
     @WeaverValidation(business = { @WeaverValidation.Business(value = CREATE) })
     public ApiResponse createVersionManagementSoftware(@WeaverValidatedModel VersionManagementSoftware vms) {
+        logger.info("Model: " + vms.toString());
         logger.info("Creating Version Management Software: " + vms.getName());
         return new ApiResponse(SUCCESS, vmsRepo.create(vms));
     }
@@ -64,6 +66,19 @@ public class VersionManagementSoftwareController {
         logger.info("Deleting Version Management Software: " + vms.getName());
         vmsRepo.delete(vms);
         return new ApiResponse(SUCCESS);
+    }
+
+    @RequestMapping(value = "/types", method = RequestMethod.GET)
+    @PreAuthorize("hasRole('USER')")
+    public ApiResponse getTypes() {
+        return new ApiResponse(SUCCESS, ServiceType.map());
+    }
+
+    @RequestMapping(value = "/scaffolding/{type}", method = RequestMethod.GET)
+    @PreAuthorize("hasRole('USER')")
+    public ApiResponse getTypeScaffolding(@PathVariable String type) {
+        ServiceType serviceType = ServiceType.valueOf(type);
+        return new ApiResponse(SUCCESS, serviceType.getScaffold());
     }
 
 }
