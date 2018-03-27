@@ -3,8 +3,9 @@ package edu.tamu.app.service;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.After;
 import org.junit.Before;
@@ -22,8 +23,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.app.ProjectApplication;
 import edu.tamu.app.enums.ServiceType;
-import edu.tamu.app.model.ManagementSetting;
-import edu.tamu.app.model.Project;
 import edu.tamu.app.model.VersionManagementSoftware;
 import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.model.repo.VersionManagementSoftwareRepo;
@@ -52,25 +51,18 @@ public class VersionOneServiceTest {
 
     private VersionManagementSoftware versionManagementSoftware;
 
-    private Project project;
-
     private VersionOneService versionOneService;
 
     private FeatureRequest request;
 
     @Before
     public void setup() {
-        List<ManagementSetting> settings = new ArrayList<ManagementSetting>() {
-            private static final long serialVersionUID = 2020874481642498006L;
-            {
-                add(new ManagementSetting("url", "http://localhost:9101/TexasAMLibrary"));
-                add(new ManagementSetting("username", "username"));
-                add(new ManagementSetting("password", "password"));
-            }
-        };
+        Map<String, String> settings = new HashMap<String, String>();
+        settings.put("url", "http://localhost:9101/TexasAMLibrary");
+        settings.put("username", "username");
+        settings.put("password", "password");
         versionManagementSoftware = versionManagementSoftwareRepo.create(new VersionManagementSoftware("Version One", ServiceType.VERSION_ONE, settings));
-        project = projectRepo.create(new Project("Cap", "7869", versionManagementSoftware));
-        managementBeanRegistry.register(project, versionManagementSoftware);
+        managementBeanRegistry.register(versionManagementSoftware);
         versionOneService = (VersionOneService) managementBeanRegistry.getService(versionManagementSoftware.getName());
         request = new FeatureRequest("Test Request", "This is only a test!", 1L, "7869");
     }

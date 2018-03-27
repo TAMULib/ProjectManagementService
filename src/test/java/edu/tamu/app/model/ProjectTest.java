@@ -2,8 +2,8 @@ package edu.tamu.app.model;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.After;
 import org.junit.Test;
@@ -66,10 +66,12 @@ public class ProjectTest {
 
     @Test
     public void testAssociateVersionManagementSoftware() {
-        List<ManagementSetting> settings = new ArrayList<ManagementSetting>() {
+        Map<String, String> settings = new HashMap<String, String>() {
             private static final long serialVersionUID = 2020874481642498006L;
             {
-                add(new ManagementSetting("url", "https://localhost:9101/TexasAMLibrary"));
+                put("url", "https://localhost:9101/TexasAMLibrary");
+                put("username", "username");
+                put("password", "password");
             }
         };
 
@@ -80,8 +82,7 @@ public class ProjectTest {
         project = projectRepo.save(project);
         assertEquals("Project has the incorrect name!", TEST_ALTERNATE_PROJECT_NAME, project.getName());
         assertEquals("Project has the incorrect version management software name!", TEST_VERSION_MANAGEMENT_SOFTWARE_NAME, project.getVersionManagementSoftware().getName());
-        assertEquals("Project has the incorrect version management software url setting key!", "url", project.getVersionManagementSoftware().getSettings().get(0).getKey());
-        assertEquals("Project has the incorrect version management software url setting value!", "https://localhost:9101/TexasAMLibrary", project.getVersionManagementSoftware().getSettings().get(0).getValue());
+        assertEquals("Project has the incorrect version management software url setting value!", "https://localhost:9101/TexasAMLibrary", project.getVersionManagementSoftware().getSettings().get("url"));
     }
 
     @Test
