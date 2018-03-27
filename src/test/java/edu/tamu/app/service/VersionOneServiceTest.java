@@ -3,8 +3,8 @@ package edu.tamu.app.service;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.After;
 import org.junit.Test;
@@ -21,7 +21,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.app.ProjectApplication;
 import edu.tamu.app.enums.ServiceType;
-import edu.tamu.app.model.ManagementSetting;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.VersionManagementSoftware;
 import edu.tamu.app.model.repo.ProjectRepo;
@@ -45,14 +44,10 @@ public class VersionOneServiceTest {
 
     @Test
     public void testPush() throws IOException {
-        List<ManagementSetting> settings = new ArrayList<ManagementSetting>() {
-            private static final long serialVersionUID = 2020874481642498006L;
-            {
-                add(new ManagementSetting("url", "http://localhost:9101/TexasAMLibrary"));
-                add(new ManagementSetting("username", "username"));
-                add(new ManagementSetting("password", "password"));
-            }
-        };
+        Map<String, String> settings = new HashMap<String, String>();
+        settings.put("url", "http://localhost:9101/TexasAMLibrary");
+        settings.put("username", "username");
+        settings.put("password", "password");
 
         VersionManagementSoftware versionManagementSoftware = new VersionManagementSoftware("Version One", ServiceType.VERSION_ONE, settings);
 
