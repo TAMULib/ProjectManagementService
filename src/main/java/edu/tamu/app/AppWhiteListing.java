@@ -25,6 +25,9 @@ public class AppWhiteListing {
                 break;
             }
         }
+        if(!allow) {
+            logger.info("Forbidding non-whitelisted ip " + ip + " for " + req.getRequestURI());
+        }
         return allow;
     }
 
