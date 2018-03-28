@@ -1,5 +1,7 @@
 package edu.tamu.app.model;
 
+import static javax.persistence.FetchType.EAGER;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -27,7 +29,7 @@ public abstract class ManagementService extends ValidatingBaseEntity {
     @Enumerated
     protected ServiceType type;
 
-    @ElementCollection
+    @ElementCollection(fetch = EAGER)
     @Fetch(FetchMode.SELECT)
     @Convert(attributeName = "value", converter = CryptoConverter.class)
     protected Map<String, String> settings;

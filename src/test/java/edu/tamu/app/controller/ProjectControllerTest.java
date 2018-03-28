@@ -131,7 +131,7 @@ public class ProjectControllerTest {
         when(versionOneService.push(any(FeatureRequest.class))).thenReturn(expectedResponse);
         when(managementBeanRegistry.getService(any(String.class))).thenReturn(versionOneService);
         FeatureRequest request = new FeatureRequest("Test Request", "This is only a test!", 1L, "7869");
-        apiResponse = projectController.pushRequest(request);
+        apiResponse = projectController.pushRequest(null, request);
         assertEquals("Pushing request was not successful!", SUCCESS, apiResponse.getMeta().getStatus());
         JsonNode actualResponse = objectMapper.convertValue(apiResponse.getPayload().get("ObjectNode"), JsonNode.class);
         assertEquals("Response of push to version one not as expected!", expectedResponse, actualResponse);
