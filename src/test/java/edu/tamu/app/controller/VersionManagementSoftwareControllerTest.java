@@ -31,20 +31,20 @@ public class VersionManagementSoftwareControllerTest {
     private static final String TEST_VSC_NAME1 = "Test VSC 1";
     private static final String TEST_VSC_NAME2 = "Test VSC 2";
     private static final String TEST_MODIFIED_VSC_NAME = "Modified VSC";
-    
+
     private static VersionManagementSoftware TEST_VMS1 = new VersionManagementSoftware(TEST_VSC_NAME1, ServiceType.VERSION_ONE);
     private static VersionManagementSoftware TEST_VMS2 = new VersionManagementSoftware(TEST_VSC_NAME2, ServiceType.VERSION_ONE);
     private static VersionManagementSoftware TEST_MODIFIED_VSC = new VersionManagementSoftware(TEST_MODIFIED_VSC_NAME, ServiceType.VERSION_ONE);
-    private static List<VersionManagementSoftware> mockVMSList = new ArrayList<VersionManagementSoftware>(Arrays.asList(new VersionManagementSoftware[] {TEST_VMS1, TEST_VMS2}));
+    private static List<VersionManagementSoftware> mockVMSList = new ArrayList<VersionManagementSoftware>(Arrays.asList(new VersionManagementSoftware[] { TEST_VMS1, TEST_VMS2 }));
 
     private static ApiResponse response;
-    
+
     @Mock
     private VersionManagementSoftwareRepo vmsRepo;
-    
+
     @InjectMocks
     private VersionManagementSoftwareController vmsController;
-    
+
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
@@ -54,7 +54,7 @@ public class VersionManagementSoftwareControllerTest {
         when(vmsRepo.update(any(VersionManagementSoftware.class))).thenReturn(TEST_MODIFIED_VSC);
         doNothing().when(vmsRepo).delete(any(VersionManagementSoftware.class));
     }
-    
+
     @Test
     public void testGetAllVersionManagementSoftware() {
         response = vmsController.getAll();
@@ -63,7 +63,7 @@ public class VersionManagementSoftwareControllerTest {
         List<VersionManagementSoftware> vmses = (List<VersionManagementSoftware>) response.getPayload().get("ArrayList<VersionManagementSoftware>");
         assertEquals("Did not get the expected Version Management Statuses", mockVMSList, vmses);
     }
-    
+
     @Test
     public void testGetVersionManagementSoftwareById() {
         response = vmsController.getOne(1L);
@@ -71,13 +71,13 @@ public class VersionManagementSoftwareControllerTest {
         VersionManagementSoftware vms = (VersionManagementSoftware) response.getPayload().get("VersionManagementSoftware");
         assertEquals("Did not get the expected Version Management Software", TEST_VMS1, vms);
     }
-    
+
     @Test
     public void testCreate() {
         response = vmsController.createVersionManagementSoftware(TEST_VMS1);
         assertEquals("Not successful at creating Version Management Software", SUCCESS, response.getMeta().getStatus());
     }
-    
+
     @Test
     public void testUpdate() {
         response = vmsController.updateVersionManagementSoftware(TEST_MODIFIED_VSC);
@@ -85,7 +85,7 @@ public class VersionManagementSoftwareControllerTest {
         VersionManagementSoftware vms = (VersionManagementSoftware) response.getPayload().get("VersionManagementSoftware");
         assertEquals("Version Management Software title was not properly updated", TEST_MODIFIED_VSC.getName(), vms.getName());
     }
-    
+
     @Test
     public void testDelete() {
         response = vmsController.deleteVersionManagementSoftware(TEST_VMS1);

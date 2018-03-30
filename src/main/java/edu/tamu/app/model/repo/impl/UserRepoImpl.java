@@ -23,7 +23,7 @@ public class UserRepoImpl extends AbstractWeaverRepoImpl<User, UserRepo> impleme
 
     @Override
     protected String getChannel() {
-        return "/channel/user";
+        return "/channel/users";
     }
 
 }

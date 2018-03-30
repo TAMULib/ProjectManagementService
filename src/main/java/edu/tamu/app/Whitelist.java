@@ -8,9 +8,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component("whitelist")
-public class AppWhiteListing {
+public class Whitelist {
 
-    private static final Logger logger = LoggerFactory.getLogger(AppWhiteListing.class);
+    private static final Logger logger = LoggerFactory.getLogger(Whitelist.class);
 
     @Value("${app.whitelist}")
     private String[] whitelist;
