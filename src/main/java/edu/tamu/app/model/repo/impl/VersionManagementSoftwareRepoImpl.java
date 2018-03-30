@@ -22,7 +22,7 @@ public class VersionManagementSoftwareRepoImpl extends AbstractWeaverRepoImpl<Ve
 
     @Override
     protected String getChannel() {
-        return "/channel/version-management-softwares";
+        return "/channel/version-management-software";
     }
 
 }
