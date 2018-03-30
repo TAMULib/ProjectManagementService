@@ -9,7 +9,7 @@ public class ManagementServiceValidator extends BaseModelValidator {
     public ManagementServiceValidator() {
         String nameProperty = "name";
         this.addInputValidator(new InputValidator(InputValidationType.required, "A Management service requires a name", nameProperty, true));
-        
+
         String typeProperty = "type";
         this.addInputValidator(new InputValidator(InputValidationType.required, "A Management service requires a type", typeProperty, true));
     }

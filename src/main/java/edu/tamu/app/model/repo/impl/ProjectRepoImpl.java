@@ -9,7 +9,7 @@ public class ProjectRepoImpl extends AbstractWeaverRepoImpl<Project, ProjectRepo
 
     @Override
     protected String getChannel() {
-        return "/channel/project";
+        return "/channel/projects";
     }
 
 }
