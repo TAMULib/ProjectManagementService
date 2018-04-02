@@ -9,6 +9,9 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+
 import edu.tamu.app.model.validation.ProjectValidator;
 import edu.tamu.weaver.validation.model.ValidatingBaseEntity;
 
@@ -18,9 +21,11 @@ public class Project extends ValidatingBaseEntity {
     @Column(unique = true, nullable = false)
     private String name;
 
+    @JsonInclude(Include.NON_NULL)
     @Column(nullable = true)
     private String scopeId;
 
+    @JsonInclude(Include.NON_NULL)
     @ManyToOne(fetch = EAGER, cascade = { DETACH, REFRESH, MERGE }, optional = true)
     private VersionManagementSoftware versionManagementSoftware;
 
