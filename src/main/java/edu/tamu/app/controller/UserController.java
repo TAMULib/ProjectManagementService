@@ -19,7 +19,7 @@ import edu.tamu.weaver.response.ApiResponse;
  * 
  */
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/users")
 public class UserController {
 
     @Autowired
@@ -48,7 +48,7 @@ public class UserController {
      * 
      * @return
      */
-    @RequestMapping("/all")
+    @RequestMapping
     @PreAuthorize("hasRole('MANAGER')")
     public ApiResponse allUsers() {
         return new ApiResponse(SUCCESS, userRepo.findAll());
