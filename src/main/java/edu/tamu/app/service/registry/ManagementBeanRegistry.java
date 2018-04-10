@@ -17,22 +17,16 @@ public class ManagementBeanRegistry {
 
     private static final Logger logger = Logger.getLogger(ManagementBeanRegistry.class);
 
+    private static final Map<String, ManagementBean> services = new HashMap<String, ManagementBean>();
+
     @Autowired
     private AutowireCapableBeanFactory beanFactory;
-
-    private final Map<String, ManagementBean> services;
-
-    public ManagementBeanRegistry() {
-        services = new HashMap<String, ManagementBean>();
-    }
 
     public void register(ManagementService managementService) {
 
         logger.info("Registering service: " + managementService.getName());
 
         Optional<ManagementBean> service = Optional.empty();
-
-        // TODO: devise a way to not have to switch on ServiceType
 
         switch (managementService.getType()) {
         case VERSION_ONE:
