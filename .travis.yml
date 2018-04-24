@@ -1,10 +1,10 @@
-sudo: required
-dist: trusty
 language: java
+
 jdk:
   - oraclejdk8
-  - openjdk8
 
-script:
-  - mvn clean package -Dproduction -DskipTests=true
-  - mvn clean test
+install:
+  - mvn test-compile -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+
+after_success:
+  - mvn clean test cobertura:cobertura jacoco:report coveralls:report
