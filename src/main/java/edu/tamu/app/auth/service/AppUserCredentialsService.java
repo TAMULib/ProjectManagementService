@@ -8,7 +8,6 @@ import edu.tamu.app.enums.Role;
 import edu.tamu.app.model.User;
 import edu.tamu.app.model.repo.UserRepo;
 import edu.tamu.weaver.auth.model.Credentials;
-import edu.tamu.weaver.auth.service.UserCredentialsService;
 
 @Service
 public class AppUserCredentialsService extends UserCredentialsService<User, UserRepo> {
