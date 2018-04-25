@@ -1,5 +1,6 @@
 package edu.tamu.app.controller;
 
+import static edu.tamu.weaver.response.ApiStatus.ERROR;
 import static edu.tamu.weaver.response.ApiStatus.SUCCESS;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
@@ -13,6 +14,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,8 +23,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.web.client.RestClientException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -33,8 +36,11 @@ import edu.tamu.app.model.VersionManagementSoftware;
 import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.model.repo.VersionManagementSoftwareRepo;
 import edu.tamu.app.model.request.FeatureRequest;
+import edu.tamu.app.model.request.TicketRequest;
 import edu.tamu.app.model.response.VersionProject;
 import edu.tamu.app.service.registry.ManagementBeanRegistry;
+import edu.tamu.app.service.ticketing.SugarService;
+import edu.tamu.app.service.versioning.VersionManagementSoftwareBean;
 import edu.tamu.app.service.versioning.VersionOneService;
 import edu.tamu.app.utility.JsonNodeUtility;
 import edu.tamu.weaver.response.ApiResponse;
@@ -55,6 +61,9 @@ public class ProjectControllerTest {
 
     private static Project TEST_MODIFIED_PROJECT = new Project(TEST_MODIFIED_PROJECT_NAME);
 
+    private static TicketRequest TEST_TICKET_REQUEST = new TicketRequest();
+    private static FeatureRequest TEST_INVALID_FEATURE_REQUEST = new FeatureRequest();
+
     private static List<Project> mockProjectList = new ArrayList<Project>(Arrays.asList(new Project[] { TEST_PROJECT1, TEST_PROJECT2 }));
 
     private static ApiResponse apiResponse;
@@ -66,7 +75,16 @@ public class ProjectControllerTest {
     private VersionManagementSoftwareRepo versionManagementSoftwareRepo;
 
     @Mock
+    private SugarService sugarService;
+
+    @Mock
     private ManagementBeanRegistry managementBeanRegistry;
+
+    @Mock
+    private VersionManagementSoftwareBean managementBean;
+
+    @Mock
+    private HttpServletRequest httpServletRequest;
 
     @InjectMocks
     private ProjectController projectController;
@@ -74,6 +92,7 @@ public class ProjectControllerTest {
     private ObjectMapper objectMapper;
 
     @Before
+    @SuppressWarnings("unchecked")
     public void setup() {
         MockitoAnnotations.initMocks(this);
         when(projectRepo.findAll()).thenReturn(mockProjectList);
@@ -82,6 +101,8 @@ public class ProjectControllerTest {
         when(projectRepo.update(any(Project.class))).thenReturn(TEST_MODIFIED_PROJECT);
         when(versionManagementSoftwareRepo.findOne(any(Long.class))).thenReturn(TEST_PROJECT1_VERSION_MANAGERMENT_SOFTWARE);
         doNothing().when(projectRepo).delete(any(Project.class));
+        when(sugarService.submit(any(TicketRequest.class))).thenReturn("Successfully submitted issue for test service!");
+        when(managementBean.push(TEST_INVALID_FEATURE_REQUEST)).thenThrow(RestClientException.class);
         objectMapper = new ObjectMapper();
     }
 
@@ -121,6 +142,12 @@ public class ProjectControllerTest {
         apiResponse = projectController.deleteProject(TEST_PROJECT1);
         assertEquals("Not successful at deleting Project", SUCCESS, apiResponse.getMeta().getStatus());
     }
+    
+    @Test
+    public void testSubmitIssueRequest() {
+        apiResponse = projectController.submitIssueRequest(TEST_TICKET_REQUEST);
+        assertEquals("Not successful at submitting issue request", SUCCESS, apiResponse.getMeta().getStatus());
+    }
 
     @Test
     public void testPushRequest() throws JsonProcessingException, IOException {
@@ -134,6 +161,12 @@ public class ProjectControllerTest {
         assertEquals("Pushing request was not successful!", SUCCESS, apiResponse.getMeta().getStatus());
         JsonNode actualResponse = objectMapper.convertValue(apiResponse.getPayload().get("ObjectNode"), JsonNode.class);
         assertEquals("Response of push to version one not as expected!", expectedResponse, actualResponse);
+    }
+    
+    @Test
+    public void testPushRequestToInvalidVMS() {
+        apiResponse = projectController.pushRequest(httpServletRequest, TEST_INVALID_FEATURE_REQUEST);
+        assertEquals("Invalid push did not throw an exception", ERROR, apiResponse.getMeta().getStatus());
     }
 
     @Test
