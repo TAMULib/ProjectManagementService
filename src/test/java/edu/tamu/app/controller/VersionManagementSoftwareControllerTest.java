@@ -24,7 +24,6 @@ import edu.tamu.app.model.VersionManagementSoftware;
 import edu.tamu.app.model.repo.VersionManagementSoftwareRepo;
 import edu.tamu.weaver.response.ApiResponse;
 
-@ActiveProfiles("test")
 @RunWith(SpringRunner.class)
 public class VersionManagementSoftwareControllerTest {
 

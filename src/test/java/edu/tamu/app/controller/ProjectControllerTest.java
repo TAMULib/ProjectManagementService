@@ -39,7 +39,6 @@ import edu.tamu.app.service.versioning.VersionOneService;
 import edu.tamu.app.utility.JsonNodeUtility;
 import edu.tamu.weaver.response.ApiResponse;
 
-@ActiveProfiles("test")
 @RunWith(SpringRunner.class)
 public class ProjectControllerTest {
 

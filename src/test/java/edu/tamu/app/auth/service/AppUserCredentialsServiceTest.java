@@ -21,7 +21,6 @@ import edu.tamu.app.model.User;
 import edu.tamu.app.model.repo.UserRepo;
 import edu.tamu.weaver.auth.model.Credentials;
 
-@ActiveProfiles("test")
 @RunWith(SpringRunner.class)
 public class AppUserCredentialsServiceTest {
 

@@ -24,7 +24,6 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import edu.tamu.app.ProjectApplication;
 import edu.tamu.app.model.request.FeatureRequest;
 
-@ActiveProfiles("test")
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = { ProjectApplication.class }, webEnvironment = WebEnvironment.DEFINED_PORT)
 public class TemplateServiceTest {
