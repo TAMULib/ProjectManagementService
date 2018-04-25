@@ -12,6 +12,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -74,6 +75,7 @@ public class AppUserCredentialsServiceTest {
 
     @Before
     public void setUp() {
+        MockitoAnnotations.initMocks(this);
         when(userRepo.findByUsername(TEST_CREDENTIALS_1.getUin())).thenReturn(optionalUser1);
         when(userRepo.findByUsername(TEST_CREDENTIALS_2.getUin())).thenReturn(Optional.empty());
         when(userRepo.findByUsername(TEST_CHANGED_CREDENTIALS.getUin())).thenReturn(optionalUser1);
