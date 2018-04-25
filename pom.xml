@@ -131,6 +131,7 @@
             <ignoreTrivial>true</ignoreTrivial>
             <ignores>
               <ignore>java.util.logging.*</ignore>
+              <ignore>edu.tamu.app.config.AppEmailConfig</ignore>
             </ignores>
           </instrumentation>
           <formats>
