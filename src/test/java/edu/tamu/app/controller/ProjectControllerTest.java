@@ -57,6 +57,9 @@ public class ProjectControllerTest {
     private static final String PUSH_ERROR_MESSAGE = "Error pushing request to Test Version Management Software for project Test Project 1 Name!";
     private static final String NO_VMS_ERROR_MESSAGE = "Test Project Without VMS Name project does not have a version management software!";
     private static final String NO_PROJECT_ERROR_MESSAGE = "Project with id null not found!";
+    private static final String INVALID_VMS_ID_ERROR_MESSAGE = "Error fetching version projects from Test Version Management Software!";
+    private static final String MISSING_VMS_ERROR_MESSAGE = "Version Management Software with id null not found!";
+    private static final String INVALID_VMS_ID_ERROR_MESSAGE_FIND_BY_ID = "Error fetching version project with scope id null from Test Version Management Software!";
 
     private static final VersionManagementSoftware TEST_PROJECT1_VERSION_MANAGERMENT_SOFTWARE = new VersionManagementSoftware("Test Version Management Software", ServiceType.VERSION_ONE, new HashMap<String, String>());
 
@@ -168,7 +171,7 @@ public class ProjectControllerTest {
     }
 
     @Test
-    public void testPushRequestToInvalidVMS() {
+    public void testPushRequestToInvalidVms() {
         when(projectRepo.findOne(any(Long.class))).thenReturn(TEST_PROJECT1);
         apiResponse = projectController.pushRequest(null, TEST_INVALID_FEATURE_REQUEST);
         assertEquals("Invalid push did not throw an exception", ERROR, apiResponse.getMeta().getStatus());
@@ -176,7 +179,7 @@ public class ProjectControllerTest {
     }
 
     @Test
-    public void testPushRequestWithoutVMS() {
+    public void testPushRequestWithoutVms() {
         when(projectRepo.findOne(any(Long.class))).thenReturn(TEST_PROJECT_WIHTOUT_VMS);
         apiResponse = projectController.pushRequest(null, TEST_FEATURE_REQUEST_WIHTOUT_VMS);
         assertEquals("Push without VMS did not result in an error", ERROR, apiResponse.getMeta().getStatus());
@@ -206,6 +209,21 @@ public class ProjectControllerTest {
     }
 
     @Test
+    public void testGetAllVersionProjectsWithInvalidVms() {
+        apiResponse = projectController.getAllVersionProjects(TEST_PROJECT1_VERSION_MANAGERMENT_SOFTWARE.getId());
+        assertEquals("Request with invalid VMS id did not result in an error", ERROR, apiResponse.getMeta().getStatus());
+        assertEquals("Invalid VMS id did not result in the expected error message", INVALID_VMS_ID_ERROR_MESSAGE, apiResponse.getMeta().getMessage());
+    }
+
+    @Test
+    public void testGetAllVersionProjectesWithNoVms() {
+        when(versionManagementSoftwareRepo.findOne(any(Long.class))).thenReturn(null);
+        apiResponse = projectController.getAllVersionProjects(TEST_PROJECT1_VERSION_MANAGERMENT_SOFTWARE.getId());
+        assertEquals("Request without VMS did not result in an error", ERROR, apiResponse.getMeta().getStatus());
+        assertEquals("Missing VMS did not result in the expected error message", MISSING_VMS_ERROR_MESSAGE, apiResponse.getMeta().getMessage());
+    }
+
+    @Test
     public void testGetVersionProjectByScopeId() throws JsonProcessingException, IOException {
         JsonNode asset = getExpectedResponse("mock/project.json");
         String name = JsonNodeUtility.getVersionProjectName(asset);
@@ -216,6 +234,21 @@ public class ProjectControllerTest {
         apiResponse = projectController.getVersionProjectByScopeId(1L, "7869");
         assertEquals("Get version project by scope id was not successful!", SUCCESS, apiResponse.getMeta().getStatus());
         assertVersionProject(project, asset);
+    }
+
+    @Test
+    public void testGetVersionProjectByScopeIdWithInvalidVms() {
+        apiResponse = projectController.getVersionProjectByScopeId(TEST_PROJECT1_VERSION_MANAGERMENT_SOFTWARE.getId(), null);
+        assertEquals("Request with invalid VMS id did not result in an error", ERROR, apiResponse.getMeta().getStatus());
+        assertEquals("Invalid VMS id did not result in the expected error message", INVALID_VMS_ID_ERROR_MESSAGE_FIND_BY_ID, apiResponse.getMeta().getMessage());
+    }
+
+    @Test
+    public void testGetVersionProjectByScopeIdWithMissingVms() {
+        when(versionManagementSoftwareRepo.findOne(any(Long.class))).thenReturn(null);
+        apiResponse = projectController.getVersionProjectByScopeId(TEST_PROJECT1_VERSION_MANAGERMENT_SOFTWARE.getId(), null);
+        assertEquals("Request with no VMS did not result in an error", ERROR, apiResponse.getMeta().getStatus());
+        assertEquals("Missing VMS did not result in the expected error message", MISSING_VMS_ERROR_MESSAGE, apiResponse.getMeta().getMessage());
     }
 
     private JsonNode getExpectedResponse(String path) throws JsonProcessingException, IOException {
