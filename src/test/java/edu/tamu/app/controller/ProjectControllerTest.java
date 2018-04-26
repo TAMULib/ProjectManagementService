@@ -53,6 +53,8 @@ public class ProjectControllerTest {
     private static final String TEST_FEATURE_REQUEST_TITLE = "Test Feature Request Title";
     private static final String TEST_FEATURE_REQUEST_DESCRIPTION = "Test Feature Request Description";
     private static final String TEST_PROJECT_WITHOUT_VMS_NAME = "Test Project Without VMS Name";
+
+    private static final String PUSH_ERROR_MESSAGE = "Error pushing request to Test Version Management Software for project Test Project 1 Name!";
     private static final String NO_VMS_ERROR_MESSAGE = "Test Project Without VMS Name project does not have a version management software!";
     private static final String NO_PROJECT_ERROR_MESSAGE = "Project with id null not found!";
 
@@ -64,7 +66,7 @@ public class ProjectControllerTest {
     private static Project TEST_PROJECT_WIHTOUT_VMS = new Project(TEST_PROJECT_WITHOUT_VMS_NAME);
 
     private static TicketRequest TEST_TICKET_REQUEST = new TicketRequest();
-    private static FeatureRequest TEST_INVALID_FEATURE_REQUEST = new FeatureRequest();
+    private static FeatureRequest TEST_INVALID_FEATURE_REQUEST = new FeatureRequest(TEST_FEATURE_REQUEST_TITLE, TEST_FEATURE_REQUEST_DESCRIPTION, TEST_PROJECT1.getId());
     private static FeatureRequest TEST_FEATURE_REQUEST_WIHTOUT_VMS = new FeatureRequest(TEST_FEATURE_REQUEST_TITLE, TEST_FEATURE_REQUEST_DESCRIPTION, TEST_PROJECT_WIHTOUT_VMS.getId());
     private static FeatureRequest TEST_FEATURE_REQUEST_WITHOUT_PROJECT = new FeatureRequest();
     private static List<Project> mockProjectList = new ArrayList<Project>(Arrays.asList(new Project[] { TEST_PROJECT1, TEST_PROJECT2 }));
@@ -167,8 +169,10 @@ public class ProjectControllerTest {
 
     @Test
     public void testPushRequestToInvalidVMS() {
+        when(projectRepo.findOne(any(Long.class))).thenReturn(TEST_PROJECT1);
         apiResponse = projectController.pushRequest(null, TEST_INVALID_FEATURE_REQUEST);
         assertEquals("Invalid push did not throw an exception", ERROR, apiResponse.getMeta().getStatus());
+        assertEquals("Push without VMS did not result in the expected error", PUSH_ERROR_MESSAGE, apiResponse.getMeta().getMessage());
     }
 
     @Test
