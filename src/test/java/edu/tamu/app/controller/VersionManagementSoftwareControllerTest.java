@@ -89,4 +89,16 @@ public class VersionManagementSoftwareControllerTest {
         response = vmsController.deleteVersionManagementSoftware(TEST_VMS1);
         assertEquals("Not successful at deleting Version Management Software", SUCCESS, response.getMeta().getStatus());
     }
+    
+    @Test
+    public void testGetTypes() {
+        response = vmsController.getTypes();
+        assertEquals("Not successful at getting service types", SUCCESS, response.getMeta().getStatus());
+    }
+    
+    @Test
+    public void testGetScaffolding() {
+        response = vmsController.getTypeScaffolding(ServiceType.VERSION_ONE.toString());
+        assertEquals("Not successful at getting scaffolding", SUCCESS, response.getMeta().getStatus());
+    }
 }
