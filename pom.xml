@@ -16,7 +16,7 @@
   </parent>
 
   <properties>
-
+    <start-class>edu.tamu.app.ProjectApplication</start-class>
   </properties>
 
   <packaging>war</packaging>
@@ -131,6 +131,7 @@
             <ignoreTrivial>true</ignoreTrivial>
             <ignores>
               <ignore>java.util.logging.*</ignore>
+              <ignore>edu.tamu.app.config.AppEmailConfig</ignore>
             </ignores>
           </instrumentation>
           <formats>

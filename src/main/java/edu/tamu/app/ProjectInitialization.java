@@ -9,7 +9,6 @@ import edu.tamu.app.model.repo.VersionManagementSoftwareRepo;
 import edu.tamu.app.service.registry.ManagementBeanRegistry;
 
 @Component
-@Profile("!test")
 public class ProjectInitialization implements CommandLineRunner {
 
     @Autowired

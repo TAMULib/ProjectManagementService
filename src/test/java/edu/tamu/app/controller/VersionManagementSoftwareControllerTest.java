@@ -16,7 +16,6 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import edu.tamu.app.enums.ServiceType;
@@ -24,7 +23,6 @@ import edu.tamu.app.model.VersionManagementSoftware;
 import edu.tamu.app.model.repo.VersionManagementSoftwareRepo;
 import edu.tamu.weaver.response.ApiResponse;
 
-@ActiveProfiles("test")
 @RunWith(SpringRunner.class)
 public class VersionManagementSoftwareControllerTest {
 
@@ -90,5 +88,17 @@ public class VersionManagementSoftwareControllerTest {
     public void testDelete() {
         response = vmsController.deleteVersionManagementSoftware(TEST_VMS1);
         assertEquals("Not successful at deleting Version Management Software", SUCCESS, response.getMeta().getStatus());
+    }
+    
+    @Test
+    public void testGetTypes() {
+        response = vmsController.getTypes();
+        assertEquals("Not successful at getting service types", SUCCESS, response.getMeta().getStatus());
+    }
+    
+    @Test
+    public void testGetScaffolding() {
+        response = vmsController.getTypeScaffolding(ServiceType.VERSION_ONE.toString());
+        assertEquals("Not successful at getting scaffolding", SUCCESS, response.getMeta().getStatus());
     }
 }

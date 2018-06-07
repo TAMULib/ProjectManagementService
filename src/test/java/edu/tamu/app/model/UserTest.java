@@ -1,7 +1,9 @@
 package edu.tamu.app.model;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -12,7 +14,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import edu.tamu.app.ProjectApplication;
@@ -20,7 +22,6 @@ import edu.tamu.app.enums.Role;
 import edu.tamu.app.model.repo.UserRepo;
 import edu.tamu.weaver.auth.model.Credentials;
 
-@ActiveProfiles("test")
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = { ProjectApplication.class }, webEnvironment = WebEnvironment.DEFINED_PORT)
 public class UserTest {
@@ -61,6 +62,23 @@ public class UserTest {
         allUsers = (List<User>) userRepo.findAll();
         assertEquals("Test User1 was not removed.", 0, allUsers.size());
 
+    }
+
+    @Test
+    public void testGetAuthorities() {
+        User testUser1 = userRepo.create(TEST_CREDENTIALS.getUin(), TEST_CREDENTIALS.getEmail(), TEST_CREDENTIALS.getFirstName(), TEST_CREDENTIALS.getLastName(), Role.valueOf(TEST_CREDENTIALS.getRole()));
+        Collection<? extends GrantedAuthority> authorities = testUser1.getAuthorities();
+        assertNotNull(authorities);
+    }
+    
+    @Test
+    public void testStaticUtilityMethods() {
+        User testUser1 = userRepo.create(TEST_CREDENTIALS.getUin(), TEST_CREDENTIALS.getEmail(), TEST_CREDENTIALS.getFirstName(), TEST_CREDENTIALS.getLastName(), Role.valueOf(TEST_CREDENTIALS.getRole()));
+        assertEquals("Value was not false", false, testUser1.isAccountNonExpired());
+        assertEquals("Value was not false", false, testUser1.isAccountNonLocked());
+        assertEquals("Value was not false", false, testUser1.isCredentialsNonExpired());
+        assertEquals("Value was not true", true, testUser1.isEnabled());
+        assertEquals("Value was not null", null, testUser1.getPassword());
     }
 
     @After
