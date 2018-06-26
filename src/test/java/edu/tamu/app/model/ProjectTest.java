@@ -17,7 +17,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import edu.tamu.app.ProjectApplication;
 import edu.tamu.app.enums.ServiceType;
 import edu.tamu.app.model.repo.ProjectRepo;
-import edu.tamu.app.model.repo.VersionManagementSoftwareRepo;
+import edu.tamu.app.model.repo.RemoteProjectManagerRepo;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = { ProjectApplication.class }, webEnvironment = WebEnvironment.DEFINED_PORT)
@@ -33,7 +33,7 @@ public class ProjectTest {
     private ProjectRepo projectRepo;
 
     @Autowired
-    private VersionManagementSoftwareRepo versionManagementSoftwareRepo;
+    private RemoteProjectManagerRepo versionManagementSoftwareRepo;
 
     @Test
     public void testCreate() {
@@ -73,14 +73,14 @@ public class ProjectTest {
             }
         };
 
-        VersionManagementSoftware versionManagementSoftware = versionManagementSoftwareRepo.create(new VersionManagementSoftware(TEST_VERSION_MANAGEMENT_SOFTWARE_NAME, ServiceType.VERSION_ONE, settings));
+        RemoteProjectManager versionManagementSoftware = versionManagementSoftwareRepo.create(new RemoteProjectManager(TEST_VERSION_MANAGEMENT_SOFTWARE_NAME, ServiceType.VERSION_ONE, settings));
 
         Project project = projectRepo.create(new Project(TEST_PROJECT_NAME, "1000", versionManagementSoftware));
         project.setName(TEST_ALTERNATE_PROJECT_NAME);
         project = projectRepo.save(project);
         assertEquals("Project has the incorrect name!", TEST_ALTERNATE_PROJECT_NAME, project.getName());
-        assertEquals("Project has the incorrect version management software name!", TEST_VERSION_MANAGEMENT_SOFTWARE_NAME, project.getVersionManagementSoftware().getName());
-        assertEquals("Project has the incorrect version management software url setting value!", "https://localhost:9101/TexasAMLibrary", project.getVersionManagementSoftware().getSettings().get("url"));
+        assertEquals("Project has the incorrect version management software name!", TEST_VERSION_MANAGEMENT_SOFTWARE_NAME, project.getRemoteProjectManager().getName());
+        assertEquals("Project has the incorrect version management software url setting value!", "https://localhost:9101/TexasAMLibrary", project.getRemoteProjectManager().getSettings().get("url"));
     }
 
     @Test
