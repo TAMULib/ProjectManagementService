@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import edu.tamu.app.model.response.VersionProject;
+import edu.tamu.app.model.response.RemoteProject;
 
 public class JsonNodeUtility {
 
@@ -17,12 +17,12 @@ public class JsonNodeUtility {
         return asset.get("id").asText().replaceAll("Scope:", "");
     }
 
-    public static List<VersionProject> getVersionProjects(JsonNode assets) {
-        List<VersionProject> versionProjects = new ArrayList<VersionProject>();
+    public static List<RemoteProject> getVersionProjects(JsonNode assets) {
+        List<RemoteProject> versionProjects = new ArrayList<RemoteProject>();
         assets.forEach(asset -> {
             String name = getVersionProjectName(asset);
             String scopeId = getVersionProjectScopeId(asset);
-            versionProjects.add(new VersionProject(name, scopeId));
+            versionProjects.add(new RemoteProject(name, scopeId));
         });
         return versionProjects;
     }

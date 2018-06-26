@@ -2,7 +2,7 @@ package edu.tamu.app.model.response;
 
 import java.io.Serializable;
 
-public class VersionProject implements Serializable {
+public class RemoteProject implements Serializable {
 
     private static final long serialVersionUID = 8384046327331854613L;
 
@@ -10,7 +10,7 @@ public class VersionProject implements Serializable {
 
     private final String scopeId;
 
-    public VersionProject(String name, String scopeId) {
+    public RemoteProject(String name, String scopeId) {
         super();
         this.name = name;
         this.scopeId = scopeId;

@@ -15,56 +15,56 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import edu.tamu.app.enums.ServiceType;
-import edu.tamu.app.model.VersionManagementSoftware;
-import edu.tamu.app.model.repo.VersionManagementSoftwareRepo;
+import edu.tamu.app.model.RemoteProjectManager;
+import edu.tamu.app.model.repo.RemoteProjectManagerRepo;
 import edu.tamu.weaver.response.ApiResponse;
 import edu.tamu.weaver.validation.aspect.annotation.WeaverValidatedModel;
 import edu.tamu.weaver.validation.aspect.annotation.WeaverValidation;
 
 @RestController
-@RequestMapping("/version-management-software")
-public class VersionManagementSoftwareController {
+@RequestMapping("/remote-project-manager")
+public class RemoteProjectManagerController {
 
     @Autowired
-    private VersionManagementSoftwareRepo vmsRepo;
+    private RemoteProjectManagerRepo remoteProjectManagerRepo;
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @RequestMapping(method = RequestMethod.GET)
     @PreAuthorize("hasRole('USER')")
     public ApiResponse getAll() {
-        return new ApiResponse(SUCCESS, vmsRepo.findAll());
+        return new ApiResponse(SUCCESS, remoteProjectManagerRepo.findAll());
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     @PreAuthorize("hasRole('USER')")
     public ApiResponse getOne(@PathVariable Long id) {
-        return new ApiResponse(SUCCESS, vmsRepo.findOne(id));
+        return new ApiResponse(SUCCESS, remoteProjectManagerRepo.findOne(id));
     }
 
     @RequestMapping(method = RequestMethod.POST)
     @PreAuthorize("hasRole('USER')")
     @WeaverValidation(business = { @WeaverValidation.Business(value = CREATE) })
-    public ApiResponse createVersionManagementSoftware(@WeaverValidatedModel VersionManagementSoftware vms) {
-        logger.info("Model: " + vms.toString());
-        logger.info("Creating Version Management Software: " + vms.getName());
-        return new ApiResponse(SUCCESS, vmsRepo.create(vms));
+    public ApiResponse createRemoteProjectManager(@WeaverValidatedModel RemoteProjectManager remoteProjectManager) {
+        logger.info("Model: " + remoteProjectManager.toString());
+        logger.info("Creating Version Management Software: " + remoteProjectManager.getName());
+        return new ApiResponse(SUCCESS, remoteProjectManagerRepo.create(remoteProjectManager));
     }
 
     @RequestMapping(method = RequestMethod.PUT)
     @PreAuthorize("hasRole('USER')")
     @WeaverValidation(business = { @WeaverValidation.Business(value = UPDATE) })
-    public ApiResponse updateVersionManagementSoftware(@WeaverValidatedModel VersionManagementSoftware vms) {
-        logger.info("Updating Version Management Software: " + vms.getName());
-        return new ApiResponse(SUCCESS, vmsRepo.update(vms));
+    public ApiResponse updateRemoteProjectManager(@WeaverValidatedModel RemoteProjectManager remoteProjectManager) {
+        logger.info("Updating Version Management Software: " + remoteProjectManager.getName());
+        return new ApiResponse(SUCCESS, remoteProjectManagerRepo.update(remoteProjectManager));
     }
 
     @RequestMapping(method = RequestMethod.DELETE)
     @PreAuthorize("hasRole('USER')")
     @WeaverValidation(business = { @WeaverValidation.Business(value = DELETE) })
-    public ApiResponse deleteVersionManagementSoftware(@WeaverValidatedModel VersionManagementSoftware vms) {
-        logger.info("Deleting Version Management Software: " + vms.getName());
-        vmsRepo.delete(vms);
+    public ApiResponse deleteRemoteProjectManager(@WeaverValidatedModel RemoteProjectManager remoteProjectManager) {
+        logger.info("Deleting Version Management Software: " + remoteProjectManager.getName());
+        remoteProjectManagerRepo.delete(remoteProjectManager);
         return new ApiResponse(SUCCESS);
     }
 

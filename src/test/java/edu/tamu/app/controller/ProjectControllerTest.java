@@ -30,16 +30,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.app.enums.ServiceType;
 import edu.tamu.app.model.Project;
-import edu.tamu.app.model.VersionManagementSoftware;
+import edu.tamu.app.model.RemoteProjectManager;
 import edu.tamu.app.model.repo.ProjectRepo;
-import edu.tamu.app.model.repo.VersionManagementSoftwareRepo;
+import edu.tamu.app.model.repo.RemoteProjectManagerRepo;
 import edu.tamu.app.model.request.FeatureRequest;
 import edu.tamu.app.model.request.TicketRequest;
-import edu.tamu.app.model.response.VersionProject;
+import edu.tamu.app.model.response.RemoteProject;
+import edu.tamu.app.service.managing.RemoteProjectManagerBean;
+import edu.tamu.app.service.managing.VersionOneService;
 import edu.tamu.app.service.registry.ManagementBeanRegistry;
 import edu.tamu.app.service.ticketing.SugarService;
-import edu.tamu.app.service.versioning.VersionManagementSoftwareBean;
-import edu.tamu.app.service.versioning.VersionOneService;
 import edu.tamu.app.utility.JsonNodeUtility;
 import edu.tamu.weaver.response.ApiResponse;
 
@@ -61,7 +61,7 @@ public class ProjectControllerTest {
     private static final String MISSING_VMS_ERROR_MESSAGE = "Version Management Software with id null not found!";
     private static final String INVALID_VMS_ID_ERROR_MESSAGE_FIND_BY_ID = "Error fetching version project with scope id null from Test Version Management Software!";
 
-    private static final VersionManagementSoftware TEST_PROJECT1_VERSION_MANAGERMENT_SOFTWARE = new VersionManagementSoftware("Test Version Management Software", ServiceType.VERSION_ONE, new HashMap<String, String>());
+    private static final RemoteProjectManager TEST_PROJECT1_VERSION_MANAGERMENT_SOFTWARE = new RemoteProjectManager("Test Version Management Software", ServiceType.VERSION_ONE, new HashMap<String, String>());
 
     private static Project TEST_PROJECT1 = new Project(TEST_PROJECT1_NAME, TEST_PROJECT1_SCOPE, TEST_PROJECT1_VERSION_MANAGERMENT_SOFTWARE);
     private static Project TEST_PROJECT2 = new Project(TEST_PROJECT2_NAME);
@@ -80,7 +80,7 @@ public class ProjectControllerTest {
     private ProjectRepo projectRepo;
 
     @Mock
-    private VersionManagementSoftwareRepo versionManagementSoftwareRepo;
+    private RemoteProjectManagerRepo versionManagementSoftwareRepo;
 
     @Mock
     private SugarService sugarService;
@@ -89,7 +89,7 @@ public class ProjectControllerTest {
     private ManagementBeanRegistry managementBeanRegistry;
 
     @Mock
-    private VersionManagementSoftwareBean managementBean;
+    private RemoteProjectManagerBean managementBean;
 
     @InjectMocks
     private ProjectController projectController;
@@ -196,9 +196,9 @@ public class ProjectControllerTest {
     @Test
     public void testGetAllVersionProjects() throws JsonProcessingException, IOException {
         JsonNode expectedResponse = getExpectedResponse("mock/projects.json");
-        List<VersionProject> projects = JsonNodeUtility.getVersionProjects(expectedResponse.get("Assets"));
+        List<RemoteProject> projects = JsonNodeUtility.getVersionProjects(expectedResponse.get("Assets"));
         VersionOneService versionOneService = mock(VersionOneService.class);
-        when(versionOneService.getVersionProjects()).thenReturn(projects);
+        when(versionOneService.getRemoteProjects()).thenReturn(projects);
         when(managementBeanRegistry.getService(any(String.class))).thenReturn(versionOneService);
         apiResponse = projectController.getAllVersionProjects(1L);
         assertEquals("Get all version projects was not successful!", SUCCESS, apiResponse.getMeta().getStatus());
@@ -227,9 +227,9 @@ public class ProjectControllerTest {
     public void testGetVersionProjectByScopeId() throws JsonProcessingException, IOException {
         JsonNode asset = getExpectedResponse("mock/project.json");
         String name = JsonNodeUtility.getVersionProjectName(asset);
-        VersionProject project = new VersionProject(name, "7869");
+        RemoteProject project = new RemoteProject(name, "7869");
         VersionOneService versionOneService = mock(VersionOneService.class);
-        when(versionOneService.getVersionProjectByScopeId(any(String.class))).thenReturn(project);
+        when(versionOneService.getRemoteProjectByScopeId(any(String.class))).thenReturn(project);
         when(managementBeanRegistry.getService(any(String.class))).thenReturn(versionOneService);
         apiResponse = projectController.getVersionProjectByScopeId(1L, "7869");
         assertEquals("Get version project by scope id was not successful!", SUCCESS, apiResponse.getMeta().getStatus());
@@ -255,7 +255,7 @@ public class ProjectControllerTest {
         return objectMapper.readTree(new ClassPathResource(path).getInputStream());
     }
 
-    private void assertVersionProject(VersionProject project, JsonNode asset) {
+    private void assertVersionProject(RemoteProject project, JsonNode asset) {
         String name = JsonNodeUtility.getVersionProjectName(asset);
         String scopeId = JsonNodeUtility.getVersionProjectScopeId(asset);
         assertEquals("Version project had the incorrect name!", name, project.getName());
