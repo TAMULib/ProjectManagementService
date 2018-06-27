@@ -47,7 +47,7 @@ public class RemoteProjectManagerController {
     @WeaverValidation(business = { @WeaverValidation.Business(value = CREATE) })
     public ApiResponse createRemoteProjectManager(@WeaverValidatedModel RemoteProjectManager remoteProjectManager) {
         logger.info("Model: " + remoteProjectManager.toString());
-        logger.info("Creating Version Management Software: " + remoteProjectManager.getName());
+        logger.info("Creating Remote Project Manager: " + remoteProjectManager.getName());
         return new ApiResponse(SUCCESS, remoteProjectManagerRepo.create(remoteProjectManager));
     }
 
@@ -55,7 +55,7 @@ public class RemoteProjectManagerController {
     @PreAuthorize("hasRole('USER')")
     @WeaverValidation(business = { @WeaverValidation.Business(value = UPDATE) })
     public ApiResponse updateRemoteProjectManager(@WeaverValidatedModel RemoteProjectManager remoteProjectManager) {
-        logger.info("Updating Version Management Software: " + remoteProjectManager.getName());
+        logger.info("Updating Remote Project Manager: " + remoteProjectManager.getName());
         return new ApiResponse(SUCCESS, remoteProjectManagerRepo.update(remoteProjectManager));
     }
 
@@ -63,7 +63,7 @@ public class RemoteProjectManagerController {
     @PreAuthorize("hasRole('USER')")
     @WeaverValidation(business = { @WeaverValidation.Business(value = DELETE) })
     public ApiResponse deleteRemoteProjectManager(@WeaverValidatedModel RemoteProjectManager remoteProjectManager) {
-        logger.info("Deleting Version Management Software: " + remoteProjectManager.getName());
+        logger.info("Deleting Remote Project Manager: " + remoteProjectManager.getName());
         remoteProjectManagerRepo.delete(remoteProjectManager);
         return new ApiResponse(SUCCESS);
     }

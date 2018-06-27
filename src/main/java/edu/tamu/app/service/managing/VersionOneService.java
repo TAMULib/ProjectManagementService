@@ -12,7 +12,7 @@ import edu.tamu.app.model.request.FeatureRequest;
 import edu.tamu.app.model.response.RemoteProject;
 import edu.tamu.app.rest.BasicAuthRestTemplate;
 import edu.tamu.app.service.TemplateService;
-import edu.tamu.app.utility.JsonNodeUtility;
+import edu.tamu.app.utility.VersionOneJsonNodeUtility;
 
 public class VersionOneService implements RemoteProjectManagerBean {
 
@@ -31,13 +31,13 @@ public class VersionOneService implements RemoteProjectManagerBean {
     @Override
     public List<RemoteProject> getRemoteProjects() {
         JsonNode response = restTemplate.getForObject(craftProjectsQueryUrl(), JsonNode.class);
-        return JsonNodeUtility.getVersionProjects(response.get("Assets"));
+        return VersionOneJsonNodeUtility.getRemoteProjects(response.get("Assets"));
     }
 
     @Override
     public RemoteProject getRemoteProjectByScopeId(String scopeId) {
         JsonNode asset = restTemplate.getForObject(craftProjectByScopeIdQueryUrl(scopeId), JsonNode.class);
-        String name = JsonNodeUtility.getVersionProjectName(asset);
+        String name = VersionOneJsonNodeUtility.getRemoteProjectName(asset);
         return new RemoteProject(name, scopeId);
     }
 

@@ -25,7 +25,7 @@ public class ProjectTest {
 
     private static final String TEST_PROJECT_NAME = "Test Project Name";
 
-    private static final String TEST_VERSION_MANAGEMENT_SOFTWARE_NAME = "Test Version Management Software";
+    private static final String TEST_VERSION_MANAGEMENT_SOFTWARE_NAME = "Test Remote Project Manager";
 
     private static final String TEST_ALTERNATE_PROJECT_NAME = "Alternate Project Name";
 
@@ -79,8 +79,8 @@ public class ProjectTest {
         project.setName(TEST_ALTERNATE_PROJECT_NAME);
         project = projectRepo.save(project);
         assertEquals("Project has the incorrect name!", TEST_ALTERNATE_PROJECT_NAME, project.getName());
-        assertEquals("Project has the incorrect version management software name!", TEST_VERSION_MANAGEMENT_SOFTWARE_NAME, project.getRemoteProjectManager().getName());
-        assertEquals("Project has the incorrect version management software url setting value!", "https://localhost:9101/TexasAMLibrary", project.getRemoteProjectManager().getSettings().get("url"));
+        assertEquals("Project has the incorrect Remote Project Manager name!", TEST_VERSION_MANAGEMENT_SOFTWARE_NAME, project.getRemoteProjectManager().getName());
+        assertEquals("Project has the incorrect Remote Project Manager url setting value!", "https://localhost:9101/TexasAMLibrary", project.getRemoteProjectManager().getSettings().get("url"));
     }
 
     @Test
