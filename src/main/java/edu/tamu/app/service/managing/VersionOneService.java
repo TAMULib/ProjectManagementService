@@ -1,4 +1,4 @@
-package edu.tamu.app.service.versioning;
+package edu.tamu.app.service.managing;
 
 import java.util.List;
 import java.util.Optional;
@@ -9,12 +9,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import edu.tamu.app.model.ManagementService;
 import edu.tamu.app.model.request.FeatureRequest;
-import edu.tamu.app.model.response.VersionProject;
+import edu.tamu.app.model.response.RemoteProject;
 import edu.tamu.app.rest.BasicAuthRestTemplate;
 import edu.tamu.app.service.TemplateService;
-import edu.tamu.app.utility.JsonNodeUtility;
+import edu.tamu.app.utility.VersionOneJsonNodeUtility;
 
-public class VersionOneService implements VersionManagementSoftwareBean {
+public class VersionOneService implements RemoteProjectManagerBean {
 
     private ManagementService managementService;
 
@@ -29,16 +29,16 @@ public class VersionOneService implements VersionManagementSoftwareBean {
     }
 
     @Override
-    public List<VersionProject> getVersionProjects() {
+    public List<RemoteProject> getRemoteProjects() {
         JsonNode response = restTemplate.getForObject(craftProjectsQueryUrl(), JsonNode.class);
-        return JsonNodeUtility.getVersionProjects(response.get("Assets"));
+        return VersionOneJsonNodeUtility.getRemoteProjects(response.get("Assets"));
     }
 
     @Override
-    public VersionProject getVersionProjectByScopeId(String scopeId) {
+    public RemoteProject getRemoteProjectByScopeId(String scopeId) {
         JsonNode asset = restTemplate.getForObject(craftProjectByScopeIdQueryUrl(scopeId), JsonNode.class);
-        String name = JsonNodeUtility.getVersionProjectName(asset);
-        return new VersionProject(name, scopeId);
+        String name = VersionOneJsonNodeUtility.getRemoteProjectName(asset);
+        return new RemoteProject(name, scopeId);
     }
 
     @Override

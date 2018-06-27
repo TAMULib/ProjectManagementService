@@ -30,17 +30,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.app.enums.ServiceType;
 import edu.tamu.app.model.Project;
-import edu.tamu.app.model.VersionManagementSoftware;
+import edu.tamu.app.model.RemoteProjectManager;
 import edu.tamu.app.model.repo.ProjectRepo;
-import edu.tamu.app.model.repo.VersionManagementSoftwareRepo;
+import edu.tamu.app.model.repo.RemoteProjectManagerRepo;
 import edu.tamu.app.model.request.FeatureRequest;
 import edu.tamu.app.model.request.TicketRequest;
-import edu.tamu.app.model.response.VersionProject;
+import edu.tamu.app.model.response.RemoteProject;
+import edu.tamu.app.service.managing.RemoteProjectManagerBean;
+import edu.tamu.app.service.managing.VersionOneService;
 import edu.tamu.app.service.registry.ManagementBeanRegistry;
 import edu.tamu.app.service.ticketing.SugarService;
-import edu.tamu.app.service.versioning.VersionManagementSoftwareBean;
-import edu.tamu.app.service.versioning.VersionOneService;
-import edu.tamu.app.utility.JsonNodeUtility;
+import edu.tamu.app.utility.VersionOneJsonNodeUtility;
 import edu.tamu.weaver.response.ApiResponse;
 
 @RunWith(SpringRunner.class)
@@ -52,25 +52,25 @@ public class ProjectControllerTest {
     private static final String TEST_MODIFIED_PROJECT_NAME = "Modified Project Name";
     private static final String TEST_FEATURE_REQUEST_TITLE = "Test Feature Request Title";
     private static final String TEST_FEATURE_REQUEST_DESCRIPTION = "Test Feature Request Description";
-    private static final String TEST_PROJECT_WITHOUT_VMS_NAME = "Test Project Without VMS Name";
+    private static final String TEST_PROJECT_WITHOUT_RPM_NAME = "Test Project Without Remote Project Manager Name";
 
-    private static final String PUSH_ERROR_MESSAGE = "Error pushing request to Test Version Management Software for project Test Project 1 Name!";
-    private static final String NO_VMS_ERROR_MESSAGE = "Test Project Without VMS Name project does not have a version management software!";
+    private static final String PUSH_ERROR_MESSAGE = "Error pushing request to Test Remote Project Manager for project Test Project 1 Name!";
+    private static final String NO_RPM_ERROR_MESSAGE = "Test Project Without Remote Project Manager Name project does not have a Remote Project Manager!";
     private static final String NO_PROJECT_ERROR_MESSAGE = "Project with id null not found!";
-    private static final String INVALID_VMS_ID_ERROR_MESSAGE = "Error fetching version projects from Test Version Management Software!";
-    private static final String MISSING_VMS_ERROR_MESSAGE = "Version Management Software with id null not found!";
-    private static final String INVALID_VMS_ID_ERROR_MESSAGE_FIND_BY_ID = "Error fetching version project with scope id null from Test Version Management Software!";
+    private static final String INVALID_RPM_ID_ERROR_MESSAGE = "Error fetching remote projects from Test Remote Project Manager!";
+    private static final String MISSING_RPM_ERROR_MESSAGE = "Remote Project Manager with id null not found!";
+    private static final String INVALID_RPM_ID_ERROR_MESSAGE_FIND_BY_ID = "Error fetching remote project with scope id null from Test Remote Project Manager!";
 
-    private static final VersionManagementSoftware TEST_PROJECT1_VERSION_MANAGERMENT_SOFTWARE = new VersionManagementSoftware("Test Version Management Software", ServiceType.VERSION_ONE, new HashMap<String, String>());
+    private static final RemoteProjectManager TEST_PROJECT1_VERSION_MANAGERMENT_SOFTWARE = new RemoteProjectManager("Test Remote Project Manager", ServiceType.VERSION_ONE, new HashMap<String, String>());
 
     private static Project TEST_PROJECT1 = new Project(TEST_PROJECT1_NAME, TEST_PROJECT1_SCOPE, TEST_PROJECT1_VERSION_MANAGERMENT_SOFTWARE);
     private static Project TEST_PROJECT2 = new Project(TEST_PROJECT2_NAME);
     private static Project TEST_MODIFIED_PROJECT = new Project(TEST_MODIFIED_PROJECT_NAME);
-    private static Project TEST_PROJECT_WIHTOUT_VMS = new Project(TEST_PROJECT_WITHOUT_VMS_NAME);
+    private static Project TEST_PROJECT_WIHTOUT_RPM = new Project(TEST_PROJECT_WITHOUT_RPM_NAME);
 
     private static TicketRequest TEST_TICKET_REQUEST = new TicketRequest();
     private static FeatureRequest TEST_INVALID_FEATURE_REQUEST = new FeatureRequest(TEST_FEATURE_REQUEST_TITLE, TEST_FEATURE_REQUEST_DESCRIPTION, TEST_PROJECT1.getId());
-    private static FeatureRequest TEST_FEATURE_REQUEST_WIHTOUT_VMS = new FeatureRequest(TEST_FEATURE_REQUEST_TITLE, TEST_FEATURE_REQUEST_DESCRIPTION, TEST_PROJECT_WIHTOUT_VMS.getId());
+    private static FeatureRequest TEST_FEATURE_REQUEST_WIHTOUT_VMS = new FeatureRequest(TEST_FEATURE_REQUEST_TITLE, TEST_FEATURE_REQUEST_DESCRIPTION, TEST_PROJECT_WIHTOUT_RPM.getId());
     private static FeatureRequest TEST_FEATURE_REQUEST_WITHOUT_PROJECT = new FeatureRequest();
     private static List<Project> mockProjectList = new ArrayList<Project>(Arrays.asList(new Project[] { TEST_PROJECT1, TEST_PROJECT2 }));
 
@@ -80,7 +80,7 @@ public class ProjectControllerTest {
     private ProjectRepo projectRepo;
 
     @Mock
-    private VersionManagementSoftwareRepo versionManagementSoftwareRepo;
+    private RemoteProjectManagerRepo remoteProjectManagerRepo;
 
     @Mock
     private SugarService sugarService;
@@ -89,7 +89,7 @@ public class ProjectControllerTest {
     private ManagementBeanRegistry managementBeanRegistry;
 
     @Mock
-    private VersionManagementSoftwareBean managementBean;
+    private RemoteProjectManagerBean managementBean;
 
     @InjectMocks
     private ProjectController projectController;
@@ -104,7 +104,7 @@ public class ProjectControllerTest {
         when(projectRepo.create(any(Project.class))).thenReturn(TEST_PROJECT1);
         when(projectRepo.findOne(any(Long.class))).thenReturn(null);
         when(projectRepo.update(any(Project.class))).thenReturn(TEST_MODIFIED_PROJECT);
-        when(versionManagementSoftwareRepo.findOne(any(Long.class))).thenReturn(TEST_PROJECT1_VERSION_MANAGERMENT_SOFTWARE);
+        when(remoteProjectManagerRepo.findOne(any(Long.class))).thenReturn(TEST_PROJECT1_VERSION_MANAGERMENT_SOFTWARE);
         doNothing().when(projectRepo).delete(any(Project.class));
         when(sugarService.submit(any(TicketRequest.class))).thenReturn("Successfully submitted issue for test service!");
         when(managementBean.push(TEST_INVALID_FEATURE_REQUEST)).thenThrow(RestClientException.class);
@@ -167,23 +167,23 @@ public class ProjectControllerTest {
         apiResponse = projectController.pushRequest(null, request);
         assertEquals("Pushing request was not successful!", SUCCESS, apiResponse.getMeta().getStatus());
         JsonNode actualResponse = objectMapper.convertValue(apiResponse.getPayload().get("ObjectNode"), JsonNode.class);
-        assertEquals("Response of push to version one not as expected!", expectedResponse, actualResponse);
+        assertEquals("Response of push to VersionOne not as expected!", expectedResponse, actualResponse);
     }
 
     @Test
-    public void testPushRequestToInvalidVms() {
+    public void testPushRequestToInvalidRemoteProjectManager() {
         when(projectRepo.findOne(any(Long.class))).thenReturn(TEST_PROJECT1);
         apiResponse = projectController.pushRequest(null, TEST_INVALID_FEATURE_REQUEST);
         assertEquals("Invalid push did not throw an exception", ERROR, apiResponse.getMeta().getStatus());
-        assertEquals("Push without VMS did not result in the expected error", PUSH_ERROR_MESSAGE, apiResponse.getMeta().getMessage());
+        assertEquals("Push without Remote Project Manager did not result in the expected error", PUSH_ERROR_MESSAGE, apiResponse.getMeta().getMessage());
     }
 
     @Test
-    public void testPushRequestWithoutVms() {
-        when(projectRepo.findOne(any(Long.class))).thenReturn(TEST_PROJECT_WIHTOUT_VMS);
+    public void testPushRequestWithoutRemoteProjectManager() {
+        when(projectRepo.findOne(any(Long.class))).thenReturn(TEST_PROJECT_WIHTOUT_RPM);
         apiResponse = projectController.pushRequest(null, TEST_FEATURE_REQUEST_WIHTOUT_VMS);
-        assertEquals("Push without VMS did not result in an error", ERROR, apiResponse.getMeta().getStatus());
-        assertEquals("Push without VMS did not result in the expected error", NO_VMS_ERROR_MESSAGE, apiResponse.getMeta().getMessage());
+        assertEquals("Push without Remote Project Manager did not result in an error", ERROR, apiResponse.getMeta().getStatus());
+        assertEquals("Push without Remote Project Manager did not result in the expected error", NO_RPM_ERROR_MESSAGE, apiResponse.getMeta().getMessage());
     }
 
     @Test
@@ -196,12 +196,12 @@ public class ProjectControllerTest {
     @Test
     public void testGetAllVersionProjects() throws JsonProcessingException, IOException {
         JsonNode expectedResponse = getExpectedResponse("mock/projects.json");
-        List<VersionProject> projects = JsonNodeUtility.getVersionProjects(expectedResponse.get("Assets"));
+        List<RemoteProject> projects = VersionOneJsonNodeUtility.getRemoteProjects(expectedResponse.get("Assets"));
         VersionOneService versionOneService = mock(VersionOneService.class);
-        when(versionOneService.getVersionProjects()).thenReturn(projects);
+        when(versionOneService.getRemoteProjects()).thenReturn(projects);
         when(managementBeanRegistry.getService(any(String.class))).thenReturn(versionOneService);
-        apiResponse = projectController.getAllVersionProjects(1L);
-        assertEquals("Get all version projects was not successful!", SUCCESS, apiResponse.getMeta().getStatus());
+        apiResponse = projectController.getAllRemoteProjects(1L);
+        assertEquals("Get all remote projects was not successful!", SUCCESS, apiResponse.getMeta().getStatus());
         JsonNode assets = expectedResponse.get("Assets");
         for (int i = 0; i < projects.size(); i++) {
             assertVersionProject(projects.get(i), assets.get(i));
@@ -209,55 +209,55 @@ public class ProjectControllerTest {
     }
 
     @Test
-    public void testGetAllVersionProjectsWithInvalidVms() {
-        apiResponse = projectController.getAllVersionProjects(TEST_PROJECT1_VERSION_MANAGERMENT_SOFTWARE.getId());
-        assertEquals("Request with invalid VMS id did not result in an error", ERROR, apiResponse.getMeta().getStatus());
-        assertEquals("Invalid VMS id did not result in the expected error message", INVALID_VMS_ID_ERROR_MESSAGE, apiResponse.getMeta().getMessage());
+    public void testGetAllVersionProjectsWithInvalidRemoteProjectManager() {
+        apiResponse = projectController.getAllRemoteProjects(TEST_PROJECT1_VERSION_MANAGERMENT_SOFTWARE.getId());
+        assertEquals("Request with invalid Remote Project Manager id did not result in an error", ERROR, apiResponse.getMeta().getStatus());
+        assertEquals("Invalid Remote Project Manager id did not result in the expected error message", INVALID_RPM_ID_ERROR_MESSAGE, apiResponse.getMeta().getMessage());
     }
 
     @Test
-    public void testGetAllVersionProjectesWithNoVms() {
-        when(versionManagementSoftwareRepo.findOne(any(Long.class))).thenReturn(null);
-        apiResponse = projectController.getAllVersionProjects(TEST_PROJECT1_VERSION_MANAGERMENT_SOFTWARE.getId());
-        assertEquals("Request without VMS did not result in an error", ERROR, apiResponse.getMeta().getStatus());
-        assertEquals("Missing VMS did not result in the expected error message", MISSING_VMS_ERROR_MESSAGE, apiResponse.getMeta().getMessage());
+    public void testGetAllVersionProjectesWithNoRemoteProjectManager() {
+        when(remoteProjectManagerRepo.findOne(any(Long.class))).thenReturn(null);
+        apiResponse = projectController.getAllRemoteProjects(TEST_PROJECT1_VERSION_MANAGERMENT_SOFTWARE.getId());
+        assertEquals("Request without Remote Project Manager did not result in an error", ERROR, apiResponse.getMeta().getStatus());
+        assertEquals("Missing Remote Project Manager did not result in the expected error message", MISSING_RPM_ERROR_MESSAGE, apiResponse.getMeta().getMessage());
     }
 
     @Test
     public void testGetVersionProjectByScopeId() throws JsonProcessingException, IOException {
         JsonNode asset = getExpectedResponse("mock/project.json");
-        String name = JsonNodeUtility.getVersionProjectName(asset);
-        VersionProject project = new VersionProject(name, "7869");
+        String name = VersionOneJsonNodeUtility.getRemoteProjectName(asset);
+        RemoteProject project = new RemoteProject(name, "7869");
         VersionOneService versionOneService = mock(VersionOneService.class);
-        when(versionOneService.getVersionProjectByScopeId(any(String.class))).thenReturn(project);
+        when(versionOneService.getRemoteProjectByScopeId(any(String.class))).thenReturn(project);
         when(managementBeanRegistry.getService(any(String.class))).thenReturn(versionOneService);
-        apiResponse = projectController.getVersionProjectByScopeId(1L, "7869");
-        assertEquals("Get version project by scope id was not successful!", SUCCESS, apiResponse.getMeta().getStatus());
+        apiResponse = projectController.getRemoteProjectByScopeId(1L, "7869");
+        assertEquals("Get remote project by scope id was not successful!", SUCCESS, apiResponse.getMeta().getStatus());
         assertVersionProject(project, asset);
     }
 
     @Test
-    public void testGetVersionProjectByScopeIdWithInvalidVms() {
-        apiResponse = projectController.getVersionProjectByScopeId(TEST_PROJECT1_VERSION_MANAGERMENT_SOFTWARE.getId(), null);
-        assertEquals("Request with invalid VMS id did not result in an error", ERROR, apiResponse.getMeta().getStatus());
-        assertEquals("Invalid VMS id did not result in the expected error message", INVALID_VMS_ID_ERROR_MESSAGE_FIND_BY_ID, apiResponse.getMeta().getMessage());
+    public void testGetVersionProjectByScopeIdWithInvalidRemoteProjectManager() {
+        apiResponse = projectController.getRemoteProjectByScopeId(TEST_PROJECT1_VERSION_MANAGERMENT_SOFTWARE.getId(), null);
+        assertEquals("Request with invalid Remote Project Manager id did not result in an error", ERROR, apiResponse.getMeta().getStatus());
+        assertEquals("Invalid Remote Project Manager id did not result in the expected error message", INVALID_RPM_ID_ERROR_MESSAGE_FIND_BY_ID, apiResponse.getMeta().getMessage());
     }
 
     @Test
-    public void testGetVersionProjectByScopeIdWithMissingVms() {
-        when(versionManagementSoftwareRepo.findOne(any(Long.class))).thenReturn(null);
-        apiResponse = projectController.getVersionProjectByScopeId(TEST_PROJECT1_VERSION_MANAGERMENT_SOFTWARE.getId(), null);
-        assertEquals("Request with no VMS did not result in an error", ERROR, apiResponse.getMeta().getStatus());
-        assertEquals("Missing VMS did not result in the expected error message", MISSING_VMS_ERROR_MESSAGE, apiResponse.getMeta().getMessage());
+    public void testGetVersionProjectByScopeIdWithMissingRemoteProjectManager() {
+        when(remoteProjectManagerRepo.findOne(any(Long.class))).thenReturn(null);
+        apiResponse = projectController.getRemoteProjectByScopeId(TEST_PROJECT1_VERSION_MANAGERMENT_SOFTWARE.getId(), null);
+        assertEquals("Request with no Remote Project Manager did not result in an error", ERROR, apiResponse.getMeta().getStatus());
+        assertEquals("Missing Remote Project Manager did not result in the expected error message", MISSING_RPM_ERROR_MESSAGE, apiResponse.getMeta().getMessage());
     }
 
     private JsonNode getExpectedResponse(String path) throws JsonProcessingException, IOException {
         return objectMapper.readTree(new ClassPathResource(path).getInputStream());
     }
 
-    private void assertVersionProject(VersionProject project, JsonNode asset) {
-        String name = JsonNodeUtility.getVersionProjectName(asset);
-        String scopeId = JsonNodeUtility.getVersionProjectScopeId(asset);
+    private void assertVersionProject(RemoteProject project, JsonNode asset) {
+        String name = VersionOneJsonNodeUtility.getRemoteProjectName(asset);
+        String scopeId = VersionOneJsonNodeUtility.getRemoteProjectScopeId(asset);
         assertEquals("Version project had the incorrect name!", name, project.getName());
         assertEquals("Version project had the incorrect scope id!", scopeId, project.getScopeId());
     }

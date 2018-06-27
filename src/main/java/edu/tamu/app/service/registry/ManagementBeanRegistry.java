@@ -10,7 +10,7 @@ import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.stereotype.Service;
 
 import edu.tamu.app.model.ManagementService;
-import edu.tamu.app.service.versioning.VersionOneService;
+import edu.tamu.app.service.managing.VersionOneService;
 
 @Service
 public class ManagementBeanRegistry {
