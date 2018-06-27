@@ -104,6 +104,12 @@
       <scope>test</scope>
     </dependency>
 
+    <dependency>
+      <groupId>com.versionone</groupId>
+      <artifactId>VersionOne.SDK.Java.APIClient</artifactId>
+      <version>15.1.0</version>
+    </dependency>
+
   </dependencies>
 
   <build>

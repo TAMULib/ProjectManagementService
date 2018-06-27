@@ -2,6 +2,7 @@ package edu.tamu.app.model;
 
 import static javax.persistence.GenerationType.IDENTITY;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.GeneratedValue;
@@ -18,10 +19,15 @@ public class Sprint {
     private String projectName;
 
     private List<Card> cards;
-
-    public Sprint(String name, String projectName, List<Card> cards) {
+    
+    public Sprint(String name, String projectName) {
         setName(name);
         setProjectName(projectName);
+        this.cards = new ArrayList<Card>();
+    }
+
+    public Sprint(String name, String projectName, List<Card> cards) {
+        this(name, projectName);
         setCards(cards);
     }
 
