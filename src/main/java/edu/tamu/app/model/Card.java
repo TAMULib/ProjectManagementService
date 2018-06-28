@@ -1,17 +1,8 @@
 package edu.tamu.app.model;
 
-import static javax.persistence.GenerationType.IDENTITY;
-
 import java.util.List;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-
 public class Card {
-
-    @Id
-    @GeneratedValue(strategy = IDENTITY)
-    private Long id;
 
     // Identifier for the card
     private String name;

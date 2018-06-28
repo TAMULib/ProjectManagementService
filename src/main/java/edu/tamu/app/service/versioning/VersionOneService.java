@@ -6,19 +6,25 @@ import java.util.Optional;
 
 import com.versionone.Oid;
 import com.versionone.apiclient.Asset;
+import com.versionone.apiclient.AttributeSelection;
 import com.versionone.apiclient.Query;
 import com.versionone.apiclient.Services;
 import com.versionone.apiclient.V1Connector;
+import com.versionone.apiclient.filters.AndFilterTerm;
 import com.versionone.apiclient.filters.FilterTerm;
+import com.versionone.apiclient.filters.GroupFilterTerm;
 import com.versionone.apiclient.interfaces.IAssetType;
 import com.versionone.apiclient.interfaces.IAttributeDefinition;
 import com.versionone.apiclient.interfaces.IServices;
 import com.versionone.apiclient.services.QueryResult;
 
+import edu.tamu.app.model.Assignee;
 import edu.tamu.app.model.Card;
+import edu.tamu.app.model.CardType;
 import edu.tamu.app.model.ManagementService;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.Sprint;
+import edu.tamu.app.model.Status;
 import edu.tamu.app.model.request.FeatureRequest;
 import edu.tamu.app.model.response.VersionProject;
 
@@ -69,7 +75,6 @@ public class VersionOneService implements VersionManagementSoftwareBean {
 
     @Override
     public List<Sprint> getActiveSprintsByProject(Project project) throws Exception {
-        System.out.println("\n\n\nin method\n\n\n");
         List<Sprint> sprints = new ArrayList<Sprint>();
         IAssetType timeboxType = services.getMeta().getAssetType("Timebox");
         IAttributeDefinition nameAttribute = timeboxType.getAttributeDefinition("Name");
@@ -77,26 +82,69 @@ public class VersionOneService implements VersionManagementSoftwareBean {
         Query query = new Query(timeboxType);
         query.getSelection().add(nameAttribute);
 
-        String scheduleId = getScheduleIdByScope(project.getScopeId());
-        IAttributeDefinition scheduleAttribute = timeboxType.getAttributeDefinition("Schedule");
-        FilterTerm scheduleTerm = new FilterTerm(scheduleAttribute);
-        scheduleTerm.equal(scheduleId);
-        query.setFilter(scheduleTerm);
+        IAttributeDefinition scopeAttribute = timeboxType.getAttributeDefinition("Schedule.ScheduledScopes");
+        IAttributeDefinition stateCodeAttribute = timeboxType.getAttributeDefinition("State.Code");
+        FilterTerm scopeTerm = new FilterTerm(scopeAttribute);
+        FilterTerm stateCodeTerm = new FilterTerm(stateCodeAttribute);
+        scopeTerm.equal("Scope:" + project.getScopeId());
+        stateCodeTerm.equal("ACTV");
+        GroupFilterTerm groupFilter = new AndFilterTerm(scopeTerm, stateCodeTerm);
+        query.setFilter(groupFilter);
 
         QueryResult result = services.retrieve(query);
 
         for (Asset sprint : result.getAssets()) {
-            sprints.add(new Sprint(sprint.getOid().toString(), sprint.getAttribute(nameAttribute).toString(), project.getName()));
-            System.out.println("\n\nProject: " + project.getName() + "\n\n");
+            sprints.add(new Sprint(sprint.getOid().toString(), sprint.getAttribute(nameAttribute).getValue().toString(), project.getName(), getCardsBySprint(sprint.getOid().toString())));
         }
 
         return sprints;
     }
     
     @Override
-    public List<Card> getCardsBySprint(String sprintId) {
-        // TODO: Finish method
-        return null;
+    public List<Card> getCardsBySprint(String sprintId) throws Exception {
+        List<Card> cards = new ArrayList<Card>();
+        IAssetType primaryWorkitemAsset = services.getMeta().getAssetType("PrimaryWorkitem");
+        AttributeSelection selection = new AttributeSelection();
+        IAttributeDefinition statusNameAttribute = primaryWorkitemAsset.getAttributeDefinition("Status.Name");
+        IAttributeDefinition nameAttribute = primaryWorkitemAsset.getAttributeDefinition("Name");
+        IAttributeDefinition numberAttribute = primaryWorkitemAsset.getAttributeDefinition("Number");
+        IAttributeDefinition descriptionAttribute = primaryWorkitemAsset.getAttributeDefinition("Description");
+        IAttributeDefinition ownersAttribute = primaryWorkitemAsset.getAttributeDefinition("Owners");
+        IAttributeDefinition assetTypeAttribute = primaryWorkitemAsset.getAttributeDefinition("AssetType");
+        IAttributeDefinition timeboxAttribute = primaryWorkitemAsset.getAttributeDefinition("Timebox");
+        selection.add(nameAttribute);
+        selection.add(numberAttribute);
+        selection.add(descriptionAttribute);
+        selection.add(ownersAttribute);
+        selection.add(statusNameAttribute);
+        selection.add(assetTypeAttribute);
+        
+        selection.add(timeboxAttribute);
+        
+        Query query = new Query(primaryWorkitemAsset);
+        query.getSelection().addAll(selection);
+        
+        
+        IAttributeDefinition assetStateAttribute = primaryWorkitemAsset.getAttributeDefinition("AssetState");
+        FilterTerm timeboxTerm = new FilterTerm(timeboxAttribute);
+        FilterTerm assetStateTerm = new FilterTerm(assetStateAttribute);
+        // 64 is active, 128 is inactive
+        assetStateTerm.equal(64);
+        timeboxTerm.equal(sprintId);
+        GroupFilterTerm groupFilter = new AndFilterTerm(assetStateTerm, timeboxTerm);
+        query.setFilter(groupFilter);
+        QueryResult result = services.retrieve(query);
+        
+        for (Asset card : result.getAssets()) {
+            Object number = card.getAttribute(numberAttribute).getValue().toString();
+            Object name = card.getAttribute(nameAttribute).getValue().toString();
+            Object description = card.getAttribute(descriptionAttribute).getValue();
+            Object status = card.getAttribute(statusNameAttribute).getValue();
+            Object cardType = ((IAssetType) card.getAttribute(assetTypeAttribute).getValue()).getToken();
+            cards.add(new Card(number == null ? "" : number.toString(), name == null ? "" : name.toString(), description == null ? "" : description.toString(), new ArrayList<Assignee>(), new Status(status == null ? "" : status.toString()), new CardType(cardType == null ? "" : cardType.toString())));
+        }
+        
+        return cards;
     }
 
     @Override
@@ -115,18 +163,6 @@ public class VersionOneService implements VersionManagementSoftwareBean {
         services.save(newRequest);
 
         return request;
-    }
-
-    private String getScheduleIdByScope(String scopeId) throws Exception {
-        Oid oid = services.getOid("Scope:" + scopeId);
-        IAssetType scopeType = services.getAssetType("Scope");
-        Query query = new Query(oid);
-        IAttributeDefinition scheduleAttribute = scopeType.getAttributeDefinition("Schedule");
-        query.getSelection().add(scheduleAttribute);
-        QueryResult result = services.retrieve(query);
-        Asset scope = result.getAssets()[0];
-        System.out.println("\n\n" + scope.getAttribute(scheduleAttribute).toString() + "\n\n");
-        return scope.getAttribute(scheduleAttribute).toString();
     }
 
     private String getUrl() {
