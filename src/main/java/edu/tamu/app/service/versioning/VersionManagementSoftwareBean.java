@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import edu.tamu.app.model.Card;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.Sprint;
 import edu.tamu.app.model.request.FeatureRequest;
@@ -19,5 +20,7 @@ public interface VersionManagementSoftwareBean extends ManagementBean {
     public FeatureRequest push(FeatureRequest request) throws Exception;
 
     public List<Sprint> getActiveSprintsByProject(Project project) throws Exception;
+
+    public List<Card> getCardsBySprint(String sprintId);
 
 }

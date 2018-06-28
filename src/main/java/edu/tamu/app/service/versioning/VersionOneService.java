@@ -15,6 +15,7 @@ import com.versionone.apiclient.interfaces.IAttributeDefinition;
 import com.versionone.apiclient.interfaces.IServices;
 import com.versionone.apiclient.services.QueryResult;
 
+import edu.tamu.app.model.Card;
 import edu.tamu.app.model.ManagementService;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.Sprint;
@@ -85,23 +86,17 @@ public class VersionOneService implements VersionManagementSoftwareBean {
         QueryResult result = services.retrieve(query);
 
         for (Asset sprint : result.getAssets()) {
-            sprints.add(new Sprint(sprint.getAttribute(nameAttribute).toString(), project.getName()));
+            sprints.add(new Sprint(sprint.getOid().toString(), sprint.getAttribute(nameAttribute).toString(), project.getName()));
             System.out.println("\n\nProject: " + project.getName() + "\n\n");
         }
 
         return sprints;
     }
-
-    private String getScheduleIdByScope(String scopeId) throws Exception {
-        Oid oid = services.getOid("Scope:" + scopeId);
-        IAssetType scopeType = services.getAssetType("Scope");
-        Query query = new Query(oid);
-        IAttributeDefinition scheduleAttribute = scopeType.getAttributeDefinition("Schedule");
-        query.getSelection().add(scheduleAttribute);
-        QueryResult result = services.retrieve(query);
-        Asset scope = result.getAssets()[0];
-        System.out.println("\n\n" + scope.getAttribute(scheduleAttribute).toString() + "\n\n");
-        return scope.getAttribute(scheduleAttribute).toString();
+    
+    @Override
+    public List<Card> getCardsBySprint(String sprintId) {
+        // TODO: Finish method
+        return null;
     }
 
     @Override
@@ -120,6 +115,18 @@ public class VersionOneService implements VersionManagementSoftwareBean {
         services.save(newRequest);
 
         return request;
+    }
+
+    private String getScheduleIdByScope(String scopeId) throws Exception {
+        Oid oid = services.getOid("Scope:" + scopeId);
+        IAssetType scopeType = services.getAssetType("Scope");
+        Query query = new Query(oid);
+        IAttributeDefinition scheduleAttribute = scopeType.getAttributeDefinition("Schedule");
+        query.getSelection().add(scheduleAttribute);
+        QueryResult result = services.retrieve(query);
+        Asset scope = result.getAssets()[0];
+        System.out.println("\n\n" + scope.getAttribute(scheduleAttribute).toString() + "\n\n");
+        return scope.getAttribute(scheduleAttribute).toString();
     }
 
     private String getUrl() {
