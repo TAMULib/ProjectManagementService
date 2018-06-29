@@ -39,28 +39,32 @@ public class SprintsCacheServiceTest {
     private static final String TEST_SPRINT2_NAME = "Test Sprint 2 Name";
 
     private static final String TEST_MEMBER1_NAME = "Test Assignee 1 Name";
+    private static final String TEST_MEMBER1_AVATAR_URL = "/TexasAMLibrary/rest-1.v1/Data/Image/1706";
     private static final String TEST_MEMBER2_NAME = "Test Assignee 2 Name";
+    private static final String TEST_MEMBER2_AVATAR_URL = "/TexasAMLibrary/rest-1.v1/Data/Image/5801";
 
-    private static final Member TEST_MEMBER1 = new Member(TEST_MEMBER1_NAME);
-    private static final Member TEST_MEMBER2 = new Member(TEST_MEMBER2_NAME);
+    private static final Member TEST_MEMBER1 = new Member(TEST_MEMBER1_NAME, TEST_MEMBER1_AVATAR_URL);
+    private static final Member TEST_MEMBER2 = new Member(TEST_MEMBER2_NAME, TEST_MEMBER2_AVATAR_URL);
 
     private static final String TEST_CARD1_NAME = "Test Card 1 Name";
     private static final String TEST_CARD1_TITLE= "Test Card 1 Title";
     private static final String TEST_CARD1_BODY = "Test Card 1 Body";
+    private static final String TEST_CARD1_ESTIMATE = "2";
     private static final String TEST_CARD1_STATUS = "Test Card 1 Status";
     private static final String TEST_CARD1_CARDTYPE = "Test Card 1 CardType";
 
     private static final String TEST_CARD2_NAME = "Test Card 2 Name";
     private static final String TEST_CARD2_TITLE= "Test Card 2 Title";
     private static final String TEST_CARD2_BODY = "Test Card 2 Body";
+    private static final String TEST_CARD2_ESTIMATE = "5";
     private static final String TEST_CARD2_STATUS = "Test Card 2 Status";
     private static final String TEST_CARD2_CARDTYPE = "Test Card 2 CardType";
 
     private static final List<Member> TEST_CARD1_MEMBERS = new ArrayList<Member>(Arrays.asList(new Member[] { TEST_MEMBER1, TEST_MEMBER2 }));
     private static final List<Member> TEST_CARD2_MEMBERS = new ArrayList<Member>();
 
-    private static final Card TEST_CARD1= new Card(TEST_CARD1_NAME, TEST_CARD1_TITLE, TEST_CARD1_BODY, TEST_CARD1_MEMBERS, TEST_CARD1_STATUS, TEST_CARD1_CARDTYPE);
-    private static final Card TEST_CARD2= new Card(TEST_CARD2_NAME, TEST_CARD2_TITLE, TEST_CARD2_BODY, TEST_CARD2_MEMBERS, TEST_CARD2_STATUS, TEST_CARD2_CARDTYPE);
+    private static final Card TEST_CARD1= new Card(TEST_CARD1_NAME, TEST_CARD1_TITLE, TEST_CARD1_BODY, TEST_CARD1_ESTIMATE, TEST_CARD1_MEMBERS, TEST_CARD1_STATUS, TEST_CARD1_CARDTYPE);
+    private static final Card TEST_CARD2= new Card(TEST_CARD2_NAME, TEST_CARD2_TITLE, TEST_CARD2_BODY, TEST_CARD2_ESTIMATE, TEST_CARD2_MEMBERS, TEST_CARD2_STATUS, TEST_CARD2_CARDTYPE);
 
     private static final List<Card> TEST_SPRINT1_CARDS = new ArrayList<Card>(Arrays.asList(new Card[] { TEST_CARD1, TEST_CARD2 }));
     private static final List<Card> TEST_SPRINT2_CARDS = new ArrayList<Card>(Arrays.asList(new Card[] { TEST_CARD2, TEST_CARD1 }));

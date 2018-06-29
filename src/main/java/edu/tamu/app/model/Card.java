@@ -12,16 +12,19 @@ public class Card {
 
     private final String body;
 
+    private final String estimate;
+
     private final List<Member> members;
 
     private final String status;
 
     private final String cardType;
 
-    public Card(String name, String title, String body, List<Member> members, String status, String cardType) {
+    public Card(String name, String title, String body, String estimate, List<Member> members, String status, String cardType) {
         this.name = name;
         this.title = title;
         this.body = body;
+        this.estimate = estimate;
         this.members = members;
         this.status = status;
         this.cardType = cardType;
@@ -37,6 +40,10 @@ public class Card {
 
     public String getBody() {
         return body;
+    }
+
+    public String getEstimate() {
+        return estimate;
     }
 
     public List<Member> getMembers() {

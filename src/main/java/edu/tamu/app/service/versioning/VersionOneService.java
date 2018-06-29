@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.versionone.Oid;
 import com.versionone.apiclient.Asset;
 import com.versionone.apiclient.AttributeSelection;
@@ -18,9 +21,9 @@ import com.versionone.apiclient.interfaces.IAttributeDefinition;
 import com.versionone.apiclient.interfaces.IServices;
 import com.versionone.apiclient.services.QueryResult;
 
-import edu.tamu.app.model.Member;
 import edu.tamu.app.model.Card;
 import edu.tamu.app.model.ManagementService;
+import edu.tamu.app.model.Member;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.Sprint;
 import edu.tamu.app.model.request.FeatureRequest;
@@ -31,9 +34,15 @@ public class VersionOneService implements VersionManagementSoftwareBean {
     // Inactive value is 128
     private static final int ACTIVE_ASSET_STATE = 64;
 
+    private static final String VERSION_ONE_HOST = "https://www15.v1host.com";
+
+    private static final String DEFAULT_AVATAR_URL = "/s/18.1.4.12/css/images/no_avatar.png";
+
     private ManagementService managementService;
 
     private IServices services;
+    
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public VersionOneService(ManagementService managementService) {
         this.managementService = managementService;
@@ -109,11 +118,14 @@ public class VersionOneService implements VersionManagementSoftwareBean {
         IAttributeDefinition nameAttribute = primaryWorkitemAsset.getAttributeDefinition("Name");
         IAttributeDefinition numberAttribute = primaryWorkitemAsset.getAttributeDefinition("Number");
         IAttributeDefinition descriptionAttribute = primaryWorkitemAsset.getAttributeDefinition("Description");
+        IAttributeDefinition estimateAttribute = primaryWorkitemAsset.getAttributeDefinition("Estimate");
         IAttributeDefinition ownersAttribute = primaryWorkitemAsset.getAttributeDefinition("Owners");
         IAttributeDefinition assetTypeAttribute = primaryWorkitemAsset.getAttributeDefinition("AssetType");
+        
         selection.add(nameAttribute);
         selection.add(numberAttribute);
         selection.add(descriptionAttribute);
+        selection.add(estimateAttribute);
         selection.add(ownersAttribute);
         selection.add(statusNameAttribute);
         selection.add(assetTypeAttribute);
@@ -135,9 +147,19 @@ public class VersionOneService implements VersionManagementSoftwareBean {
             Object number = card.getAttribute(numberAttribute).getValue().toString();
             Object name = card.getAttribute(nameAttribute).getValue().toString();
             Object description = card.getAttribute(descriptionAttribute).getValue();
+            Object estimate = card.getAttribute(estimateAttribute).getValue();
             Object status = card.getAttribute(statusNameAttribute).getValue();
             Object cardType = ((IAssetType) card.getAttribute(assetTypeAttribute).getValue()).getToken();
-            cards.add(new Card(number == null ? "" : number.toString(), name == null ? "" : name.toString(), description == null ? "" : description.toString(), new ArrayList<Member>(), status == null ? "" : status.toString(), cardType == null ? "" : cardType.toString()));
+            Object[] owners = card.getAttribute(ownersAttribute).getValues();
+            cards.add(new Card(
+                number == null ? "" : number.toString(),
+                name == null ? "" : name.toString(),
+                description == null ? "" : description.toString(),
+                estimate == null ? "" : estimate.toString(),
+                getMembers(owners),
+                status == null ? "" : status.toString(),
+                cardType == null ? "" : cardType.toString()
+            ));
         }
 
         return cards;
@@ -159,6 +181,44 @@ public class VersionOneService implements VersionManagementSoftwareBean {
         services.save(newRequest);
 
         return request;
+    }
+    
+    private List<Member> getMembers(Object[] owners) throws Exception {
+        List<Member> members = new ArrayList<Member>();
+        for (Object owner : owners) {
+            Oid memberId = services.getOid(owner.toString());
+            IAssetType memberType = services.getMeta().getAssetType("Member");
+            IAttributeDefinition nameAttribute = memberType.getAttributeDefinition("Name");
+            IAttributeDefinition avatarAttribute = memberType.getAttributeDefinition("Avatar");
+            
+            Query query = new Query(memberId);
+            query.getSelection().add(nameAttribute);
+            query.getSelection().add(avatarAttribute);
+            
+            QueryResult result = services.retrieve(query);
+            
+            Asset member = result.getAssets()[0];
+            String name = member.getAttribute(nameAttribute).getValue().toString();
+            String avatarId = member.getAttribute(avatarAttribute).getValue().toString();
+            members.add(new Member(name, getAvatarUrl(avatarId)));
+        }
+        return members;
+    }
+    
+    private String getAvatarUrl(String avatarId) throws Exception {
+        String url = VERSION_ONE_HOST + DEFAULT_AVATAR_URL;
+        if (!avatarId.equals("NULL")) {
+            Oid imageId = services.getOid(avatarId);
+            IAssetType imageType = services.getAssetType("Image");
+            IAttributeDefinition contentAttribute = imageType.getAttributeDefinition("Content");
+            
+            Query query = new Query(imageId);
+            query.getSelection().add(contentAttribute);
+            QueryResult result = services.retrieve(query);
+            
+            url = VERSION_ONE_HOST + result.getAssets()[0].getAttribute(contentAttribute).getOriginalValue().toString();
+        }
+        return url;
     }
 
     private String getUrl() {
