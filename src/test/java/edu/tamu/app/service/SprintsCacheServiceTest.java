@@ -18,7 +18,7 @@ import org.mockito.Spy;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import edu.tamu.app.enums.ServiceType;
-import edu.tamu.app.model.Assignee;
+import edu.tamu.app.model.Member;
 import edu.tamu.app.model.Card;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.Sprint;
@@ -38,11 +38,11 @@ public class SprintsCacheServiceTest {
     private static final String TEST_SPRINT2_IDENTIFIER = "Test Sprint 2 Identifier";
     private static final String TEST_SPRINT2_NAME = "Test Sprint 2 Name";
 
-    private static final String TEST_ASSIGNEE1_NAME = "Test Assignee 1 Name";
-    private static final String TEST_ASSIGNEE2_NAME = "Test Assignee 2 Name";
+    private static final String TEST_MEMBER1_NAME = "Test Assignee 1 Name";
+    private static final String TEST_MEMBER2_NAME = "Test Assignee 2 Name";
 
-    private static final Assignee TEST_ASSIGNEE1 = new Assignee(TEST_ASSIGNEE1_NAME);
-    private static final Assignee TEST_ASSIGNEE2 = new Assignee(TEST_ASSIGNEE2_NAME);
+    private static final Member TEST_MEMBER1 = new Member(TEST_MEMBER1_NAME);
+    private static final Member TEST_MEMBER2 = new Member(TEST_MEMBER2_NAME);
 
     private static final String TEST_CARD1_NAME = "Test Card 1 Name";
     private static final String TEST_CARD1_TITLE= "Test Card 1 Title";
@@ -56,11 +56,11 @@ public class SprintsCacheServiceTest {
     private static final String TEST_CARD2_STATUS = "Test Card 2 Status";
     private static final String TEST_CARD2_CARDTYPE = "Test Card 2 CardType";
 
-    private static final List<Assignee> TEST_CARD1_ASSIGNEES = new ArrayList<Assignee>(Arrays.asList(new Assignee[] { TEST_ASSIGNEE1, TEST_ASSIGNEE2 }));
-    private static final List<Assignee> TEST_CARD2_ASSIGNEES = new ArrayList<Assignee>();
+    private static final List<Member> TEST_CARD1_MEMBERS = new ArrayList<Member>(Arrays.asList(new Member[] { TEST_MEMBER1, TEST_MEMBER2 }));
+    private static final List<Member> TEST_CARD2_MEMBERS = new ArrayList<Member>();
 
-    private static final Card TEST_CARD1= new Card(TEST_CARD1_NAME, TEST_CARD1_TITLE, TEST_CARD1_BODY, TEST_CARD1_ASSIGNEES, TEST_CARD1_STATUS, TEST_CARD1_CARDTYPE);
-    private static final Card TEST_CARD2= new Card(TEST_CARD2_NAME, TEST_CARD2_TITLE, TEST_CARD2_BODY, TEST_CARD2_ASSIGNEES, TEST_CARD2_STATUS, TEST_CARD2_CARDTYPE);
+    private static final Card TEST_CARD1= new Card(TEST_CARD1_NAME, TEST_CARD1_TITLE, TEST_CARD1_BODY, TEST_CARD1_MEMBERS, TEST_CARD1_STATUS, TEST_CARD1_CARDTYPE);
+    private static final Card TEST_CARD2= new Card(TEST_CARD2_NAME, TEST_CARD2_TITLE, TEST_CARD2_BODY, TEST_CARD2_MEMBERS, TEST_CARD2_STATUS, TEST_CARD2_CARDTYPE);
 
     private static final List<Card> TEST_SPRINT1_CARDS = new ArrayList<Card>(Arrays.asList(new Card[] { TEST_CARD1, TEST_CARD2 }));
 

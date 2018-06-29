@@ -12,17 +12,17 @@ public class Card {
 
     private String body;
 
-    private List<Assignee> assignees;
+    private List<Member> members;
 
     private String status;
 
     private String cardType;
 
-    public Card(String name, String title, String body, List<Assignee> assignees, String status, String cardType) {
+    public Card(String name, String title, String body, List<Member> members, String status, String cardType) {
         setName(name);
         setTitle(title);
         setBody(body);
-        setAssignees(assignees);
+        setMembers(members);
         setStatus(status);
         setCardType(cardType);
     }
@@ -51,12 +51,12 @@ public class Card {
         this.body = body;
     }
 
-    public List<Assignee> getAssignees() {
-        return assignees;
+    public List<Member> getMembers() {
+        return members;
     }
 
-    public void setAssignees(List<Assignee> assignees) {
-        this.assignees = assignees;
+    public void setMembers(List<Member> members) {
+        this.members = members;
     }
 
     public String getStatus() {

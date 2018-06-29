@@ -18,7 +18,7 @@ import com.versionone.apiclient.interfaces.IAttributeDefinition;
 import com.versionone.apiclient.interfaces.IServices;
 import com.versionone.apiclient.services.QueryResult;
 
-import edu.tamu.app.model.Assignee;
+import edu.tamu.app.model.Member;
 import edu.tamu.app.model.Card;
 import edu.tamu.app.model.ManagementService;
 import edu.tamu.app.model.Project;
@@ -140,7 +140,7 @@ public class VersionOneService implements VersionManagementSoftwareBean {
             Object description = card.getAttribute(descriptionAttribute).getValue();
             Object status = card.getAttribute(statusNameAttribute).getValue();
             Object cardType = ((IAssetType) card.getAttribute(assetTypeAttribute).getValue()).getToken();
-            cards.add(new Card(number == null ? "" : number.toString(), name == null ? "" : name.toString(), description == null ? "" : description.toString(), new ArrayList<Assignee>(), status == null ? "" : status.toString(), cardType == null ? "" : cardType.toString()));
+            cards.add(new Card(number == null ? "" : number.toString(), name == null ? "" : name.toString(), description == null ? "" : description.toString(), new ArrayList<Member>(), status == null ? "" : status.toString(), cardType == null ? "" : cardType.toString()));
         }
 
         return cards;
