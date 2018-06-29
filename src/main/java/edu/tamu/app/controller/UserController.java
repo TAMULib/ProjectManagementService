@@ -1,6 +1,7 @@
 package edu.tamu.app.controller;
 
 import static edu.tamu.weaver.response.ApiStatus.SUCCESS;
+import static edu.tamu.weaver.response.ApiStatus.UNAUTHORIZED;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,7 +17,7 @@ import edu.tamu.weaver.response.ApiResponse;
 
 /**
  * User Controller
- * 
+ *
  */
 @RestController
 @RequestMapping("/users")
@@ -27,25 +28,32 @@ public class UserController {
 
     /**
      * Websocket endpoint to request credentials.
-     * 
+     *
      * @param credentials
      * @ApiCredentials Credentials
-     * 
+     *
      * @return ApiResponse
-     * 
+     *
      */
     @RequestMapping("/credentials")
     @PreAuthorize("hasRole('ANONYMOUS')")
     public ApiResponse credentials(@WeaverCredentials Credentials credentials) {
-        return new ApiResponse(SUCCESS, credentials);
+        ApiResponse response;
+        if (credentials == null) {
+            response = new ApiResponse(UNAUTHORIZED, "Not Authorized");
+        }
+        else {
+            response = new ApiResponse(SUCCESS, credentials);
+        }
+        return response;
     }
 
     /**
      * Returns all users.
-     * 
+     *
      * @param user
      * @ApiModel AppUser
-     * 
+     *
      * @return
      */
     @RequestMapping
@@ -56,12 +64,12 @@ public class UserController {
 
     /**
      * Returns users.
-     * 
+     *
      * @param user
      * @ApiModel AppUser
-     * 
+     *
      * @return ApiResponse
-     * 
+     *
      */
     @RequestMapping("/update")
     @PreAuthorize("hasRole('MANAGER')")
@@ -72,12 +80,12 @@ public class UserController {
 
     /**
      * Endpoint to delete user.
-     * 
+     *
      * @param user
      * @ApiModel AppUser
-     * 
+     *
      * @return ApiResponse
-     * 
+     *
      */
     @RequestMapping("/delete")
     @PreAuthorize("hasRole('MANAGER')")
