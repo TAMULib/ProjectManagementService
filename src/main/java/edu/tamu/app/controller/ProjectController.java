@@ -27,6 +27,7 @@ import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.model.repo.VersionManagementSoftwareRepo;
 import edu.tamu.app.model.request.FeatureRequest;
 import edu.tamu.app.model.request.TicketRequest;
+import edu.tamu.app.service.SprintsCacheService;
 import edu.tamu.app.service.registry.ManagementBeanRegistry;
 import edu.tamu.app.service.ticketing.SugarService;
 import edu.tamu.app.service.versioning.VersionManagementSoftwareBean;
@@ -49,6 +50,9 @@ public class ProjectController {
 
     @Autowired
     private SugarService sugarService;
+
+    @Autowired
+    private SprintsCacheService sprintsCacheService;
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -122,25 +126,7 @@ public class ProjectController {
     @RequestMapping(value = "/{vmsId}/version-projects", method = RequestMethod.GET)
     @PreAuthorize("hasRole('MANAGER')")
     public ApiResponse getAllVersionProjects(@PathVariable Long vmsId) {
-        Optional<VersionManagementSoftware> vms = Optional.ofNullable(versionManagementSoftwareRepo.findOne(vmsId));
-        ApiResponse response;
-        if (vms.isPresent()) {
-            VersionManagementSoftwareBean versionManagementSoftwareBean = (VersionManagementSoftwareBean) managementBeanRegistry.getService(vms.get().getName());
-            try {
-                List<Project> project = projectRepo.findAll();
-                if (!project.isEmpty()) {
-                    versionManagementSoftwareBean.getActiveSprintsByProject(project.get(0));
-                    System.out.println("\n\n\ngot Sprints\n\n\n");
-                }
-                response = new ApiResponse(SUCCESS, versionManagementSoftwareBean.getVersionProjects());
-            } catch (Exception e) {
-                response = new ApiResponse(ERROR, "Error fetching version projects from " + vms.get().getName() + "!");
-                System.out.println(e.getStackTrace());
-            }
-        } else {
-            response = new ApiResponse(ERROR, "Version Management Software with id " + vmsId + " not found!");
-        }
-        return response;
+        return new ApiResponse(SUCCESS, sprintsCacheService.getVersionProjects());
     }
 
     @RequestMapping(value = "/{vmsId}/version-projects/{scopeId}", method = RequestMethod.GET)
@@ -160,7 +146,7 @@ public class ProjectController {
         }
         return response;
     }
-    
+
     @RequestMapping(value = "/test/{id}", method = RequestMethod.GET)
     public ApiResponse getTest(@PathVariable long id) {
         Optional<VersionManagementSoftware> vms = Optional.ofNullable(versionManagementSoftwareRepo.findOne(id));
