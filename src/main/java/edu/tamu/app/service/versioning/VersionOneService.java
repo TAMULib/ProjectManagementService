@@ -111,7 +111,6 @@ public class VersionOneService implements VersionManagementSoftwareBean {
         IAttributeDefinition descriptionAttribute = primaryWorkitemAsset.getAttributeDefinition("Description");
         IAttributeDefinition ownersAttribute = primaryWorkitemAsset.getAttributeDefinition("Owners");
         IAttributeDefinition assetTypeAttribute = primaryWorkitemAsset.getAttributeDefinition("AssetType");
-        IAttributeDefinition timeboxAttribute = primaryWorkitemAsset.getAttributeDefinition("Timebox");
         selection.add(nameAttribute);
         selection.add(numberAttribute);
         selection.add(descriptionAttribute);
@@ -119,11 +118,10 @@ public class VersionOneService implements VersionManagementSoftwareBean {
         selection.add(statusNameAttribute);
         selection.add(assetTypeAttribute);
 
-        selection.add(timeboxAttribute);
-
         Query query = new Query(primaryWorkitemAsset);
         query.getSelection().addAll(selection);
 
+        IAttributeDefinition timeboxAttribute = primaryWorkitemAsset.getAttributeDefinition("Timebox");
         IAttributeDefinition assetStateAttribute = primaryWorkitemAsset.getAttributeDefinition("AssetState");
         FilterTerm timeboxTerm = new FilterTerm(timeboxAttribute);
         FilterTerm assetStateTerm = new FilterTerm(assetStateAttribute);
