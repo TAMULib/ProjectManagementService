@@ -101,8 +101,7 @@ public class VersionOneService implements VersionManagementSoftwareBean {
         return sprints;
     }
 
-    @Override
-    public List<Card> getCardsBySprint(String sprintId) throws Exception {
+    private List<Card> getCardsBySprint(String sprintId) throws Exception {
         List<Card> cards = new ArrayList<Card>();
         IAssetType primaryWorkitemAsset = services.getMeta().getAssetType("PrimaryWorkitem");
         AttributeSelection selection = new AttributeSelection();

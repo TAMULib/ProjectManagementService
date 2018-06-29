@@ -21,6 +21,4 @@ public interface VersionManagementSoftwareBean extends ManagementBean {
 
     public List<Sprint> getActiveSprintsByProject(Project project) throws Exception;
 
-    public List<Card> getCardsBySprint(String sprintId) throws Exception;
-
 }
