@@ -20,15 +20,16 @@ import com.versionone.apiclient.services.QueryResult;
 
 import edu.tamu.app.model.Assignee;
 import edu.tamu.app.model.Card;
-import edu.tamu.app.model.CardType;
 import edu.tamu.app.model.ManagementService;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.Sprint;
-import edu.tamu.app.model.Status;
 import edu.tamu.app.model.request.FeatureRequest;
 import edu.tamu.app.model.response.VersionProject;
 
 public class VersionOneService implements VersionManagementSoftwareBean {
+
+    // Inactive value is 128
+    private static final int ACTIVE_ASSET_STATE = 64;
 
     private ManagementService managementService;
 
@@ -99,7 +100,7 @@ public class VersionOneService implements VersionManagementSoftwareBean {
 
         return sprints;
     }
-    
+
     @Override
     public List<Card> getCardsBySprint(String sprintId) throws Exception {
         List<Card> cards = new ArrayList<Card>();
@@ -118,32 +119,30 @@ public class VersionOneService implements VersionManagementSoftwareBean {
         selection.add(ownersAttribute);
         selection.add(statusNameAttribute);
         selection.add(assetTypeAttribute);
-        
+
         selection.add(timeboxAttribute);
-        
+
         Query query = new Query(primaryWorkitemAsset);
         query.getSelection().addAll(selection);
-        
-        
+
         IAttributeDefinition assetStateAttribute = primaryWorkitemAsset.getAttributeDefinition("AssetState");
         FilterTerm timeboxTerm = new FilterTerm(timeboxAttribute);
         FilterTerm assetStateTerm = new FilterTerm(assetStateAttribute);
-        // 64 is active, 128 is inactive
-        assetStateTerm.equal(64);
+        assetStateTerm.equal(ACTIVE_ASSET_STATE);
         timeboxTerm.equal(sprintId);
         GroupFilterTerm groupFilter = new AndFilterTerm(assetStateTerm, timeboxTerm);
         query.setFilter(groupFilter);
         QueryResult result = services.retrieve(query);
-        
+
         for (Asset card : result.getAssets()) {
             Object number = card.getAttribute(numberAttribute).getValue().toString();
             Object name = card.getAttribute(nameAttribute).getValue().toString();
             Object description = card.getAttribute(descriptionAttribute).getValue();
             Object status = card.getAttribute(statusNameAttribute).getValue();
             Object cardType = ((IAssetType) card.getAttribute(assetTypeAttribute).getValue()).getToken();
-            cards.add(new Card(number == null ? "" : number.toString(), name == null ? "" : name.toString(), description == null ? "" : description.toString(), new ArrayList<Assignee>(), new Status(status == null ? "" : status.toString()), new CardType(cardType == null ? "" : cardType.toString())));
+            cards.add(new Card(number == null ? "" : number.toString(), name == null ? "" : name.toString(), description == null ? "" : description.toString(), new ArrayList<Assignee>(), status == null ? "" : status.toString(), cardType == null ? "" : cardType.toString()));
         }
-        
+
         return cards;
     }
 

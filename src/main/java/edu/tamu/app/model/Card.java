@@ -14,11 +14,11 @@ public class Card {
 
     private List<Assignee> assignees;
 
-    private Status status;
+    private String status;
 
-    private CardType cardType;
+    private String cardType;
 
-    public Card(String name, String title, String body, List<Assignee> assignees, Status status, CardType cardType) {
+    public Card(String name, String title, String body, List<Assignee> assignees, String status, String cardType) {
         setName(name);
         setTitle(title);
         setBody(body);
@@ -59,19 +59,19 @@ public class Card {
         this.assignees = assignees;
     }
 
-    public Status getStatus() {
+    public String getStatus() {
         return status;
     }
 
-    public void setStatus(Status status) {
+    public void setStatus(String status) {
         this.status = status;
     }
 
-    public CardType getCardType() {
+    public String getCardType() {
         return cardType;
     }
 
-    public void setCardType(CardType cardType) {
+    public void setCardType(String cardType) {
         this.cardType = cardType;
     }
 

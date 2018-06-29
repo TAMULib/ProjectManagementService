@@ -18,9 +18,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import edu.tamu.app.model.Assignee;
 import edu.tamu.app.model.Card;
-import edu.tamu.app.model.CardType;
 import edu.tamu.app.model.Sprint;
-import edu.tamu.app.model.Status;
 import edu.tamu.app.service.SprintsCacheService;
 import edu.tamu.weaver.response.ApiResponse;
 
@@ -43,14 +41,14 @@ public class SprintsControllerTest {
     private static final String TEST_CARD1_NAME = "Test Card 1 Name";
     private static final String TEST_CARD1_TITLE= "Test Card 1 Title";
     private static final String TEST_CARD1_BODY = "Test Card 1 Body";
-    private static final Status TEST_CARD1_STATUS = new Status("Test Card 1 Status");
-    private static final CardType TEST_CARD1_CARDTYPE = new CardType("Test Card 1 CardType");
+    private static final String TEST_CARD1_STATUS = "Test Card 1 Status";
+    private static final String TEST_CARD1_CARDTYPE = "Test Card 1 CardType";
 
     private static final String TEST_CARD2_NAME = "Test Card 2 Name";
     private static final String TEST_CARD2_TITLE= "Test Card 2 Title";
     private static final String TEST_CARD2_BODY = "Test Card 2 Body";
-    private static final Status TEST_CARD2_STATUS = new Status("Test Card 2 Status");
-    private static final CardType TEST_CARD2_CARDTYPE = new CardType("Test Card 2 CardType");
+    private static final String TEST_CARD2_STATUS = "Test Card 2 Status";
+    private static final String TEST_CARD2_CARDTYPE = "Test Card 2 CardType";
 
     private static final List<Assignee> TEST_CARD1_ASSIGNEES = new ArrayList<Assignee>(Arrays.asList(new Assignee[] { TEST_ASSIGNEE1, TEST_ASSIGNEE2 }));
     private static final List<Assignee> TEST_CARD2_ASSIGNEES = new ArrayList<Assignee>();
