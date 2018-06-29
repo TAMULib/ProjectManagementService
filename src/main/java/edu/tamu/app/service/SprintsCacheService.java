@@ -32,6 +32,7 @@ public class SprintsCacheService {
     public void cacheActiveSprints() {
         logger.info("Updating Cache");
         try {
+            List<Sprint> sprints = new ArrayList<Sprint>();
             List<Project> projects = projectRepo.findAll();
 
             if (!projects.isEmpty()) {
@@ -49,17 +50,18 @@ public class SprintsCacheService {
                         List<Sprint> projectSprints = vmsBean.getActiveSprintsByProject(project);
 
                         if (projectSprints != null) {
-                            activeSprints.addAll(projectSprints);
+                            sprints.addAll(projectSprints);
                         }
                     }
                 }
             }
 
-            cacheActiveSprints(activeSprints);
+            cacheActiveSprints(sprints);
         } catch (Exception e) {
             logger.warn("Error while fetching sprints from projects, therefore cache will not be rebuilt.");
             e.printStackTrace();
         }
+        logger.info("Cache updated with " + SprintsCacheService.activeSprints.size() + " sprints");
     }
 
     public synchronized List<Sprint> getActiveSprints() {
