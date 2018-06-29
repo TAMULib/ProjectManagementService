@@ -6,7 +6,6 @@ import static edu.tamu.weaver.validation.model.BusinessValidationType.CREATE;
 import static edu.tamu.weaver.validation.model.BusinessValidationType.DELETE;
 import static edu.tamu.weaver.validation.model.BusinessValidationType.UPDATE;
 
-import java.util.List;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
@@ -27,7 +26,6 @@ import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.model.repo.VersionManagementSoftwareRepo;
 import edu.tamu.app.model.request.FeatureRequest;
 import edu.tamu.app.model.request.TicketRequest;
-import edu.tamu.app.service.SprintsCacheService;
 import edu.tamu.app.service.registry.ManagementBeanRegistry;
 import edu.tamu.app.service.ticketing.SugarService;
 import edu.tamu.app.service.versioning.VersionManagementSoftwareBean;
@@ -46,13 +44,10 @@ public class ProjectController {
     private ManagementBeanRegistry managementBeanRegistry;
 
     @Autowired
-    private VersionManagementSoftwareRepo versionManagementSoftwareRepo;
-
-    @Autowired
     private SugarService sugarService;
 
     @Autowired
-    private SprintsCacheService sprintsCacheService;
+    private VersionManagementSoftwareRepo versionManagementSoftwareRepo;
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -126,7 +121,19 @@ public class ProjectController {
     @RequestMapping(value = "/{vmsId}/version-projects", method = RequestMethod.GET)
     @PreAuthorize("hasRole('MANAGER')")
     public ApiResponse getAllVersionProjects(@PathVariable Long vmsId) {
-        return new ApiResponse(SUCCESS, sprintsCacheService.getVersionProjects());
+        Optional<VersionManagementSoftware> vms = Optional.ofNullable(versionManagementSoftwareRepo.findOne(vmsId));
+        ApiResponse response;
+        if (vms.isPresent()) {
+            VersionManagementSoftwareBean versionManagementSoftwareBean = (VersionManagementSoftwareBean) managementBeanRegistry.getService(vms.get().getName());
+            try {
+                response = new ApiResponse(SUCCESS, versionManagementSoftwareBean.getVersionProjects());
+            } catch (Exception e) {
+                response = new ApiResponse(ERROR, "Error fetching version projects from " + vms.get().getName() + "!");
+            }
+        } else {
+            response = new ApiResponse(ERROR, "Version Management Software with id " + vmsId + " not found!");
+        }
+        return response;
     }
 
     @RequestMapping(value = "/{vmsId}/version-projects/{scopeId}", method = RequestMethod.GET)
@@ -143,24 +150,6 @@ public class ProjectController {
             }
         } else {
             response = new ApiResponse(ERROR, "Version Management Software with id " + vmsId + " not found!");
-        }
-        return response;
-    }
-
-    @RequestMapping(value = "/test/{id}", method = RequestMethod.GET)
-    public ApiResponse getTest(@PathVariable long id) {
-        Optional<VersionManagementSoftware> vms = Optional.ofNullable(versionManagementSoftwareRepo.findOne(id));
-        ApiResponse response;
-        if (vms.isPresent()) {
-            VersionManagementSoftwareBean versionManagementSoftwareBean = (VersionManagementSoftwareBean) managementBeanRegistry.getService(vms.get().getName());
-            try {
-                response = new ApiResponse(SUCCESS, versionManagementSoftwareBean.getActiveSprintsByProject(projectRepo.findAll().get(0)));
-            } catch (Exception e) {
-                response = new ApiResponse(ERROR, "Error fetching version project with scope id " + "7948" + " from " + vms.get().getName() + "!");
-                e.printStackTrace();
-            }
-        } else {
-            response = new ApiResponse(ERROR, "Version Management Software with id " + id + " not found!");
         }
         return response;
     }

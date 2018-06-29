@@ -12,8 +12,6 @@ import org.springframework.stereotype.Service;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.Sprint;
 import edu.tamu.app.model.repo.ProjectRepo;
-import edu.tamu.app.model.response.VersionProject;
-import edu.tamu.app.service.registry.ManagementBean;
 import edu.tamu.app.service.registry.ManagementBeanRegistry;
 import edu.tamu.app.service.versioning.VersionManagementSoftwareBean;
 
@@ -21,7 +19,6 @@ import edu.tamu.app.service.versioning.VersionManagementSoftwareBean;
 public class SprintsCacheService {
 
     private final static List<Sprint> activeSprints = new ArrayList<Sprint>();
-    private final static List<VersionProject> versionProjects = new ArrayList<VersionProject>();
 
     @Autowired
     private ProjectRepo projectRepo;
@@ -29,17 +26,11 @@ public class SprintsCacheService {
     @Autowired
     private ManagementBeanRegistry managementBeanRegistry;
 
-    @Scheduled(fixedDelay = (10 * 60 * 1000), initialDelay = (10 * 1000))
-    public void updateCaches() {
-        logger.info("Updating Cache");
-        cacheActiveSprints();
-        cacheVersionProjects();
-    }
-
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    @Scheduled(fixedDelay = (10 * 60 * 1000), initialDelay = (10 * 1000))
     public void cacheActiveSprints() {
-
+        logger.info("Updating Cache");
         try {
             List<Project> projects = projectRepo.findAll();
 
@@ -71,21 +62,6 @@ public class SprintsCacheService {
         }
     }
 
-    public void cacheVersionProjects() {
-        List<VersionProject> projects = new ArrayList<VersionProject>();
-
-        try {
-            for (ManagementBean vmb : managementBeanRegistry.getAllServices().values()) {
-                VersionManagementSoftwareBean vmsb = (VersionManagementSoftwareBean) vmb;
-                projects.addAll(vmsb.getVersionProjects());
-            }
-            cacheVersionProjects(projects);
-        } catch (Exception e) {
-            logger.warn("Error while fetching version projects, therefore cache will not be rebuilt.");
-            logger.warn(e.getStackTrace().toString());
-        }
-    }
-
     public synchronized List<Sprint> getActiveSprints() {
         return activeSprints;
     }
@@ -93,14 +69,5 @@ public class SprintsCacheService {
     private synchronized void cacheActiveSprints(List<Sprint> activeSprints) {
         SprintsCacheService.activeSprints.clear();
         SprintsCacheService.activeSprints.addAll(activeSprints);
-    }
-
-    public synchronized List<VersionProject> getVersionProjects() {
-        return versionProjects;
-    }
-
-    private synchronized void cacheVersionProjects(List<VersionProject> versionProjects) {
-        SprintsCacheService.versionProjects.clear();
-        SprintsCacheService.versionProjects.addAll(versionProjects);
     }
 }
