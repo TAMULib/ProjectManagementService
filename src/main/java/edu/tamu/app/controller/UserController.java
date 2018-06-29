@@ -35,7 +35,7 @@ public class UserController {
      * 
      */
     @RequestMapping("/credentials")
-    @PreAuthorize("hasRole('ANONYMOUS')")
+    @PreAuthorize("hasRole('USER')")
     public ApiResponse credentials(@WeaverCredentials Credentials credentials) {
         return new ApiResponse(SUCCESS, credentials);
     }
