@@ -29,7 +29,7 @@ public class SprintsCacheService {
     @Autowired
     private ManagementBeanRegistry managementBeanRegistry;
 
-    @Scheduled(fixedDelay = (10 * 60 * 1000))
+    @Scheduled(fixedDelay = (10 * 60 * 1000), initialDelay = (10 * 1000))
     public void updateCaches() {
         logger.info("Updating Cache");
         cacheActiveSprints();
