@@ -1,11 +1,14 @@
 package edu.tamu.app.service.versioning;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Matcher;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.versionone.Oid;
 import com.versionone.apiclient.Asset;
@@ -34,14 +37,13 @@ public class VersionOneService implements VersionManagementSoftwareBean {
     // Inactive value is 128
     private static final int ACTIVE_ASSET_STATE = 64;
 
-    private static final String VERSION_ONE_HOST = "https://www15.v1host.com";
-
-    private static final String DEFAULT_AVATAR_URL = "/s/18.1.4.12/css/images/no_avatar.png";
+    @Value("${app.vms.versionone.avatar}")
+    private String DEFAULT_AVATAR_URL;
 
     private ManagementService managementService;
 
     private IServices services;
-    
+
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public VersionOneService(ManagementService managementService) {
@@ -121,7 +123,7 @@ public class VersionOneService implements VersionManagementSoftwareBean {
         IAttributeDefinition estimateAttribute = primaryWorkitemAsset.getAttributeDefinition("Estimate");
         IAttributeDefinition ownersAttribute = primaryWorkitemAsset.getAttributeDefinition("Owners");
         IAttributeDefinition assetTypeAttribute = primaryWorkitemAsset.getAttributeDefinition("AssetType");
-        
+
         selection.add(nameAttribute);
         selection.add(numberAttribute);
         selection.add(descriptionAttribute);
@@ -182,7 +184,7 @@ public class VersionOneService implements VersionManagementSoftwareBean {
 
         return request;
     }
-    
+
     private List<Member> getMembers(Object[] owners) throws Exception {
         List<Member> members = new ArrayList<Member>();
         for (Object owner : owners) {
@@ -190,13 +192,13 @@ public class VersionOneService implements VersionManagementSoftwareBean {
             IAssetType memberType = services.getMeta().getAssetType("Member");
             IAttributeDefinition nameAttribute = memberType.getAttributeDefinition("Name");
             IAttributeDefinition avatarAttribute = memberType.getAttributeDefinition("Avatar");
-            
+
             Query query = new Query(memberId);
             query.getSelection().add(nameAttribute);
             query.getSelection().add(avatarAttribute);
-            
+
             QueryResult result = services.retrieve(query);
-            
+
             Asset member = result.getAssets()[0];
             String name = member.getAttribute(nameAttribute).getValue().toString();
             String avatarId = member.getAttribute(avatarAttribute).getValue().toString();
@@ -204,25 +206,33 @@ public class VersionOneService implements VersionManagementSoftwareBean {
         }
         return members;
     }
-    
+
     private String getAvatarUrl(String avatarId) throws Exception {
-        String url = VERSION_ONE_HOST + DEFAULT_AVATAR_URL;
+        String url = DEFAULT_AVATAR_URL;
         if (!avatarId.equals("NULL")) {
             Oid imageId = services.getOid(avatarId);
             IAssetType imageType = services.getAssetType("Image");
             IAttributeDefinition contentAttribute = imageType.getAttributeDefinition("Content");
-            
+
             Query query = new Query(imageId);
             query.getSelection().add(contentAttribute);
             QueryResult result = services.retrieve(query);
-            
-            url = VERSION_ONE_HOST + result.getAssets()[0].getAttribute(contentAttribute).getOriginalValue().toString();
+
+            // Avatar from attributes already contains the entire "path" part of the URL from the server.
+            String fullUrl = getUrl();
+            URL siteUrl = new URL(fullUrl);
+
+            url = fullUrl.replaceAll("" + Matcher.quoteReplacement(siteUrl.getPath()) + "$", "") + result.getAssets()[0].getAttribute(contentAttribute).getOriginalValue().toString();
         }
         return url;
     }
 
     private String getUrl() {
-        return getSettingValue("url");
+        String url = getSettingValue("url");
+        if (!url.isEmpty()) {
+            url = url.replaceAll("/*$", "");
+        }
+        return url;
     }
 
     private String getPassword() {
