@@ -18,16 +18,16 @@ public class Card {
 
     private final String status;
 
-    private final String cardType;
+    private final String type;
 
-    public Card(String name, String title, String body, String estimate, List<Member> members, String status, String cardType) {
+    public Card(String name, String title, String body, String estimate, List<Member> members, String status, String type) {
         this.name = name;
         this.title = title;
         this.body = body;
         this.estimate = estimate;
         this.members = members;
         this.status = status;
-        this.cardType = cardType;
+        this.type = type;
     }
 
     public String getName() {
@@ -54,8 +54,8 @@ public class Card {
         return status;
     }
 
-    public String getCardType() {
-        return cardType;
+    public String getType() {
+        return type;
     }
 
 }
