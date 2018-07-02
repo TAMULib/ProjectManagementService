@@ -35,23 +35,21 @@ public class SprintsCacheService {
             List<Sprint> sprints = new ArrayList<Sprint>();
             List<Project> projects = projectRepo.findAll();
 
-            if (!projects.isEmpty()) {
-                for (Project project : projects) {
-                    String vmsName = "";
-                    if (project.getVersionManagementSoftware() != null) {
-                        vmsName = project.getVersionManagementSoftware().getName();
-                    }
-                    if (vmsName.equals("")) {
-                        logger.info("Project " + project.getName() + " has no associated vms");
-                        continue;
-                    }
-                    VersionManagementSoftwareBean vmsBean = (VersionManagementSoftwareBean) managementBeanRegistry.getService(vmsName);
-                    if (vmsBean != null) {
-                        List<Sprint> projectSprints = vmsBean.getActiveSprintsByProject(project);
+            for (Project project : projects) {
+                String vmsName = "";
+                if (project.getVersionManagementSoftware() != null) {
+                    vmsName = project.getVersionManagementSoftware().getName();
+                }
+                if (vmsName.equals("")) {
+                    logger.info("Project " + project.getName() + " has no associated vms");
+                    continue;
+                }
+                VersionManagementSoftwareBean vmsBean = (VersionManagementSoftwareBean) managementBeanRegistry.getService(vmsName);
+                if (vmsBean != null) {
+                    List<Sprint> projectSprints = vmsBean.getActiveSprintsByProject(project);
 
-                        if (projectSprints != null) {
-                            sprints.addAll(projectSprints);
-                        }
+                    if (projectSprints != null) {
+                        sprints.addAll(projectSprints);
                     }
                 }
             }
