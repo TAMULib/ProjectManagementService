@@ -28,7 +28,7 @@ public class SprintsCacheService {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Scheduled(fixedDelay = (10 * 60 * 1000), initialDelay = (10 * 1000))
+    @Scheduled(fixedDelayString = "${app.sprint.cache.interval}", initialDelayString = "${app.sprint.cache.delay}")
     public void cacheActiveSprints() {
         logger.info("Updating Cache");
         try {
