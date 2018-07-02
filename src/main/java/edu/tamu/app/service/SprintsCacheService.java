@@ -48,7 +48,7 @@ public class SprintsCacheService {
                 if (vmsBean != null) {
                     List<Sprint> projectSprints = vmsBean.getActiveSprintsByProject(project);
 
-                    if (projectSprints != null) {
+                    if (!projectSprints.isEmpty()) {
                         sprints.addAll(projectSprints);
                     }
                 }
