@@ -154,13 +154,13 @@ public class VersionOneService implements VersionManagementSoftwareBean {
             Object cardType = ((IAssetType) card.getAttribute(assetTypeAttribute).getValue()).getToken();
             Object[] owners = card.getAttribute(ownersAttribute).getValues();
             cards.add(new Card(
-                number == null ? "" : number.toString(),
-                name == null ? "" : name.toString(),
-                description == null ? "" : description.toString(),
-                estimate == null ? "" : estimate.toString(),
+                number == null ? "None" : number.toString(),
+                name == null ? "None" : name.toString(),
+                description == null ? "None" : description.toString(),
+                estimate == null ? "None" : estimate.toString(),
                 getMembers(owners),
-                status == null ? "" : status.toString(),
-                cardType == null ? "" : cardType.toString()
+                status == null ? "None" : status.toString(),
+                cardType == null ? "None" : cardType.toString()
             ));
         }
 
