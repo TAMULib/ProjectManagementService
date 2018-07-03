@@ -44,10 +44,10 @@ public class ProjectController {
     private ManagementBeanRegistry managementBeanRegistry;
 
     @Autowired
-    private VersionManagementSoftwareRepo versionManagementSoftwareRepo;
+    private SugarService sugarService;
 
     @Autowired
-    private SugarService sugarService;
+    private VersionManagementSoftwareRepo versionManagementSoftwareRepo;
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 

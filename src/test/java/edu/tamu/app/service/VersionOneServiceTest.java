@@ -2,9 +2,7 @@ package edu.tamu.app.service;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.junit.After;
@@ -15,24 +13,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.app.ProjectApplication;
-import edu.tamu.app.ProjectInitialization;
 import edu.tamu.app.enums.ServiceType;
 import edu.tamu.app.model.VersionManagementSoftware;
 import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.model.repo.VersionManagementSoftwareRepo;
 import edu.tamu.app.model.request.FeatureRequest;
-import edu.tamu.app.model.response.VersionProject;
 import edu.tamu.app.service.registry.ManagementBeanRegistry;
 import edu.tamu.app.service.versioning.VersionOneService;
-import edu.tamu.app.utility.JsonNodeUtility;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = { ProjectApplication.class }, webEnvironment = WebEnvironment.DEFINED_PORT)
@@ -69,35 +62,28 @@ public class VersionOneServiceTest {
     }
 
     @Test
-    public void testPush() throws IOException {
+    public void testPush() throws Exception {
         JsonNode actualResponse = objectMapper.convertValue(versionOneService.push(request), JsonNode.class);
         JsonNode expectedResponse = objectMapper.readTree(new ClassPathResource("mock/response.json").getInputStream());
         assertEquals("Response of push to version one not as expected!", expectedResponse, actualResponse);
     }
 
-    @Test
-    public void testGetVersionProjects() throws IOException {
-        List<VersionProject> projects = versionOneService.getVersionProjects();
-        JsonNode expectedResponse = objectMapper.readTree(new ClassPathResource("mock/projects.json").getInputStream());
-        JsonNode assets = expectedResponse.get("Assets");
-        for (int i = 0; i < projects.size(); i++) {
-            assertVersionProject(projects.get(i), assets.get(i));
-        }
-    }
+//    @Test
+//    public void testGetVersionProjects() throws Exception {
+//        List<VersionProject> projects = versionOneService.getVersionProjects();
+//        JsonNode expectedResponse = objectMapper.readTree(new ClassPathResource("mock/projects.json").getInputStream());
+//        JsonNode assets = expectedResponse.get("Assets");
+//        for (int i = 0; i < projects.size(); i++) {
+//            assertVersionProject(projects.get(i), assets.get(i));
+//        }
+//    }
 
-    @Test
-    public void testGetVersionProjectByScopeId() throws IOException {
-        VersionProject project = versionOneService.getVersionProjectByScopeId("7869");
-        JsonNode asset = objectMapper.readTree(new ClassPathResource("mock/project.json").getInputStream());
-        assertVersionProject(project, asset);
-    }
-
-    private void assertVersionProject(VersionProject project, JsonNode asset) {
-        String name = JsonNodeUtility.getVersionProjectName(asset);
-        String scopeId = JsonNodeUtility.getVersionProjectScopeId(asset);
-        assertEquals("Version project had the incorrect name!", name, project.getName());
-        assertEquals("Version project had the incorrect scope id!", scopeId, project.getScopeId());
-    }
+//    @Test
+//    public void testGetVersionProjectByScopeId() throws Exception {
+//        VersionProject project = versionOneService.getVersionProjectByScopeId("7869");
+//        JsonNode asset = objectMapper.readTree(new ClassPathResource("mock/project.json").getInputStream());
+//        assertVersionProject(project, asset);
+//    }
 
     @After
     public void cleanup() {
