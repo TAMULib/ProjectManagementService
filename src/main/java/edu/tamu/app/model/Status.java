@@ -5,7 +5,7 @@ import java.util.Set;
 import javax.persistence.Entity;
 
 @Entity
-public class Status extends ServiceMapping<String> {
+public class Status extends ServiceMapping<String, String> {
 
     public Status() {
         super();

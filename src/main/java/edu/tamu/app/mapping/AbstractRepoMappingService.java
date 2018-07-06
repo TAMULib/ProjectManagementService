@@ -7,12 +7,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import edu.tamu.app.model.ServiceMapping;
 import edu.tamu.app.model.repo.ServiceMappingRepo;
 
-public abstract class AbstractMappingService<C, T extends ServiceMapping<C>, R extends ServiceMappingRepo<C, T>> implements MappingService<C, T> {
+public abstract class AbstractRepoMappingService<I, M, T extends ServiceMapping<I, M>, R extends ServiceMappingRepo<I, M, T>> implements MappingService<I, M> {
 
     @Autowired
     protected R serviceMappingRepo;
 
-    public C map(String rawData) {
+    protected abstract I handleUnmapped(M mapping);
+
+    public I map(M rawData) {
         Optional<T> mappedIdentifier = rawData != null ? serviceMappingRepo.findByMapping(rawData) : Optional.empty();
         return mappedIdentifier.isPresent() ? mappedIdentifier.get().getIdentifier() : handleUnmapped(rawData);
     }

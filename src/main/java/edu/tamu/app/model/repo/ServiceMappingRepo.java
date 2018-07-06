@@ -4,10 +4,10 @@ import java.util.Optional;
 
 import edu.tamu.app.model.ServiceMapping;
 
-public interface ServiceMappingRepo<C, T extends ServiceMapping<C>> {
+public interface ServiceMappingRepo<I, M, T extends ServiceMapping<I, M>> {
 
-    public Optional<T> findByMapping(String match);
+    public Optional<T> findByMapping(M match);
 
-    public T findByIdentifier(C identifier);
+    public T findByIdentifier(I identifier);
 
 }

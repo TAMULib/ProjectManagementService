@@ -15,40 +15,40 @@ import edu.tamu.app.model.validation.StatusValidator;
 import edu.tamu.weaver.validation.model.ValidatingBaseEntity;
 
 @MappedSuperclass
-public abstract class ServiceMapping<C> extends ValidatingBaseEntity {
+public abstract class ServiceMapping<I, M> extends ValidatingBaseEntity {
 
     @Column(unique = true)
-    private C identifier;
+    private I identifier;
 
     @ElementCollection(fetch = EAGER)
-    protected Set<String> mapping;
+    protected Set<M> mapping;
 
     public ServiceMapping() {
         super();
-        mapping = new HashSet<String>();
+        mapping = new HashSet<M>();
         modelValidator = new StatusValidator();
     }
 
-    public ServiceMapping(C identifier, Set<String> mapping) {
+    public ServiceMapping(I identifier, Set<M> mapping) {
         this();
         this.identifier = identifier;
         this.mapping = mapping;
     }
 
-    public C getIdentifier() {
+    public I getIdentifier() {
         return identifier;
     }
 
-    public void setIdentifier(C identifier) {
+    public void setIdentifier(I identifier) {
         this.identifier = identifier;
     }
 
     @JsonIgnore
-    public Set<String> getMapping() {
+    public Set<M> getMapping() {
         return mapping;
     }
 
-    public void setMapping(Set<String> mapping) {
+    public void setMapping(Set<M> mapping) {
         this.mapping = mapping;
     }
 

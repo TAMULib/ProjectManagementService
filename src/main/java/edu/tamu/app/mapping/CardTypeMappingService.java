@@ -6,7 +6,7 @@ import edu.tamu.app.model.CardType;
 import edu.tamu.app.model.repo.CardTypeRepo;
 
 @Service
-public class CardTypeMappingService extends AbstractMappingService<String, CardType, CardTypeRepo> {
+public class CardTypeMappingService extends AbstractRepoMappingService<String, String, CardType, CardTypeRepo> {
 
     @Override
     public String handleUnmapped(String rawData) {

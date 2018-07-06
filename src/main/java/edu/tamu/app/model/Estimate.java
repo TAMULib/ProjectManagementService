@@ -5,7 +5,7 @@ import java.util.Set;
 import javax.persistence.Entity;
 
 @Entity
-public class Estimate extends ServiceMapping<Float> {
+public class Estimate extends ServiceMapping<Float, String> {
 
     public Estimate() {
         super();

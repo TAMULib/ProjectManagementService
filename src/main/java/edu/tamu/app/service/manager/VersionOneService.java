@@ -84,10 +84,17 @@ public class VersionOneService extends MappingRemoteProjectManagerBean {
         for (Asset project : result.getAssets()) {
             String scopeId = parseId(project.getOid());
             String name = project.getAttribute(nameAttributeDefinition).getValue().toString();
+            int requestCount = getPrimaryWorkItemCount("Request", scopeId);
+            int storyCount = getPrimaryWorkItemCount("Story", scopeId);
+            int defectCount = getPrimaryWorkItemCount("Defect", scopeId);
             System.out.println("Project");
             System.out.println("   id: " + scopeId);
             System.out.println("   name: " + name);
-            remoteProjects.add(new RemoteProject(scopeId, name));
+            System.out.println("   requests: " + requestCount);
+            System.out.println("   stories: " + storyCount);
+            System.out.println("   defects: " + defectCount);
+            remoteProjects.add(new RemoteProject(scopeId, name, requestCount, storyCount, defectCount));
+
         }
         return remoteProjects;
     }
@@ -103,10 +110,34 @@ public class VersionOneService extends MappingRemoteProjectManagerBean {
         QueryResult result = services.retrieve(query);
         Asset project = result.getAssets()[0];
         String name = project.getAttribute(nameAttributeDefinition).getValue().toString();
+        int requestCount = getPrimaryWorkItemCount("Request", scopeId);
+        int storyCount = getPrimaryWorkItemCount("Story", scopeId);
+        int defectCount = getPrimaryWorkItemCount("Defect", scopeId);
         System.out.println("Project");
         System.out.println("   id: " + scopeId);
         System.out.println("   name: " + name);
-        return new RemoteProject(scopeId, name);
+        System.out.println("   requests: " + requestCount);
+        System.out.println("   stories: " + storyCount);
+        System.out.println("   defects: " + defectCount);
+        return new RemoteProject(scopeId, name, requestCount, storyCount, defectCount);
+    }
+
+    public int getPrimaryWorkItemCount(final String type, final String scopeId) throws ConnectionException, APIException, OidException {
+        IAssetType assetType = services.getMeta().getAssetType(type);
+        IAttributeDefinition scopeAttributeDefinition = assetType.getAttributeDefinition("Scope");
+        IAttributeDefinition assetStateAttributeDefinition = assetType.getAttributeDefinition("AssetState");
+
+        FilterTerm scopeTerm = new FilterTerm(scopeAttributeDefinition);
+        scopeTerm.equal("Scope:" + scopeId);
+
+        FilterTerm assetStateTerm = new FilterTerm(assetStateAttributeDefinition);
+        assetStateTerm.equal(64);
+
+        GroupFilterTerm groupFilter = new AndFilterTerm(scopeTerm, assetStateTerm);
+        Query query = new Query(assetType);
+        query.setFilter(groupFilter);
+        QueryResult result = services.retrieve(query);
+        return result.getAssets().length;
     }
 
     @Override
@@ -129,6 +160,7 @@ public class VersionOneService extends MappingRemoteProjectManagerBean {
 
         Query query = new Query(timeboxType);
         query.getSelection().add(nameAttributeDefinition);
+        query.getSelection().add(scheduleScheduledScopesAttributeDefinition);
         query.getSelection().add(scheduleScheduledScopesNameAttributeDefinition);
         query.setFilter(groupFilter);
 
@@ -138,7 +170,18 @@ public class VersionOneService extends MappingRemoteProjectManagerBean {
         for (Asset sprint : result.getAssets()) {
             String id = parseId(sprint.getOid());
             String name = sprint.getAttribute(nameAttributeDefinition).getValue().toString();
-            String projectName = sprint.getAttribute(scheduleScheduledScopesNameAttributeDefinition).getValue().toString();
+
+            Object[] scheduledScopes = sprint.getAttribute(scheduleScheduledScopesAttributeDefinition).getValues();
+            Object[] scheduledScopeNames = sprint.getAttribute(scheduleScheduledScopesNameAttributeDefinition).getValues();
+
+            String projectName = null;
+            for (int i = 0; i < scheduledScopes.length; i++) {
+                if (scheduledScopes[i].toString().equals("Scope:" + projectScopeId)) {
+                    projectName = scheduledScopeNames[i].toString();
+                    break;
+                }
+            }
+
             System.out.println(" Sprint");
             System.out.println("     id: " + id);
             System.out.println("     name: " + name);

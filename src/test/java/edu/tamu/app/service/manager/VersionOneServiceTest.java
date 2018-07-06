@@ -3,6 +3,7 @@ package edu.tamu.app.service.manager;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.matches;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -209,6 +210,10 @@ public class VersionOneServiceTest extends VersionOneMockTests {
         when(services.getMeta()).thenReturn(metaModel);
         when(services.retrieve(any(Query.class))).thenReturn(result);
 
+        doReturn(2).when(versionOneService).getPrimaryWorkItemCount(matches("Request"), any(String.class));
+        doReturn(4).when(versionOneService).getPrimaryWorkItemCount(matches("Story"), any(String.class));
+        doReturn(1).when(versionOneService).getPrimaryWorkItemCount(matches("Defect"), any(String.class));
+
         assertRemoteProjects(versionOneService.getRemoteProjects());
     }
 
@@ -241,10 +246,58 @@ public class VersionOneServiceTest extends VersionOneMockTests {
         when(services.getMeta()).thenReturn(metaModel);
         when(services.retrieve(any(Query.class))).thenReturn(result);
 
+        doReturn(2).when(versionOneService).getPrimaryWorkItemCount("Request", "1934");
+        doReturn(4).when(versionOneService).getPrimaryWorkItemCount("Story", "1934");
+        doReturn(1).when(versionOneService).getPrimaryWorkItemCount("Defect", "1934");
+
         RemoteProject remoteProject = versionOneService.getRemoteProjectByScopeId("1934");
 
         assertEquals("Remote project has incorrect scope id!", mockRemoteProjects.get(0).getScopeId(), remoteProject.getScopeId());
         assertEquals("Remote project had incorrect name!", mockRemoteProjects.get(0).getName(), remoteProject.getName());
+    }
+
+    @Test
+    public void testGetPrimaryWorkItemCount() throws ConnectionException, APIException, OidException, JsonParseException, JsonMappingException, IOException {
+        testGetPrimaryWorkItemCount("Request");
+        testGetPrimaryWorkItemCount("Story");
+        testGetPrimaryWorkItemCount("Defect");
+    }
+
+    private void testGetPrimaryWorkItemCount(String type) throws ConnectionException, APIException, OidException, JsonParseException, JsonMappingException, IOException {
+        QueryResult result = mock(QueryResult.class);
+        IMetaModel metaModel = mock(IMetaModel.class);
+        IAssetType assetType = mock(IAssetType.class);
+        IAttributeDefinition scopeAttributeDefinition = mock(IAttributeDefinition.class);
+        IAttributeDefinition assetStateAttributeDefinition = mock(IAttributeDefinition.class);
+
+        Asset[] assets = new Asset[0];
+
+        when(assetType.getDisplayName()).thenReturn("AssetType'" + type);
+        when(assetType.getToken()).thenReturn(type);
+
+        when(scopeAttributeDefinition.getName()).thenReturn("Scope");
+        when(scopeAttributeDefinition.getDisplayName()).thenReturn("AttributeDefinition'Scope'" + type);
+        when(scopeAttributeDefinition.getToken()).thenReturn(type + "Scope");
+        when(scopeAttributeDefinition.getAttributeType()).thenReturn(IAttributeDefinition.AttributeType.Relation);
+        when(scopeAttributeDefinition.getAssetType()).thenReturn(assetType);
+
+        when(assetStateAttributeDefinition.getName()).thenReturn("AssetState");
+        when(assetStateAttributeDefinition.getDisplayName()).thenReturn("AttributeDefinition'AssetState'" + type);
+        when(assetStateAttributeDefinition.getToken()).thenReturn(type + "AssetState");
+        when(assetStateAttributeDefinition.getAttributeType()).thenReturn(IAttributeDefinition.AttributeType.Relation);
+        when(assetStateAttributeDefinition.getAssetType()).thenReturn(assetType);
+
+        when(assetType.getAttributeDefinition("Scope")).thenReturn(scopeAttributeDefinition);
+        when(assetType.getAttributeDefinition("AssetState")).thenReturn(assetStateAttributeDefinition);
+
+        when(metaModel.getAssetType(type)).thenReturn(assetType);
+
+        when(result.getAssets()).thenReturn(assets);
+
+        when(services.getMeta()).thenReturn(metaModel);
+        when(services.retrieve(any(Query.class))).thenReturn(result);
+
+        assertEquals("Incorrect number of " + type, 0, versionOneService.getPrimaryWorkItemCount(type, "1934"));
     }
 
     @Test
@@ -260,7 +313,7 @@ public class VersionOneServiceTest extends VersionOneMockTests {
         IAttributeDefinition scheduleScheduledScopesAttributeeDefinition = mock(IAttributeDefinition.class);
         IAttributeDefinition scheduleScheduledScopesNameAttributeeDefinition = mock(IAttributeDefinition.class);
 
-        Asset[] assets = getMockActiveSprintAssets();
+        Asset[] assets = getMockActiveSprintAssets("0001");
 
         when(timeboxType.getDisplayName()).thenReturn("AssetType'Timebox");
         when(timeboxType.getToken()).thenReturn("Timebox");
@@ -303,8 +356,8 @@ public class VersionOneServiceTest extends VersionOneMockTests {
 
         List<Card> mocKSprint1Cards = mockActiveSprints.get(0).getCards();
         doReturn(mocKSprint1Cards).when(versionOneService).getActiveSprintsCards("0001");
-        List<Card> mockSprint2Cards = mockActiveSprints.get(1).getCards();
-        doReturn(mockSprint2Cards).when(versionOneService).getActiveSprintsCards("0002");
+        List<Card> mocKSprint2Cards = mockActiveSprints.get(1).getCards();
+        doReturn(mocKSprint2Cards).when(versionOneService).getActiveSprintsCards("0002");
 
         List<Sprint> sprints = versionOneService.getActiveSprintsByProjectId("0001");
 
@@ -537,7 +590,7 @@ public class VersionOneServiceTest extends VersionOneMockTests {
         assertNotNull(request);
     }
 
-    private Asset[] getMockActiveSprintAssets() throws JsonParseException, JsonMappingException, IOException, APIException {
+    private Asset[] getMockActiveSprintAssets(String scopeId) throws JsonParseException, JsonMappingException, IOException, APIException {
         List<Asset> mockAssets = new ArrayList<Asset>();
         for (Sprint activeSprint : mockActiveSprints) {
 
@@ -548,9 +601,11 @@ public class VersionOneServiceTest extends VersionOneMockTests {
             IAssetType timeboxType = mock(IAssetType.class);
 
             IAttributeDefinition nameAttributeDefinition = mock(IAttributeDefinition.class);
+            IAttributeDefinition scheduleScheduledScopesAttributeDefinition = mock(IAttributeDefinition.class);
             IAttributeDefinition scheduledScopesNameAttributeDefinition = mock(IAttributeDefinition.class);
 
             Attribute mockNameAttribute = mock(Attribute.class);
+            Attribute mockScheduledScopesAttribute = mock(Attribute.class);
             Attribute mockScheduledScopesNameAttribute = mock(Attribute.class);
 
             when(mockOid.toString()).thenReturn("Timebox:" + activeSprint.getId());
@@ -567,6 +622,15 @@ public class VersionOneServiceTest extends VersionOneMockTests {
             when(mockNameAttribute.getDefinition()).thenReturn(nameAttributeDefinition);
             when(mockNameAttribute.getValue()).thenReturn(activeSprint.getName());
 
+            when(scheduleScheduledScopesAttributeDefinition.getName()).thenReturn("Schedule.ScheduledScopes.Name");
+            when(scheduleScheduledScopesAttributeDefinition.getDisplayName()).thenReturn("AttributeDefinition'Schedule.ScheduledScopes.Name'Timebox");
+            when(scheduleScheduledScopesAttributeDefinition.getToken()).thenReturn("Timebox.Schedule.ScheduledScopes.Name");
+            when(scheduleScheduledScopesAttributeDefinition.getAttributeType()).thenReturn(IAttributeDefinition.AttributeType.Text);
+            when(scheduleScheduledScopesAttributeDefinition.getAssetType()).thenReturn(timeboxType);
+
+            when(mockScheduledScopesAttribute.getDefinition()).thenReturn(scheduleScheduledScopesAttributeDefinition);
+            when(mockScheduledScopesAttribute.getValues()).thenReturn(new String[] { "Scope:" + scopeId });
+
             when(scheduledScopesNameAttributeDefinition.getName()).thenReturn("Schedule.ScheduledScopes.Name");
             when(scheduledScopesNameAttributeDefinition.getDisplayName()).thenReturn("AttributeDefinition'Schedule.ScheduledScopes.Name'Timebox");
             when(scheduledScopesNameAttributeDefinition.getToken()).thenReturn("Timebox.Schedule.ScheduledScopes.Name");
@@ -574,7 +638,7 @@ public class VersionOneServiceTest extends VersionOneMockTests {
             when(scheduledScopesNameAttributeDefinition.getAssetType()).thenReturn(timeboxType);
 
             when(mockScheduledScopesNameAttribute.getDefinition()).thenReturn(scheduledScopesNameAttributeDefinition);
-            when(mockScheduledScopesNameAttribute.getValue()).thenReturn(activeSprint.getProject());
+            when(mockScheduledScopesNameAttribute.getValues()).thenReturn(new String[] { activeSprint.getProject() });
 
             when(mockAsset.getOid()).thenReturn(mockOid);
 
@@ -586,6 +650,9 @@ public class VersionOneServiceTest extends VersionOneMockTests {
                     switch (attributeDefinition.getName()) {
                     case "Name":
                         attibute = mockNameAttribute;
+                        break;
+                    case "Schedule.ScheduledScopes":
+                        attibute = mockScheduledScopesAttribute;
                         break;
                     case "Schedule.ScheduledScopes.Name":
                         attibute = mockScheduledScopesNameAttribute;

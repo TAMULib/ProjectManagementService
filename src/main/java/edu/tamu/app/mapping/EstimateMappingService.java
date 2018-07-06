@@ -6,7 +6,7 @@ import edu.tamu.app.model.Estimate;
 import edu.tamu.app.model.repo.EstimateRepo;
 
 @Service
-public class EstimateMappingService extends AbstractMappingService<Float, Estimate, EstimateRepo> {
+public class EstimateMappingService extends AbstractRepoMappingService<Float, String, Estimate, EstimateRepo> {
 
     @Override
     public Float map(String rawData) {

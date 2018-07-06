@@ -5,7 +5,7 @@ import java.util.Set;
 import javax.persistence.Entity;
 
 @Entity
-public class CardType extends ServiceMapping<String> {
+public class CardType extends ServiceMapping<String, String> {
 
     public CardType() {
         super();
