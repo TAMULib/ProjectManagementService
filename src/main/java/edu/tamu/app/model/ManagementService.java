@@ -15,7 +15,6 @@ import javax.persistence.MappedSuperclass;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
-import edu.tamu.app.enums.ServiceType;
 import edu.tamu.app.model.converter.CryptoConverter;
 import edu.tamu.app.model.validation.ManagementServiceValidator;
 import edu.tamu.weaver.validation.model.ValidatingBaseEntity;
@@ -36,7 +35,7 @@ public abstract class ManagementService extends ValidatingBaseEntity {
 
     public ManagementService() {
         super();
-        this.modelValidator = new ManagementServiceValidator();
+        modelValidator = new ManagementServiceValidator();
         settings = new HashMap<String, String>();
     }
 

@@ -13,8 +13,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import edu.tamu.app.enums.Role;
 import edu.tamu.weaver.auth.model.AbstractWeaverUserDetails;
+import edu.tamu.weaver.auth.model.Credentials;
 import edu.tamu.weaver.user.model.IRole;
 
 /**
@@ -83,6 +83,18 @@ public class User extends AbstractWeaverUserDetails {
         setFirstName(user.getFirstName());
         setLastName(user.getLastName());
         setRole(user.getRole());
+    }
+
+    /**
+     * 
+     * @param user
+     */
+    public User(Credentials credentials) {
+        this(credentials.getUin());
+        setEmail(credentials.getEmail());
+        setFirstName(credentials.getFirstName());
+        setLastName(credentials.getLastName());
+        setRole(Role.valueOf(credentials.getRole()));
     }
 
     /**

@@ -8,7 +8,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 
 import edu.tamu.app.auth.service.AppUserDetailsService;
-import edu.tamu.app.enums.Role;
+import edu.tamu.app.model.Role;
 import edu.tamu.app.model.User;
 import edu.tamu.app.model.repo.UserRepo;
 import edu.tamu.weaver.auth.config.AuthWebSecurityConfig;

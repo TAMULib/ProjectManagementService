@@ -1,11 +1,13 @@
 package edu.tamu.app.model;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
 
 import org.junit.After;
 import org.junit.Before;
@@ -17,68 +19,93 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+
 import edu.tamu.app.ProjectApplication;
-import edu.tamu.app.enums.Role;
+import edu.tamu.app.auth.AuthMockTests;
 import edu.tamu.app.model.repo.UserRepo;
 import edu.tamu.weaver.auth.model.Credentials;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = { ProjectApplication.class }, webEnvironment = WebEnvironment.DEFINED_PORT)
-public class UserTest {
+public class UserTest extends AuthMockTests {
 
     @Autowired
     private UserRepo userRepo;
 
-    private static final Credentials TEST_CREDENTIALS = new Credentials();
-    static {
-        TEST_CREDENTIALS.setUin("123456789");
-        TEST_CREDENTIALS.setEmail("aggieJack@tamu.edu");
-        TEST_CREDENTIALS.setFirstName("Aggie");
-        TEST_CREDENTIALS.setLastName("Jack");
-        TEST_CREDENTIALS.setRole("ROLE_USER");
-    }
+    private Credentials mockCredentials;
 
     @Before
-    public void setUp() {
-        userRepo.deleteAll();
+    public void setUp() throws JsonParseException, JsonMappingException, IOException {
+        mockCredentials = getMockAggieJackCredentials();
     }
 
     @Test
-    public void testMethod() {
+    public void testCreate() {
+        User user = userRepo.create(mockCredentials.getUin(), mockCredentials.getEmail(), mockCredentials.getFirstName(), mockCredentials.getLastName(), Role.valueOf(mockCredentials.getRole()));
+        assertTrue("User was not created!", userRepo.findByUsername(mockCredentials.getUin()).isPresent());
+        assertEquals("User repo had incorrect number of users!", 1, userRepo.count());
 
-        // Test create user
-        User testUser1 = userRepo.create(TEST_CREDENTIALS.getUin(), TEST_CREDENTIALS.getEmail(), TEST_CREDENTIALS.getFirstName(), TEST_CREDENTIALS.getLastName(), Role.valueOf(TEST_CREDENTIALS.getRole()));
-        Optional<User> assertUser = userRepo.findByUsername("123456789");
+        assertEquals("User had incorrect username!", mockCredentials.getUin(), user.getUsername());
+        assertEquals("User had incorrect email!", mockCredentials.getEmail(), user.getEmail());
+        assertEquals("User had incorrect first name!", mockCredentials.getFirstName(), user.getFirstName());
+        assertEquals("User had incorrect last name!", mockCredentials.getLastName(), user.getLastName());
+        assertEquals("User had incorrect role!", Role.valueOf(mockCredentials.getRole()), user.getRole());
+    }
 
-        assertEquals("Test User1 was not added.", testUser1.getUsername(), assertUser.get().getUsername());
+    @Test
+    public void testUpdate() {
+        User user = userRepo.create(mockCredentials.getUin(), mockCredentials.getEmail(), mockCredentials.getFirstName(), mockCredentials.getLastName(), Role.valueOf(mockCredentials.getRole()));
 
-        // Test disallow duplicate UINs
-        userRepo.create(TEST_CREDENTIALS.getUin(), TEST_CREDENTIALS.getEmail(), TEST_CREDENTIALS.getFirstName(), TEST_CREDENTIALS.getLastName(), Role.valueOf(TEST_CREDENTIALS.getRole()));
-        List<User> allUsers = (List<User>) userRepo.findAll();
-        assertEquals("Duplicate UIN found.", 1, allUsers.size());
+        user.setRole(Role.valueOf("ROLE_MANAGER"));
+        user.setEmail("jaggie@tamu.edu");
+        user.setFirstName("John");
+        user.setLastName("Agriculture");
+        user.setUsername("123456781");
 
-        // Test delete user
-        userRepo.delete(testUser1);
-        allUsers = (List<User>) userRepo.findAll();
-        assertEquals("Test User1 was not removed.", 0, allUsers.size());
+        user = userRepo.update(user);
 
+        assertEquals("User had incorrect username!", "123456781", user.getUsername());
+        assertEquals("User had incorrect email!", "jaggie@tamu.edu", user.getEmail());
+        assertEquals("User had incorrect first name!", "John", user.getFirstName());
+        assertEquals("User had incorrect last name!", "Agriculture", user.getLastName());
+        assertEquals("User had incorrect role!", Role.valueOf("ROLE_MANAGER"), user.getRole());
+    }
+
+    @Test
+    public void testDuplicate() {
+        userRepo.create(mockCredentials.getUin(), mockCredentials.getEmail(), mockCredentials.getFirstName(), mockCredentials.getLastName(), Role.valueOf(mockCredentials.getRole()));
+        userRepo.create(mockCredentials.getUin(), mockCredentials.getEmail(), mockCredentials.getFirstName(), mockCredentials.getLastName(), Role.valueOf(mockCredentials.getRole()));
+        assertEquals("Duplicate user was created!", 1, userRepo.count());
+    }
+
+    @Test
+    public void testDelete() {
+        User user = userRepo.create(mockCredentials.getUin(), mockCredentials.getEmail(), mockCredentials.getFirstName(), mockCredentials.getLastName(), Role.valueOf(mockCredentials.getRole()));
+        assertEquals("User repo had incorrect number of users!", 1, userRepo.count());
+        userRepo.delete(user);
+        assertFalse("User was not deleted!", userRepo.findByUsername(mockCredentials.getUin()).isPresent());
+        assertEquals("User repo had incorrect number of users!", 0, userRepo.count());
     }
 
     @Test
     public void testGetAuthorities() {
-        User testUser1 = userRepo.create(TEST_CREDENTIALS.getUin(), TEST_CREDENTIALS.getEmail(), TEST_CREDENTIALS.getFirstName(), TEST_CREDENTIALS.getLastName(), Role.valueOf(TEST_CREDENTIALS.getRole()));
-        Collection<? extends GrantedAuthority> authorities = testUser1.getAuthorities();
+        User user = userRepo.create(mockCredentials.getUin(), mockCredentials.getEmail(), mockCredentials.getFirstName(), mockCredentials.getLastName(), Role.valueOf(mockCredentials.getRole()));
+        Collection<? extends GrantedAuthority> authorities = user.getAuthorities();
         assertNotNull(authorities);
+        assertEquals("User details had the incorrect number of authorities!", 1, authorities.size());
+        assertEquals("User details had the incorrect authority!", mockCredentials.getRole(), authorities.toArray(new GrantedAuthority[authorities.size()])[0].getAuthority());
     }
-    
+
     @Test
-    public void testStaticUtilityMethods() {
-        User testUser1 = userRepo.create(TEST_CREDENTIALS.getUin(), TEST_CREDENTIALS.getEmail(), TEST_CREDENTIALS.getFirstName(), TEST_CREDENTIALS.getLastName(), Role.valueOf(TEST_CREDENTIALS.getRole()));
-        assertEquals("Value was not false", false, testUser1.isAccountNonExpired());
-        assertEquals("Value was not false", false, testUser1.isAccountNonLocked());
-        assertEquals("Value was not false", false, testUser1.isCredentialsNonExpired());
-        assertEquals("Value was not true", true, testUser1.isEnabled());
-        assertEquals("Value was not null", null, testUser1.getPassword());
+    public void testUserDetailsMethods() {
+        User user = userRepo.create(mockCredentials.getUin(), mockCredentials.getEmail(), mockCredentials.getFirstName(), mockCredentials.getLastName(), Role.valueOf(mockCredentials.getRole()));
+        assertFalse("Account non expired was not false!", user.isAccountNonExpired());
+        assertFalse("Account non locked was not false!", user.isAccountNonLocked());
+        assertFalse("Credentials non expired was not false!", user.isCredentialsNonExpired());
+        assertTrue("Enabled was not true!", user.isEnabled());
+        assertNull("Password was not null!", user.getPassword());
     }
 
     @After
