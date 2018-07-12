@@ -9,8 +9,6 @@ import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.MappedSuperclass;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import edu.tamu.app.model.validation.StatusValidator;
 import edu.tamu.weaver.validation.model.ValidatingBaseEntity;
 
@@ -43,7 +41,6 @@ public abstract class ServiceMapping<I, M> extends ValidatingBaseEntity {
         this.identifier = identifier;
     }
 
-    @JsonIgnore
     public Set<M> getMapping() {
         return mapping;
     }
