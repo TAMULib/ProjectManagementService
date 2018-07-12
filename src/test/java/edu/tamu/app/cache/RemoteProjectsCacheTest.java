@@ -52,11 +52,15 @@ public class RemoteProjectsCacheTest {
         assertEquals("Cached remote projects did not have expected remote projects for a given remote project manager!", 1, remoteProjectsCache.get(1L).size());
 
         assertEquals("Cached remote project had incorrect id!", "0001", remoteProjectsCache.get(1L).get(0).getScopeId());
-        assertEquals("Cached remote project had incorrect name!", "Remote Project 1", remoteProjectsCache.get(1L).get(0).getName());
+        assertEquals("Cached remote project had incorrect name!", "Sprint 1", remoteProjectsCache.get(1L).get(0).getName());
+        assertEquals("Cached remote project had incorrect number of requests!", 2, remoteProjects.get(0).getRequestCount());
+        assertEquals("Cached remote project had incorrect number of stories!", 10, remoteProjects.get(0).getStoryCount());
+        assertEquals("Cached remote project had incorrect number of defects!", 3, remoteProjects.get(0).getDefectCount());
+        assertEquals("Cached remote project had incorrect total backlog items!", 13, remoteProjects.get(0).getBacklogItemCount());
     }
 
     private RemoteProject getMockRemoteProject() {
-        return new RemoteProject("0001", "Remote Project 1");
+        return new RemoteProject("0001", "Sprint 1", 2, 10, 3);
     }
 
 }

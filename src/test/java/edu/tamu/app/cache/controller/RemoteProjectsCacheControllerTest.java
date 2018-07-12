@@ -67,7 +67,11 @@ public class RemoteProjectsCacheControllerTest {
         assertFalse(remoteProjects.isEmpty());
         assertEquals(1, remoteProjects.size());
         assertEquals("0001", remoteProjects.get(0).getScopeId());
-        assertEquals("Remote Project 1", remoteProjects.get(0).getName());
+        assertEquals("Sprint 1", remoteProjects.get(0).getName());
+        assertEquals(2, remoteProjects.get(0).getRequestCount());
+        assertEquals(10, remoteProjects.get(0).getStoryCount());
+        assertEquals(3, remoteProjects.get(0).getDefectCount());
+        assertEquals(13, remoteProjects.get(0).getBacklogItemCount());
     }
 
     private Map<Long, List<RemoteProject>> getMockRemoteProjectsCache() {
@@ -79,7 +83,7 @@ public class RemoteProjectsCacheControllerTest {
     }
 
     private RemoteProject getMockRemoteProject() {
-        return new RemoteProject("0001", "Remote Project 1");
+        return new RemoteProject("0001", "Sprint 1", 2, 10, 3);
     }
 
 }
