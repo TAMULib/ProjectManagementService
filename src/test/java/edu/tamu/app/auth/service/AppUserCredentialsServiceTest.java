@@ -5,6 +5,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
 
+import java.io.IOException;
 import java.util.Optional;
 
 import org.junit.Before;
@@ -15,55 +16,17 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import edu.tamu.app.enums.Role;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+
+import edu.tamu.app.auth.AuthMockTests;
+import edu.tamu.app.model.Role;
 import edu.tamu.app.model.User;
 import edu.tamu.app.model.repo.UserRepo;
 import edu.tamu.weaver.auth.model.Credentials;
 
 @RunWith(SpringRunner.class)
-public class AppUserCredentialsServiceTest {
-
-    private static final Credentials TEST_CREDENTIALS_1 = new Credentials();
-    static {
-        TEST_CREDENTIALS_1.setUin("123456789");
-        TEST_CREDENTIALS_1.setEmail("aggieJack@tamu.edu");
-        TEST_CREDENTIALS_1.setFirstName("Aggie");
-        TEST_CREDENTIALS_1.setLastName("Jack");
-        TEST_CREDENTIALS_1.setRole("ROLE_USER");
-    }
-
-    private static final Credentials TEST_CREDENTIALS_2 = new Credentials();
-    static {
-        TEST_CREDENTIALS_2.setUin("987654321");
-        TEST_CREDENTIALS_2.setEmail("aggieJack@tamu.edu");
-        TEST_CREDENTIALS_2.setFirstName("Aggie");
-        TEST_CREDENTIALS_2.setLastName("Jack");
-        TEST_CREDENTIALS_2.setRole("ROLE_USER");
-    }
-    
-    private static final Credentials TEST_NULL_CREDENTIALS = new Credentials();
-    static {
-        TEST_NULL_CREDENTIALS.setUin("987654321");
-        TEST_NULL_CREDENTIALS.setEmail("aggieJack@tamu.edu");
-        TEST_NULL_CREDENTIALS.setFirstName("Aggie");
-        TEST_NULL_CREDENTIALS.setLastName("Jack");
-    }
-    
-    private static final Credentials TEST_CHANGED_CREDENTIALS = new Credentials();
-    static {
-        TEST_CHANGED_CREDENTIALS.setUin("111111111");
-        TEST_CHANGED_CREDENTIALS.setEmail("jsmithk@tamu.edu");
-        TEST_CHANGED_CREDENTIALS.setFirstName("John");
-        TEST_CHANGED_CREDENTIALS.setLastName("Smith");
-        TEST_CHANGED_CREDENTIALS.setRole("ROLE_ADMIN");
-    }
-
-    private User testUser1 = new User(TEST_CREDENTIALS_1.getUin(), TEST_CREDENTIALS_1.getEmail(), TEST_CREDENTIALS_1.getFirstName(), TEST_CREDENTIALS_1.getLastName(), Role.valueOf(TEST_CREDENTIALS_1.getRole()));
-    private User testUser2 = new User(TEST_CREDENTIALS_2.getUin(), TEST_CREDENTIALS_2.getEmail(), TEST_CREDENTIALS_2.getFirstName(), TEST_CREDENTIALS_2.getLastName(), Role.valueOf(TEST_CREDENTIALS_2.getRole()));
-
-    private static final String[] testAdmins = { "123456789", "987654321" };
-
-    private Optional<User> optionalUser1 = Optional.of(testUser1);
+public class AppUserCredentialsServiceTest extends AuthMockTests {
 
     @Mock
     private UserRepo userRepo;
@@ -71,46 +34,66 @@ public class AppUserCredentialsServiceTest {
     @InjectMocks
     private AppUserCredentialsService credentialsService;
 
+    private Credentials aggiejackCredentials;
+
+    private Credentials aggiejackCredentialsWithoutRole;
+
+    private Credentials aggiejackCredentialsUpdated;
+
+    private User aggiejackUser;
+
     @Before
-    public void setUp() {
+    public void setUp() throws JsonParseException, JsonMappingException, IOException {
         MockitoAnnotations.initMocks(this);
-        when(userRepo.findByUsername(TEST_CREDENTIALS_1.getUin())).thenReturn(optionalUser1);
-        when(userRepo.findByUsername(TEST_CREDENTIALS_2.getUin())).thenReturn(Optional.empty());
-        when(userRepo.findByUsername(TEST_CHANGED_CREDENTIALS.getUin())).thenReturn(optionalUser1);
-        when(userRepo.create(any(String.class), any(String.class), any(String.class), any(String.class), any(Role.class))).thenReturn(testUser2);
-        when(userRepo.save(any(User.class))).thenReturn(testUser1);
+
+        setField(credentialsService, "admins", new String[] { "123456789", "987654321" });
+
+        aggiejackCredentials = getMockAggieJackCredentials();
+
+        aggiejackCredentialsWithoutRole = getMockAggieJackCredentials();
+        aggiejackCredentialsWithoutRole.setRole(null);
+
+        aggiejackCredentialsUpdated = getMockAggieJackCredentials();
+        aggiejackCredentialsUpdated.setRole("ROLE_MANAGER");
+        aggiejackCredentialsUpdated.setEmail("jaggie@tamu.edu");
+        aggiejackCredentialsUpdated.setFirstName("John");
+        aggiejackCredentialsUpdated.setLastName("Agriculture");
+        aggiejackCredentialsUpdated.setUin("123456781");
+
+        aggiejackUser = new User(aggiejackCredentials);
     }
 
     @Test
     public void testUpdateUserByCredentials() {
-        setField(credentialsService, "admins", testAdmins);
-        User foundUser = credentialsService.updateUserByCredentials(TEST_CREDENTIALS_1);
-        assertEquals("Unable to find user", testUser1, foundUser);
-        User unfoundUser = credentialsService.updateUserByCredentials(TEST_CREDENTIALS_2);
-        assertEquals("Unable to find user", testUser2, unfoundUser);
+        when(userRepo.findByUsername(any(String.class))).thenReturn(Optional.empty());
+        when(userRepo.create(any(String.class), any(String.class), any(String.class), any(String.class), any(Role.class))).thenReturn(aggiejackUser);
+        User user = credentialsService.updateUserByCredentials(aggiejackCredentials);
+        assertEquals("Unable to update user with credentials!", aggiejackUser, user);
     }
 
     @Test
     public void testGetAnonymousRole() {
-        String anonRole = credentialsService.getAnonymousRole();
-        assertEquals("Anonymous Role not set correctly", Role.ROLE_ANONYMOUS.toString(), anonRole);
+        assertEquals("Incorrect anonymous role returned from credentials service!", Role.ROLE_ANONYMOUS.toString(), credentialsService.getAnonymousRole());
     }
 
     @Test
-    public void testNullRole() {
-        setField(credentialsService, "admins", testAdmins);
-        User nullUser = credentialsService.updateUserByCredentials(TEST_NULL_CREDENTIALS);
-        assertEquals("Null Role not updated", TEST_CREDENTIALS_1.getRole(), nullUser.getRole().toString());
+    public void testUpdateUserByCredentialsWithoutRole() {
+        when(userRepo.findByUsername(any(String.class))).thenReturn(Optional.of(aggiejackUser));
+        when(userRepo.save(any(User.class))).thenReturn(aggiejackUser);
+        User userWithDefaultRole = credentialsService.updateUserByCredentials(aggiejackCredentialsWithoutRole);
+        assertEquals("User had incorrect default role!", Role.ROLE_ADMIN, userWithDefaultRole.getRole());
     }
-    
+
     @Test
     public void testChangedUser() {
-        User changedUser = credentialsService.updateUserByCredentials(TEST_CHANGED_CREDENTIALS);
-        assertEquals("is present", changedUser, optionalUser1.get());
-        assertEquals("Username was not updated", TEST_CHANGED_CREDENTIALS.getUin(), changedUser.getUsername());
-        assertEquals("Email was not updated", TEST_CHANGED_CREDENTIALS.getEmail(), changedUser.getEmail());
-        assertEquals("First name was not updated", TEST_CHANGED_CREDENTIALS.getFirstName(), changedUser.getFirstName());
-        assertEquals("Last name was not updated", TEST_CHANGED_CREDENTIALS.getLastName(), changedUser.getLastName());
-        assertEquals("Role was not updated", TEST_CHANGED_CREDENTIALS.getRole(), changedUser.getRole().toString());
+        when(userRepo.findByUsername(any(String.class))).thenReturn(Optional.of(aggiejackUser));
+        when(userRepo.save(any(User.class))).thenReturn(new User(aggiejackCredentialsUpdated));
+        User userUpdate = credentialsService.updateUserByCredentials(aggiejackCredentialsUpdated);
+        assertEquals("User had the incorrect last name!", aggiejackCredentialsUpdated.getLastName(), userUpdate.getLastName());
+        assertEquals("User had the incorrect first name!", aggiejackCredentialsUpdated.getFirstName(), userUpdate.getFirstName());
+        assertEquals("User had the incorrect username!", aggiejackCredentialsUpdated.getUin(), userUpdate.getUsername());
+        assertEquals("User had the incorrect email!", aggiejackCredentialsUpdated.getEmail(), userUpdate.getEmail());
+        assertEquals("User had the incorrect role!", Role.valueOf(aggiejackCredentialsUpdated.getRole()), userUpdate.getRole());
     }
+
 }

@@ -21,14 +21,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import edu.tamu.app.model.Project;
-import edu.tamu.app.model.VersionManagementSoftware;
+import edu.tamu.app.model.RemoteProjectManager;
 import edu.tamu.app.model.repo.ProjectRepo;
-import edu.tamu.app.model.repo.VersionManagementSoftwareRepo;
+import edu.tamu.app.model.repo.RemoteProjectManagerRepo;
 import edu.tamu.app.model.request.FeatureRequest;
 import edu.tamu.app.model.request.TicketRequest;
+import edu.tamu.app.service.manager.RemoteProjectManagerBean;
 import edu.tamu.app.service.registry.ManagementBeanRegistry;
 import edu.tamu.app.service.ticketing.SugarService;
-import edu.tamu.app.service.versioning.VersionManagementSoftwareBean;
 import edu.tamu.weaver.response.ApiResponse;
 import edu.tamu.weaver.validation.aspect.annotation.WeaverValidatedModel;
 import edu.tamu.weaver.validation.aspect.annotation.WeaverValidation;
@@ -44,10 +44,10 @@ public class ProjectController {
     private ManagementBeanRegistry managementBeanRegistry;
 
     @Autowired
-    private SugarService sugarService;
+    private RemoteProjectManagerRepo remoteProjectManagerRepo;
 
     @Autowired
-    private VersionManagementSoftwareRepo versionManagementSoftwareRepo;
+    private SugarService sugarService;
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -100,17 +100,17 @@ public class ProjectController {
         Optional<Project> project = Optional.ofNullable(projectRepo.findOne(request.getProjectId()));
         ApiResponse response;
         if (project.isPresent()) {
-            Optional<VersionManagementSoftware> versionManagementSoftware = Optional.ofNullable(project.get().getVersionManagementSoftware());
-            if (versionManagementSoftware.isPresent()) {
-                VersionManagementSoftwareBean versionManagementSoftwareBean = (VersionManagementSoftwareBean) managementBeanRegistry.getService(versionManagementSoftware.get().getName());
+            Optional<RemoteProjectManager> remoteProjectManager = Optional.ofNullable(project.get().getRemoteProjectManager());
+            if (remoteProjectManager.isPresent()) {
+                RemoteProjectManagerBean remoteProjectManagerBean = (RemoteProjectManagerBean) managementBeanRegistry.getService(remoteProjectManager.get().getName());
                 request.setScopeId(project.get().getScopeId());
                 try {
-                    response = new ApiResponse(SUCCESS, versionManagementSoftwareBean.push(request));
+                    response = new ApiResponse(SUCCESS, remoteProjectManagerBean.push(request));
                 } catch (Exception e) {
-                    response = new ApiResponse(ERROR, "Error pushing request to " + versionManagementSoftware.get().getName() + " for project " + project.get().getName() + "!");
+                    response = new ApiResponse(ERROR, "Error pushing request to " + remoteProjectManager.get().getName() + " for project " + project.get().getName() + "!");
                 }
             } else {
-                response = new ApiResponse(ERROR, project.get().getName() + " project does not have a version management software!");
+                response = new ApiResponse(ERROR, project.get().getName() + " project does not have a Remote Project Manager!");
             }
         } else {
             response = new ApiResponse(ERROR, "Project with id " + request.getProjectId() + " not found!");
@@ -118,38 +118,38 @@ public class ProjectController {
         return response;
     }
 
-    @RequestMapping(value = "/{vmsId}/version-projects", method = RequestMethod.GET)
+    @RequestMapping(value = "/{remoteProjectManagerId}/remote-projects", method = RequestMethod.GET)
     @PreAuthorize("hasRole('MANAGER')")
-    public ApiResponse getAllVersionProjects(@PathVariable Long vmsId) {
-        Optional<VersionManagementSoftware> vms = Optional.ofNullable(versionManagementSoftwareRepo.findOne(vmsId));
+    public ApiResponse getAllRemoteProjects(@PathVariable Long remoteProjectManagerId) {
+        Optional<RemoteProjectManager> remoteProjectManager = Optional.ofNullable(remoteProjectManagerRepo.findOne(remoteProjectManagerId));
         ApiResponse response;
-        if (vms.isPresent()) {
-            VersionManagementSoftwareBean versionManagementSoftwareBean = (VersionManagementSoftwareBean) managementBeanRegistry.getService(vms.get().getName());
+        if (remoteProjectManager.isPresent()) {
+            RemoteProjectManagerBean remoteProjectManagerBean = (RemoteProjectManagerBean) managementBeanRegistry.getService(remoteProjectManager.get().getName());
             try {
-                response = new ApiResponse(SUCCESS, versionManagementSoftwareBean.getVersionProjects());
+                response = new ApiResponse(SUCCESS, remoteProjectManagerBean.getRemoteProjects());
             } catch (Exception e) {
-                response = new ApiResponse(ERROR, "Error fetching version projects from " + vms.get().getName() + "!");
+                response = new ApiResponse(ERROR, "Error fetching remote projects from " + remoteProjectManager.get().getName() + "!");
             }
         } else {
-            response = new ApiResponse(ERROR, "Version Management Software with id " + vmsId + " not found!");
+            response = new ApiResponse(ERROR, "Remote Project Manager with id " + remoteProjectManagerId + " not found!");
         }
         return response;
     }
 
-    @RequestMapping(value = "/{vmsId}/version-projects/{scopeId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/{remoteProjectManagerId}/remote-projects/{scopeId}", method = RequestMethod.GET)
     @PreAuthorize("hasRole('MANAGER')")
-    public ApiResponse getVersionProjectByScopeId(@PathVariable Long vmsId, @PathVariable String scopeId) {
-        Optional<VersionManagementSoftware> vms = Optional.ofNullable(versionManagementSoftwareRepo.findOne(vmsId));
+    public ApiResponse getRemoteProjectByScopeId(@PathVariable Long remoteProjectManagerId, @PathVariable String scopeId) {
+        Optional<RemoteProjectManager> remoteProjectManager = Optional.ofNullable(remoteProjectManagerRepo.findOne(remoteProjectManagerId));
         ApiResponse response;
-        if (vms.isPresent()) {
-            VersionManagementSoftwareBean versionManagementSoftwareBean = (VersionManagementSoftwareBean) managementBeanRegistry.getService(vms.get().getName());
+        if (remoteProjectManager.isPresent()) {
+            RemoteProjectManagerBean remoteProjectManagerBean = (RemoteProjectManagerBean) managementBeanRegistry.getService(remoteProjectManager.get().getName());
             try {
-                response = new ApiResponse(SUCCESS, versionManagementSoftwareBean.getVersionProjectByScopeId(scopeId));
+                response = new ApiResponse(SUCCESS, remoteProjectManagerBean.getRemoteProjectByScopeId(scopeId));
             } catch (Exception e) {
-                response = new ApiResponse(ERROR, "Error fetching version project with scope id " + scopeId + " from " + vms.get().getName() + "!");
+                response = new ApiResponse(ERROR, "Error fetching remote project with scope id " + scopeId + " from " + remoteProjectManager.get().getName() + "!");
             }
         } else {
-            response = new ApiResponse(ERROR, "Version Management Software with id " + vmsId + " not found!");
+            response = new ApiResponse(ERROR, "Remote Project Manager with id " + remoteProjectManagerId + " not found!");
         }
         return response;
     }

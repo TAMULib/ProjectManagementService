@@ -16,7 +16,6 @@ import edu.tamu.weaver.response.ApiResponse;
 
 /**
  * User Controller
- * 
  */
 @RestController
 @RequestMapping("/users")
@@ -26,13 +25,11 @@ public class UserController {
     private UserRepo userRepo;
 
     /**
-     * Websocket endpoint to request credentials.
+     * Get credentials.
      * 
      * @param credentials
-     * @ApiCredentials Credentials
-     * 
+     * @WeaverCredentials Credentials
      * @return ApiResponse
-     * 
      */
     @RequestMapping("/credentials")
     @PreAuthorize("hasRole('USER')")
@@ -41,12 +38,9 @@ public class UserController {
     }
 
     /**
-     * Returns all users.
+     * Get all users.
      * 
-     * @param user
-     * @ApiModel AppUser
-     * 
-     * @return
+     * @return ApiResponse
      */
     @RequestMapping
     @PreAuthorize("hasRole('MANAGER')")
@@ -55,13 +49,11 @@ public class UserController {
     }
 
     /**
-     * Returns users.
+     * Update user.
      * 
      * @param user
-     * @ApiModel AppUser
-     * 
+     * @RequestBody User
      * @return ApiResponse
-     * 
      */
     @RequestMapping("/update")
     @PreAuthorize("hasRole('MANAGER')")
@@ -71,13 +63,11 @@ public class UserController {
     }
 
     /**
-     * Endpoint to delete user.
+     * Delete user.
      * 
      * @param user
-     * @ApiModel AppUser
-     * 
+     * @RequestBody User
      * @return ApiResponse
-     * 
      */
     @RequestMapping("/delete")
     @PreAuthorize("hasRole('MANAGER')")

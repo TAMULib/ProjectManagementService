@@ -1,0 +1,230 @@
+[
+  {
+    "scopeId": "1934",
+    "name": "Legacy DSpace"
+  },
+  {
+    "scopeId": "3781",
+    "name": "Code Management - Maps"
+  },
+  {
+    "scopeId": "3783",
+    "name": "CORAL - Electronic Resource Management"
+  },
+  {
+    "scopeId": "3786",
+    "name": "Piper - Automated Ingest"
+  },
+  {
+    "scopeId": "3789",
+    "name": "Vireo"
+  },
+  {
+    "scopeId": "3798",
+    "name": "Pelican"
+  },
+  {
+    "scopeId": "3816",
+    "name": "VIVO"
+  },
+  {
+    "scopeId": "3930",
+    "name": "Health Based MSL"
+  },
+  {
+    "scopeId": "3968",
+    "name": "ORCID"
+  },
+  {
+    "scopeId": "4114",
+    "name": "MIS Reports"
+  },
+  {
+    "scopeId": "4182",
+    "name": "Collaborative Book Reader"
+  },
+  {
+    "scopeId": "4262",
+    "name": "DI Internal"
+  },
+  {
+    "scopeId": "4391",
+    "name": "LibCat"
+  },
+  {
+    "scopeId": "4557",
+    "name": "Vireo - Undergraduate"
+  },
+  {
+    "scopeId": "4731",
+    "name": "Key Database"
+  },
+  {
+    "scopeId": "4871",
+    "name": "MyLibrary Application"
+  },
+  {
+    "scopeId": "4889",
+    "name": "DSpace"
+  },
+  {
+    "scopeId": "4912",
+    "name": "iRODS"
+  },
+  {
+    "scopeId": "4965",
+    "name": "Hours Application"
+  },
+  {
+    "scopeId": "5070",
+    "name": "MAGPIE"
+  },
+  {
+    "scopeId": "5270",
+    "name": "Directory App Rewrite"
+  },
+  {
+    "scopeId": "5342",
+    "name": "Digital Asset Management Ecosystem"
+  },
+  {
+    "scopeId": "5523",
+    "name": "Applications"
+  },
+  {
+    "scopeId": "5524",
+    "name": "Legacy Projects"
+  },
+  {
+    "scopeId": "5525",
+    "name": "Subject Librarians"
+  },
+  {
+    "scopeId": "5798",
+    "name": "Dev Ops"
+  },
+  {
+    "scopeId": "5870",
+    "name": "DSpace UI Prototype"
+  },
+  {
+    "scopeId": "5910",
+    "name": "Library Cascade"
+  },
+  {
+    "scopeId": "5962",
+    "name": "Instructional Request Manager - Old"
+  },
+  {
+    "scopeId": "6004",
+    "name": "Weaver (Spring/Angular Frameworks)"
+  },
+  {
+    "scopeId": "6029",
+    "name": "Sugar CRM UI rewrite"
+  },
+  {
+    "scopeId": "6126",
+    "name": "Catalog Services"
+  },
+  {
+    "scopeId": "6157",
+    "name": "Digital Aggieland Portal"
+  },
+  {
+    "scopeId": "6368",
+    "name": "Instructional Apps"
+  },
+  {
+    "scopeId": "6369",
+    "name": "Instructional Statistics Manager - Old"
+  },
+  {
+    "scopeId": "6373",
+    "name": "Instructional Database"
+  },
+  {
+    "scopeId": "6486",
+    "name": "Automatic Metadata Assignment"
+  },
+  {
+    "scopeId": "6487",
+    "name": "Semi-Automatic NALT Indexer"
+  },
+  {
+    "scopeId": "6620",
+    "name": "Development"
+  },
+  {
+    "scopeId": "6625",
+    "name": "Development Services"
+  },
+  {
+    "scopeId": "6626",
+    "name": "Application Services"
+  },
+  {
+    "scopeId": "6627",
+    "name": "VersionOne Service"
+  },
+  {
+    "scopeId": "6629",
+    "name": "Sugar"
+  },
+  {
+    "scopeId": "6664",
+    "name": "PHP MicroServices"
+  },
+  {
+    "scopeId": "6828",
+    "name": "SharePoint"
+  },
+  {
+    "scopeId": "7001",
+    "name": "SFFRD"
+  },
+  {
+    "scopeId": "7036",
+    "name": "Instructional Request Manager"
+  },
+  {
+    "scopeId": "7037",
+    "name": "Instructional Statistics Manager"
+  },
+  {
+    "scopeId": "7400",
+    "name": "Organization Chart"
+  },
+  {
+    "scopeId": "7509",
+    "name": "Library Service Status System"
+  },
+  {
+    "scopeId": "7516",
+    "name": "Fedora"
+  },
+  {
+    "scopeId": "7517",
+    "name": "Spotlight"
+  },
+  {
+    "scopeId": "7529",
+    "name": "IIIF Generation Service"
+  },
+  {
+    "scopeId": "7797",
+    "name": "chronam"
+  },
+  {
+    "scopeId": "7869",
+    "name": "Cap"
+  },
+  {
+    "scopeId": "7934",
+    "name": "SAGE"
+  },
+  {
+    "scopeId": "7948",
+    "name": "Project Management Service"
+  }
+]

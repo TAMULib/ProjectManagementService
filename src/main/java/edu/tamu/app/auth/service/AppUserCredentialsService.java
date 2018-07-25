@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
-import edu.tamu.app.enums.Role;
+import edu.tamu.app.model.Role;
 import edu.tamu.app.model.User;
 import edu.tamu.app.model.repo.UserRepo;
 import edu.tamu.weaver.auth.model.Credentials;
@@ -20,26 +20,7 @@ public class AppUserCredentialsService extends UserCredentialsService<User, User
 
         User user = null;
 
-        if (!optionalUser.isPresent()) {
-
-            Role role = Role.ROLE_USER;
-
-            if (credentials.getRole() == null) {
-                credentials.setRole(role.toString());
-            }
-
-            String shibUin = credentials.getUin();
-
-            for (String uin : admins) {
-                if (uin.equals(shibUin)) {
-                    role = Role.ROLE_ADMIN;
-                    credentials.setRole(role.toString());
-                }
-            }
-
-            user = userRepo.create(credentials.getUin(), credentials.getEmail(), credentials.getFirstName(), credentials.getLastName(), role);
-
-        } else {
+        if (optionalUser.isPresent()) {
             user = optionalUser.get();
 
             boolean changed = false;
@@ -65,27 +46,44 @@ public class AppUserCredentialsService extends UserCredentialsService<User, User
             }
 
             if (credentials.getRole() == null) {
-
-                user.setRole(Role.valueOf(credentials.getRole()));
+                user.setRole(getDefaultRole(credentials));
                 changed = true;
             }
 
             if (changed) {
                 user = userRepo.save(user);
             }
-
+        } else {
+            user = userRepo.create(credentials.getUin(), credentials.getEmail(), credentials.getFirstName(), credentials.getLastName(), getDefaultRole(credentials));
         }
 
         credentials.setRole(user.getRole().toString());
         credentials.setUin(user.getUsername());
 
         return user;
-
     }
 
     @Override
     public String getAnonymousRole() {
         return Role.ROLE_ANONYMOUS.toString();
+    }
+
+    private Role getDefaultRole(Credentials credentials) {
+        Role role = Role.ROLE_USER;
+
+        if (credentials.getRole() == null) {
+            credentials.setRole(role.toString());
+        }
+
+        String shibUin = credentials.getUin();
+
+        for (String uin : admins) {
+            if (uin.equals(shibUin)) {
+                role = Role.ROLE_ADMIN;
+                credentials.setRole(role.toString());
+            }
+        }
+        return role;
     }
 
 }
