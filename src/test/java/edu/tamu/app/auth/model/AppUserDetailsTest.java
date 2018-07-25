@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import edu.tamu.app.enums.Role;
@@ -22,7 +21,7 @@ public class AppUserDetailsTest {
         TEST_CREDENTIALS.setLastName("Jack");
         TEST_CREDENTIALS.setRole("ROLE_USER");
     }
-    
+
     private User testUser = new User(TEST_CREDENTIALS.getUin(), TEST_CREDENTIALS.getEmail(), TEST_CREDENTIALS.getFirstName(), TEST_CREDENTIALS.getLastName(), Role.valueOf(TEST_CREDENTIALS.getRole()));
 
     @Test

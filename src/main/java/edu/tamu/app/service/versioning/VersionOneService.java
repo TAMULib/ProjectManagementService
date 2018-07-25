@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.versionone.Oid;
@@ -43,8 +41,6 @@ public class VersionOneService implements VersionManagementSoftwareBean {
     private ManagementService managementService;
 
     private IServices services;
-
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public VersionOneService(ManagementService managementService) {
         this.managementService = managementService;
@@ -153,15 +149,7 @@ public class VersionOneService implements VersionManagementSoftwareBean {
             Object status = card.getAttribute(statusNameAttribute).getValue();
             Object cardType = ((IAssetType) card.getAttribute(assetTypeAttribute).getValue()).getToken();
             Object[] owners = card.getAttribute(ownersAttribute).getValues();
-            cards.add(new Card(
-                number == null ? "" : number.toString(),
-                name == null ? "" : name.toString(),
-                description == null ? "" : description.toString(),
-                estimate == null ? "" : estimate.toString(),
-                getMembers(owners),
-                status == null ? "None" : status.toString(),
-                cardType == null ? "" : cardType.toString()
-            ));
+            cards.add(new Card(number == null ? "" : number.toString(), name == null ? "" : name.toString(), description == null ? "" : description.toString(), estimate == null ? "" : estimate.toString(), getMembers(owners), status == null ? "None" : status.toString(), cardType == null ? "" : cardType.toString()));
         }
 
         return cards;
