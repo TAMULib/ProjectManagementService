@@ -64,7 +64,8 @@ public class AppUserCredentialsService extends UserCredentialsService<User, User
                 changed = true;
             }
 
-            if (credentials.getRole() != user.getRole().toString()) {
+            if (credentials.getRole() == null) {
+
                 user.setRole(Role.valueOf(credentials.getRole()));
                 changed = true;
             }
