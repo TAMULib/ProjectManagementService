@@ -85,15 +85,17 @@ public class VersionOneService extends MappingRemoteProjectManagerBean {
             String scopeId = parseId(project.getOid());
             String name = project.getAttribute(nameAttributeDefinition).getValue().toString();
             int requestCount = getPrimaryWorkItemCount("Request", scopeId);
+            int issueCount = getPrimaryWorkItemCount("Issue", scopeId);
             int storyCount = getPrimaryWorkItemCount("Story", scopeId);
             int defectCount = getPrimaryWorkItemCount("Defect", scopeId);
             System.out.println("Project");
             System.out.println("   id: " + scopeId);
             System.out.println("   name: " + name);
             System.out.println("   requests: " + requestCount);
+            System.out.println("   issues: " + issueCount);
             System.out.println("   stories: " + storyCount);
             System.out.println("   defects: " + defectCount);
-            remoteProjects.add(new RemoteProject(scopeId, name, requestCount, storyCount, defectCount));
+            remoteProjects.add(new RemoteProject(scopeId, name, requestCount, issueCount, storyCount, defectCount));
 
         }
         return remoteProjects;
@@ -111,15 +113,17 @@ public class VersionOneService extends MappingRemoteProjectManagerBean {
         Asset project = result.getAssets()[0];
         String name = project.getAttribute(nameAttributeDefinition).getValue().toString();
         int requestCount = getPrimaryWorkItemCount("Request", scopeId);
+        int issueCount = getPrimaryWorkItemCount("Issue", scopeId);
         int storyCount = getPrimaryWorkItemCount("Story", scopeId);
         int defectCount = getPrimaryWorkItemCount("Defect", scopeId);
         System.out.println("Project");
         System.out.println("   id: " + scopeId);
         System.out.println("   name: " + name);
         System.out.println("   requests: " + requestCount);
+        System.out.println("   issues: " + issueCount);
         System.out.println("   stories: " + storyCount);
         System.out.println("   defects: " + defectCount);
-        return new RemoteProject(scopeId, name, requestCount, storyCount, defectCount);
+        return new RemoteProject(scopeId, name, requestCount, issueCount, storyCount, defectCount);
     }
 
     public int getPrimaryWorkItemCount(final String type, final String scopeId) throws ConnectionException, APIException, OidException {

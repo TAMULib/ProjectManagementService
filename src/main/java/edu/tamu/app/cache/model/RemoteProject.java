@@ -12,6 +12,8 @@ public class RemoteProject implements Serializable {
 
     private final int requestCount;
 
+    private final int issueCount;
+
     private final int storyCount;
 
     private final int defectCount;
@@ -21,15 +23,17 @@ public class RemoteProject implements Serializable {
         scopeId = "";
         name = "";
         requestCount = 0;
+        issueCount = 0;
         storyCount = 0;
         defectCount = 0;
     }
 
-    public RemoteProject(String scopeId, String name, int requestCount, int storyCount, int defectCount) {
+    public RemoteProject(String scopeId, String name, int requestCount, int issueCount, int storyCount, int defectCount) {
         super();
         this.scopeId = scopeId;
         this.name = name;
         this.requestCount = requestCount;
+        this.issueCount = issueCount;
         this.storyCount = storyCount;
         this.defectCount = defectCount;
     }
@@ -44,6 +48,10 @@ public class RemoteProject implements Serializable {
 
     public int getRequestCount() {
         return requestCount;
+    }
+
+    public int getIssueCount() {
+        return issueCount;
     }
 
     public int getStoryCount() {

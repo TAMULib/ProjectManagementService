@@ -103,7 +103,7 @@ public class RemoteProjectsScheduledCacheServiceTest {
     }
 
     private RemoteProject getMockRemoteProject() {
-        return new RemoteProject("0001", "Sprint 1", 2, 10, 3);
+        return new RemoteProject("0001", "Sprint 1", 2, 3, 10, 3);
     }
 
     private void assertRemoteProjects(Map<Long, List<RemoteProject>> remoteProjectsCache) {
@@ -115,6 +115,7 @@ public class RemoteProjectsScheduledCacheServiceTest {
         assertEquals("0001", remoteProjects.get(0).getScopeId());
         assertEquals("Sprint 1", remoteProjects.get(0).getName());
         assertEquals(2, remoteProjects.get(0).getRequestCount());
+        assertEquals(3, remoteProjects.get(0).getIssueCount());
         assertEquals(10, remoteProjects.get(0).getStoryCount());
         assertEquals(3, remoteProjects.get(0).getDefectCount());
         assertEquals(13, remoteProjects.get(0).getBacklogItemCount());

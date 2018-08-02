@@ -211,6 +211,7 @@ public class VersionOneServiceTest extends VersionOneMockTests {
         when(services.retrieve(any(Query.class))).thenReturn(result);
 
         doReturn(2).when(versionOneService).getPrimaryWorkItemCount(matches("Request"), any(String.class));
+        doReturn(3).when(versionOneService).getPrimaryWorkItemCount(matches("Issue"), any(String.class));
         doReturn(4).when(versionOneService).getPrimaryWorkItemCount(matches("Story"), any(String.class));
         doReturn(1).when(versionOneService).getPrimaryWorkItemCount(matches("Defect"), any(String.class));
 
@@ -247,6 +248,7 @@ public class VersionOneServiceTest extends VersionOneMockTests {
         when(services.retrieve(any(Query.class))).thenReturn(result);
 
         doReturn(2).when(versionOneService).getPrimaryWorkItemCount("Request", "1934");
+        doReturn(3).when(versionOneService).getPrimaryWorkItemCount("Issue", "1934");
         doReturn(4).when(versionOneService).getPrimaryWorkItemCount("Story", "1934");
         doReturn(1).when(versionOneService).getPrimaryWorkItemCount("Defect", "1934");
 
