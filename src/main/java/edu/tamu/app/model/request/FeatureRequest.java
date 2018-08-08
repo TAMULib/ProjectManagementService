@@ -12,13 +12,9 @@ public class FeatureRequest extends AbstractRequest {
         super();
     }
 
-    public FeatureRequest(String title, String description, Long projectId) {
+    public FeatureRequest(String title, String description, Long projectId, String scopeId) {
         super(title, description);
         this.projectId = projectId;
-    }
-
-    public FeatureRequest(String title, String description, Long projectId, String scopeId) {
-        this(title, description, projectId);
         this.scopeId = scopeId;
     }
 

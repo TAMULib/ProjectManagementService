@@ -9,7 +9,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * Web server initialization.
- * 
  */
 @EnableScheduling
 @SpringBootApplication

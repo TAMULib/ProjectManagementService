@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import edu.tamu.app.enums.Role;
+import edu.tamu.app.model.Role;
 import edu.tamu.app.model.User;
 import edu.tamu.app.model.repo.UserRepo;
 import edu.tamu.app.model.repo.custom.UserRepoCustom;
