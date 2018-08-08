@@ -39,7 +39,7 @@ import edu.tamu.app.service.ticketing.SugarService;
 import edu.tamu.weaver.response.ApiResponse;
 
 @RunWith(SpringRunner.class)
-public class ProjectControllerTest {
+public class ProjectControllerUnitTest {
 
     private static final String TEST_PROJECT1_NAME = "Test Project 1 Name";
     private static final String TEST_PROJECT1_SCOPE = "0001";
