@@ -35,6 +35,7 @@ public class Project extends ValidatingBaseEntity {
     private RemoteProjectManager remoteProjectManager;
 
     public Project() {
+        super();
         this.modelValidator = new ProjectValidator();
     }
 
