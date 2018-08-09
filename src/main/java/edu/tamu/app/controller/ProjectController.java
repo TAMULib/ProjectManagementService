@@ -76,6 +76,7 @@ public class ProjectController {
     @WeaverValidation(business = { @WeaverValidation.Business(value = CREATE) })
     public ApiResponse createProject(@WeaverValidatedModel Project project) {
         logger.info("Creating Project: " + project.getName());
+        reifyProjectRemoteProjectManager(project);
         return new ApiResponse(SUCCESS, projectRepo.create(project));
     }
 
@@ -84,6 +85,7 @@ public class ProjectController {
     @WeaverValidation(business = { @WeaverValidation.Business(value = UPDATE) })
     public ApiResponse updateProject(@WeaverValidatedModel Project project) {
         logger.info("Updating Project: " + project.getName());
+        reifyProjectRemoteProjectManager(project);
         return new ApiResponse(SUCCESS, projectRepo.update(project));
     }
 
@@ -92,6 +94,7 @@ public class ProjectController {
     @WeaverValidation(business = { @WeaverValidation.Business(value = DELETE) })
     public ApiResponse deleteProject(@WeaverValidatedModel Project project) {
         logger.info("Deleting Project: " + project.getName());
+        reifyProjectRemoteProjectManager(project);
         projectRepo.delete(project);
         return new ApiResponse(SUCCESS);
     }
@@ -160,6 +163,14 @@ public class ProjectController {
             response = new ApiResponse(ERROR, "Remote Project Manager with id " + remoteProjectManagerId + " not found!");
         }
         return response;
+    }
+
+    private void reifyProjectRemoteProjectManager(Project project) {
+        Optional<RemoteProjectManager> remoteProjectManager = Optional.ofNullable(project.getRemoteProjectManager());
+        if (remoteProjectManager.isPresent()) {
+            Long remoteProjectManagerId = remoteProjectManager.get().getId();
+            project.setRemoteProjectManager(remoteProjectManagerRepo.findOne(remoteProjectManagerId));
+        }
     }
 
 }
