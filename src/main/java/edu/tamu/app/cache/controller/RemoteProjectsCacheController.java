@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 import edu.tamu.app.cache.service.RemoteProjectsScheduledCacheService;
 
 @RestController
-@RequestMapping("/remote-projects")
+@RequestMapping("/projects/remote")
 public class RemoteProjectsCacheController extends AbstractCacheController<RemoteProjectsScheduledCacheService> {
 
 }

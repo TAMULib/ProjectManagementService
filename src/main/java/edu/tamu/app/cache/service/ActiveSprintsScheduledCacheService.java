@@ -56,7 +56,7 @@ public class ActiveSprintsScheduledCacheService extends AbstractScheduledCacheSe
 
     public void broadcast() {
         logger.info("Broadcasting cached active sprints");
-        simpMessagingTemplate.convertAndSend("/channel/active-sprints", new ApiResponse(SUCCESS, get()));
+        simpMessagingTemplate.convertAndSend("/channel/sprints/active", new ApiResponse(SUCCESS, get()));
     }
 
 }

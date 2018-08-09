@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 import edu.tamu.app.cache.service.ActiveSprintsScheduledCacheService;
 
 @RestController
-@RequestMapping("/active-sprints")
+@RequestMapping("/sprints/active")
 public class ActiveSprintsCacheController extends AbstractCacheController<ActiveSprintsScheduledCacheService> {
 
 }

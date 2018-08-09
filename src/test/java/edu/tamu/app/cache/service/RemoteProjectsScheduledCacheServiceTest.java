@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -88,6 +89,14 @@ public class RemoteProjectsScheduledCacheServiceTest {
         assertRemoteProjects(remoteProjectsScheduledCacheService.get());
     }
 
+    @Test
+    public void testGetRemoteProject() {
+        remoteProjectsScheduledCacheService.set(getMockRemoteProjectsCache());
+        Optional<RemoteProject> remoteProject = remoteProjectsScheduledCacheService.getRemoteProject(1L, "0001");
+        assertTrue("Coult not find remote project!", remoteProject.isPresent());
+        assertRemoteProject(remoteProject.get());
+    }
+
     private RemoteProjectManager getMockRemoteProjectManager() {
         RemoteProjectManager remoteProjectManager = new RemoteProjectManager("Test Remote Project Manager", ServiceType.VERSION_ONE);
         remoteProjectManager.setId(1L);
@@ -112,13 +121,17 @@ public class RemoteProjectsScheduledCacheServiceTest {
         List<RemoteProject> remoteProjects = remoteProjectsCache.get(1L);
         assertFalse(remoteProjects.isEmpty());
         assertEquals(1, remoteProjects.size());
-        assertEquals("0001", remoteProjects.get(0).getScopeId());
-        assertEquals("Sprint 1", remoteProjects.get(0).getName());
-        assertEquals(2, remoteProjects.get(0).getRequestCount());
-        assertEquals(3, remoteProjects.get(0).getIssueCount());
-        assertEquals(10, remoteProjects.get(0).getStoryCount());
-        assertEquals(3, remoteProjects.get(0).getDefectCount());
-        assertEquals(13, remoteProjects.get(0).getBacklogItemCount());
+        assertRemoteProject(remoteProjects.get(0));
+    }
+
+    private void assertRemoteProject(RemoteProject remoteProject) {
+        assertEquals("0001", remoteProject.getId());
+        assertEquals("Sprint 1", remoteProject.getName());
+        assertEquals(2, remoteProject.getRequestCount());
+        assertEquals(3, remoteProject.getIssueCount());
+        assertEquals(10, remoteProject.getFeatureCount());
+        assertEquals(3, remoteProject.getDefectCount());
+        assertEquals(13, remoteProject.getBacklogItemCount());
     }
 
 }

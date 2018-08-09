@@ -66,11 +66,11 @@ public class RemoteProjectsCacheControllerTest {
         List<RemoteProject> remoteProjects = remoteProjectsCache.get(1L);
         assertFalse(remoteProjects.isEmpty());
         assertEquals(1, remoteProjects.size());
-        assertEquals("0001", remoteProjects.get(0).getScopeId());
+        assertEquals("0001", remoteProjects.get(0).getId());
         assertEquals("Sprint 1", remoteProjects.get(0).getName());
         assertEquals(2, remoteProjects.get(0).getRequestCount());
         assertEquals(3, remoteProjects.get(0).getIssueCount());
-        assertEquals(10, remoteProjects.get(0).getStoryCount());
+        assertEquals(10, remoteProjects.get(0).getFeatureCount());
         assertEquals(3, remoteProjects.get(0).getDefectCount());
         assertEquals(13, remoteProjects.get(0).getBacklogItemCount());
     }

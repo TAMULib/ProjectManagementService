@@ -5,6 +5,7 @@ import static edu.tamu.weaver.response.ApiStatus.SUCCESS;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,7 +58,21 @@ public class RemoteProjectsScheduledCacheService extends AbstractScheduledCacheS
 
     public void broadcast() {
         logger.info("Broadcasting cached remote projects");
-        simpMessagingTemplate.convertAndSend("/channel/remote-projects", new ApiResponse(SUCCESS, get()));
+        simpMessagingTemplate.convertAndSend("/channel/projects/remote", new ApiResponse(SUCCESS, get()));
+    }
+
+    public Optional<RemoteProject> getRemoteProject(Long remoteProjectManagerId, String scopeId) {
+        Optional<RemoteProject> remoteProject = Optional.empty();
+        Optional<List<RemoteProject>> remoteProjects = Optional.ofNullable(get().get(remoteProjectManagerId));
+        if (remoteProjects.isPresent()) {
+            for (RemoteProject rp : remoteProjects.get()) {
+                if (rp.getId().equals(scopeId)) {
+                    remoteProject = Optional.of(rp);
+                    break;
+                }
+            }
+        }
+        return remoteProject;
     }
 
 }
