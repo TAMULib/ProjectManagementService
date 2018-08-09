@@ -27,8 +27,6 @@ $ mvn clean package -DskipTests -Dproduction
 | **Sample Request**   | ```/projects```                                                                             |
 | **Notes**            | These are managed projects for this service and not projects from a remote project manager. |
 
-<details>
-<summary>View Example Response</summary>
 ```json
 {
   "meta": {
@@ -83,7 +81,7 @@ $ mvn clean package -DskipTests -Dproduction
   }
 }
 ```
-</details>
+
 <hr />
 
 | **Title**            | **Active Sprints**                                                                                                                                                                                                                                    |
@@ -96,8 +94,6 @@ $ mvn clean package -DskipTests -Dproduction
 | **Sample Request**   | ```/sprints/active```                                                                                                                                                                                                                                 |
 | **Notes**            | Currently, only remote project manager implemented is VersionOne. VersionOne sprints are based on a timebox which is a spring schedule in the UI. Projects can share the same sprint schedule and will appear to be the same sprint in this response. |
 
-<details>
-<summary>View Example Response</summary>
 ```json
 {
   "meta": {
@@ -195,21 +191,19 @@ $ mvn clean package -DskipTests -Dproduction
   }
 }
 ```
-</details>
+
 <hr />
 
-| **Title**            | **Remote Projects**                                                                                                 |
+| **Title**            | **Projects Stats**                                                                                                  |
 | :------------------- | :------------------------------------------------------------------------------------------------------------------ |
 | **Description**      | Returns a list of all projects and there statistics gathered from their associated remote project manager projects. |
-| **URL**              | ```/projects/remote```                                                                                              |
+| **URL**              | ```/projects/stats```                                                                                               |
 | **Method**           | **GET**                                                                                                             |
 | **URL Parameters**   |                                                                                                                     |
 | **Success Response** | **Code:** 200 OK<br/>**Content Type:** application/json                                                             |
-| **Sample Request**   | ```/projects/remote```                                                                                              |
+| **Sample Request**   | ```/projects/stats```                                                                                               |
 | **Notes**            |                                                                                                                     |
 
-<details>
-<summary>View Example Response</summary>
 ```json
 {
   "meta": {
@@ -219,7 +213,7 @@ $ mvn clean package -DskipTests -Dproduction
     "id": null
   },
   "payload": {
-    "ArrayList<RemoteProject>": [
+    "ArrayList<ProjectStats>": [
       {
         "id": "1",
         "name": "Legacy DSpace",
@@ -251,4 +245,3 @@ $ mvn clean package -DskipTests -Dproduction
   }
 }
 ```
-</details>
