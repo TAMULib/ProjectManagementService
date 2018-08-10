@@ -6,6 +6,7 @@ import static edu.tamu.weaver.validation.model.BusinessValidationType.CREATE;
 import static edu.tamu.weaver.validation.model.BusinessValidationType.DELETE;
 import static edu.tamu.weaver.validation.model.BusinessValidationType.UPDATE;
 
+import java.util.List;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
+import edu.tamu.app.cache.service.ProjectScheduledCache;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.RemoteProjectManager;
 import edu.tamu.app.model.repo.ProjectRepo;
@@ -55,6 +57,9 @@ public class ProjectController {
     @Autowired
     private SugarService sugarService;
 
+    @Autowired
+    private List<ProjectScheduledCache<?, ?>> projectSceduledCaches;
+
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @GetMapping
@@ -77,7 +82,11 @@ public class ProjectController {
     public ApiResponse createProject(@WeaverValidatedModel Project project) {
         logger.info("Creating Project: " + project.getName());
         reifyProjectRemoteProjectManager(project);
-        return new ApiResponse(SUCCESS, projectRepo.create(project));
+        project = projectRepo.create(project);
+        for (ProjectScheduledCache<?, ?> projectSceduledCache : projectSceduledCaches) {
+            projectSceduledCache.addProject(project);
+        }
+        return new ApiResponse(SUCCESS, project);
     }
 
     @PutMapping
@@ -86,7 +95,11 @@ public class ProjectController {
     public ApiResponse updateProject(@WeaverValidatedModel Project project) {
         logger.info("Updating Project: " + project.getName());
         reifyProjectRemoteProjectManager(project);
-        return new ApiResponse(SUCCESS, projectRepo.update(project));
+        project = projectRepo.update(project);
+        for (ProjectScheduledCache<?, ?> projectSceduledCache : projectSceduledCaches) {
+            projectSceduledCache.updateProject(project);
+        }
+        return new ApiResponse(SUCCESS, project);
     }
 
     @DeleteMapping
@@ -96,6 +109,9 @@ public class ProjectController {
         logger.info("Deleting Project: " + project.getName());
         reifyProjectRemoteProjectManager(project);
         projectRepo.delete(project);
+        for (ProjectScheduledCache<?, ?> projectSceduledCache : projectSceduledCaches) {
+            projectSceduledCache.removeProject(project);
+        }
         return new ApiResponse(SUCCESS);
     }
 
