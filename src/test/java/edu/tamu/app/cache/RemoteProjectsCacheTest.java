@@ -22,8 +22,8 @@ public class RemoteProjectsCacheTest {
     @Test
     public void testNewRemoteProjectsCache() {
         RemoteProjectsCache cache = new RemoteProjectsCache();
-        assertNotNull("New remote project cache was not created!", cache);
-        assertNotNull("New remote project cache remoteProjects were not created!", cache.get());
+        assertNotNull("New remote projects cache was not created!", cache);
+        assertNotNull("New remote projects cache remote projects were not created!", cache.get());
     }
 
     @Test
@@ -35,7 +35,7 @@ public class RemoteProjectsCacheTest {
         remoteProjects.add(getMockRemoteProject());
         remoteProjectMap.put(1L, remoteProjects);
         cache.set(remoteProjectMap);
-        assertFalse("Cached remoteProjects was empty!", cache.get().isEmpty());
+        assertFalse("Cached remote projects was empty!", cache.get().isEmpty());
     }
 
     @Test
@@ -51,13 +51,13 @@ public class RemoteProjectsCacheTest {
         assertEquals("Cached remote projects had incorrect number of remote projects!", 1, remoteProjectsCache.size());
         assertEquals("Cached remote projects did not have expected remote projects for a given remote project manager!", 1, remoteProjectsCache.get(1L).size());
 
-        assertEquals("Cached remote project had incorrect id!", "0001", remoteProjectsCache.get(1L).get(0).getScopeId());
+        assertEquals("Cached remote project had incorrect id!", "0001", remoteProjectsCache.get(1L).get(0).getId());
         assertEquals("Cached remote project had incorrect name!", "Sprint 1", remoteProjectsCache.get(1L).get(0).getName());
-        assertEquals("Cached remote project had incorrect number of requests!", 2, remoteProjects.get(0).getRequestCount());
-        assertEquals("Cached remote project had incorrect number of issues!", 3, remoteProjects.get(0).getIssueCount());
-        assertEquals("Cached remote project had incorrect number of stories!", 10, remoteProjects.get(0).getStoryCount());
-        assertEquals("Cached remote project had incorrect number of defects!", 3, remoteProjects.get(0).getDefectCount());
-        assertEquals("Cached remote project had incorrect total backlog items!", 13, remoteProjects.get(0).getBacklogItemCount());
+        assertEquals("Cached remote project had incorrect number of requests!", 2, remoteProjectsCache.get(1L).get(0).getRequestCount());
+        assertEquals("Cached remote project had incorrect number of issues!", 3, remoteProjectsCache.get(1L).get(0).getIssueCount());
+        assertEquals("Cached remote project had incorrect number of features!", 10, remoteProjectsCache.get(1L).get(0).getFeatureCount());
+        assertEquals("Cached remote project had incorrect number of defects!", 3, remoteProjectsCache.get(1L).get(0).getDefectCount());
+        assertEquals("Cached remote project had incorrect total backlog items!", 13, remoteProjectsCache.get(1L).get(0).getBacklogItemCount());
     }
 
     private RemoteProject getMockRemoteProject() {

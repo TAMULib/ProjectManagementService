@@ -6,6 +6,7 @@ import static edu.tamu.weaver.validation.model.BusinessValidationType.CREATE;
 import static edu.tamu.weaver.validation.model.BusinessValidationType.DELETE;
 import static edu.tamu.weaver.validation.model.BusinessValidationType.UPDATE;
 
+import java.util.List;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
@@ -14,12 +15,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.annotation.JsonView;
+
+import edu.tamu.app.cache.service.ProjectScheduledCache;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.RemoteProjectManager;
 import edu.tamu.app.model.repo.ProjectRepo;
@@ -30,6 +37,7 @@ import edu.tamu.app.service.manager.RemoteProjectManagerBean;
 import edu.tamu.app.service.registry.ManagementBeanRegistry;
 import edu.tamu.app.service.ticketing.SugarService;
 import edu.tamu.weaver.response.ApiResponse;
+import edu.tamu.weaver.response.ApiView;
 import edu.tamu.weaver.validation.aspect.annotation.WeaverValidatedModel;
 import edu.tamu.weaver.validation.aspect.annotation.WeaverValidation;
 
@@ -49,52 +57,71 @@ public class ProjectController {
     @Autowired
     private SugarService sugarService;
 
+    @Autowired
+    private List<ProjectScheduledCache<?, ?>> projectSceduledCaches;
+
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @RequestMapping(method = RequestMethod.GET)
+    @GetMapping
+    @JsonView(ApiView.Partial.class)
     @PreAuthorize("hasRole('ANONYMOUS')")
     public ApiResponse getAll() {
         return new ApiResponse(SUCCESS, projectRepo.findAll());
     }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    @GetMapping("/{id}")
+    @JsonView(ApiView.Partial.class)
     @PreAuthorize("hasRole('ANONYMOUS')")
     public ApiResponse getOne(@PathVariable Long id) {
         return new ApiResponse(SUCCESS, projectRepo.findOne(id));
     }
 
-    @RequestMapping(method = RequestMethod.POST)
+    @PostMapping
     @PreAuthorize("hasRole('USER')")
     @WeaverValidation(business = { @WeaverValidation.Business(value = CREATE) })
     public ApiResponse createProject(@WeaverValidatedModel Project project) {
         logger.info("Creating Project: " + project.getName());
-        return new ApiResponse(SUCCESS, projectRepo.create(project));
+        reifyProjectRemoteProjectManager(project);
+        project = projectRepo.create(project);
+        for (ProjectScheduledCache<?, ?> projectSceduledCache : projectSceduledCaches) {
+            projectSceduledCache.addProject(project);
+        }
+        return new ApiResponse(SUCCESS, project);
     }
 
-    @RequestMapping(method = RequestMethod.PUT)
+    @PutMapping
     @PreAuthorize("hasRole('USER')")
     @WeaverValidation(business = { @WeaverValidation.Business(value = UPDATE) })
     public ApiResponse updateProject(@WeaverValidatedModel Project project) {
         logger.info("Updating Project: " + project.getName());
-        return new ApiResponse(SUCCESS, projectRepo.update(project));
+        reifyProjectRemoteProjectManager(project);
+        project = projectRepo.update(project);
+        for (ProjectScheduledCache<?, ?> projectSceduledCache : projectSceduledCaches) {
+            projectSceduledCache.updateProject(project);
+        }
+        return new ApiResponse(SUCCESS, project);
     }
 
-    @RequestMapping(method = RequestMethod.DELETE)
+    @DeleteMapping
     @PreAuthorize("hasRole('USER')")
     @WeaverValidation(business = { @WeaverValidation.Business(value = DELETE) })
     public ApiResponse deleteProject(@WeaverValidatedModel Project project) {
         logger.info("Deleting Project: " + project.getName());
+        reifyProjectRemoteProjectManager(project);
         projectRepo.delete(project);
+        for (ProjectScheduledCache<?, ?> projectSceduledCache : projectSceduledCaches) {
+            projectSceduledCache.removeProject(project);
+        }
         return new ApiResponse(SUCCESS);
     }
 
-    @RequestMapping(value = "/issue", method = RequestMethod.POST)
+    @PostMapping("/issue")
     @PreAuthorize("hasRole('ANONYMOUS')")
     public ApiResponse submitIssueRequest(@RequestBody TicketRequest request) {
         return new ApiResponse(SUCCESS, sugarService.submit(request));
     }
 
-    @RequestMapping(value = "/feature", method = RequestMethod.POST)
+    @PostMapping("/feature")
     @PreAuthorize("hasRole('MANAGER') or @whitelist.isAllowed(#req)")
     public ApiResponse pushRequest(HttpServletRequest req, @RequestBody FeatureRequest request) {
         Optional<Project> project = Optional.ofNullable(projectRepo.findOne(request.getProjectId()));
@@ -118,7 +145,7 @@ public class ProjectController {
         return response;
     }
 
-    @RequestMapping(value = "/{remoteProjectManagerId}/remote-projects", method = RequestMethod.GET)
+    @GetMapping("/{remoteProjectManagerId}/remote-projects")
     @PreAuthorize("hasRole('MANAGER')")
     public ApiResponse getAllRemoteProjects(@PathVariable Long remoteProjectManagerId) {
         Optional<RemoteProjectManager> remoteProjectManager = Optional.ofNullable(remoteProjectManagerRepo.findOne(remoteProjectManagerId));
@@ -136,7 +163,7 @@ public class ProjectController {
         return response;
     }
 
-    @RequestMapping(value = "/{remoteProjectManagerId}/remote-projects/{scopeId}", method = RequestMethod.GET)
+    @GetMapping("/{remoteProjectManagerId}/remote-projects/{scopeId}")
     @PreAuthorize("hasRole('MANAGER')")
     public ApiResponse getRemoteProjectByScopeId(@PathVariable Long remoteProjectManagerId, @PathVariable String scopeId) {
         Optional<RemoteProjectManager> remoteProjectManager = Optional.ofNullable(remoteProjectManagerRepo.findOne(remoteProjectManagerId));
@@ -152,6 +179,14 @@ public class ProjectController {
             response = new ApiResponse(ERROR, "Remote Project Manager with id " + remoteProjectManagerId + " not found!");
         }
         return response;
+    }
+
+    private void reifyProjectRemoteProjectManager(Project project) {
+        Optional<RemoteProjectManager> remoteProjectManager = Optional.ofNullable(project.getRemoteProjectManager());
+        if (remoteProjectManager.isPresent()) {
+            Long remoteProjectManagerId = remoteProjectManager.get().getId();
+            project.setRemoteProjectManager(remoteProjectManagerRepo.findOne(remoteProjectManagerId));
+        }
     }
 
 }

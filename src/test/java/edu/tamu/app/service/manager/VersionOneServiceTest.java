@@ -254,7 +254,7 @@ public class VersionOneServiceTest extends VersionOneMockTests {
 
         RemoteProject remoteProject = versionOneService.getRemoteProjectByScopeId("1934");
 
-        assertEquals("Remote project has incorrect scope id!", mockRemoteProjects.get(0).getScopeId(), remoteProject.getScopeId());
+        assertEquals("Remote project has incorrect scope id!", mockRemoteProjects.get(0).getId(), remoteProject.getId());
         assertEquals("Remote project had incorrect name!", mockRemoteProjects.get(0).getName(), remoteProject.getName());
     }
 
@@ -832,7 +832,7 @@ public class VersionOneServiceTest extends VersionOneMockTests {
             Oid mockOid = mock(Oid.class);
             Attribute mockNameAttribute = mock(Attribute.class);
             when(mockNameAttribute.getValue()).thenReturn(remoteProject.getName());
-            when(mockOid.toString()).thenReturn("Scope:" + remoteProject.getScopeId());
+            when(mockOid.toString()).thenReturn("Scope:" + remoteProject.getId());
             when(mockAsset.getOid()).thenReturn(mockOid);
             when(mockAsset.getAttribute(any(IAttributeDefinition.class))).thenReturn(mockNameAttribute);
             mockAssets.add(mockAsset);
@@ -843,12 +843,12 @@ public class VersionOneServiceTest extends VersionOneMockTests {
     private Asset[] getMockRemoteProjectAssetByScopeId(String scopeId) throws JsonParseException, JsonMappingException, IOException, APIException {
         List<Asset> mockAssets = new ArrayList<Asset>();
         for (RemoteProject remoteProject : mockRemoteProjects) {
-            if (remoteProject.getScopeId().equals(scopeId)) {
+            if (remoteProject.getId().equals(scopeId)) {
                 Asset mockAsset = mock(Asset.class);
                 Oid mockOid = mock(Oid.class);
                 Attribute mockNameAttribute = mock(Attribute.class);
                 when(mockNameAttribute.getValue()).thenReturn(remoteProject.getName());
-                when(mockOid.toString()).thenReturn("Scope:" + remoteProject.getScopeId());
+                when(mockOid.toString()).thenReturn("Scope:" + remoteProject.getId());
                 when(mockAsset.getOid()).thenReturn(mockOid);
                 when(mockAsset.getAttribute(any(IAttributeDefinition.class))).thenReturn(mockNameAttribute);
                 mockAssets.add(mockAsset);
@@ -936,7 +936,7 @@ public class VersionOneServiceTest extends VersionOneMockTests {
         for (int i = 0; i < mockRemoteProjects.size(); i++) {
             RemoteProject remoteProject = remoteProjects.get(i);
             RemoteProject mockRemoteProject = mockRemoteProjects.get(i);
-            assertEquals("Remote project has incorrect scope id!", mockRemoteProject.getScopeId(), remoteProject.getScopeId());
+            assertEquals("Remote project has incorrect scope id!", mockRemoteProject.getId(), remoteProject.getId());
             assertEquals("Remote project had incorrect name!", mockRemoteProject.getName(), remoteProject.getName());
         }
     }

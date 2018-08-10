@@ -15,17 +15,22 @@ import javax.persistence.MappedSuperclass;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
+import com.fasterxml.jackson.annotation.JsonView;
+
 import edu.tamu.app.model.converter.CryptoConverter;
 import edu.tamu.app.model.validation.ManagementServiceValidator;
+import edu.tamu.weaver.response.ApiView;
 import edu.tamu.weaver.validation.model.ValidatingBaseEntity;
 
 @MappedSuperclass
 public abstract class ManagementService extends ValidatingBaseEntity {
 
     @Column
+    @JsonView(ApiView.Partial.class)
     protected String name;
 
     @Enumerated
+    @JsonView(ApiView.Partial.class)
     protected ServiceType type;
 
     @ElementCollection(fetch = EAGER)

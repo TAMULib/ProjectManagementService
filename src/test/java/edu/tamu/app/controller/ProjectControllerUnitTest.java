@@ -19,6 +19,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -26,6 +27,7 @@ import com.versionone.apiclient.exceptions.APIException;
 import com.versionone.apiclient.exceptions.ConnectionException;
 import com.versionone.apiclient.exceptions.OidException;
 
+import edu.tamu.app.cache.service.ProjectScheduledCache;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.RemoteProjectManager;
 import edu.tamu.app.model.ServiceType;
@@ -39,7 +41,7 @@ import edu.tamu.app.service.ticketing.SugarService;
 import edu.tamu.weaver.response.ApiResponse;
 
 @RunWith(SpringRunner.class)
-public class ProjectControllerTest {
+public class ProjectControllerUnitTest {
 
     private static final String TEST_PROJECT1_NAME = "Test Project 1 Name";
     private static final String TEST_PROJECT1_SCOPE = "0001";
@@ -86,6 +88,9 @@ public class ProjectControllerTest {
 
     @Mock
     private RemoteProjectManagerBean managementBean;
+
+    @Spy
+    private List<ProjectScheduledCache<?, ?>> projectSceduledCaches = new ArrayList<ProjectScheduledCache<?, ?>>();
 
     @InjectMocks
     private ProjectController projectController;
