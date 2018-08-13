@@ -20,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;
+import org.springframework.web.client.RestTemplate;
 
 import com.versionone.Oid;
 import com.versionone.apiclient.Asset;
@@ -45,6 +46,7 @@ import edu.tamu.app.cache.model.Sprint;
 import edu.tamu.app.model.ManagementService;
 import edu.tamu.app.model.request.FeatureRequest;
 import edu.tamu.app.rest.BasicAuthRestTemplate;
+import edu.tamu.app.rest.TokenAuthRestTemplate;
 
 public class VersionOneService extends MappingRemoteProjectManagerBean {
 
@@ -54,20 +56,15 @@ public class VersionOneService extends MappingRemoteProjectManagerBean {
 
     private final IServices services;
 
-    private final BasicAuthRestTemplate restTemplate;
+    private final RestTemplate restTemplate;
 
     private final Map<String, Member> members;
 
     public VersionOneService(ManagementService managementService) throws MalformedURLException, V1Exception {
         this.managementService = managementService;
-        // @formatter:off
-        V1Connector connector = V1Connector.withInstanceUrl(getUrl())
-                .withUserAgentHeader("Project Management Service", "1.0")
-                .withUsernameAndPassword(getUsername(), getPassword())
-                .build();
-        // @formatter:on
+        V1Connector connector = buildConnector();
         services = new Services(connector);
-        restTemplate = new BasicAuthRestTemplate(getUsername(), getPassword());
+        restTemplate = getRestTemplate();
         restTemplate.getMessageConverters().add(new ByteArrayHttpMessageConverter());
         members = new HashMap<String, Member>();
     }
@@ -362,12 +359,42 @@ public class VersionOneService extends MappingRemoteProjectManagerBean {
         return url.endsWith("/") ? url.substring(0, url.length() - 1) : url;
     }
 
+    private V1Connector buildConnector() throws MalformedURLException, V1Exception {
+        Optional<String> token = getToken();
+        V1Connector connector;
+        if (token.isPresent()) {
+            // @formatter:off
+            connector = V1Connector.withInstanceUrl(getUrl())
+                .withUserAgentHeader("Project Management Service", "1.0")
+                .withAccessToken(getToken().get())
+                .build();
+            // @formatter:on
+        } else {
+            // @formatter:off
+            connector = V1Connector.withInstanceUrl(getUrl())
+                .withUserAgentHeader("Project Management Service", "1.0")
+                .withUsernameAndPassword(getUsername(), getPassword())
+                .build();
+            // @formatter:on
+        }
+        return connector;
+    }
+
+    private RestTemplate getRestTemplate() {
+        Optional<String> token = getToken();
+        return token.isPresent() ? new TokenAuthRestTemplate(token.get()) : new BasicAuthRestTemplate(getUsername(), getPassword());
+    }
+
     private String getUsername() {
         return getSettingValue("username");
     }
 
     private String getPassword() {
         return getSettingValue("password");
+    }
+
+    private Optional<String> getToken() {
+        return managementService.getSettingValue("token");
     }
 
     private String getSettingValue(String key) {
