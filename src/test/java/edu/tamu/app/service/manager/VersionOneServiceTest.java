@@ -88,7 +88,14 @@ public class VersionOneServiceTest extends VersionOneMockTests {
     @Before
     @SuppressWarnings("unchecked")
     public void setup() throws JsonParseException, JsonMappingException, IOException, V1Exception {
-        ManagementService managementService = new RemoteProjectManager("Version One", ServiceType.VERSION_ONE, getMockSettings());
+        ManagementService managementService = new RemoteProjectManager("Version One", ServiceType.VERSION_ONE, new HashMap<String, String>() {
+            private static final long serialVersionUID = 2020874481642498006L;
+            {
+                put("url", "https://localhost:9101/TexasAMLibrary");
+                put("username", "username");
+                put("password", "password");
+            }
+        });
 
         CardTypeRepo cardTypeRepo = mock(CardTypeRepo.class);
         StatusRepo statusRepo = mock(StatusRepo.class);
@@ -181,6 +188,18 @@ public class VersionOneServiceTest extends VersionOneMockTests {
         mockRemoteProjects = getMockRemoteProjects();
 
         mockActiveSprints = getMockActiveSprints();
+    }
+
+    @Test
+    public void testVersionOneTokenAuthConnector() {
+        ManagementService managementService = new RemoteProjectManager("Version One", ServiceType.VERSION_ONE, new HashMap<String, String>() {
+            private static final long serialVersionUID = 2020874481642498006L;
+            {
+                put("url", "https://localhost:9101/TexasAMLibrary");
+                put("token", "token");
+            }
+        });
+        setField(versionOneService, "managementService", managementService);
     }
 
     @Test

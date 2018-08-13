@@ -1,9 +1,7 @@
 package edu.tamu.app.service.manager;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.mockito.Spy;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,16 +35,5 @@ public abstract class VersionOneMockTests {
         return objectMapper.readValue(remoteProjects.getFile(), new TypeReference<List<RemoteProject>>() {});
     }
     // @formatter:on
-
-    protected Map<String, String> getMockSettings() {
-        return new HashMap<String, String>() {
-            private static final long serialVersionUID = 2020874481642498006L;
-            {
-                put("url", "https://localhost:9101/TexasAMLibrary");
-                put("username", "username");
-                put("password", "password");
-            }
-        };
-    }
 
 }

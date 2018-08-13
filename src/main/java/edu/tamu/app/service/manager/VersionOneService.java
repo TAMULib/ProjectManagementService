@@ -62,8 +62,7 @@ public class VersionOneService extends MappingRemoteProjectManagerBean {
 
     public VersionOneService(ManagementService managementService) throws MalformedURLException, V1Exception {
         this.managementService = managementService;
-        V1Connector connector = buildConnector();
-        services = new Services(connector);
+        services = new Services(buildConnector());
         restTemplate = getRestTemplate();
         restTemplate.getMessageConverters().add(new ByteArrayHttpMessageConverter());
         members = new HashMap<String, Member>();
