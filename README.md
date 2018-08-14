@@ -106,7 +106,7 @@ $ mvn clean package -DskipTests -Dproduction
 
 | **Title**            | **Projects Stats**                                                                                                  |
 | :------------------- | :------------------------------------------------------------------------------------------------------------------ |
-| **Description**      | Returns a list of all projects and there statistics gathered from their associated remote project manager projects. |
+| **Description**      | Returns a list of all projects with statistics gathered from their associated remote project manager projects. |
 | **URL**              | ```/projects/stats```                                                                                               |
 | **Method**           | **GET**                                                                                                             |
 | **URL Parameters**   |                                                                                                                     |
