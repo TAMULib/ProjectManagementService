@@ -5,6 +5,7 @@ import java.util.HashSet;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import edu.tamu.app.model.CardType;
@@ -13,6 +14,7 @@ import edu.tamu.app.model.repo.RemoteProjectManagerRepo;
 import edu.tamu.app.service.registry.ManagementBeanRegistry;
 
 @Component
+@Profile("!test")
 public class ProjectInitialization implements CommandLineRunner {
 
     @Autowired
