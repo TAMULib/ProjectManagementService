@@ -30,51 +30,21 @@ $ mvn clean package -DskipTests -Dproduction
 ```json
 {
   "meta": {
-    "status": "SUCCESS",
-    "action": null,
-    "message": "Your request was successful",
-    "id": null
+    "status": ApiStatus,
+    "action": ApiAction,
+    "message": String,
+    "id": String
   },
   "payload": {
     "ArrayList<Project>": [
       {
-        "id": 1,
-        "name": "Legacy DSpace",
-        "scopeId": "1934",
+        "id": Long,
+        "name": String,
+        "scopeId": String,
         "remoteProjectManager": {
-          "id": 1,
-          "name": "VersionOne",
-          "type": "VERSION_ONE"
-        }
-      },
-      {
-        "id": 2,
-        "name": "Code Management - Maps",
-        "scopeId": "3781",
-        "remoteProjectManager": {
-          "id": 1,
-          "name": "VersionOne",
-          "type": "VERSION_ONE"
-        }
-      },
-      {
-        "id": 3,
-        "name": "CORAL - Electronic Resource Management",
-        "scopeId": "3783",
-        "remoteProjectManager": {
-          "id": 1,
-          "name": "VersionOne",
-          "type": "VERSION_ONE"
-        }
-      },
-      {
-        "id": 4,
-        "name": "Piper - Automated Ingest",
-        "scopeId": "3786",
-        "remoteProjectManager": {
-          "id": 1,
-          "name": "VersionOne",
-          "type": "VERSION_ONE"
+          "id": Long,
+          "name": String,
+          "type": String
         }
       }
     ]
@@ -84,104 +54,44 @@ $ mvn clean package -DskipTests -Dproduction
 
 <hr />
 
-| **Title**            | **Active Sprints**                                                                                                                                                                                                                                    |
-| :------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Description**      | Returns a list of all active sprints based on associated remote project manager projects.                                                                                                                                                             |
-| **URL**              | ```/sprints/active```                                                                                                                                                                                                                                 |
-| **Method**           | **GET**                                                                                                                                                                                                                                               |
-| **URL Parameters**   |                                                                                                                                                                                                                                                       |
-| **Success Response** | **Code:** 200 OK<br/>**Content Type:** application/json<br/>**Schema:**                                                                                                                                                                               |
-| **Sample Request**   | ```/sprints/active```                                                                                                                                                                                                                                 |
-| **Notes**            | Currently, only remote project manager implemented is VersionOne. VersionOne sprints are based on a timebox which is a spring schedule in the UI. Projects can share the same sprint schedule and will appear to be the same sprint in this response. |
+| **Title**            | **Active Sprints**                                                                                                                                                                                                                                        |
+| :------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Description**      | Returns a list of all active sprints based on associated remote project manager projects.                                                                                                                                                                 |
+| **URL**              | ```/sprints/active```                                                                                                                                                                                                                                     |
+| **Method**           | **GET**                                                                                                                                                                                                                                                   |
+| **URL Parameters**   |                                                                                                                                                                                                                                                           |
+| **Success Response** | **Code:** 200 OK<br/>**Content Type:** application/json<br/>**Schema:**                                                                                                                                                                                   |
+| **Sample Request**   | ```/sprints/active```                                                                                                                                                                                                                                     |
+| **Notes**            | Currently, VersionOne is the only remote project manager implemented. VersionOne sprints are based on a timebox which is a sprint schedule in the UI. Projects can share the same sprint schedule and will appear to be the same sprint in this response. |
 
 ```json
 {
   "meta": {
-    "status": "SUCCESS",
-    "action": null,
-    "message": "Your request was successful",
-    "id": null
+    "status": ApiStatus,
+    "action": ApiAction,
+    "message": String,
+    "id": String
   },
   "payload": {
     "ArrayList<Sprint>": [
       {
-        "id": "8416",
-        "name": "Sprint 14",
-        "project": "CORAL - Electronic Resource Management",
+        "id": String,
+        "name": String,
+        "project": String,
         "cards": [
           {
-            "id": "8234",
-            "number": "B-03467",
-            "type": "Feature",
-            "status": "Accepted",
-            "name": "Update new feedback and purchase forms to incorporate all fields from the existing feedback form",
-            "description": "<p>Needs to have the new styling and needs to pass WAVE ADA check.</p>\n<p> </p>\n<p>All the key/value information will go right into the Notes field.</p>\n<p> </p>\n<p>We will be finishing out and fully styling the feedback form, the request a purchase form, and ideally the https://coral.library.tamu.edu/resourcelink.php?resource=1440 link resolver while we're at it.</p>",
+            "id": String,
+            "number": String,
+            "type": String,
+            "status": String,
+            "name": String,
+            "description": String,
+            "estimate": Float,
             "assignees": [
               {
-                "id": "20",
-                "name": "Jeremy Huff",
-                "avatar": "1706"
-              },
-              {
-                "id": "3483",
-                "name": "Jason Savell",
-                "avatar": "no_avatar.png"
-              },
-              {
-                "id": "7888",
-                "name": "Kevin Day",
-                "avatar": "no_avatar.png"
-              }
-            ]
-          },
-          {
-            "id": "8417",
-            "number": "B-03578",
-            "type": "Feature",
-            "status": "Done",
-            "name": "Sort by title by default when viewing resource list with trial/purchase requests hidden",
-            "assignees": [
-              {
-                "id": "3483",
-                "name": "Jason Savell",
-                "avatar": "no_avatar.png"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "id": "8435",
-        "name": "Weaver Upgrades/Auth2 Retirement",
-        "project": "DI Internal",
-        "cards": [
-          {
-            "id": "8436",
-            "number": "B-03587",
-            "type": "Feature",
-            "status": "Done",
-            "name": "Upgrade My Library UI to weaver-ui 2",
-            "estimate": 3,
-            "assignees": [
-              {
-                "id": "6616",
-                "name": "Ryan Laddusaw",
-                "avatar": "no_avatar.png"
-              }
-            ]
-          },
-          {
-            "id": "8437",
-            "number": "B-03588",
-            "type": "Feature",
-            "status": "Done",
-            "name": "Update My Library Service to Weaver 2",
-            "estimate": 2,
-            "assignees": [
-              {
-                "id": "6616",
-                "name": "Ryan Laddusaw",
-                "avatar": "no_avatar.png"
+                "id": String,
+                "name": String,
+                "avatar": String
               }
             ]
           }
@@ -207,39 +117,21 @@ $ mvn clean package -DskipTests -Dproduction
 ```json
 {
   "meta": {
-    "status": "SUCCESS",
-    "action": null,
-    "message": "Your request was successful",
-    "id": null
+    "status": ApiStatus,
+    "action": ApiAction,
+    "message": String,
+    "id": String
   },
   "payload": {
     "ArrayList<ProjectStats>": [
       {
-        "id": "1",
-        "name": "Legacy DSpace",
-        "requestCount": 22,
-        "issueCount": 41,
-        "featureCount": 32,
-        "defectCount": 0,
-        "backlogItemCount": 32
-      },
-      {
-        "id": "2",
-        "name": "Code Management - Maps",
-        "requestCount": 0,
-        "issueCount": 0,
-        "featureCount": 5,
-        "defectCount": 0,
-        "backlogItemCount": 5
-      },
-      {
-        "id": "3",
-        "name": "CORAL - Electronic Resource Management",
-        "requestCount": 2,
-        "issueCount": 0,
-        "featureCount": 12,
-        "defectCount": 8,
-        "backlogItemCount": 20
+        "id": String,
+        "name": String,
+        "requestCount": Interger,
+        "issueCount": Interger,
+        "featureCount": Interger,
+        "defectCount": Interger,
+        "backlogItemCount": Interger
       }
     ]
   }
