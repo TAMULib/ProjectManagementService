@@ -73,6 +73,29 @@ public class ProjectsStatsScheduledCacheServiceTest {
     }
 
     @Test
+    public void testAddProject() {
+        projectsStatsScheduledCacheService.addProject(getMockProject());
+        assertProjectsStats(projectsStatsScheduledCacheService.get());
+    }
+
+    @Test
+    public void testUpdateProject() {
+        Project project = getMockProject();
+        projectsStatsScheduledCacheService.addProject(project);
+        project.setScopeId("1001");
+        projectsStatsScheduledCacheService.updateProject(project);
+        assertTrue(true);
+    }
+
+    @Test
+    public void testRemoveProject() {
+        Project project = getMockProject();
+        projectsStatsScheduledCacheService.addProject(project);
+        projectsStatsScheduledCacheService.removeProject(project);
+        assertTrue(projectsStatsScheduledCacheService.get().isEmpty());
+    }
+
+    @Test
     public void testGet() {
         projectsStatsScheduledCacheService.schedule();
         assertProjectsStats(projectsStatsScheduledCacheService.get());
@@ -91,17 +114,17 @@ public class ProjectsStatsScheduledCacheServiceTest {
     }
 
     private ProjectStats getMockProjectStats() {
-        return new ProjectStats("1", "Test Project", 2, 3, 10, 3);
+        return new ProjectStats("1000", "Test Project", 2, 3, 10, 3);
     }
 
     private RemoteProject getMockRemoteProject() {
-        return new RemoteProject("0001", "Sprint 1", 2, 3, 10, 3);
+        return new RemoteProject("1000", "Test Project", 2, 3, 10, 3);
     }
 
     private void assertProjectsStats(List<ProjectStats> projectStatsCache) {
         assertFalse(projectStatsCache.isEmpty());
         assertEquals(1, projectStatsCache.size());
-        assertEquals("1", projectStatsCache.get(0).getId());
+        assertEquals("1000", projectStatsCache.get(0).getId());
         assertEquals("Test Project", projectStatsCache.get(0).getName());
         assertEquals(2, projectStatsCache.get(0).getRequestCount());
         assertEquals(3, projectStatsCache.get(0).getIssueCount());
@@ -113,7 +136,7 @@ public class ProjectsStatsScheduledCacheServiceTest {
     private Project getMockProject() {
         RemoteProjectManager remoteProjectManager = new RemoteProjectManager("Test Remote Project Manager", ServiceType.VERSION_ONE);
         Project mockProject = new Project("Test Project", "0001", remoteProjectManager);
-        mockProject.setId(1L);
+        mockProject.setId(1000L);
         return mockProject;
     }
 

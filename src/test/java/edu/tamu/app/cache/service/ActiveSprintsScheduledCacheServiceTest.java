@@ -77,6 +77,30 @@ public class ActiveSprintsScheduledCacheServiceTest {
     }
 
     @Test
+    public void testAddProject() {
+        activeSprintsScheduledCacheService.addProject(getMockProject());
+        assertSprints(activeSprintsScheduledCacheService.get());
+    }
+
+    @Test
+    public void testUpdateProject() {
+        Project project = getMockProject();
+        activeSprintsScheduledCacheService.addProject(project);
+        project.setName("Another Project");
+        project.setScopeId("1001");
+        activeSprintsScheduledCacheService.updateProject(project);
+        assertTrue(true);
+    }
+
+    @Test
+    public void testRemoveProject() {
+        Project project = getMockProject();
+        activeSprintsScheduledCacheService.addProject(project);
+        activeSprintsScheduledCacheService.removeProject(project);
+        assertTrue(activeSprintsScheduledCacheService.get().isEmpty());
+    }
+
+    @Test
     public void testGet() {
         activeSprintsScheduledCacheService.schedule();
         assertSprints(activeSprintsScheduledCacheService.get());
@@ -95,19 +119,19 @@ public class ActiveSprintsScheduledCacheServiceTest {
 
     private Sprint getMockSprint() {
         List<Member> assignees = Arrays.asList(new Member[] { new Member("1", "Bob Boring", "http://gravatar.com/bborring") });
-        List<Card> cards = Arrays.asList(new Card[] { new Card("1", "B-00001", "Feature", "Do the thing", "Do it with these requirements", "In Progress", 1.0f, assignees) });
-        return new Sprint("1", "Sprint 1", "Application", cards);
+        List<Card> cards = Arrays.asList(new Card[] { new Card("3000", "B-00001", "Feature", "Do the thing", "Do it with these requirements", "In Progress", 1.0f, assignees) });
+        return new Sprint("2000", "Sprint 1", "Test Project", cards);
     }
 
     private void assertSprints(List<Sprint> sprints) {
         assertFalse(sprints.isEmpty());
         assertEquals(1, sprints.size());
-        assertEquals("1", sprints.get(0).getId());
+        assertEquals("2000", sprints.get(0).getId());
         assertEquals("Sprint 1", sprints.get(0).getName());
-        assertEquals("Application", sprints.get(0).getProject());
+        assertEquals("Test Project", sprints.get(0).getProject());
         assertFalse(sprints.get(0).getCards().isEmpty());
         assertEquals(1, sprints.get(0).getCards().size());
-        assertEquals("1", sprints.get(0).getCards().get(0).getId());
+        assertEquals("3000", sprints.get(0).getCards().get(0).getId());
         assertEquals("B-00001", sprints.get(0).getCards().get(0).getNumber());
         assertEquals("Feature", sprints.get(0).getCards().get(0).getType());
         assertEquals("Do the thing", sprints.get(0).getCards().get(0).getName());

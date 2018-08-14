@@ -64,14 +64,14 @@ public class ProjectsStatsScheduledCacheService extends AbstractProjectScheduled
     }
 
     public void updateProject(Project project) {
-        List<ProjectStats> projectsStats = get().stream().filter(p -> !p.getId().equals(project.getId())).collect(Collectors.toList());
+        List<ProjectStats> projectsStats = get().stream().filter(p -> !p.getId().equals(project.getId().toString())).collect(Collectors.toList());
         projectsStats.add(getProjectStats(project));
         set(projectsStats);
         broadcast();
     }
 
     public void removeProject(Project project) {
-        List<ProjectStats> projectsStats = get().stream().filter(p -> !p.getId().equals(project.getId())).collect(Collectors.toList());
+        List<ProjectStats> projectsStats = get().stream().filter(p -> !p.getId().equals(project.getId().toString())).collect(Collectors.toList());
         set(projectsStats);
         broadcast();
     }
