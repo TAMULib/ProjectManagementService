@@ -39,9 +39,10 @@ public enum ServiceType {
         List<Setting> scaffold = new ArrayList<Setting>();
         switch (this) {
         case VERSION_ONE:
-            scaffold.add(new Setting("url", "URL", true));
-            scaffold.add(new Setting("username", "Username", true));
-            scaffold.add(new Setting("password", "Password", false));
+            scaffold.add(new Setting("text", "url", "URL", true));
+            scaffold.add(new Setting("text", "username", "Username", false));
+            scaffold.add(new Setting("password", "password", "Password", false));
+            scaffold.add(new Setting("password", "token", "Token", false));
             break;
         default:
             break;
@@ -55,14 +56,20 @@ public enum ServiceType {
     }
 
     public static class Setting {
+        private final String type;
         private final String key;
         private final String gloss;
         private final boolean visible;
 
-        public Setting(String key, String gloss, boolean visible) {
+        public Setting(String type, String key, String gloss, boolean visible) {
+            this.type = type;
             this.key = key;
             this.gloss = gloss;
             this.visible = visible;
+        }
+
+        public String getType() {
+            return type;
         }
 
         public String getKey() {

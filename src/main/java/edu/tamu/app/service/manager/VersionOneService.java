@@ -20,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;
+import org.springframework.web.client.RestTemplate;
 
 import com.versionone.Oid;
 import com.versionone.apiclient.Asset;
@@ -45,6 +46,7 @@ import edu.tamu.app.cache.model.Sprint;
 import edu.tamu.app.model.ManagementService;
 import edu.tamu.app.model.request.FeatureRequest;
 import edu.tamu.app.rest.BasicAuthRestTemplate;
+import edu.tamu.app.rest.TokenAuthRestTemplate;
 
 public class VersionOneService extends MappingRemoteProjectManagerBean {
 
@@ -54,20 +56,14 @@ public class VersionOneService extends MappingRemoteProjectManagerBean {
 
     private final IServices services;
 
-    private final BasicAuthRestTemplate restTemplate;
+    private final RestTemplate restTemplate;
 
     private final Map<String, Member> members;
 
     public VersionOneService(ManagementService managementService) throws MalformedURLException, V1Exception {
         this.managementService = managementService;
-        // @formatter:off
-        V1Connector connector = V1Connector.withInstanceUrl(getUrl())
-                .withUserAgentHeader("Project Management Service", "1.0")
-                .withUsernameAndPassword(getUsername(), getPassword())
-                .build();
-        // @formatter:on
-        services = new Services(connector);
-        restTemplate = new BasicAuthRestTemplate(getUsername(), getPassword());
+        services = new Services(buildConnector());
+        restTemplate = getRestTemplate();
         restTemplate.getMessageConverters().add(new ByteArrayHttpMessageConverter());
         members = new HashMap<String, Member>();
     }
@@ -88,13 +84,6 @@ public class VersionOneService extends MappingRemoteProjectManagerBean {
             int issueCount = getPrimaryWorkItemCount("Issue", scopeId);
             int storyCount = getPrimaryWorkItemCount("Story", scopeId);
             int defectCount = getPrimaryWorkItemCount("Defect", scopeId);
-            System.out.println("Project");
-            System.out.println("   id: " + scopeId);
-            System.out.println("   name: " + name);
-            System.out.println("   requests: " + requestCount);
-            System.out.println("   issues: " + issueCount);
-            System.out.println("   stories: " + storyCount);
-            System.out.println("   defects: " + defectCount);
             remoteProjects.add(new RemoteProject(scopeId, name, requestCount, issueCount, storyCount, defectCount));
 
         }
@@ -116,13 +105,6 @@ public class VersionOneService extends MappingRemoteProjectManagerBean {
         int issueCount = getPrimaryWorkItemCount("Issue", scopeId);
         int storyCount = getPrimaryWorkItemCount("Story", scopeId);
         int defectCount = getPrimaryWorkItemCount("Defect", scopeId);
-        System.out.println("Project");
-        System.out.println("   id: " + scopeId);
-        System.out.println("   name: " + name);
-        System.out.println("   requests: " + requestCount);
-        System.out.println("   issues: " + issueCount);
-        System.out.println("   stories: " + storyCount);
-        System.out.println("   defects: " + defectCount);
         return new RemoteProject(scopeId, name, requestCount, issueCount, storyCount, defectCount);
     }
 
@@ -186,10 +168,6 @@ public class VersionOneService extends MappingRemoteProjectManagerBean {
                 }
             }
 
-            System.out.println(" Sprint");
-            System.out.println("     id: " + id);
-            System.out.println("     name: " + name);
-            System.out.println("     project: " + projectName);
             List<Card> cards = getActiveSprintsCards(id);
             activeSprints.add(new Sprint(id, name, projectName, cards));
         }
@@ -245,15 +223,6 @@ public class VersionOneService extends MappingRemoteProjectManagerBean {
                 String memberId = parseId(member.toString());
                 assignees.add(getMember(memberId));
             }
-            System.out.println("     Card");
-            System.out.println("       id: " + id);
-            System.out.println("       number: " + number);
-            System.out.println("       type: " + type);
-            System.out.println("       name: " + name);
-            System.out.println("       description: " + description);
-            System.out.println("       status: " + status);
-            System.out.println("       estimate: " + estimate);
-            System.out.println("       number of assignees: " + assignees.size());
             activeSprintsCards.add(new Card(id, number, mapCardType(type), name, description, mapStatus(status), mapEstimate(estimate), assignees));
         }
         return activeSprintsCards;
@@ -289,10 +258,6 @@ public class VersionOneService extends MappingRemoteProjectManagerBean {
 
             cacheMember(id, member);
         }
-        System.out.println("       Member");
-        System.out.println("         id: " + id);
-        System.out.println("         name: " + member.getName());
-        System.out.println("         avatar: " + member.getAvatar());
         return member;
     }
 
@@ -362,12 +327,42 @@ public class VersionOneService extends MappingRemoteProjectManagerBean {
         return url.endsWith("/") ? url.substring(0, url.length() - 1) : url;
     }
 
+    private V1Connector buildConnector() throws MalformedURLException, V1Exception {
+        Optional<String> token = getToken();
+        V1Connector connector;
+        if (token.isPresent()) {
+            // @formatter:off
+            connector = V1Connector.withInstanceUrl(getUrl())
+                .withUserAgentHeader("Project Management Service", "1.0")
+                .withAccessToken(getToken().get())
+                .build();
+            // @formatter:on
+        } else {
+            // @formatter:off
+            connector = V1Connector.withInstanceUrl(getUrl())
+                .withUserAgentHeader("Project Management Service", "1.0")
+                .withUsernameAndPassword(getUsername(), getPassword())
+                .build();
+            // @formatter:on
+        }
+        return connector;
+    }
+
+    private RestTemplate getRestTemplate() {
+        Optional<String> token = getToken();
+        return token.isPresent() ? new TokenAuthRestTemplate(token.get()) : new BasicAuthRestTemplate(getUsername(), getPassword());
+    }
+
     private String getUsername() {
         return getSettingValue("username");
     }
 
     private String getPassword() {
         return getSettingValue("password");
+    }
+
+    private Optional<String> getToken() {
+        return managementService.getSettingValue("token");
     }
 
     private String getSettingValue(String key) {
