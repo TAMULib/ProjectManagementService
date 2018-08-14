@@ -29,7 +29,7 @@ public class RemoteProjectManagerRepoImpl extends AbstractWeaverRepoImpl<RemoteP
         CompletableFuture.runAsync(() -> {
             remoteProjectsScheduledCacheService.schedule();
         }).thenRun(() -> {
-            logger.info("Finished asynchronous cache update and boredcast of remote projects");
+            logger.info("Finished asynchronous cache update and brodcast of remote projects");
         });
         return remoteProjectManager;
     }

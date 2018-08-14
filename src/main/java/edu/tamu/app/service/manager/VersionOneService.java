@@ -84,13 +84,6 @@ public class VersionOneService extends MappingRemoteProjectManagerBean {
             int issueCount = getPrimaryWorkItemCount("Issue", scopeId);
             int storyCount = getPrimaryWorkItemCount("Story", scopeId);
             int defectCount = getPrimaryWorkItemCount("Defect", scopeId);
-            System.out.println("Project");
-            System.out.println("   id: " + scopeId);
-            System.out.println("   name: " + name);
-            System.out.println("   requests: " + requestCount);
-            System.out.println("   issues: " + issueCount);
-            System.out.println("   stories: " + storyCount);
-            System.out.println("   defects: " + defectCount);
             remoteProjects.add(new RemoteProject(scopeId, name, requestCount, issueCount, storyCount, defectCount));
 
         }
@@ -112,13 +105,6 @@ public class VersionOneService extends MappingRemoteProjectManagerBean {
         int issueCount = getPrimaryWorkItemCount("Issue", scopeId);
         int storyCount = getPrimaryWorkItemCount("Story", scopeId);
         int defectCount = getPrimaryWorkItemCount("Defect", scopeId);
-        System.out.println("Project");
-        System.out.println("   id: " + scopeId);
-        System.out.println("   name: " + name);
-        System.out.println("   requests: " + requestCount);
-        System.out.println("   issues: " + issueCount);
-        System.out.println("   stories: " + storyCount);
-        System.out.println("   defects: " + defectCount);
         return new RemoteProject(scopeId, name, requestCount, issueCount, storyCount, defectCount);
     }
 
@@ -182,10 +168,6 @@ public class VersionOneService extends MappingRemoteProjectManagerBean {
                 }
             }
 
-            System.out.println(" Sprint");
-            System.out.println("     id: " + id);
-            System.out.println("     name: " + name);
-            System.out.println("     project: " + projectName);
             List<Card> cards = getActiveSprintsCards(id);
             activeSprints.add(new Sprint(id, name, projectName, cards));
         }
@@ -241,15 +223,6 @@ public class VersionOneService extends MappingRemoteProjectManagerBean {
                 String memberId = parseId(member.toString());
                 assignees.add(getMember(memberId));
             }
-            System.out.println("     Card");
-            System.out.println("       id: " + id);
-            System.out.println("       number: " + number);
-            System.out.println("       type: " + type);
-            System.out.println("       name: " + name);
-            System.out.println("       description: " + description);
-            System.out.println("       status: " + status);
-            System.out.println("       estimate: " + estimate);
-            System.out.println("       number of assignees: " + assignees.size());
             activeSprintsCards.add(new Card(id, number, mapCardType(type), name, description, mapStatus(status), mapEstimate(estimate), assignees));
         }
         return activeSprintsCards;
@@ -285,10 +258,6 @@ public class VersionOneService extends MappingRemoteProjectManagerBean {
 
             cacheMember(id, member);
         }
-        System.out.println("       Member");
-        System.out.println("         id: " + id);
-        System.out.println("         name: " + member.getName());
-        System.out.println("         avatar: " + member.getAvatar());
         return member;
     }
 
