@@ -1,0 +1,122 @@
+server:
+  port: 9101
+  contextPath:
+
+---
+logging:
+  level:
+    edu.tamu: INFO
+    org.springframework: INFO
+  file: logs/project-management-service.log
+
+---
+security.basic.enabled: false
+
+---
+spring:
+  profiles.active: test
+
+  datasource:
+    platform: h2
+    driverClassName: org.h2.Driver
+    url: jdbc:h2:mem:AZ;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+
+    username: spring
+    password: spring
+    
+    max-active: 100
+    max-idle: 8
+    min-idle: 8
+    initial-size: 10
+    test-on-borrow: true
+    test-on-return: false
+    test-while-idle: true
+    defaultAutoCommit: false
+    validation-query: select version();
+
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+
+    show-sql: false
+    hibernate.ddl-auto: create-drop
+
+---
+app:
+  cache:
+    default:
+      # default delay before first cache update, 15 minutes in milliseconds
+      delay: 900000
+      # default interval between cache updates, 1 minute in milliseconds
+      interval: 60000
+    active-sprints:
+      # 15 minutes in milliseconds
+      delay: 900000
+      # 15 minutes in milliseconds
+      interval: 900000
+    remote-projects:
+      # 15 minutes in milliseconds
+      delay: 900000
+      # 1 hour in milliseconds
+      interval: 3600000
+    projects-stats:
+      # 30 minutes in milliseconds
+      # the projects stats cache is create from the remote projects cache
+      # this delay should be greater than the remote projects delay 
+      # and an estimate on how long the remote projects cache takes to populate
+      delay: 1800000
+      # 1 hour in milliseconds
+      interval: 3600000
+
+  sugar.email: helpdesk@library.tamu.edu
+
+  whitelist: 127.0.0.1
+
+  ############################
+  # Framework app properties #
+  ############################
+  # edu.tamu.weaver.auth.service.UserCredentialsService
+  authority.admins: 402001311,613001223,102001721,222004429,709005486,523008230,724001395,123456789
+  security:
+    # edu.tamu.weaver.auth.service.CryptoService
+    secret: verysecretsecret
+    # edu.tamu.weaver.filter.CorsFilter
+    allow-access: http://localhost,http://localhost:8080,http://machuff.tamu.edu,http://janus.evans.tamu.edu,http://savell.evans.tamu.edu,http://jmicah.tamu.edu
+  # edu.tamu.weaver.email.config.WeaverEmailConfig
+  email:
+    host: relay.tamu.edu
+    from: noreply@library.tamu.edu
+    replyTo: helpdesk@library.tamu.edu
+  # edu.tamu.weaver.reporting.controller.ReportingController
+  reporting.address: helpdesk@library.tamu.edu
+  # edu.tamu.weaver.validation.controller.ValidationsController
+  model.packages: edu.tamu.app.model
+  # edu.tamu.weaver.utility.HttpUtility
+  http.timeout: 10000
+
+---
+#############################
+# Framework auth properties #
+#############################
+# edu.tamu.weaver.token.service.TokenService
+auth:
+  security:
+    jwt:
+      secret: verysecretsecret
+      issuer: localhost
+      duration: 1
+  # edu.tamu.weaver.token.provider.controller.TokenController
+  path: /auth
+
+---
+#############################
+# Framework shib properties #
+#############################
+# edu.tamu.weaver.token.provider.controller.TokenController
+shib:
+  keys: netid,uin,lastName,firstName,email
+  subject: email
+  netid: edupersonprincipalnameunscoped
+  uin: tamuuin
+  lastName: tdl-sn
+  firstName: tdl-givenname
+  email: tdl-mail
