@@ -87,4 +87,9 @@ public class ActiveSprintsScheduledCacheService extends AbstractProjectScheduled
         return activeSprints;
     }
 
+    @Override
+    public int getOrder() {
+        return 3;
+    }
+
 }
