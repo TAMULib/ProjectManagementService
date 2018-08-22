@@ -26,8 +26,9 @@ public class ManagementBeanRegistry {
     private AutowireCapableBeanFactory beanFactory;
 
     public void register(ManagementService managementService) {
+        String serviceName = managementService.getName();
 
-        logger.info("Registering service: " + managementService.getName());
+        logger.info("Registering service: " + serviceName);
 
         Optional<ManagementBean> service = Optional.empty();
 
@@ -47,9 +48,22 @@ public class ManagementBeanRegistry {
 
         if (service.isPresent()) {
             beanFactory.autowireBean(service.get());
-            services.put(managementService.getName(), service.get());
+            services.put(serviceName, service.get());
         } else {
             logger.info("Service was not instantiated!");
+        }
+    }
+
+    public void unregister(ManagementService managementService) {
+        String serviceName = managementService.getName();
+
+        logger.info("Unregistering service: " + serviceName);
+
+        Optional<ManagementBean> service = Optional.ofNullable(services.get(serviceName));
+
+        if (service.isPresent()) {
+            beanFactory.destroyBean(service.get());
+            services.remove(serviceName);
         }
     }
 

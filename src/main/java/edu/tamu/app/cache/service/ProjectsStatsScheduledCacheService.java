@@ -101,4 +101,9 @@ public class ProjectsStatsScheduledCacheService extends AbstractProjectScheduled
         return new ProjectStats(id, name, requestCount, issueCount, featureCount, defectCount);
     }
 
+    @Override
+    public int getOrder() {
+        return 2;
+    }
+
 }

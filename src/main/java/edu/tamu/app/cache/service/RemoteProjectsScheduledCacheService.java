@@ -75,4 +75,9 @@ public class RemoteProjectsScheduledCacheService extends AbstractScheduledCacheS
         return remoteProject;
     }
 
+    @Override
+    public int getOrder() {
+        return 1;
+    }
+
 }
