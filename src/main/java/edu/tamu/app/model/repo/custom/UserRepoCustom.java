@@ -1,6 +1,6 @@
 package edu.tamu.app.model.repo.custom;
 
-import edu.tamu.app.enums.Role;
+import edu.tamu.app.model.Role;
 import edu.tamu.app.model.User;
 
 public interface UserRepoCustom {

@@ -9,7 +9,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * Web server initialization.
- * 
  */
 @EnableScheduling
 @SpringBootApplication
@@ -21,7 +20,6 @@ public class ProjectApplication extends SpringBootServletInitializer {
      *
      * @param args
      *            String[]
-     *
      */
     public static void main(String[] args) {
         SpringApplication.run(ProjectApplication.class, args);
@@ -32,9 +30,7 @@ public class ProjectApplication extends SpringBootServletInitializer {
      *
      * @param application
      *            SpringApplicationBuilder
-     *
      * @return SpringApplicationBuilder
-     *
      */
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {

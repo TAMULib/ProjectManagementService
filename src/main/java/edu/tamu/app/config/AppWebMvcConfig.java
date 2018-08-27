@@ -2,11 +2,9 @@ package edu.tamu.app.config;
 
 import java.util.List;
 
-import org.h2.server.web.WebServlet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
@@ -15,6 +13,7 @@ import org.springframework.mail.javamail.ConfigurableMimeFileTypeMap;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.resource.ResourceUrlEncodingFilter;
 
@@ -45,14 +44,6 @@ public class AppWebMvcConfig extends WebMvcConfigurerAdapter {
     }
 
     @Bean
-    public ServletRegistrationBean h2servletRegistration() {
-        ServletRegistrationBean registrationBean = new ServletRegistrationBean(new WebServlet());
-        registrationBean.addUrlMappings("/admin/h2console/*");
-        registrationBean.addInitParameter("-webAllowOthers", "true");
-        return registrationBean;
-    }
-
-    @Bean
     public ConfigurableMimeFileTypeMap configurableMimeFileTypeMap() {
         return new ConfigurableMimeFileTypeMap();
     }
@@ -67,6 +58,13 @@ public class AppWebMvcConfig extends WebMvcConfigurerAdapter {
                 .allowedHeaders("Origin", "Content-Type", "Access-Control-Allow-Origin", "x-requested-with", "jwt", "data", "x-forwarded-for")
                 .exposedHeaders("jwt");
         // @formatter:on
+    }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        if (!registry.hasMappingForPattern("/images/**")) {
+            registry.addResourceHandler("/images/**").addResourceLocations("classpath:/images/");
+        }
     }
 
     @Override

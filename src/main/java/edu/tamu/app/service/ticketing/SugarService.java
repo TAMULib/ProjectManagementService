@@ -16,15 +16,14 @@ public class SugarService implements TicketManagementSoftwareBean {
     @Autowired
     private EmailSender emailService;
 
-    // NOTE: using reporting email as it is the same
-    @Value("${app.reporting.address}")
-    private String reportingAddress;
+    @Value("${app.sugar.email:helpdesk@library.tamu.edu}")
+    private String sugarEmail;
 
     @Override
     public String submit(TicketRequest request) {
         String results = "Unable to submit ticket to sugar at this time!";
         try {
-            emailService.sendEmail(reportingAddress, getSubject(request), getBody(request));
+            emailService.sendEmail(sugarEmail, getSubject(request), getBody(request));
             results = "Successfully submitted issue for " + request.getService() + "!";
         } catch (MessagingException e) {
             e.printStackTrace();
