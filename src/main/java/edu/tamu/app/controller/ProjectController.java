@@ -9,8 +9,6 @@ import static edu.tamu.weaver.validation.model.BusinessValidationType.UPDATE;
 import java.util.List;
 import java.util.Optional;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -122,8 +120,8 @@ public class ProjectController {
     }
 
     @PostMapping("/feature")
-    @PreAuthorize("hasRole('MANAGER') or @whitelist.isAllowed(#req)")
-    public ApiResponse pushRequest(HttpServletRequest req, @RequestBody FeatureRequest request) {
+    @PreAuthorize("hasRole('MANAGER') or @whitelist.isAllowed()")
+    public ApiResponse pushRequest(@RequestBody FeatureRequest request) {
         Optional<Project> project = Optional.ofNullable(projectRepo.findOne(request.getProjectId()));
         ApiResponse response;
         if (project.isPresent()) {
