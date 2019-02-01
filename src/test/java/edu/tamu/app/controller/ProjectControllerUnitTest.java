@@ -20,7 +20,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -190,14 +189,14 @@ public class ProjectControllerUnitTest {
         when(remoteProjectManagementBean.push(TEST_FEATURE_REQUEST)).thenReturn(TEST_FEATURE_REQUEST);
         when(managementBeanRegistry.getService(any(String.class))).thenReturn(remoteProjectManagementBean);
         when(projectRepo.findOne(any(Long.class))).thenReturn(TEST_PROJECT1);
-        apiResponse = projectController.pushRequest(new MockHttpServletRequest(), TEST_FEATURE_REQUEST);
+        apiResponse = projectController.pushRequest(TEST_FEATURE_REQUEST);
         assertEquals("Project controller did not push request", SUCCESS, apiResponse.getMeta().getStatus());
     }
 
     @Test
     public void testPushRequestToInvalidRemoteProjectManager() {
         when(projectRepo.findOne(any(Long.class))).thenReturn(TEST_PROJECT1);
-        apiResponse = projectController.pushRequest(new MockHttpServletRequest(), TEST_INVALID_FEATURE_REQUEST);
+        apiResponse = projectController.pushRequest(TEST_INVALID_FEATURE_REQUEST);
         assertEquals("Invalid push did not throw an exception", ERROR, apiResponse.getMeta().getStatus());
         assertEquals("Push without Remote Project Manager did not result in the expected error", PUSH_ERROR_MESSAGE, apiResponse.getMeta().getMessage());
     }
@@ -205,14 +204,14 @@ public class ProjectControllerUnitTest {
     @Test
     public void testPushRequestWithoutRemoteProjectManager() {
         when(projectRepo.findOne(any(Long.class))).thenReturn(TEST_PROJECT_WIHTOUT_RPM);
-        apiResponse = projectController.pushRequest(new MockHttpServletRequest(), TEST_FEATURE_REQUEST_WIHTOUT_VMS);
+        apiResponse = projectController.pushRequest(TEST_FEATURE_REQUEST_WIHTOUT_VMS);
         assertEquals("Push without Remote Project Manager did not result in an error", ERROR, apiResponse.getMeta().getStatus());
         assertEquals("Push without Remote Project Manager did not result in the expected error", NO_RPM_ERROR_MESSAGE, apiResponse.getMeta().getMessage());
     }
 
     @Test
     public void testPushRequestWithoutProject() {
-        apiResponse = projectController.pushRequest(new MockHttpServletRequest(), TEST_FEATURE_REQUEST_WITHOUT_PROJECT);
+        apiResponse = projectController.pushRequest(TEST_FEATURE_REQUEST_WITHOUT_PROJECT);
         assertEquals("Push without Project did not result in an error", ERROR, apiResponse.getMeta().getStatus());
         assertEquals("Push without Project did not result in the expected error", NO_PROJECT_ERROR_MESSAGE, apiResponse.getMeta().getMessage());
     }
