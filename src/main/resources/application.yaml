@@ -124,3 +124,11 @@ shib:
   lastName: tdl-sn
   firstName: tdl-givenname
   email: tdl-mail
+
+# spring-boot actuator endpoint: health set to true
+management:
+  endpoints:
+    enabled-by-default: false
+    health:
+      enabled: true
+---
