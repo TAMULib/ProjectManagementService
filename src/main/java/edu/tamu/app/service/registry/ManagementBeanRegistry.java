@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import com.versionone.apiclient.exceptions.V1Exception;
 
 import edu.tamu.app.model.ManagementService;
+import edu.tamu.app.service.manager.GitHubService;
 import edu.tamu.app.service.manager.VersionOneService;
 
 @Service
@@ -38,6 +39,8 @@ public class ManagementBeanRegistry {
             case VERSION_ONE:
                 service = Optional.of((ManagementBean) new VersionOneService(managementService));
                 break;
+            case GITHUB:
+                service = Optional.of((ManagementBean) new GitHubService(managementService));
             default:
                 break;
             }

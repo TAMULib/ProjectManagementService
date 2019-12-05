@@ -7,7 +7,8 @@ import java.util.Map;
 
 public enum ServiceType {
 
-    VERSION_ONE("Version One");
+    VERSION_ONE("Version One"),
+    GITHUB("GitHub");
 
     private String gloss;
 
@@ -38,6 +39,7 @@ public enum ServiceType {
     public List<Setting> getScaffold() {
         List<Setting> scaffold = new ArrayList<Setting>();
         switch (this) {
+        case GITHUB:
         case VERSION_ONE:
             scaffold.add(new Setting("text", "url", "URL", true));
             scaffold.add(new Setting("text", "username", "Username", false));
