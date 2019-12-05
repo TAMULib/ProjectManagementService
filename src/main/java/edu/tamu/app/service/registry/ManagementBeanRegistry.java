@@ -1,6 +1,6 @@
 package edu.tamu.app.service.registry;
 
-import java.net.MalformedURLException;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -45,7 +45,7 @@ public class ManagementBeanRegistry {
                 break;
             }
 
-        } catch (MalformedURLException | V1Exception e) {
+        } catch (IOException | V1Exception e) {
             e.printStackTrace();
         }
 
