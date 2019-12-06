@@ -54,7 +54,7 @@ public class GitHubService extends MappingRemoteProjectManagerBean {
 
     @Override
     public List<RemoteProject> getRemoteProjects() throws Exception {
-        logger.info("Fecthing remote projects");
+        logger.info("Fetching remote projects");
         final List<RemoteProject> remoteProjects = new ArrayList<RemoteProject>();
         final GHOrganization org = github.getOrganization(ORGANIZATION);
         for (final Entry<String, GHRepository> entry : org.getRepositories().entrySet()) {
@@ -69,7 +69,7 @@ public class GitHubService extends MappingRemoteProjectManagerBean {
 
     @Override
     public RemoteProject getRemoteProjectByScopeId(final String scopeId) throws Exception {
-        logger.info("Fecthing remote project by scope id " + scopeId);
+        logger.info("Fetching remote project by scope id " + scopeId);
         GHProject project = github.getProject(Long.parseLong(scopeId));
         List<GHLabel> labels = ((GHRepository) project.getOwner()).listLabels().asList();
         return buildRemoteProject(project, labels);
@@ -77,7 +77,7 @@ public class GitHubService extends MappingRemoteProjectManagerBean {
 
     @Override
     public List<Sprint> getActiveSprintsByProjectId(final String projectScopeId) throws Exception {
-        logger.info("Fecthing active sprints for project with scope id " + projectScopeId);
+        logger.info("Fetching active sprints for project with scope id " + projectScopeId);
         List<Sprint> activeSprints = new ArrayList<Sprint>();
         GHRepository repo = github.getRepositoryById(projectScopeId);
         List<GHProject> projects = repo.listProjects().asList();
@@ -190,7 +190,7 @@ public class GitHubService extends MappingRemoteProjectManagerBean {
                 String status = card.getColumn().getName();
                 // TODO: Figure out how we want to handle sizes
                 String estimate = null;
-                List<Member> assignees = new ArrayList<Member>();                
+                List<Member> assignees = new ArrayList<Member>();
                 for (GHUser user : content.getAssignees()) {
                     assignees.add(getMember(user));
                 }
