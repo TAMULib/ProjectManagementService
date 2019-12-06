@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
@@ -57,12 +56,9 @@ public class GitHubService extends MappingRemoteProjectManagerBean {
         logger.info("Fetching remote projects");
         final List<RemoteProject> remoteProjects = new ArrayList<RemoteProject>();
         final GHOrganization org = github.getOrganization(ORGANIZATION);
-        for (final Entry<String, GHRepository> entry : org.getRepositories().entrySet()) {
-            final List<GHProject> projects = entry.getValue().listProjects().asList();
-            final List<GHLabel> labels = entry.getValue().listLabels().asList();
-            for (final GHProject project : projects) {
-                remoteProjects.add(buildRemoteProject(project, labels));
-            }
+        for (GHRepository repo : org.getRepositories().values()) {
+            final List<GHLabel> labels = repo.listLabels().asList();
+            remoteProjects.add(buildRemoteProject(repo, labels));
         }
         return remoteProjects;
     }
@@ -70,9 +66,9 @@ public class GitHubService extends MappingRemoteProjectManagerBean {
     @Override
     public RemoteProject getRemoteProjectByScopeId(final String scopeId) throws Exception {
         logger.info("Fetching remote project by scope id " + scopeId);
-        GHProject project = github.getProject(Long.parseLong(scopeId));
-        List<GHLabel> labels = ((GHRepository) project.getOwner()).listLabels().asList();
-        return buildRemoteProject(project, labels);
+        GHRepository repo = github.getRepositoryById(scopeId);
+        List<GHLabel> labels = repo.listLabels().asList();
+        return buildRemoteProject(repo, labels);
     }
 
     @Override
@@ -163,13 +159,22 @@ public class GitHubService extends MappingRemoteProjectManagerBean {
         }
     }
 
-    private RemoteProject buildRemoteProject(GHProject project, List<GHLabel> labels) throws IOException {
-        final String scopeId = String.valueOf(project.getId());
-        final String name = project.getName();
-        final int requestCount = getPrimaryWorkItemCount(REQUEST_LABEL, project, labels);
-        final int issueCount = getPrimaryWorkItemCount(ISSUE_LABEL, project, labels);
-        final int featureCount = getPrimaryWorkItemCount(FEATURE_LABEL, project, labels);
-        final int defectCount = getPrimaryWorkItemCount(DEFECT_LABEL, project, labels);
+    private RemoteProject buildRemoteProject(GHRepository repo, List<GHLabel> labels) throws IOException {
+        List<GHProject> projects = repo.listProjects().asList();
+        final String scopeId = String.valueOf(repo.getId());
+        final String name = repo.getName();
+        int requestCount = 0;
+        int issueCount = 0;
+        int featureCount = 0;
+        int defectCount = 0;
+
+        for (GHProject project : projects) {
+            requestCount += getPrimaryWorkItemCount(REQUEST_LABEL, project, labels);
+            issueCount += getPrimaryWorkItemCount(ISSUE_LABEL, project, labels);
+            featureCount += getPrimaryWorkItemCount(FEATURE_LABEL, project, labels);
+            defectCount += getPrimaryWorkItemCount(DEFECT_LABEL, project, labels);
+        }
+
         return new RemoteProject(scopeId, name, requestCount, issueCount, featureCount, defectCount);
     }
 
