@@ -2,18 +2,17 @@ package edu.tamu.app.service.manager;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.util.ReflectionTestUtils.setField;
 
-import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -21,159 +20,171 @@ import org.junit.runner.RunWith;
 import org.kohsuke.github.GHLabel;
 import org.kohsuke.github.GHOrganization;
 import org.kohsuke.github.GHProject;
-import org.kohsuke.github.GHProjectCard;
-import org.kohsuke.github.GHProjectColumn;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
-import org.kohsuke.github.GitHubBuilder;
-import org.mockito.Answers;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.util.ReflectionUtils;
+import org.kohsuke.github.PagedIterable;
+import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import org.springframework.test.context.junit4.SpringRunner;
 
-import edu.tamu.app.ProjectApplication;
+import edu.tamu.app.cache.model.Member;
 import edu.tamu.app.cache.model.RemoteProject;
+import edu.tamu.app.cache.model.Sprint;
+import edu.tamu.app.mapping.CardTypeMappingService;
+import edu.tamu.app.mapping.EstimateMappingService;
+import edu.tamu.app.mapping.StatusMappingService;
+import edu.tamu.app.model.CardType;
+import edu.tamu.app.model.Estimate;
 import edu.tamu.app.model.ManagementService;
 import edu.tamu.app.model.RemoteProjectManager;
 import edu.tamu.app.model.ServiceType;
+import edu.tamu.app.model.Status;
+import edu.tamu.app.model.repo.CardTypeRepo;
+import edu.tamu.app.model.repo.EstimateRepo;
+import edu.tamu.app.model.repo.StatusRepo;
 
-@SpringBootTest(classes = { ProjectApplication.class }, webEnvironment = WebEnvironment.DEFINED_PORT)
-public class GitHubServiceTest extends GitHubMockData {
+@RunWith(SpringRunner.class)
+public class GitHubServiceTest extends CacheMockTests {
 
-    private static List<GHProject> testProjects;
+	private GitHubService gitHubService;
 
-    @Mock
-    private GitHub github;
+	private GitHub github;
 
-    @Mock
-    private GitHubBuilder ghBuilder;
+	private List<RemoteProject> mockRemoteProjects;
 
-    @Mock
-    private GHOrganization organization;
+	private List<Sprint> mockActiveSprints;
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private GHRepository repository1;
+	@Before
+	public void setup() throws Exception {
+		ManagementService managementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB, new HashMap<String, String>() {
+			private static final long serialVersionUID = 2020874481642498006L;
+			{
+				put("url", "https://localhost:9101/TexasAMLibrary");
+				put("username", "username");
+				put("password", "password");
+			}
+		});
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private GHRepository repository2;
+		CardTypeRepo cardTypeRepo = mock(CardTypeRepo.class);
+		StatusRepo statusRepo = mock(StatusRepo.class);
+		EstimateRepo estimateRepo = mock(EstimateRepo.class);
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private GHProject project1;
+		CardTypeMappingService cardTypeMappingService = mock(CardTypeMappingService.class, Mockito.CALLS_REAL_METHODS);
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private GHProject project2;
+		StatusMappingService statusMappingService = mock(StatusMappingService.class, Mockito.CALLS_REAL_METHODS);
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private GHProjectColumn column1;
+		EstimateMappingService estimateMappingService = mock(EstimateMappingService.class, Mockito.CALLS_REAL_METHODS);
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private GHProjectColumn column2;
+		gitHubService = mock(GitHubService.class, Mockito.CALLS_REAL_METHODS);
 
-    // Request
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private GHProjectCard card1;
+		github = mock(GitHub.class);
 
-    // Issue
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private GHProjectCard card2;
+		when(cardTypeRepo.findByMapping(any(String.class))).thenAnswer(new Answer<Optional<CardType>>() {
+			@Override
+			public Optional<CardType> answer(InvocationOnMock invocation) {
+				String identifier = (String) invocation.getArguments()[0];
+				Optional<CardType> cardType = Optional.empty();
+				switch (identifier) {
+				case "Story":
+					cardType = Optional.of(new CardType("Feature", new HashSet<String>(Arrays.asList(new String[] { "Story" }))));
+					break;
+				case "Defect":
+					cardType = Optional.of(new CardType("Defect", new HashSet<String>(Arrays.asList(new String[] { "Defect" }))));
+					break;
+				}
+				return cardType;
+			}
+		});
 
-    // Feature
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private GHProjectCard card3;
+		when(cardTypeRepo.findByIdentifier(any(String.class))).thenReturn(new CardType("Feature", new HashSet<String>(Arrays.asList(new String[] { "Story" }))));
 
-    // Bug
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private GHProjectCard card4;
+		when(statusRepo.findByMapping(any(String.class))).thenAnswer(new Answer<Optional<Status>>() {
+			@Override
+			public Optional<Status> answer(InvocationOnMock invocation) {
+				String identifier = (String) invocation.getArguments()[0];
+				Optional<Status> status = Optional.empty();
+				switch (identifier) {
+				case "None":
+				case "Feature":
+					status = Optional.of(new Status("None", new HashSet<String>(Arrays.asList(new String[] { "None", "Future" }))));
+					break;
+				case "In Progress":
+					status = Optional.of(new Status("In Progress", new HashSet<String>(Arrays.asList(new String[] { "In Progress" }))));
+					break;
+				case "Done":
+					status = Optional.of(new Status("Done", new HashSet<String>(Arrays.asList(new String[] { "Done" }))));
+					break;
+				case "Accepted":
+					status = Optional.of( new Status("Accepted", new HashSet<String>(Arrays.asList(new String[] { "Accepted" }))));
+					break;
+				}
+				return status;
+			}
+		});
 
-    // Unclassified
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private GHProjectCard card5;
+		when(estimateRepo.findByMapping(any(String.class))).thenAnswer(new Answer<Optional<Estimate>>() {
+			@Override
+			public Optional<Estimate> answer(InvocationOnMock invocation) {
+				return Optional.empty();
+			}
+		});
 
-    // Request label
-    @Mock
-    private GHLabel label1;
+		when(statusRepo.findByIdentifier(any(String.class))).thenReturn(new Status("None", new HashSet<String>(Arrays.asList(new String[] { "None", "Future" }))));
 
-    // Issue label
-    @Mock
-    private GHLabel label2;
+		setField(cardTypeMappingService, "serviceMappingRepo", cardTypeRepo);
+		setField(statusMappingService, "serviceMappingRepo", statusRepo);
+		setField(estimateMappingService, "serviceMappingRepo", estimateRepo);
 
-    // Feature label
-    @Mock
-    private GHLabel label3;
+		setField(gitHubService, "managementService", managementService);
+		setField(gitHubService, "cardTypeMappingService", cardTypeMappingService);
+		setField(gitHubService, "statusMappingService", statusMappingService);
+		setField(gitHubService, "estimateMappingService", estimateMappingService);
+		setField(gitHubService, "github", github);
+		setField(gitHubService, "members", new HashMap<String, Member>());
 
-    // Bug label
-    @Mock
-    private GHLabel label4;
+		mockRemoteProjects = getMockRemoteProjects();
 
-    // Unused label
-    @Mock
-    private GHLabel label5;
+		mockActiveSprints = getMockActiveSprints();
+	}
 
-    private GitHubService gitHubService;
+	@Test
+	public void testGetRemoteProjects() throws Exception {
+		GHOrganization organization = mock(GHOrganization.class);
 
-    @Before
-    public void setup() throws Exception {
-        MockitoAnnotations.initMocks(this);
+		Map<String, GHRepository> mockRepos = new HashMap<String, GHRepository>();
 
-        ManagementService managementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB, new HashMap<String, String>() {
-            private static final long serialVersionUID = 2020874481642498006L;
-            {
-                put("url", "http://localhost:9101/mock/github");
-                put("username", "username");
-                put("password", "password");
-            }
-        });
-        gitHubService = new GitHubService(managementService);
+		List<GHLabel> mockLabels = new ArrayList<GHLabel>();
+		
+		List<GHProject> mockProjects = new ArrayList<GHProject>();
 
-        Map<String, GHRepository> testRepositoryMap = Stream.of(new Object[][] {
-            { TEST_REPOSITORY1_NAME, repository1 },
-            { TEST_REPOSITORY2_NAME, repository2 }
-        }).collect(Collectors.toMap(data -> (String) data[0], data -> (GHRepository) data[1]));
+		@SuppressWarnings("unchecked")
+		PagedIterable<GHLabel> labelsIterable = mock(PagedIterable.class);
 
-        testProjects = new ArrayList<GHProject>(Arrays.asList(new GHProject[] { project1, project2 }));
-        List<GHProjectColumn> testColumns = new ArrayList<GHProjectColumn>(Arrays.asList(new GHProjectColumn[] { column1, column2 }));
-        List<GHProjectCard> testCards = new ArrayList<GHProjectCard>(Arrays.asList(new GHProjectCard[] { card1, card2, card3 }));
-        List<GHLabel> testLabels = new ArrayList<GHLabel>(Arrays.asList(new GHLabel[] { label1, label2, label3, label4, label5 }));
-        List<GHLabel> testCard1Labels = new ArrayList<GHLabel>(Arrays.asList(new GHLabel[] { label1, label5 }));
-        List<GHLabel> testCard2Labels = new ArrayList<GHLabel>(Arrays.asList(new GHLabel[] { label2, label5 }));
-        List<GHLabel> testCard3Labels = new ArrayList<GHLabel>(Arrays.asList(new GHLabel[] { label3, label5 }));
-        List<GHLabel> testCard4Labels = new ArrayList<GHLabel>(Arrays.asList(new GHLabel[] { label4 }));
-        List<GHLabel> testCard5Labels = new ArrayList<GHLabel>(Arrays.asList(new GHLabel[] { label5 }));
+		when(labelsIterable.asList()).thenReturn(mockLabels);
+		
+		@SuppressWarnings("unchecked")
+		PagedIterable<GHProject> projectsIterable = mock(PagedIterable.class);
 
-        
+		when(projectsIterable.asList()).thenReturn(mockProjects);
 
-        doReturn(organization).when(github).getOrganization(GitHubService.ORGANIZATION);
-        // when(github.getOrganization(any(String.class))).thenReturn(organization);
+		GHRepository mockRepo1 = mock(GHRepository.class);
+		GHRepository mockRepo2 = mock(GHRepository.class);
 
-        when(organization.getRepositories()).thenReturn(testRepositoryMap);
+		when(mockRepo1.listLabels()).thenReturn(labelsIterable);
+		when(mockRepo2.listLabels()).thenReturn(labelsIterable);
+		
+		when(mockRepo1.listProjects()).thenReturn(projectsIterable);
+		when(mockRepo2.listProjects()).thenReturn(projectsIterable);
 
-        when(repository1.listProjects().asList()).thenReturn(testProjects);
-        when(repository2.listProjects().asList()).thenReturn(testProjects);
-        when(repository1.listLabels().asList()).thenReturn(testLabels);
-        when(repository2.listLabels().asList()).thenReturn(testLabels);
-        when(repository1.getId()).thenReturn(TEST_REPOSITORY1_ID);
-        when(repository2.getId()).thenReturn(TEST_REPOSITORY2_ID);
-        when(repository1.getName()).thenReturn(TEST_REPOSITORY1_NAME);
-        when(repository2.getName()).thenReturn(TEST_REPOSITORY2_NAME);
+		mockRepos.put("Test Repo 1", mockRepo1);
+		mockRepos.put("Test Repo 2", mockRepo2);
 
-        when(project1.listColumns().asList()).thenReturn(testColumns);
-        when(project2.listColumns().asList()).thenReturn(testColumns);
+		when(organization.getRepositories()).thenReturn(mockRepos);
 
-        when(column1.listCards().asList()).thenReturn(testCards);
-        when(column2.listCards().asList()).thenReturn(testCards);
+		when(github.getOrganization(any(String.class))).thenReturn(organization);
 
-        when(card1.getContent().getLabels()).thenReturn(testCard1Labels);
-        when(card2.getContent().getLabels()).thenReturn(testCard2Labels);
-        when(card3.getContent().getLabels()).thenReturn(testCard3Labels);
-        when(card4.getContent().getLabels()).thenReturn(testCard4Labels);
-        when(card5.getContent().getLabels()).thenReturn(testCard5Labels);
-    }
-
-    @Test
-    public void testGetRemoteProjects() throws Exception {
-        List<RemoteProject> remoteProjects = gitHubService.getRemoteProjects();
-        assertEquals("Didn't get all the remote projects", 2, remoteProjects.size());
-    }
+		List<RemoteProject> remoteProjects = gitHubService.getRemoteProjects();
+		assertEquals("Didn't get all the remote projects", 2, remoteProjects.size());
+	}
 }
