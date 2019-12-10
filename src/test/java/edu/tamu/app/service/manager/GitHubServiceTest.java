@@ -57,15 +57,14 @@ public class GitHubServiceTest extends CacheMockTests {
 
 	@Before
 	public void setup() throws Exception {
-		ManagementService managementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB,
-				new HashMap<String, String>() {
-					private static final long serialVersionUID = 2020874481642498006L;
-					{
-						put("url", "https://localhost:9101/TexasAMLibrary");
-						put("username", "username");
-						put("password", "password");
-					}
-				});
+		ManagementService managementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB, new HashMap<String, String>() {
+			private static final long serialVersionUID = 2020874481642498006L;
+			{
+				put("url", "https://localhost:9101/TexasAMLibrary");
+				put("username", "username");
+				put("password", "password");
+			}
+		});
 
 		CardTypeRepo cardTypeRepo = mock(CardTypeRepo.class);
 		StatusRepo statusRepo = mock(StatusRepo.class);
@@ -88,20 +87,17 @@ public class GitHubServiceTest extends CacheMockTests {
 				Optional<CardType> cardType = Optional.empty();
 				switch (identifier) {
 				case "Story":
-					cardType = Optional
-							.of(new CardType("Feature", new HashSet<String>(Arrays.asList(new String[] { "Story" }))));
+					cardType = Optional.of(new CardType("Feature", new HashSet<String>(Arrays.asList(new String[] { "Story" }))));
 					break;
 				case "Defect":
-					cardType = Optional
-							.of(new CardType("Defect", new HashSet<String>(Arrays.asList(new String[] { "Defect" }))));
+					cardType = Optional.of(new CardType("Defect", new HashSet<String>(Arrays.asList(new String[] { "Defect" }))));
 					break;
 				}
 				return cardType;
 			}
 		});
 
-		when(cardTypeRepo.findByIdentifier(any(String.class)))
-				.thenReturn(new CardType("Feature", new HashSet<String>(Arrays.asList(new String[] { "Story" }))));
+		when(cardTypeRepo.findByIdentifier(any(String.class))).thenReturn(new CardType("Feature", new HashSet<String>(Arrays.asList(new String[] { "Story" }))));
 
 		when(statusRepo.findByMapping(any(String.class))).thenAnswer(new Answer<Optional<Status>>() {
 			@Override
@@ -111,20 +107,16 @@ public class GitHubServiceTest extends CacheMockTests {
 				switch (identifier) {
 				case "None":
 				case "Feature":
-					status = Optional.of(
-							new Status("None", new HashSet<String>(Arrays.asList(new String[] { "None", "Future" }))));
+					status = Optional.of(new Status("None", new HashSet<String>(Arrays.asList(new String[] { "None", "Future" }))));
 					break;
 				case "In Progress":
-					status = Optional.of(new Status("In Progress",
-							new HashSet<String>(Arrays.asList(new String[] { "In Progress" }))));
+					status = Optional.of(new Status("In Progress", new HashSet<String>(Arrays.asList(new String[] { "In Progress" }))));
 					break;
 				case "Done":
-					status = Optional
-							.of(new Status("Done", new HashSet<String>(Arrays.asList(new String[] { "Done" }))));
+					status = Optional.of(new Status("Done", new HashSet<String>(Arrays.asList(new String[] { "Done" }))));
 					break;
 				case "Accepted":
-					status = Optional.of(
-							new Status("Accepted", new HashSet<String>(Arrays.asList(new String[] { "Accepted" }))));
+					status = Optional.of( new Status("Accepted", new HashSet<String>(Arrays.asList(new String[] { "Accepted" }))));
 					break;
 				}
 				return status;
@@ -138,8 +130,7 @@ public class GitHubServiceTest extends CacheMockTests {
 			}
 		});
 
-		when(statusRepo.findByIdentifier(any(String.class)))
-				.thenReturn(new Status("None", new HashSet<String>(Arrays.asList(new String[] { "None", "Future" }))));
+		when(statusRepo.findByIdentifier(any(String.class))).thenReturn(new Status("None", new HashSet<String>(Arrays.asList(new String[] { "None", "Future" }))));
 
 		setField(cardTypeMappingService, "serviceMappingRepo", cardTypeRepo);
 		setField(statusMappingService, "serviceMappingRepo", statusRepo);
