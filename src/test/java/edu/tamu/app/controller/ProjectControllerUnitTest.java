@@ -101,7 +101,7 @@ public class ProjectControllerUnitTest {
     private RemoteProjectsScheduledCacheService remoteProjectsScheduledCacheService;
 
     @InjectMocks
-    private ProjectController projectController;
+    private ProjectController projectController = new ProjectController();
 
     @Before
     public void setup() throws Exception {

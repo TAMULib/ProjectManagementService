@@ -29,9 +29,9 @@ import edu.tamu.app.model.request.FeatureRequest;
 
 public class GitHubService extends MappingRemoteProjectManagerBean {
 
-    private static final Logger logger = Logger.getLogger(VersionOneService.class);
+    private static final Logger logger = Logger.getLogger(GitHubService.class);
 
-    private static final String ORGANIZATION = "TAMULib";
+    static final String ORGANIZATION = "TAMULib";
     private static final String REQUEST_LABEL = "request";
     private static final String ISSUE_LABEL = "issue";
     private static final String FEATURE_LABEL = "feature";
@@ -97,15 +97,21 @@ public class GitHubService extends MappingRemoteProjectManagerBean {
         return repo.createIssue(title).body(body).create();
     }
 
-    private GitHub getGitHubInstance() throws IOException {
+    protected GitHub getGitHubInstance() throws IOException {
         GitHub githubInstance;
+        final Optional<String> endpoint = managementService.getSettingValue("url");
         final Optional<String> token = managementService.getSettingValue("token");
+        if (!endpoint.isPresent()) {
+            throw new RuntimeException("GitHub service enpoint was not defined");
+        }
         if (token.isPresent()) {
             githubInstance = new GitHubBuilder()
+                .withEndpoint(endpoint.get())
                 .withOAuthToken(token.get())
                 .build();
         } else {
             githubInstance = new GitHubBuilder()
+                .withEndpoint(endpoint.get())
                 .withPassword(getSettingValue("username"), getSettingValue("password"))
                 .build();
         }
@@ -119,6 +125,25 @@ public class GitHubService extends MappingRemoteProjectManagerBean {
         }
                 
         throw new RuntimeException("No setting " + key + " found in settings for service " + managementService.getName());
+    }
+
+    private RemoteProject buildRemoteProject(GHRepository repo, List<GHLabel> labels) throws IOException {
+        List<GHProject> projects = repo.listProjects().asList();
+        final String scopeId = String.valueOf(repo.getId());
+        final String name = repo.getName();
+        int requestCount = 0;
+        int issueCount = 0;
+        int featureCount = 0;
+        int defectCount = 0;
+
+        for (GHProject project : projects) {
+            requestCount += getPrimaryWorkItemCount(REQUEST_LABEL, project, labels);
+            issueCount += getPrimaryWorkItemCount(ISSUE_LABEL, project, labels);
+            featureCount += getPrimaryWorkItemCount(FEATURE_LABEL, project, labels);
+            defectCount += getPrimaryWorkItemCount(DEFECT_LABEL, project, labels);
+        }
+
+        return new RemoteProject(scopeId, name, requestCount, issueCount, featureCount, defectCount);
     }
 
     private int getPrimaryWorkItemCount(final String type, final GHProject project, final List<GHLabel> labels)
@@ -139,14 +164,6 @@ public class GitHubService extends MappingRemoteProjectManagerBean {
             .get();
     }
 
-    private boolean cardContainsLabel(GHProjectCard card) {
-        try {
-            return card.getContent().getLabels().contains(label);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     private long countCardsOnColumn(GHProjectColumn column) {
         try {
             return column.listCards()
@@ -159,23 +176,12 @@ public class GitHubService extends MappingRemoteProjectManagerBean {
         }
     }
 
-    private RemoteProject buildRemoteProject(GHRepository repo, List<GHLabel> labels) throws IOException {
-        List<GHProject> projects = repo.listProjects().asList();
-        final String scopeId = String.valueOf(repo.getId());
-        final String name = repo.getName();
-        int requestCount = 0;
-        int issueCount = 0;
-        int featureCount = 0;
-        int defectCount = 0;
-
-        for (GHProject project : projects) {
-            requestCount += getPrimaryWorkItemCount(REQUEST_LABEL, project, labels);
-            issueCount += getPrimaryWorkItemCount(ISSUE_LABEL, project, labels);
-            featureCount += getPrimaryWorkItemCount(FEATURE_LABEL, project, labels);
-            defectCount += getPrimaryWorkItemCount(DEFECT_LABEL, project, labels);
+    private boolean cardContainsLabel(GHProjectCard card) {
+        try {
+            return card.getContent().getLabels().contains(label);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-
-        return new RemoteProject(scopeId, name, requestCount, issueCount, featureCount, defectCount);
     }
 
     private List<Card> getCards(GHProject project) throws IOException {
