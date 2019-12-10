@@ -70,7 +70,7 @@ import edu.tamu.app.model.request.FeatureRequest;
 import edu.tamu.app.rest.BasicAuthRestTemplate;
 
 @RunWith(SpringRunner.class)
-public class VersionOneServiceTest extends VersionOneMockTests {
+public class VersionOneServiceTest extends CacheMockTests {
 
     @Value("classpath:images/no_avatar.png")
     private Resource mockImage;
