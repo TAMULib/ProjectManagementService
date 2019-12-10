@@ -29,202 +29,210 @@ import edu.tamu.app.model.request.FeatureRequest;
 
 public class GitHubService extends MappingRemoteProjectManagerBean {
 
-	private static final Logger logger = Logger.getLogger(GitHubService.class);
+    private static final Logger logger = Logger.getLogger(GitHubService.class);
 
-	// TODO: make this a setting of the management service to be configurable
-	private static final String ORGANIZATION = "TAMULib";
+    static final String ORGANIZATION = "TAMULib";
+    private static final String REQUEST_LABEL = "request";
+    private static final String ISSUE_LABEL = "issue";
+    private static final String FEATURE_LABEL = "feature";
+    private static final String DEFECT_LABEL = "bug";
 
-	private static final String REQUEST_LABEL = "request";
+    private final ManagementService managementService;
 
-	private static final String ISSUE_LABEL = "issue";
+    private final GitHub github;
 
-	private static final String FEATURE_LABEL = "feature";
+    private final Map<String, Member> members;
 
-	private static final String DEFECT_LABEL = "bug";
+    private GHLabel label;
 
-	private final ManagementService managementService;
+    public GitHubService(final ManagementService managementService) throws IOException {
+        this.managementService = managementService;
+        github = getGitHubInstance();
+        members = new HashMap<String, Member>();
+    }
 
-	private final GitHub github;
+    @Override
+    public List<RemoteProject> getRemoteProjects() throws Exception {
+        logger.info("Fetching remote projects");
+        final List<RemoteProject> remoteProjects = new ArrayList<RemoteProject>();
+        final GHOrganization org = github.getOrganization(ORGANIZATION);
+        for (GHRepository repo : org.getRepositories().values()) {
+            final List<GHLabel> labels = repo.listLabels().asList();
+            remoteProjects.add(buildRemoteProject(repo, labels));
+        }
+        return remoteProjects;
+    }
 
-	private final Map<String, Member> members;
+    @Override
+    public RemoteProject getRemoteProjectByScopeId(final String scopeId) throws Exception {
+        logger.info("Fetching remote project by scope id " + scopeId);
+        GHRepository repo = github.getRepositoryById(scopeId);
+        List<GHLabel> labels = repo.listLabels().asList();
+        return buildRemoteProject(repo, labels);
+    }
 
-	private GHLabel label;
+    @Override
+    public List<Sprint> getActiveSprintsByProjectId(final String projectScopeId) throws Exception {
+        logger.info("Fetching active sprints for project with scope id " + projectScopeId);
+        List<Sprint> activeSprints = new ArrayList<Sprint>();
+        GHRepository repo = github.getRepositoryById(projectScopeId);
+        List<GHProject> projects = repo.listProjects().asList();
+        for (GHProject project : projects) {
+            String sprintId = String.valueOf(project.getId());
+            String name = project.getName();
+            String projectName = repo.getName();
+            List<Card> cards = getCards(project);
+            activeSprints.add(new Sprint(sprintId, name, projectName, cards));
+        }
+        return activeSprints;
+    }
 
-	public GitHubService(final ManagementService managementService) throws IOException {
-		this.managementService = managementService;
-		github = getGitHubInstance();
-		members = new HashMap<String, Member>();
-	}
+    @Override
+    public Object push(final FeatureRequest request) throws Exception {
+        logger.info("Submitting feature request " + request.getTitle() + " to project with scope id " + request.getScopeId());
+        String repoId = String.valueOf(request.getProjectId());
+        String title = request.getTitle();
+        String body = request.getDescription();
+        GHRepository repo = github.getRepositoryById(repoId);
+        return repo.createIssue(title).body(body).create();
+    }
 
-	@Override
-	public List<RemoteProject> getRemoteProjects() throws Exception {
-		logger.info("Fetching remote projects");
-		final List<RemoteProject> remoteProjects = new ArrayList<RemoteProject>();
-		final GHOrganization org = github.getOrganization(ORGANIZATION);
-		for (GHRepository repo : org.getRepositories().values()) {
-			final List<GHLabel> labels = repo.listLabels().asList();
-			remoteProjects.add(buildRemoteProject(repo, labels));
-		}
-		return remoteProjects;
-	}
+    protected GitHub getGitHubInstance() throws IOException {
+        GitHub githubInstance;
+        final Optional<String> endpoint = managementService.getSettingValue("url");
+        final Optional<String> token = managementService.getSettingValue("token");
+        if (!endpoint.isPresent()) {
+            throw new RuntimeException("GitHub service enpoint was not defined");
+        }
+        if (token.isPresent()) {
+            githubInstance = new GitHubBuilder()
+                .withEndpoint(endpoint.get())
+                .withOAuthToken(token.get())
+                .build();
+        } else {
+            githubInstance = new GitHubBuilder()
+                .withEndpoint(endpoint.get())
+                .withPassword(getSettingValue("username"), getSettingValue("password"))
+                .build();
+        }
+        return githubInstance;
+    }
 
-	@Override
-	public RemoteProject getRemoteProjectByScopeId(final String scopeId) throws Exception {
-		logger.info("Fetching remote project by scope id " + scopeId);
-		GHRepository repo = github.getRepositoryById(scopeId);
-		List<GHLabel> labels = repo.listLabels().asList();
-		return buildRemoteProject(repo, labels);
-	}
+    private String getSettingValue(final String key) {
+        final Optional<String> setting = managementService.getSettingValue(key);
+        if (setting.isPresent()) {
+            return setting.get();
+        }
+                
+        throw new RuntimeException("No setting " + key + " found in settings for service " + managementService.getName());
+    }
 
-	@Override
-	public List<Sprint> getActiveSprintsByProjectId(final String projectScopeId) throws Exception {
-		logger.info("Fetching active sprints for project with scope id " + projectScopeId);
-		List<Sprint> activeSprints = new ArrayList<Sprint>();
-		GHRepository repo = github.getRepositoryById(projectScopeId);
-		List<GHProject> projects = repo.listProjects().asList();
-		for (GHProject project : projects) {
-			String sprintId = String.valueOf(project.getId());
-			String name = project.getName();
-			String projectName = repo.getName();
-			List<Card> cards = getCards(project);
-			activeSprints.add(new Sprint(sprintId, name, projectName, cards));
-		}
-		return activeSprints;
-	}
+    private RemoteProject buildRemoteProject(GHRepository repo, List<GHLabel> labels) throws IOException {
+        List<GHProject> projects = repo.listProjects().asList();
+        final String scopeId = String.valueOf(repo.getId());
+        final String name = repo.getName();
+        int requestCount = 0;
+        int issueCount = 0;
+        int featureCount = 0;
+        int defectCount = 0;
 
-	@Override
-	public Object push(final FeatureRequest request) throws Exception {
-		logger.info("Submitting feature request " + request.getTitle() + " to project with scope id "
-				+ request.getScopeId());
-		String repoId = String.valueOf(request.getProjectId());
-		String title = request.getTitle();
-		String body = request.getDescription();
-		GHRepository repo = github.getRepositoryById(repoId);
-		return repo.createIssue(title).body(body).create();
-	}
+        for (GHProject project : projects) {
+            requestCount += getPrimaryWorkItemCount(REQUEST_LABEL, project, labels);
+            issueCount += getPrimaryWorkItemCount(ISSUE_LABEL, project, labels);
+            featureCount += getPrimaryWorkItemCount(FEATURE_LABEL, project, labels);
+            defectCount += getPrimaryWorkItemCount(DEFECT_LABEL, project, labels);
+        }
 
-	protected GitHub getGitHubInstance() throws IOException {
-		GitHub githubInstance;
-		final Optional<String> endpoint = managementService.getSettingValue("url");
-		final Optional<String> token = managementService.getSettingValue("token");
-		if (!endpoint.isPresent()) {
-			throw new RuntimeException("GitHub service enpoint was not defined");
-		}
-		if (token.isPresent()) {
-			githubInstance = new GitHubBuilder().withEndpoint(endpoint.get()).withOAuthToken(token.get()).build();
-		} else {
-			githubInstance = new GitHubBuilder().withEndpoint(endpoint.get())
-					.withPassword(getSettingValue("username"), getSettingValue("password")).build();
-		}
-		return githubInstance;
-	}
+        return new RemoteProject(scopeId, name, requestCount, issueCount, featureCount, defectCount);
+    }
 
-	private String getSettingValue(final String key) {
-		final Optional<String> setting = managementService.getSettingValue(key);
-		if (setting.isPresent()) {
-			return setting.get();
-		}
+    private int getPrimaryWorkItemCount(final String type, final GHProject project, final List<GHLabel> labels)
+            throws IOException {
+        label = getLabelByName(labels, type);
+        return project.listColumns()
+            .asList()
+            .stream()
+            .map(this::countCardsOnColumn)
+            .reduce(0L, (a, b) -> a + b)
+            .intValue();
+    }
 
-		throw new RuntimeException(
-				"No setting " + key + " found in settings for service " + managementService.getName());
-	}
+    private GHLabel getLabelByName(final List<GHLabel> labels, final String name) {
+        return labels.stream()
+            .filter(label -> label.getName().equals(name))
+            .findFirst()
+            .get();
+    }
 
-	private RemoteProject buildRemoteProject(GHRepository repo, List<GHLabel> labels) throws IOException {
-		List<GHProject> projects = repo.listProjects().asList();
-		final String scopeId = String.valueOf(repo.getId());
-		final String name = repo.getName();
-		int requestCount = 0;
-		int issueCount = 0;
-		int featureCount = 0;
-		int defectCount = 0;
+    private long countCardsOnColumn(GHProjectColumn column) {
+        try {
+            return column.listCards()
+                .asList()
+                .stream()
+                .filter(this::cardContainsLabel)
+                .count();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-		for (GHProject project : projects) {
-			requestCount += getPrimaryWorkItemCount(REQUEST_LABEL, project, labels);
-			issueCount += getPrimaryWorkItemCount(ISSUE_LABEL, project, labels);
-			featureCount += getPrimaryWorkItemCount(FEATURE_LABEL, project, labels);
-			defectCount += getPrimaryWorkItemCount(DEFECT_LABEL, project, labels);
-		}
+    private boolean cardContainsLabel(GHProjectCard card) {
+        try {
+            return card.getContent().getLabels().contains(label);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-		return new RemoteProject(scopeId, name, requestCount, issueCount, featureCount, defectCount);
-	}
+    private List<Card> getCards(GHProject project) throws IOException {
+        List<Card> cards = new ArrayList<Card>();
+        for (GHProjectColumn column : project.listColumns().asList()) {
+            List<GHProjectCard> projectCards = column.listCards().asList();
+            AtomicInteger cardNumber = new AtomicInteger();
+            for (GHProjectCard card : projectCards) {
+                GHIssue content = card.getContent();
 
-	private int getPrimaryWorkItemCount(final String type, final GHProject project, final List<GHLabel> labels)
-			throws IOException {
-		label = getLabelByName(labels, type);
-		return project.listColumns().asList().stream().map(this::countCardsOnColumn).reduce(0L, (a, b) -> a + b)
-				.intValue();
-	}
+                String id = String.valueOf(card.getId());
+                String name = content.getTitle();
+                String number = String.valueOf(cardNumber.getAndIncrement());
+                // TODO: Figure out what the type priority is
+                String type = "";
+                String description = content.getBody();
+                String status = card.getColumn().getName();
+                // TODO: Figure out how we want to handle sizes
+                String estimate = null;
+                List<Member> assignees = new ArrayList<Member>();
+                for (GHUser user : content.getAssignees()) {
+                    assignees.add(getMember(user));
+                }
+                cards.add(new Card(id, number, mapCardType(type), name, description, mapStatus(status), mapEstimate(estimate), assignees));
+            }
+        }
+        return cards;
+    }
 
-	private GHLabel getLabelByName(final List<GHLabel> labels, final String name) {
-		return labels.stream().filter(label -> label.getName().equals(name)).findFirst().get();
-	}
+    private Member getMember(GHUser user) throws IOException {
+        Member member;
+        String memberId = String.valueOf(user.getId());
+        Optional<Member> cachedMember = getCachedMember(memberId);
+        if (cachedMember.isPresent()) {
+            member = cachedMember.get();
+        } else {
+            String name = user.getName();
+            String avatarPath = user.getAvatarUrl();
+            member = new Member(memberId, name, avatarPath);
 
-	private long countCardsOnColumn(GHProjectColumn column) {
-		try {
-			return column.listCards().asList().stream().filter(this::cardContainsLabel).count();
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
+            cacheMember(memberId, member);
+        }
+        return member;
+    }
 
-	private boolean cardContainsLabel(GHProjectCard card) {
-		try {
-			return card.getContent().getLabels().contains(label);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
+    private Optional<Member> getCachedMember(final String id) {
+        return Optional.ofNullable(members.get(id));
+    }
 
-	private List<Card> getCards(GHProject project) throws IOException {
-		List<Card> cards = new ArrayList<Card>();
-		for (GHProjectColumn column : project.listColumns().asList()) {
-			List<GHProjectCard> projectCards = column.listCards().asList();
-			AtomicInteger cardNumber = new AtomicInteger();
-			for (GHProjectCard card : projectCards) {
-				GHIssue content = card.getContent();
-
-				String id = String.valueOf(card.getId());
-				String name = content.getTitle();
-				String number = String.valueOf(cardNumber.getAndIncrement());
-				// TODO: Figure out what the type priority is
-				String type = "";
-				String description = content.getBody();
-				String status = card.getColumn().getName();
-				// TODO: Figure out how we want to handle sizes
-				String estimate = null;
-				List<Member> assignees = new ArrayList<Member>();
-				for (GHUser user : content.getAssignees()) {
-					assignees.add(getMember(user));
-				}
-				cards.add(new Card(id, number, mapCardType(type), name, description, mapStatus(status),
-						mapEstimate(estimate), assignees));
-			}
-		}
-		return cards;
-	}
-
-	private Member getMember(GHUser user) throws IOException {
-		Member member;
-		String memberId = String.valueOf(user.getId());
-		Optional<Member> cachedMember = getCachedMember(memberId);
-		if (cachedMember.isPresent()) {
-			member = cachedMember.get();
-		} else {
-			String name = user.getName();
-			String avatarPath = user.getAvatarUrl();
-			member = new Member(memberId, name, avatarPath);
-
-			cacheMember(memberId, member);
-		}
-		return member;
-	}
-
-	private Optional<Member> getCachedMember(final String id) {
-		return Optional.ofNullable(members.get(id));
-	}
-
-	private void cacheMember(String id, Member member) {
-		members.put(id, member);
-	}
+    private void cacheMember(String id, Member member) {
+        members.put(id, member);
+    }
 
 }
