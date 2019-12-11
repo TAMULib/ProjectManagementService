@@ -195,8 +195,7 @@ public class GitHubService extends MappingRemoteProjectManagerBean {
                 String id = String.valueOf(card.getId());
                 String name = content.getTitle();
                 String number = String.valueOf(cardNumber.getAndIncrement());
-                // TODO: Figure out what the type priority is
-                String type = "";
+                String type = getCardType(content);
                 String description = content.getBody();
                 String status = card.getColumn().getName();
                 // TODO: Figure out how we want to handle sizes
@@ -209,6 +208,27 @@ public class GitHubService extends MappingRemoteProjectManagerBean {
             }
         }
         return cards;
+    }
+
+    private String getCardType(GHIssue content) throws IOException {
+        List<GHLabel> labels = (List<GHLabel>) content.getLabels();
+        GHLabel label = labels.stream()
+            .filter(label1 -> label1.getName().equals(DEFECT_LABEL))
+            .findFirst()
+            .orElseGet(() -> labels.stream()
+                .filter(label2 -> label2.getName().equals(FEATURE_LABEL))
+                .findFirst()
+                .orElseGet(() -> labels.stream()
+                    .filter(label3 -> label3.getName().equals(ISSUE_LABEL))
+                    .findFirst()
+                    .orElseGet(() -> labels.stream()
+                        .filter(label4 -> label4.getName().equals(REQUEST_LABEL))
+                        .findFirst()
+                        .orElse(null)
+                    )
+                )
+            );
+        return label.getName();
     }
 
     private Member getMember(GHUser user) throws IOException {
