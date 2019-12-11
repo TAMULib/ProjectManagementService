@@ -32,10 +32,10 @@ public class GitHubService extends MappingRemoteProjectManagerBean {
     private static final Logger logger = Logger.getLogger(GitHubService.class);
 
     static final String ORGANIZATION = "TAMULib";
-    private static final String REQUEST_LABEL = "request";
-    private static final String ISSUE_LABEL = "issue";
-    private static final String FEATURE_LABEL = "feature";
-    private static final String DEFECT_LABEL = "bug";
+    static final String REQUEST_LABEL = "request";
+    static final String ISSUE_LABEL = "issue";
+    static final String FEATURE_LABEL = "feature";
+    static final String DEFECT_LABEL = "bug";
 
     private final ManagementService managementService;
 
