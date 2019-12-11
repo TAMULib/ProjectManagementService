@@ -231,7 +231,7 @@ public class GitHubService extends MappingRemoteProjectManagerBean {
         return label == null ? null : label.getName();
     }
 
-    private Member getMember(GHUser user) throws IOException {
+    Member getMember(GHUser user) throws IOException {
         Member member;
         String memberId = String.valueOf(user.getId());
         Optional<Member> cachedMember = getCachedMember(memberId);
