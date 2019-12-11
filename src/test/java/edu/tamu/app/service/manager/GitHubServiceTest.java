@@ -36,6 +36,7 @@ import org.kohsuke.github.GHProjectColumn;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GHUser;
 import org.kohsuke.github.GitHub;
+import org.kohsuke.github.GitHubBuilder;
 import org.kohsuke.github.PagedIterable;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
@@ -147,6 +148,8 @@ public class GitHubServiceTest extends CacheMockTests {
 			new Object[][] { { TEST_REPOSITORY1_NAME, TEST_REPOSITORY1 }, { TEST_REPOSITORY2_NAME, TEST_REPOSITORY2 } })
 			.collect(Collectors.toMap(data -> (String) data[0], data -> (GHRepository) data[1]));
 
+	private GitHubBuilder ghBuilder;
+
 	private GitHubService gitHubService;
 
 	private GitHub github;
@@ -177,9 +180,16 @@ public class GitHubServiceTest extends CacheMockTests {
 
 		EstimateMappingService estimateMappingService = mock(EstimateMappingService.class, Mockito.CALLS_REAL_METHODS);
 
+		ghBuilder = mock(GitHubBuilder.class);
+
 		gitHubService = mock(GitHubService.class, Mockito.CALLS_REAL_METHODS);
 
 		github = mock(GitHub.class);
+
+		when(ghBuilder.withEndpoint(any(String.class))).thenReturn(ghBuilder);
+		when(ghBuilder.withPassword(any(String.class), any(String.class))).thenReturn(ghBuilder);
+		when(ghBuilder.withOAuthToken(any(String.class))).thenReturn(ghBuilder);
+		when(ghBuilder.build()).thenReturn(github);
 
 		when(github.getOrganization(any(String.class))).thenReturn(TEST_ORGANIZATION);
 		when(github.getRepositoryById(any(String.class))).thenReturn(TEST_REPOSITORY1);
@@ -290,6 +300,7 @@ public class GitHubServiceTest extends CacheMockTests {
 		setField(statusMappingService, "serviceMappingRepo", statusRepo);
 		setField(estimateMappingService, "serviceMappingRepo", estimateRepo);
 
+		setField(gitHubService, "ghBuilder", ghBuilder);
 		setField(gitHubService, "managementService", managementService);
 		setField(gitHubService, "cardTypeMappingService", cardTypeMappingService);
 		setField(gitHubService, "statusMappingService", statusMappingService);
@@ -341,5 +352,28 @@ public class GitHubServiceTest extends CacheMockTests {
 		assertEquals("Member ID is incorrect", String.valueOf(TEST_USER1_ID), member.getId());
 		assertEquals("Member Name is incorrect", TEST_USER1_NAME, member.getName());
 		assertEquals("Member Avatar URL is incorrect", TEST_USER1_AVATAR_PATH, member.getAvatar());
+	}
+
+	@Test
+	public void testGetGitHubInstanceByPassword() throws IOException {
+		GitHub githubInstance = gitHubService.getGitHubInstance();
+		assertNotNull("GitHub object was not created", githubInstance);
+	}
+
+	@Test
+	public void testGetGitHubInstanceByToken() throws IOException {
+		ManagementService tokenManagementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB,
+				new HashMap<String, String>() {
+					private static final long serialVersionUID = 2020874481642498006L;
+					{
+						put("url", "https://localhost:9101/TexasAMLibrary");
+						put("token", "token");
+					}
+				});
+
+		setField(gitHubService, "managementService", tokenManagementService);
+
+		GitHub gitHubInstance = gitHubService.getGitHubInstance();
+		assertNotNull("GitHub object was not created", gitHubInstance);
 	}
 }

@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
+import org.kohsuke.github.GHBlob;
 import org.kohsuke.github.GHIssue;
 import org.kohsuke.github.GHLabel;
 import org.kohsuke.github.GHOrganization;
@@ -39,6 +40,8 @@ public class GitHubService extends MappingRemoteProjectManagerBean {
 
     private final ManagementService managementService;
 
+    private final GitHubBuilder ghBuilder;
+
     private final GitHub github;
 
     private final Map<String, Member> members;
@@ -47,6 +50,7 @@ public class GitHubService extends MappingRemoteProjectManagerBean {
 
     public GitHubService(final ManagementService managementService) throws IOException {
         this.managementService = managementService;
+        ghBuilder = new GitHubBuilder();
         github = getGitHubInstance();
         members = new HashMap<String, Member>();
     }
@@ -105,12 +109,12 @@ public class GitHubService extends MappingRemoteProjectManagerBean {
             throw new RuntimeException("GitHub service enpoint was not defined");
         }
         if (token.isPresent()) {
-            githubInstance = new GitHubBuilder()
+            githubInstance = ghBuilder
                 .withEndpoint(endpoint.get())
                 .withOAuthToken(token.get())
                 .build();
         } else {
-            githubInstance = new GitHubBuilder()
+            githubInstance = ghBuilder
                 .withEndpoint(endpoint.get())
                 .withPassword(getSettingValue("username"), getSettingValue("password"))
                 .build();
