@@ -9,7 +9,6 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
-import org.kohsuke.github.GHBlob;
 import org.kohsuke.github.GHIssue;
 import org.kohsuke.github.GHLabel;
 import org.kohsuke.github.GHOrganization;
@@ -32,11 +31,11 @@ public class GitHubService extends MappingRemoteProjectManagerBean {
 
     private static final Logger logger = Logger.getLogger(GitHubService.class);
 
-    static final String ORGANIZATION = "TAMULib";
-    static final String REQUEST_LABEL = "request";
-    static final String ISSUE_LABEL = "issue";
-    static final String FEATURE_LABEL = "feature";
-    static final String DEFECT_LABEL = "bug";
+    protected static final String ORGANIZATION = "TAMULib";
+    protected static final String REQUEST_LABEL = "request";
+    protected static final String ISSUE_LABEL = "issue";
+    protected static final String FEATURE_LABEL = "feature";
+    protected static final String DEFECT_LABEL = "bug";
 
     private final ManagementService managementService;
 
@@ -235,7 +234,7 @@ public class GitHubService extends MappingRemoteProjectManagerBean {
         return label == null ? null : label.getName();
     }
 
-    Member getMember(GHUser user) throws IOException {
+    protected Member getMember(GHUser user) throws IOException {
         Member member;
         String memberId = String.valueOf(user.getId());
         Optional<Member> cachedMember = getCachedMember(memberId);

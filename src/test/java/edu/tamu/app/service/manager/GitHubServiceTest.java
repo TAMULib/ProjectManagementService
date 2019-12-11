@@ -37,7 +37,6 @@ import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GHUser;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
-import org.kohsuke.github.PagedIterable;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -70,7 +69,6 @@ public class GitHubServiceTest extends CacheMockTests {
 	private static final String TEST_USER1_NAME = "User 1 name";
 	private static final String TEST_USER1_AVATAR_PATH = "http://example.com/avatar.jpg";
 	private static final Long TEST_REPOSITORY1_ID = 1L;
-	private static final Long TEST_REPOSITORY2_ID = 2L;
 	private static final Long TEST_USER1_ID = 3L;
 
 	private static final GHLabel TEST_LABEL1 = mock(GHLabel.class);
@@ -84,7 +82,6 @@ public class GitHubServiceTest extends CacheMockTests {
 	private static final GHUser TEST_USER1 = mock(GHUser.class);
 	private static final GHUser TEST_USER2 = mock(GHUser.class);
 	private static final GHUser TEST_USER3 = mock(GHUser.class);
-	private static final GHUser TEST_USER4 = mock(GHUser.class);
 
 	private static final GHProjectCard TEST_CARD1 = mock(GHProjectCard.class, RETURNS_DEEP_STUBS.get());
 	private static final GHProjectCard TEST_CARD2 = mock(GHProjectCard.class, RETURNS_DEEP_STUBS.get());
@@ -141,10 +138,7 @@ public class GitHubServiceTest extends CacheMockTests {
 	private static final List<GHProject> TEST_PROJECTS = new ArrayList<GHProject>(
 			Arrays.asList(new GHProject[] { TEST_PROJECT1, TEST_PROJECT2, TEST_PROJECT3 }));
 
-	private static final List<GHRepository> TEST_REPOSITORIES = new ArrayList<GHRepository>(
-			Arrays.asList(new GHRepository[] { TEST_REPOSITORY1, TEST_REPOSITORY2 }));
-
-	Map<String, GHRepository> TEST_REPOSITORY_MAP = Stream.of(
+	private static final Map<String, GHRepository> TEST_REPOSITORY_MAP = Stream.of(
 			new Object[][] { { TEST_REPOSITORY1_NAME, TEST_REPOSITORY1 }, { TEST_REPOSITORY2_NAME, TEST_REPOSITORY2 } })
 			.collect(Collectors.toMap(data -> (String) data[0], data -> (GHRepository) data[1]));
 
@@ -154,12 +148,8 @@ public class GitHubServiceTest extends CacheMockTests {
 
 	private GitHub github;
 
-	private List<RemoteProject> mockRemoteProjects;
-
-	private List<Sprint> mockActiveSprints;
-
 	@Before
-	public void setup() throws Exception {
+	public void setUp() throws Exception {
 		ManagementService managementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB,
 				new HashMap<String, String>() {
 					private static final long serialVersionUID = 2020874481642498006L;
@@ -307,10 +297,6 @@ public class GitHubServiceTest extends CacheMockTests {
 		setField(gitHubService, "estimateMappingService", estimateMappingService);
 		setField(gitHubService, "github", github);
 		setField(gitHubService, "members", new HashMap<String, Member>());
-
-		mockRemoteProjects = getMockRemoteProjects();
-
-		mockActiveSprints = getMockActiveSprints();
 	}
 
 	@Test

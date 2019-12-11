@@ -41,6 +41,7 @@ public class ManagementBeanRegistry {
                 break;
             case GITHUB:
                 service = Optional.of((ManagementBean) new GitHubService(managementService));
+                break;
             default:
                 break;
             }
