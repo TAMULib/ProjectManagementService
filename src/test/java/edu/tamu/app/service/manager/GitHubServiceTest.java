@@ -26,6 +26,7 @@ import java.util.stream.Stream;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.kohsuke.github.GHIssue;
 import org.kohsuke.github.GHLabel;
 import org.kohsuke.github.GHOrganization;
 import org.kohsuke.github.GHProject;
@@ -54,12 +55,15 @@ import edu.tamu.app.model.Status;
 import edu.tamu.app.model.repo.CardTypeRepo;
 import edu.tamu.app.model.repo.EstimateRepo;
 import edu.tamu.app.model.repo.StatusRepo;
+import edu.tamu.app.model.request.FeatureRequest;
 
 @RunWith(SpringRunner.class)
 public class GitHubServiceTest extends CacheMockTests {
 	private static final String TEST_REPOSITORY1_NAME = "Test repository 1 name";
 	private static final String TEST_REPOSITORY2_NAME = "Test repository 2 name";
 	private static final String TEST_UNUSED_LABEL_NAME = "unused";
+	private static final String TEST_FEATURE_REQUEST_TITLE = "Feature request";
+	private static final String TEST_FEATURE_REQUEST_DESCRIPTION = "Description of feature request";
     private static final Long TEST_REPOSITORY1_ID = 1L;
     private static final Long TEST_REPOSITORY2_ID = 2L;
 	
@@ -68,6 +72,8 @@ public class GitHubServiceTest extends CacheMockTests {
 	private static final GHLabel TEST_LABEL3 = mock(GHLabel.class);
 	private static final GHLabel TEST_LABEL4 = mock(GHLabel.class);
 	private static final GHLabel TEST_LABEL5 = mock(GHLabel.class);
+
+	private static final GHIssue TEST_ISSUE = mock(GHIssue.class);
 
 	private static final GHProjectCard TEST_CARD1 = mock(GHProjectCard.class, RETURNS_DEEP_STUBS.get());
 	private static final GHProjectCard TEST_CARD2 = mock(GHProjectCard.class, RETURNS_DEEP_STUBS.get());
@@ -87,6 +93,8 @@ public class GitHubServiceTest extends CacheMockTests {
 	private static final GHRepository TEST_REPOSITORY2 = mock(GHRepository.class, RETURNS_DEEP_STUBS.get());
 
 	private static final GHOrganization TEST_ORGANIZATION = mock(GHOrganization.class);
+
+	private static final FeatureRequest TEST_FEATURE_REQUEST = mock(FeatureRequest.class);
 
 	private static final List<GHLabel> ALL_TEST_LABELS = new ArrayList<GHLabel>(
 		Arrays.asList(new GHLabel[] { TEST_LABEL1, TEST_LABEL2, TEST_LABEL3, TEST_LABEL4, TEST_LABEL5 }));
@@ -156,6 +164,7 @@ public class GitHubServiceTest extends CacheMockTests {
 		when(TEST_ORGANIZATION.getRepositories()).thenReturn(TEST_REPOSITORY_MAP);
 
 		when(TEST_REPOSITORY1.getId()).thenReturn(TEST_REPOSITORY1_ID);
+		when(TEST_REPOSITORY1.createIssue(any(String.class)).body(any(String.class)).create()).thenReturn(TEST_ISSUE);
 		when(TEST_REPOSITORY1.listProjects().asList()).thenReturn(TEST_PROJECTS);
 		when(TEST_REPOSITORY2.listProjects().asList()).thenReturn(TEST_PROJECTS);
 		when(TEST_REPOSITORY1.listLabels().asList()).thenReturn(ALL_TEST_LABELS);
@@ -180,6 +189,10 @@ public class GitHubServiceTest extends CacheMockTests {
 		when(TEST_LABEL3.getName()).thenReturn(FEATURE_LABEL);
 		when(TEST_LABEL4.getName()).thenReturn(DEFECT_LABEL);
 		when(TEST_LABEL5.getName()).thenReturn(TEST_UNUSED_LABEL_NAME);
+
+		when(TEST_FEATURE_REQUEST.getProjectId()).thenReturn(TEST_REPOSITORY1_ID);
+		when(TEST_FEATURE_REQUEST.getTitle()).thenReturn(TEST_FEATURE_REQUEST_TITLE);
+		when(TEST_FEATURE_REQUEST.getDescription()).thenReturn(TEST_FEATURE_REQUEST_DESCRIPTION);
 
 
 		when(cardTypeRepo.findByMapping(any(String.class))).thenAnswer(new Answer<Optional<CardType>>() {
@@ -270,5 +283,17 @@ public class GitHubServiceTest extends CacheMockTests {
 		assertEquals("Number of Issues was incorrect", 3, project.getIssueCount());
 		assertEquals("Number of Features was incorrect", 6, project.getFeatureCount());
 		assertEquals("Number of Defects was incorrect", 3, project.getDefectCount());
+	}
+
+	@Test
+	public void testGetActiveSprintsByProjectId() throws Exception {
+		List<Sprint> activeSprints = gitHubService.getActiveSprintsByProjectId(String.valueOf(TEST_REPOSITORY1_ID));
+		assertEquals("Didn't get all active sprints", 3, activeSprints.size());
+	}
+
+	@Test
+	public void testPush() throws Exception {
+		GHIssue issue = (GHIssue) gitHubService.push(TEST_FEATURE_REQUEST);
+		assertEquals("Didn't get expected issue", TEST_ISSUE, issue);
 	}
 }

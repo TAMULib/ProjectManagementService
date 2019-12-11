@@ -228,7 +228,7 @@ public class GitHubService extends MappingRemoteProjectManagerBean {
                     )
                 )
             );
-        return label.getName();
+        return label == null ? null : label.getName();
     }
 
     private Member getMember(GHUser user) throws IOException {
