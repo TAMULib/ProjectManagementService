@@ -35,14 +35,14 @@ public class ProjectTest extends ModelTest {
     @Test
     public void testUpdate() {
         Project project = projectRepo.create(new Project(TEST_PROJECT_NAME));
-        RemoteProjectManager remoteProjectManager = remoteProjectManagerRepo.create(new RemoteProjectManager(TEST_REMOTE_PROJECT_MANAGER_NAME, ServiceType.VERSION_ONE, getMockSettings()));
+        RemoteProjectManager remoteProjectManager = remoteProjectManagerRepo.create(new RemoteProjectManager(TEST_REMOTE_PROJECT_MANAGER1_NAME, ServiceType.VERSION_ONE, getMockSettings()));
         project.setName(TEST_ALTERNATE_PROJECT_NAME);
         project.setScopeId("123456");
         project.setRemoteProjectManager(remoteProjectManager);
         project = projectRepo.update(project);
         assertEquals("Project name was not updated!", TEST_ALTERNATE_PROJECT_NAME, project.getName());
         assertEquals("Project scope id was not updated!", "123456", project.getScopeId());
-        assertEquals("Project remote project manager was not updated!", TEST_REMOTE_PROJECT_MANAGER_NAME, project.getRemoteProjectManager().getName());
+        assertEquals("Project remote project manager was not updated!", TEST_REMOTE_PROJECT_MANAGER1_NAME, project.getRemoteProjectManager().getName());
         assertEquals("Project remote project manager settings were not updated!", "https://localhost:9101/TexasAMLibrary", project.getRemoteProjectManager().getSettings().get("url"));
     }
 
@@ -67,11 +67,11 @@ public class ProjectTest extends ModelTest {
 
     @Test
     public void testSetRemoteProjectManager() {
-        RemoteProjectManager remoteProjectManager = remoteProjectManagerRepo.create(new RemoteProjectManager(TEST_REMOTE_PROJECT_MANAGER_NAME, ServiceType.VERSION_ONE, getMockSettings()));
+        RemoteProjectManager remoteProjectManager = remoteProjectManagerRepo.create(new RemoteProjectManager(TEST_REMOTE_PROJECT_MANAGER1_NAME, ServiceType.VERSION_ONE, getMockSettings()));
 
         Project project = projectRepo.create(new Project(TEST_PROJECT_NAME, "1000", remoteProjectManager));
         assertEquals("Project has the incorrect name!", TEST_PROJECT_NAME, project.getName());
-        assertEquals("Project has the incorrect Remote Project Manager name!", TEST_REMOTE_PROJECT_MANAGER_NAME, project.getRemoteProjectManager().getName());
+        assertEquals("Project has the incorrect Remote Project Manager name!", TEST_REMOTE_PROJECT_MANAGER1_NAME, project.getRemoteProjectManager().getName());
         assertEquals("Project has the incorrect Remote Project Manager url setting value!", "https://localhost:9101/TexasAMLibrary", project.getRemoteProjectManager().getSettings().get("url"));
 
         projectRepo.delete(project);
