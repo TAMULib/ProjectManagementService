@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
 import org.kohsuke.github.GHIssue;
@@ -161,10 +160,14 @@ public class GitHubService extends MappingRemoteProjectManagerBean {
     }
 
     private GHLabel getLabelByName(final List<GHLabel> labels, final String name) {
-        return labels.stream()
+        GHLabel returnValue = null;
+        Optional<GHLabel> match = labels.stream()
             .filter(label -> label.getName().equals(name))
-            .findFirst()
-            .get();
+            .findFirst();
+        if (match.isPresent()) {
+            returnValue = match.get();
+        }
+        return returnValue;
     }
 
     private long countCardsOnColumn(GHProjectColumn column) {
@@ -191,13 +194,12 @@ public class GitHubService extends MappingRemoteProjectManagerBean {
         List<Card> cards = new ArrayList<Card>();
         for (GHProjectColumn column : project.listColumns().asList()) {
             List<GHProjectCard> projectCards = column.listCards().asList();
-            AtomicInteger cardNumber = new AtomicInteger();
             for (GHProjectCard card : projectCards) {
                 GHIssue content = card.getContent();
 
                 String id = String.valueOf(card.getId());
                 String name = content.getTitle();
-                String number = String.valueOf(cardNumber.getAndIncrement());
+                String number = String.valueOf(content.getNumber());
                 String type = getCardType(content);
                 String description = content.getBody();
                 String status = card.getColumn().getName();
