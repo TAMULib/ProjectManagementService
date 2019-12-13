@@ -70,7 +70,7 @@ public class VersionOneService extends MappingRemoteProjectManagerBean {
 
     @Override
     public List<RemoteProject> getRemoteProjects() throws ConnectionException, APIException, OidException {
-        logger.info("Fecthing remote projects");
+        logger.info("Fetching remote projects");
         List<RemoteProject> remoteProjects = new ArrayList<RemoteProject>();
         IAssetType scopeType = services.getMeta().getAssetType("Scope");
         IAttributeDefinition nameAttributeDefinition = scopeType.getAttributeDefinition("Name");
@@ -92,7 +92,7 @@ public class VersionOneService extends MappingRemoteProjectManagerBean {
 
     @Override
     public RemoteProject getRemoteProjectByScopeId(final String scopeId) throws ConnectionException, APIException, OidException {
-        logger.info("Fecthing remote project by scope id " + scopeId);
+        logger.info("Fetching remote project by scope id " + scopeId);
         Oid oid = services.getOid("Scope:" + scopeId);
         IAssetType scopeType = services.getMeta().getAssetType("Scope");
         IAttributeDefinition nameAttributeDefinition = scopeType.getAttributeDefinition("Name");
@@ -128,7 +128,7 @@ public class VersionOneService extends MappingRemoteProjectManagerBean {
 
     @Override
     public List<Sprint> getActiveSprintsByProjectId(final String projectScopeId) throws ConnectionException, APIException, OidException, IOException {
-        logger.info("Fecthing active sprints for project with scope id " + projectScopeId);
+        logger.info("Fetching active sprints for project with scope id " + projectScopeId);
         List<Sprint> activeSprints = new ArrayList<Sprint>();
         IAssetType timeboxType = services.getMeta().getAssetType("Timebox");
         IAttributeDefinition nameAttributeDefinition = timeboxType.getAttributeDefinition("Name");
