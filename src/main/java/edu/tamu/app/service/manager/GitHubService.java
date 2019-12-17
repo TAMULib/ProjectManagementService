@@ -151,6 +151,9 @@ public class GitHubService extends MappingRemoteProjectManagerBean {
     private int getPrimaryWorkItemCount(final String type, final GHProject project, final List<GHLabel> labels)
             throws IOException {
         label = getLabelByName(labels, type);
+        if (label == null) {
+            return 0;
+        }
         return project.listColumns()
             .asList()
             .stream()
@@ -184,8 +187,11 @@ public class GitHubService extends MappingRemoteProjectManagerBean {
 
     private boolean cardContainsLabel(GHProjectCard card) {
         try {
-            return card.getContent().getLabels().contains(label);
-        } catch (IOException e) {
+            return card.getContent().getLabels().parallelStream()
+                .filter(cardLabel -> cardLabel.getName().equals(label.getName()))
+                .findAny()
+                .isPresent();
+            } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
