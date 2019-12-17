@@ -1,12 +1,18 @@
 package edu.tamu.app.service.manager;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URL;
+import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kohsuke.github.GHIssue;
 import org.kohsuke.github.GHLabel;
@@ -18,6 +24,13 @@ import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GHUser;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
 
 import edu.tamu.app.cache.model.Card;
 import edu.tamu.app.cache.model.Member;
@@ -25,6 +38,8 @@ import edu.tamu.app.cache.model.RemoteProject;
 import edu.tamu.app.cache.model.Sprint;
 import edu.tamu.app.model.ManagementService;
 import edu.tamu.app.model.request.FeatureRequest;
+import edu.tamu.app.rest.BasicAuthRestTemplate;
+import edu.tamu.app.rest.TokenAuthRestTemplate;
 
 public class GitHubService extends MappingRemoteProjectManagerBean {
 
@@ -44,12 +59,15 @@ public class GitHubService extends MappingRemoteProjectManagerBean {
 
     private final Map<String, Member> members;
 
+    private final RestTemplate restTemplate;
+
     private GHLabel label;
 
     public GitHubService(final ManagementService managementService) throws IOException {
         this.managementService = managementService;
         ghBuilder = new GitHubBuilder();
         github = getGitHubInstance();
+        restTemplate = getRestTemplate();
         members = new HashMap<String, Member>();
     }
 
@@ -124,9 +142,14 @@ public class GitHubService extends MappingRemoteProjectManagerBean {
         final Optional<String> setting = managementService.getSettingValue(key);
         if (setting.isPresent()) {
             return setting.get();
+        } else {
+            return null;
         }
-                
-        throw new RuntimeException("No setting " + key + " found in settings for service " + managementService.getName());
+    }
+
+    private RestTemplate getRestTemplate() {
+        String token = getSettingValue("token");
+        return StringUtils.isNotBlank(token) ? new TokenAuthRestTemplate(token) : new BasicAuthRestTemplate(getSettingValue("username"), getSettingValue("password"));
     }
 
     private RemoteProject buildRemoteProject(GHRepository repo, List<GHLabel> labels) throws IOException {
@@ -250,8 +273,14 @@ public class GitHubService extends MappingRemoteProjectManagerBean {
             member = cachedMember.get();
         } else {
             String name = user.getName();
-            String avatarPath = user.getAvatarUrl();
+            String avatarUrlString = user.getAvatarUrl();
+            String avatarPath = getAvatarPath(avatarUrlString);
             member = new Member(memberId, name, avatarPath);
+
+            Optional<URL> avatarUrl = Optional.ofNullable(getClass().getResource("/images/" + avatarPath));
+            if (!avatarUrl.isPresent()) {
+                storeAvatar(avatarUrlString);
+            }
 
             cacheMember(memberId, member);
         }
@@ -260,6 +289,22 @@ public class GitHubService extends MappingRemoteProjectManagerBean {
 
     private Optional<Member> getCachedMember(final String id) {
         return Optional.ofNullable(members.get(id));
+    }
+
+    private String getAvatarPath(String url) {
+        return url.substring(url.indexOf("/u/") + 3, url.indexOf("?"));
+    }
+
+    private void storeAvatar(String avatarUrl) throws IOException {
+        URL imagesPath = getClass().getResource("/images/");
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Arrays.asList(MediaType.APPLICATION_OCTET_STREAM));
+        HttpEntity<String> entity = new HttpEntity<String>(headers);
+        ResponseEntity<byte[]> response = restTemplate.exchange(avatarUrl, HttpMethod.GET, entity, byte[].class, "1");
+        if (response.getStatusCode().equals(HttpStatus.OK)) {
+            File file = new File(imagesPath.getFile() + getAvatarPath(avatarUrl));
+            Files.write(file.toPath(), response.getBody());
+        }
     }
 
     private void cacheMember(String id, Member member) {
