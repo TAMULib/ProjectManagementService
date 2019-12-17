@@ -1,5 +1,9 @@
 package edu.tamu.app.service.manager;
 
+import static edu.tamu.app.service.manager.GitHubService.DEFECT_LABEL;
+import static edu.tamu.app.service.manager.GitHubService.FEATURE_LABEL;
+import static edu.tamu.app.service.manager.GitHubService.ISSUE_LABEL;
+import static edu.tamu.app.service.manager.GitHubService.REQUEST_LABEL;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
@@ -7,11 +11,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
-
-import static edu.tamu.app.service.manager.GitHubService.FEATURE_LABEL;
-import static edu.tamu.app.service.manager.GitHubService.DEFECT_LABEL;
-import static edu.tamu.app.service.manager.GitHubService.ISSUE_LABEL;
-import static edu.tamu.app.service.manager.GitHubService.REQUEST_LABEL;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -40,7 +39,12 @@ import org.kohsuke.github.GitHubBuilder;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.web.client.RestTemplate;
 
 import edu.tamu.app.cache.model.Member;
 import edu.tamu.app.cache.model.RemoteProject;
@@ -67,7 +71,10 @@ public class GitHubServiceTest extends CacheMockTests {
 	private static final String TEST_FEATURE_REQUEST_TITLE = "Feature request";
 	private static final String TEST_FEATURE_REQUEST_DESCRIPTION = "Description of feature request";
 	private static final String TEST_USER1_NAME = "User 1 name";
-	private static final String TEST_USER1_AVATAR_PATH = "http://example.com/avatar.jpg";
+	private static final String TEST_USER1_AVATAR_PATH = "https://avatars2.githubusercontent.com/u/1234567?v=4";
+	private static final String TEST_USER2_AVATAR_PATH = "https://avatars2.githubusercontent.com/u/2222222?v=4";
+	private static final String TEST_USER3_AVATAR_PATH = "https://avatars2.githubusercontent.com/u/3333333?v=4";
+	private static final String TEST_USER1_AVATAR_NAME = "1234567";
 	private static final Long TEST_REPOSITORY1_ID = 1L;
 	private static final Long TEST_USER1_ID = 3L;
 
@@ -103,6 +110,11 @@ public class GitHubServiceTest extends CacheMockTests {
 	private static final GHOrganization TEST_ORGANIZATION = mock(GHOrganization.class);
 
 	private static final FeatureRequest TEST_FEATURE_REQUEST = mock(FeatureRequest.class);
+
+	private static final RestTemplate restTemplate = mock(RestTemplate.class);
+
+	@SuppressWarnings("unchecked")
+	private ResponseEntity<byte[]> response = (ResponseEntity<byte[]>) mock(ResponseEntity.class);
 
 	private static final List<GHLabel> ALL_TEST_LABELS = new ArrayList<GHLabel>(
 			Arrays.asList(new GHLabel[] { TEST_LABEL1, TEST_LABEL2, TEST_LABEL3, TEST_LABEL4, TEST_LABEL5 }));
@@ -215,6 +227,8 @@ public class GitHubServiceTest extends CacheMockTests {
 		when(TEST_USER1.getId()).thenReturn(TEST_USER1_ID);
 		when(TEST_USER1.getName()).thenReturn(TEST_USER1_NAME);
 		when(TEST_USER1.getAvatarUrl()).thenReturn(TEST_USER1_AVATAR_PATH);
+		when(TEST_USER2.getAvatarUrl()).thenReturn(TEST_USER2_AVATAR_PATH);
+		when(TEST_USER3.getAvatarUrl()).thenReturn(TEST_USER3_AVATAR_PATH);
 
 		when(TEST_LABEL1.getName()).thenReturn(REQUEST_LABEL);
 		when(TEST_LABEL2.getName()).thenReturn(ISSUE_LABEL);
@@ -225,6 +239,16 @@ public class GitHubServiceTest extends CacheMockTests {
 		when(TEST_FEATURE_REQUEST.getProjectId()).thenReturn(TEST_REPOSITORY1_ID);
 		when(TEST_FEATURE_REQUEST.getTitle()).thenReturn(TEST_FEATURE_REQUEST_TITLE);
 		when(TEST_FEATURE_REQUEST.getDescription()).thenReturn(TEST_FEATURE_REQUEST_DESCRIPTION);
+
+		when(restTemplate.exchange(
+			any(String.class),
+			any(HttpMethod.class),
+			Mockito.<HttpEntity<String>>any(),
+			Mockito.<Class<byte[]>>any(),
+			Mockito.<Object>anyVararg()))
+				.thenReturn(response);
+
+		when(response.getStatusCode()).thenReturn(HttpStatus.NOT_FOUND);
 
 		when(cardTypeRepo.findByMapping(any(String.class))).thenAnswer(new Answer<Optional<CardType>>() {
 			@Override
@@ -297,6 +321,7 @@ public class GitHubServiceTest extends CacheMockTests {
 		setField(gitHubService, "estimateMappingService", estimateMappingService);
 		setField(gitHubService, "github", github);
 		setField(gitHubService, "members", new HashMap<String, Member>());
+		setField(gitHubService, "restTemplate", restTemplate);
 	}
 
 	@Test
@@ -337,7 +362,7 @@ public class GitHubServiceTest extends CacheMockTests {
 		Member member = gitHubService.getMember(TEST_USER1);
 		assertEquals("Member ID is incorrect", String.valueOf(TEST_USER1_ID), member.getId());
 		assertEquals("Member Name is incorrect", TEST_USER1_NAME, member.getName());
-		assertEquals("Member Avatar URL is incorrect", TEST_USER1_AVATAR_PATH, member.getAvatar());
+		assertEquals("Member Avatar URL is incorrect", TEST_USER1_AVATAR_NAME, member.getAvatar());
 	}
 
 	@Test
