@@ -31,8 +31,22 @@ public class ProjectInitialization implements CommandLineRunner {
         remoteProjectManagerRepo.findAll().forEach(versionManagementSoftware -> {
             managementBeanRegistry.register(versionManagementSoftware);
         });
-        if (cardTypeRepo.findByIdentifier("Feature") == null) {
-            cardTypeRepo.create(new CardType("Feature", new HashSet<String>(Arrays.asList(new String[] { "Story" }))));
+        CardType type = cardTypeRepo.findByIdentifier("Feature");
+        HashSet<String> featureTypes = new HashSet<String>(Arrays.asList(new String[] { "Story", "feature" }));
+        if (type == null) {
+            cardTypeRepo.create(new CardType("Feature", featureTypes));
+        } else if (!type.getMapping().equals(featureTypes)) {
+            type.setMapping(featureTypes);
+            cardTypeRepo.update(type);
+        }
+        if (cardTypeRepo.findByIdentifier("Request") == null) {
+            cardTypeRepo.create(new CardType("Request", new HashSet<String>(Arrays.asList(new String[] { "request" }))));
+        }
+        if (cardTypeRepo.findByIdentifier("Issue") == null) {
+            cardTypeRepo.create(new CardType("Issue", new HashSet<String>(Arrays.asList(new String[] { "issue" }))));
+        }
+        if (cardTypeRepo.findByIdentifier("Defect") == null) {
+            cardTypeRepo.create(new CardType("Defect", new HashSet<String>(Arrays.asList(new String[] { "bug" }))));
         }
     }
 
