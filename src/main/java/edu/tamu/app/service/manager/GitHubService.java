@@ -6,6 +6,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -200,22 +201,37 @@ public class GitHubService extends MappingRemoteProjectManagerBean {
             return column.listCards()
                 .asList()
                 .stream()
-                .filter(this::cardContainsLabel)
+                .filter(this::cardIsLabelType)
                 .count();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private boolean cardContainsLabel(GHProjectCard card) {
+    private boolean cardIsLabelType(GHProjectCard card) {
         try {
-            return card.getContent().getLabels().parallelStream()
-                .filter(cardLabel -> cardLabel.getName().equals(label.getName()))
-                .findAny()
-                .isPresent();
+            Collection<GHLabel> labels = card.getContent().getLabels();
+            if (label.getName().equals(ISSUE_LABEL) && isAnIssue(card)) {
+                return true;
+            }
+            return hasLabelByName(labels, label.getName());
             } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private boolean isAnIssue(GHProjectCard card) throws IOException {
+        Collection<GHLabel> labels = card.getContent().getLabels();
+        return !hasLabelByName(labels, REQUEST_LABEL)
+            && !hasLabelByName(labels, DEFECT_LABEL)
+            && !hasLabelByName(labels, FEATURE_LABEL);
+    }
+
+    private boolean hasLabelByName(Collection<GHLabel> labels, String name) {
+        return labels.parallelStream()
+            .filter(cardLabel -> cardLabel.getName().equals(name))
+            .findAny()
+            .isPresent();
     }
 
     private List<Card> getCards(GHProject project) throws IOException {

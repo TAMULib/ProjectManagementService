@@ -329,7 +329,7 @@ public class GitHubServiceTest extends CacheMockTests {
         List<RemoteProject> remoteProjects = gitHubService.getRemoteProjects();
         assertEquals("Didn't get all the remote projects", 2, remoteProjects.size());
         assertEquals("Number of Requests was incorrect", 3, remoteProjects.get(0).getRequestCount());
-        assertEquals("Number of Issues was incorrect", 3, remoteProjects.get(0).getIssueCount());
+        assertEquals("Number of Issues was incorrect", 6, remoteProjects.get(0).getIssueCount());
         assertEquals("Number of Features was incorrect", 6, remoteProjects.get(0).getFeatureCount());
         assertEquals("Number of Defects was incorrect", 3, remoteProjects.get(0).getDefectCount());
     }
@@ -340,7 +340,7 @@ public class GitHubServiceTest extends CacheMockTests {
         assertNotNull("Didn't get the remote project", project);
         assertEquals("Did not get the expected project", String.valueOf(TEST_REPOSITORY1_ID), project.getId());
         assertEquals("Number of Requests was incorrect", 3, project.getRequestCount());
-        assertEquals("Number of Issues was incorrect", 3, project.getIssueCount());
+        assertEquals("Number of Issues was incorrect", 6, project.getIssueCount());
         assertEquals("Number of Features was incorrect", 6, project.getFeatureCount());
         assertEquals("Number of Defects was incorrect", 3, project.getDefectCount());
     }
