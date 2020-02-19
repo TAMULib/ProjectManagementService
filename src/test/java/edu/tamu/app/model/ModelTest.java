@@ -18,7 +18,8 @@ public abstract class ModelTest {
 
     protected static final String TEST_ALTERNATE_PROJECT_NAME = "Alternate Project Name";
 
-    protected static final String TEST_REMOTE_PROJECT_MANAGER_NAME = "Test Remote Project Manager";
+    protected static final String TEST_REMOTE_PROJECT_MANAGER1_NAME = "Test Remote Project Manager 1";
+    protected static final String TEST_REMOTE_PROJECT_MANAGER2_NAME = "Test Remote Project Manager 2";
 
     protected static final String TEST_ALTERNATE_REMOTE_PROJECT_MANAGER_NAME = "Alternate Remote Project Manager";
 

@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.tamu.app.cache.model.RemoteProject;
 import edu.tamu.app.cache.model.Sprint;
 
-public abstract class VersionOneMockTests {
+public abstract class CacheMockTests {
 
     @Value("classpath:mock/cache/active-sprints.json")
     private Resource activeSprints;
