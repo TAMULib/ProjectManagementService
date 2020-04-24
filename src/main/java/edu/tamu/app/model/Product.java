@@ -13,12 +13,12 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonView;
 
-import edu.tamu.app.model.validation.ProjectValidator;
+import edu.tamu.app.model.validation.ProductValidator;
 import edu.tamu.weaver.response.ApiView;
 import edu.tamu.weaver.validation.model.ValidatingBaseEntity;
 
 @Entity
-public class Project extends ValidatingBaseEntity {
+public class Product extends ValidatingBaseEntity {
 
     @Column(unique = true, nullable = false)
     @JsonView(ApiView.Partial.class)
@@ -32,25 +32,25 @@ public class Project extends ValidatingBaseEntity {
     @JsonInclude(Include.NON_NULL)
     @ManyToOne(fetch = EAGER, cascade = { DETACH, REFRESH, MERGE }, optional = true)
     @JsonView(ApiView.Partial.class)
-    private RemoteProjectManager remoteProjectManager;
+    private RemoteProductManager remoteProductManager;
 
-    public Project() {
+    public Product() {
         super();
-        this.modelValidator = new ProjectValidator();
+        this.modelValidator = new ProductValidator();
     }
 
-    public Project(String name) {
+    public Product(String name) {
         this();
         this.name = name;
     }
 
-    public Project(String name, RemoteProjectManager remoteProjectManager) {
+    public Product(String name, RemoteProductManager remoteProductManager) {
         this(name);
-        this.remoteProjectManager = remoteProjectManager;
+        this.remoteProductManager = remoteProductManager;
     }
 
-    public Project(String name, String scopeId, RemoteProjectManager remoteProjectManager) {
-        this(name, remoteProjectManager);
+    public Product(String name, String scopeId, RemoteProductManager remoteProductManager) {
+        this(name, remoteProductManager);
         this.scopeId = scopeId;
     }
 
@@ -70,12 +70,12 @@ public class Project extends ValidatingBaseEntity {
         this.scopeId = scopeId;
     }
 
-    public RemoteProjectManager getRemoteProjectManager() {
-        return remoteProjectManager;
+    public RemoteProductManager getRemoteProductManager() {
+        return remoteProductManager;
     }
 
-    public void setRemoteProjectManager(RemoteProjectManager remoteProjectManager) {
-        this.remoteProjectManager = remoteProjectManager;
+    public void setRemoteProductManager(RemoteProductManager remoteProductManager) {
+        this.remoteProductManager = remoteProductManager;
     }
 
 }

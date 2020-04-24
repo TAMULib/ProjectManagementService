@@ -6,7 +6,7 @@ import edu.tamu.app.mapping.CardTypeMappingService;
 import edu.tamu.app.mapping.EstimateMappingService;
 import edu.tamu.app.mapping.StatusMappingService;
 
-public abstract class MappingRemoteProjectManagerBean implements RemoteProjectManagerBean {
+public abstract class MappingRemoteProductManagerBean implements RemoteProductManagerBean {
 
     @Autowired
     private CardTypeMappingService cardTypeMappingService;

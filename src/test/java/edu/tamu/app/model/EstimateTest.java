@@ -15,10 +15,10 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import edu.tamu.app.ProjectApplication;
+import edu.tamu.app.ProductApplication;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = { ProjectApplication.class }, webEnvironment = WebEnvironment.DEFINED_PORT)
+@SpringBootTest(classes = { ProductApplication.class }, webEnvironment = WebEnvironment.DEFINED_PORT)
 public class EstimateTest extends ModelTest {
 
     @Test

@@ -13,7 +13,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 @SpringBootApplication
 @ComponentScan(basePackages = { "edu.tamu.*" })
-public class ProjectApplication extends SpringBootServletInitializer {
+public class ProductApplication extends SpringBootServletInitializer {
 
     /**
      * Entry point to the application from within servlet.
@@ -22,7 +22,7 @@ public class ProjectApplication extends SpringBootServletInitializer {
      *            String[]
      */
     public static void main(String[] args) {
-        SpringApplication.run(ProjectApplication.class, args);
+        SpringApplication.run(ProductApplication.class, args);
     }
 
     /**
@@ -34,7 +34,7 @@ public class ProjectApplication extends SpringBootServletInitializer {
      */
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-        return application.sources(ProjectApplication.class);
+        return application.sources(ProductApplication.class);
     }
 
 }

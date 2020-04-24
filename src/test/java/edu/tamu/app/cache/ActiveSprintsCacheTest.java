@@ -44,7 +44,7 @@ public class ActiveSprintsCacheTest {
         assertEquals("Cached active sprints had incorrect number of sprints!", 1, sprints.size());
         assertEquals("Cached active sprint had incorrect id!", "1", sprints.get(0).getId());
         assertEquals("Cached active sprint had incorrect name!", "Sprint 1", sprints.get(0).getName());
-        assertEquals("Cached active sprint had incorrect project!", "Application", sprints.get(0).getProject());
+        assertEquals("Cached active sprint had incorrect product!", "Application", sprints.get(0).getProduct());
 
         assertFalse(sprints.get(0).getCards().isEmpty());
         assertEquals(1, sprints.get(0).getCards().size());

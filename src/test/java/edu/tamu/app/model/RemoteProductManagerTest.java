@@ -11,61 +11,61 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import edu.tamu.app.ProjectApplication;
+import edu.tamu.app.ProductApplication;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = { ProjectApplication.class }, webEnvironment = WebEnvironment.DEFINED_PORT)
-public class RemoteProjectManagerTest extends ModelTest {
+@SpringBootTest(classes = { ProductApplication.class }, webEnvironment = WebEnvironment.DEFINED_PORT)
+public class RemoteProductManagerTest extends ModelTest {
 
     @Test
     public void testCreate() {
         Map<String, String> settings = getMockSettings();
-        RemoteProjectManager remoteProjectManager1 = remoteProjectManagerRepo.create(new RemoteProjectManager(TEST_REMOTE_PROJECT_MANAGER1_NAME, ServiceType.VERSION_ONE, settings));
-        RemoteProjectManager remoteProjectManager2 = remoteProjectManagerRepo.create(new RemoteProjectManager(TEST_REMOTE_PROJECT_MANAGER2_NAME, ServiceType.GITHUB, settings));
-        assertEquals("Remote project manager repo had incorrect number of remote project managers!", 2, remoteProjectManagerRepo.count());
-        assertEquals("Remote project manager had incorrect name!", TEST_REMOTE_PROJECT_MANAGER1_NAME, remoteProjectManager1.getName());
-        assertEquals("Remote project manager had incorrect service type!", ServiceType.VERSION_ONE, remoteProjectManager1.getType());
-        assertEquals("Remote project manager had incorrect settings!", settings, remoteProjectManager1.getSettings());
-        assertEquals("Remote project manager had incorrect name!", TEST_REMOTE_PROJECT_MANAGER2_NAME, remoteProjectManager2.getName());
-        assertEquals("Remote project manager had incorrect service type!", ServiceType.GITHUB, remoteProjectManager2.getType());
-        assertEquals("Remote project manager had incorrect settings!", settings, remoteProjectManager2.getSettings());
+        RemoteProductManager remoteProductManager1 = remoteProductManagerRepo.create(new RemoteProductManager(TEST_REMOTE_PRODUCT_MANAGER1_NAME, ServiceType.VERSION_ONE, settings));
+        RemoteProductManager remoteProductManager2 = remoteProductManagerRepo.create(new RemoteProductManager(TEST_REMOTE_PRODUCT_MANAGER2_NAME, ServiceType.GITHUB, settings));
+        assertEquals("Remote product manager repo had incorrect number of remote product managers!", 2, remoteProductManagerRepo.count());
+        assertEquals("Remote product manager had incorrect name!", TEST_REMOTE_PRODUCT_MANAGER1_NAME, remoteProductManager1.getName());
+        assertEquals("Remote product manager had incorrect service type!", ServiceType.VERSION_ONE, remoteProductManager1.getType());
+        assertEquals("Remote product manager had incorrect settings!", settings, remoteProductManager1.getSettings());
+        assertEquals("Remote product manager had incorrect name!", TEST_REMOTE_PRODUCT_MANAGER2_NAME, remoteProductManager2.getName());
+        assertEquals("Remote product manager had incorrect service type!", ServiceType.GITHUB, remoteProductManager2.getType());
+        assertEquals("Remote product manager had incorrect settings!", settings, remoteProductManager2.getSettings());
     }
 
     @Test
     public void testRead() {
-        remoteProjectManagerRepo.create(new RemoteProjectManager(TEST_REMOTE_PROJECT_MANAGER1_NAME, ServiceType.VERSION_ONE, getMockSettings()));
-        assertEquals("Could not read all remote project managers!", 1, remoteProjectManagerRepo.findAll().size());
+        remoteProductManagerRepo.create(new RemoteProductManager(TEST_REMOTE_PRODUCT_MANAGER1_NAME, ServiceType.VERSION_ONE, getMockSettings()));
+        assertEquals("Could not read all remote product managers!", 1, remoteProductManagerRepo.findAll().size());
     }
 
     @Test
     public void testUpdate() {
-        RemoteProjectManager remoteProjectManager = remoteProjectManagerRepo.create(new RemoteProjectManager(TEST_REMOTE_PROJECT_MANAGER1_NAME, ServiceType.VERSION_ONE, getMockSettings()));
-        remoteProjectManager.setName(TEST_ALTERNATE_REMOTE_PROJECT_MANAGER_NAME);
-        remoteProjectManager = remoteProjectManagerRepo.update(remoteProjectManager);
-        assertEquals("Remote project manager did not update name!", TEST_ALTERNATE_REMOTE_PROJECT_MANAGER_NAME, remoteProjectManager.getName());
+        RemoteProductManager remoteProductManager = remoteProductManagerRepo.create(new RemoteProductManager(TEST_REMOTE_PRODUCT_MANAGER1_NAME, ServiceType.VERSION_ONE, getMockSettings()));
+        remoteProductManager.setName(TEST_ALTERNATE_REMOTE_PRODUCT_MANAGER_NAME);
+        remoteProductManager = remoteProductManagerRepo.update(remoteProductManager);
+        assertEquals("Remote product manager did not update name!", TEST_ALTERNATE_REMOTE_PRODUCT_MANAGER_NAME, remoteProductManager.getName());
     }
 
     @Test
     public void testDelete() {
-        RemoteProjectManager remoteProjectManager = remoteProjectManagerRepo.create(new RemoteProjectManager(TEST_REMOTE_PROJECT_MANAGER1_NAME, ServiceType.VERSION_ONE, getMockSettings()));
-        remoteProjectManagerRepo.delete(remoteProjectManager);
-        assertEquals("Remote project manager was note deleted!", 0, remoteProjectManagerRepo.count());
+        RemoteProductManager remoteProductManager = remoteProductManagerRepo.create(new RemoteProductManager(TEST_REMOTE_PRODUCT_MANAGER1_NAME, ServiceType.VERSION_ONE, getMockSettings()));
+        remoteProductManagerRepo.delete(remoteProductManager);
+        assertEquals("Remote product manager was note deleted!", 0, remoteProductManagerRepo.count());
     }
 
     @Test
-    public void testAssociateToProject() {
-        RemoteProjectManager remoteProjectManager = remoteProjectManagerRepo.create(new RemoteProjectManager(TEST_REMOTE_PROJECT_MANAGER1_NAME, ServiceType.VERSION_ONE, getMockSettings()));
-        Project project = projectRepo.create(new Project(TEST_PROJECT_NAME, "1000", remoteProjectManager));
-        assertEquals("Project has the incorrect Remote Project Manager name!", TEST_REMOTE_PROJECT_MANAGER1_NAME, project.getRemoteProjectManager().getName());
-        assertEquals("Project has the incorrect Remote Project Manager url setting value!", "https://localhost:9101/TexasAMLibrary", project.getRemoteProjectManager().getSettings().get("url"));
+    public void testAssociateToProduct() {
+        RemoteProductManager remoteProductManager = remoteProductManagerRepo.create(new RemoteProductManager(TEST_REMOTE_PRODUCT_MANAGER1_NAME, ServiceType.VERSION_ONE, getMockSettings()));
+        Product product = productRepo.create(new Product(TEST_PRODUCT_NAME, "1000", remoteProductManager));
+        assertEquals("Product has the incorrect Remote Product Manager name!", TEST_REMOTE_PRODUCT_MANAGER1_NAME, product.getRemoteProductManager().getName());
+        assertEquals("Product has the incorrect Remote Product Manager url setting value!", "https://localhost:9101/TexasAMLibrary", product.getRemoteProductManager().getSettings().get("url"));
 
     }
 
     @Test(expected = DataIntegrityViolationException.class)
-    public void testDeleteWhenAssociatedToProject() {
-        RemoteProjectManager remoteProjectManager = remoteProjectManagerRepo.create(new RemoteProjectManager(TEST_REMOTE_PROJECT_MANAGER1_NAME, ServiceType.VERSION_ONE, getMockSettings()));
-        projectRepo.create(new Project(TEST_PROJECT_NAME, "1000", remoteProjectManager));
-        remoteProjectManagerRepo.delete(remoteProjectManager);
+    public void testDeleteWhenAssociatedToProduct() {
+        RemoteProductManager remoteProductManager = remoteProductManagerRepo.create(new RemoteProductManager(TEST_REMOTE_PRODUCT_MANAGER1_NAME, ServiceType.VERSION_ONE, getMockSettings()));
+        productRepo.create(new Product(TEST_PRODUCT_NAME, "1000", remoteProductManager));
+        remoteProductManagerRepo.delete(remoteProductManager);
     }
 
 }

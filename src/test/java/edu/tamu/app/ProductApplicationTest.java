@@ -10,16 +10,16 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-public class ProjectApplicationTest {
+public class ProductApplicationTest {
 
     @Test
     public void testContextLoads() {
-        assertTrue("Project application context failed to load!", true);
+        assertTrue("Product application context failed to load!", true);
     }
 
     @Test
-    public void testProjectApplicationConfigure() {
-        ProjectApplication application = new ProjectApplication();
+    public void testProductApplicationConfigure() {
+        ProductApplication application = new ProductApplication();
         SpringApplicationBuilder builder = new SpringApplicationBuilder();
         application.configure(builder);
     }

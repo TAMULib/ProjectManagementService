@@ -2,7 +2,7 @@ package edu.tamu.app.cache.model;
 
 import java.io.Serializable;
 
-public class ProjectStats implements Serializable {
+public class ProductStats implements Serializable {
 
     private static final long serialVersionUID = -1622544796949909087L;
 
@@ -18,7 +18,7 @@ public class ProjectStats implements Serializable {
 
     private final int defectCount;
 
-    public ProjectStats() {
+    public ProductStats() {
         super();
         id = "";
         name = "";
@@ -28,7 +28,7 @@ public class ProjectStats implements Serializable {
         defectCount = 0;
     }
 
-    public ProjectStats(String id, String name, int requestCount, int issueCount, int featureCount, int defectCount) {
+    public ProductStats(String id, String name, int requestCount, int issueCount, int featureCount, int defectCount) {
         super();
         this.id = id;
         this.name = name;

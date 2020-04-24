@@ -12,67 +12,68 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import edu.tamu.app.cache.RemoteProjectsCache;
-import edu.tamu.app.cache.model.RemoteProject;
-import edu.tamu.app.model.RemoteProjectManager;
-import edu.tamu.app.model.repo.RemoteProjectManagerRepo;
-import edu.tamu.app.service.manager.RemoteProjectManagerBean;
+import edu.tamu.app.cache.RemoteProductsCache;
+import edu.tamu.app.cache.model.RemoteProduct;
+import edu.tamu.app.model.RemoteProductManager;
+import edu.tamu.app.model.repo.RemoteProductManagerRepo;
+import edu.tamu.app.service.manager.RemoteProductManagerBean;
 import edu.tamu.app.service.registry.ManagementBeanRegistry;
 import edu.tamu.weaver.response.ApiResponse;
 
 @Service
-public class RemoteProjectsScheduledCacheService extends AbstractScheduledCacheService<Map<Long, List<RemoteProject>>, RemoteProjectsCache> {
+public class RemoteProductsScheduledCacheService extends AbstractScheduledCacheService<Map<Long, List<RemoteProduct>>, RemoteProductsCache> {
 
-    private static final Logger logger = Logger.getLogger(RemoteProjectsScheduledCacheService.class);
+    private static final Logger logger = Logger.getLogger(RemoteProductsScheduledCacheService.class);
 
     @Autowired
-    private RemoteProjectManagerRepo remoteProjectManagerRepo;
+    private RemoteProductManagerRepo remoteProductManagerRepo;
 
     @Autowired
     private ManagementBeanRegistry managementBeanRegistry;
 
-    public RemoteProjectsScheduledCacheService() {
-        super(new RemoteProjectsCache());
+    public RemoteProductsScheduledCacheService() {
+        super(new RemoteProductsCache());
     }
 
     @Override
-    @Scheduled(initialDelayString = "${app.cache.remote-projects.delay}", fixedDelayString = "${app.cache.remote-projects.interval}")
+    @Scheduled(initialDelayString = "${app.cache.remote-products.delay}", fixedDelayString = "${app.cache.remote-products.interval}")
     public void schedule() {
         super.schedule();
     }
 
     public void update() {
-        logger.info("Caching remote projects...");
-        Map<Long, List<RemoteProject>> remoteProjects = new HashMap<Long, List<RemoteProject>>();
-        for (RemoteProjectManager remoteProjectManager : remoteProjectManagerRepo.findAll()) {
-            RemoteProjectManagerBean remoteProjectManagerBean = (RemoteProjectManagerBean) managementBeanRegistry.getService(remoteProjectManager.getName());
+        logger.info("Caching remote products...");
+        Map<Long, List<RemoteProduct>> remoteproducts = new HashMap<Long, List<RemoteProduct>>();
+        for (RemoteProductManager remoteproductManager : remoteProductManagerRepo.findAll()) {
+            RemoteProductManagerBean remoteproductManagerBean = (RemoteProductManagerBean) managementBeanRegistry
+                    .getService(remoteproductManager.getName());
             try {
-                remoteProjects.put(remoteProjectManager.getId(), remoteProjectManagerBean.getRemoteProjects());
+                remoteproducts.put(remoteproductManager.getId(), remoteproductManagerBean.getRemoteProduct());
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        set(remoteProjects);
-        logger.info("Finished caching remote projects");
+        set(remoteproducts);
+        logger.info("Finished caching remote products");
     }
 
     public void broadcast() {
-        logger.info("Broadcasting cached remote projects");
-        simpMessagingTemplate.convertAndSend("/channel/projects/remote", new ApiResponse(SUCCESS, get()));
+        logger.info("Broadcasting cached remote products");
+        simpMessagingTemplate.convertAndSend("/channel/products/remote", new ApiResponse(SUCCESS, get()));
     }
 
-    public Optional<RemoteProject> getRemoteProject(Long remoteProjectManagerId, String scopeId) {
-        Optional<RemoteProject> remoteProject = Optional.empty();
-        Optional<List<RemoteProject>> remoteProjects = Optional.ofNullable(get().get(remoteProjectManagerId));
-        if (remoteProjects.isPresent()) {
-            for (RemoteProject rp : remoteProjects.get()) {
+    public Optional<RemoteProduct> getRemoteProduct(Long remoteproductManagerId, String scopeId) {
+        Optional<RemoteProduct> remoteproduct = Optional.empty();
+        Optional<List<RemoteProduct>> remoteproducts = Optional.ofNullable(get().get(remoteproductManagerId));
+        if (remoteproducts.isPresent()) {
+            for (RemoteProduct rp : remoteproducts.get()) {
                 if (rp.getId().equals(scopeId)) {
-                    remoteProject = Optional.of(rp);
+                    remoteproduct = Optional.of(rp);
                     break;
                 }
             }
         }
-        return remoteProject;
+        return remoteproduct;
     }
 
     @Override

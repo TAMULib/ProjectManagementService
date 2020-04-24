@@ -24,14 +24,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
-import edu.tamu.app.cache.service.ProjectScheduledCache;
-import edu.tamu.app.model.Project;
-import edu.tamu.app.model.RemoteProjectManager;
-import edu.tamu.app.model.repo.ProjectRepo;
-import edu.tamu.app.model.repo.RemoteProjectManagerRepo;
+import edu.tamu.app.cache.service.ProductScheduledCache;
+import edu.tamu.app.model.Product;
+import edu.tamu.app.model.RemoteProductManager;
+import edu.tamu.app.model.repo.ProductRepo;
+import edu.tamu.app.model.repo.RemoteProductManagerRepo;
 import edu.tamu.app.model.request.FeatureRequest;
 import edu.tamu.app.model.request.TicketRequest;
-import edu.tamu.app.service.manager.RemoteProjectManagerBean;
+import edu.tamu.app.service.manager.RemoteProductManagerBean;
 import edu.tamu.app.service.registry.ManagementBeanRegistry;
 import edu.tamu.app.service.ticketing.SugarService;
 import edu.tamu.weaver.response.ApiResponse;
@@ -40,23 +40,23 @@ import edu.tamu.weaver.validation.aspect.annotation.WeaverValidatedModel;
 import edu.tamu.weaver.validation.aspect.annotation.WeaverValidation;
 
 @RestController
-@RequestMapping("/projects")
-public class ProjectController {
+@RequestMapping("/products")
+public class ProductController {
 
     @Autowired
-    private ProjectRepo projectRepo;
+    private ProductRepo productRepo;
 
     @Autowired
     private ManagementBeanRegistry managementBeanRegistry;
 
     @Autowired
-    private RemoteProjectManagerRepo remoteProjectManagerRepo;
+    private RemoteProductManagerRepo remoteProductManagerRepo;
 
     @Autowired
     private SugarService sugarService;
 
     @Autowired
-    private List<ProjectScheduledCache<?, ?>> projectSceduledCaches;
+    private List<ProductScheduledCache<?, ?>> productSceduledCaches;
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -64,51 +64,51 @@ public class ProjectController {
     @JsonView(ApiView.Partial.class)
     @PreAuthorize("hasRole('ANONYMOUS')")
     public ApiResponse getAll() {
-        return new ApiResponse(SUCCESS, projectRepo.findAll());
+        return new ApiResponse(SUCCESS, productRepo.findAll());
     }
 
     @GetMapping("/{id}")
     @JsonView(ApiView.Partial.class)
     @PreAuthorize("hasRole('ANONYMOUS')")
     public ApiResponse getOne(@PathVariable Long id) {
-        return new ApiResponse(SUCCESS, projectRepo.findOne(id));
+        return new ApiResponse(SUCCESS, productRepo.findOne(id));
     }
 
     @PostMapping
     @PreAuthorize("hasRole('USER')")
     @WeaverValidation(business = { @WeaverValidation.Business(value = CREATE) })
-    public ApiResponse createProject(@WeaverValidatedModel Project project) {
-        logger.info("Creating Project: " + project.getName());
-        reifyProjectRemoteProjectManager(project);
-        project = projectRepo.create(project);
-        for (ProjectScheduledCache<?, ?> projectSceduledCache : projectSceduledCaches) {
-            projectSceduledCache.addProject(project);
+    public ApiResponse createProduct(@WeaverValidatedModel Product product) {
+        logger.info("Creating Product: " + product.getName());
+        reifyProductRemoteProductManager(product);
+        product = productRepo.create(product);
+        for (ProductScheduledCache<?, ?> productSceduledCache : productSceduledCaches) {
+            productSceduledCache.addProduct(product);
         }
-        return new ApiResponse(SUCCESS, project);
+        return new ApiResponse(SUCCESS, product);
     }
 
     @PutMapping
     @PreAuthorize("hasRole('USER')")
     @WeaverValidation(business = { @WeaverValidation.Business(value = UPDATE) })
-    public ApiResponse updateProject(@WeaverValidatedModel Project project) {
-        logger.info("Updating Project: " + project.getName());
-        reifyProjectRemoteProjectManager(project);
-        project = projectRepo.update(project);
-        for (ProjectScheduledCache<?, ?> projectSceduledCache : projectSceduledCaches) {
-            projectSceduledCache.updateProject(project);
+    public ApiResponse updateProduct(@WeaverValidatedModel Product product) {
+        logger.info("Updating Product: " + product.getName());
+        reifyProductRemoteProductManager(product);
+        product = productRepo.update(product);
+        for (ProductScheduledCache<?, ?> productSceduledCache : productSceduledCaches) {
+            productSceduledCache.updateProduct(product);
         }
-        return new ApiResponse(SUCCESS, project);
+        return new ApiResponse(SUCCESS, product);
     }
 
     @DeleteMapping
     @PreAuthorize("hasRole('USER')")
     @WeaverValidation(business = { @WeaverValidation.Business(value = DELETE) })
-    public ApiResponse deleteProject(@WeaverValidatedModel Project project) {
-        logger.info("Deleting Project: " + project.getName());
-        reifyProjectRemoteProjectManager(project);
-        projectRepo.delete(project);
-        for (ProjectScheduledCache<?, ?> projectSceduledCache : projectSceduledCaches) {
-            projectSceduledCache.removeProject(project);
+    public ApiResponse deleteProduct(@WeaverValidatedModel Product product) {
+        logger.info("Deleting Product: " + product.getName());
+        reifyProductRemoteProductManager(product);
+        productRepo.delete(product);
+        for (ProductScheduledCache<?, ?> productSceduledCache : productSceduledCaches) {
+            productSceduledCache.removeProduct(product);
         }
         return new ApiResponse(SUCCESS);
     }
@@ -122,68 +122,74 @@ public class ProjectController {
     @PostMapping("/feature")
     @PreAuthorize("hasRole('MANAGER') or @whitelist.isAllowed()")
     public ApiResponse pushRequest(@RequestBody FeatureRequest request) {
-        Optional<Project> project = Optional.ofNullable(projectRepo.findOne(request.getProjectId()));
+        Optional<Product> product = Optional.ofNullable(productRepo.findOne(request.getProductId()));
         ApiResponse response;
-        if (project.isPresent()) {
-            Optional<RemoteProjectManager> remoteProjectManager = Optional.ofNullable(project.get().getRemoteProjectManager());
-            if (remoteProjectManager.isPresent()) {
-                RemoteProjectManagerBean remoteProjectManagerBean = (RemoteProjectManagerBean) managementBeanRegistry.getService(remoteProjectManager.get().getName());
-                request.setScopeId(project.get().getScopeId());
+        if (product.isPresent()) {
+            Optional<RemoteProductManager> remoteProductManager = Optional
+                    .ofNullable(product.get().getRemoteProductManager());
+            if (remoteProductManager.isPresent()) {
+                RemoteProductManagerBean remoteProductManagerBean = (RemoteProductManagerBean) managementBeanRegistry.getService(remoteProductManager.get().getName());
+                request.setScopeId(product.get().getScopeId());
                 try {
-                    response = new ApiResponse(SUCCESS, remoteProjectManagerBean.push(request));
+                    response = new ApiResponse(SUCCESS, remoteProductManagerBean.push(request));
                 } catch (Exception e) {
-                    response = new ApiResponse(ERROR, "Error pushing request to " + remoteProjectManager.get().getName() + " for project " + project.get().getName() + "!");
+                    response = new ApiResponse(ERROR, "Error pushing request to " + remoteProductManager.get().getName()
+                            + " for product " + product.get().getName() + "!");
                 }
             } else {
-                response = new ApiResponse(ERROR, project.get().getName() + " project does not have a Remote Project Manager!");
+                response = new ApiResponse(ERROR,
+                        product.get().getName() + " product does not have a Remote Product Manager!");
             }
         } else {
-            response = new ApiResponse(ERROR, "Project with id " + request.getProjectId() + " not found!");
+            response = new ApiResponse(ERROR, "Product with id " + request.getProductId() + " not found!");
         }
         return response;
     }
 
-    @GetMapping("/{remoteProjectManagerId}/remote-projects")
+    @GetMapping("/{remoteProductManagerId}/remote-products")
     @PreAuthorize("hasRole('MANAGER')")
-    public ApiResponse getAllRemoteProjects(@PathVariable Long remoteProjectManagerId) {
-        Optional<RemoteProjectManager> remoteProjectManager = Optional.ofNullable(remoteProjectManagerRepo.findOne(remoteProjectManagerId));
+    public ApiResponse getAllRemoteProducts(@PathVariable Long remoteProductManagerId) {
+        Optional<RemoteProductManager> remoteProductManager = Optional
+                .ofNullable(remoteProductManagerRepo.findOne(remoteProductManagerId));
         ApiResponse response;
-        if (remoteProjectManager.isPresent()) {
-            RemoteProjectManagerBean remoteProjectManagerBean = (RemoteProjectManagerBean) managementBeanRegistry.getService(remoteProjectManager.get().getName());
+        if (remoteProductManager.isPresent()) {
+            RemoteProductManagerBean remoteProductManagerBean = (RemoteProductManagerBean) managementBeanRegistry.getService(remoteProductManager.get().getName());
             try {
-                response = new ApiResponse(SUCCESS, remoteProjectManagerBean.getRemoteProjects());
+                response = new ApiResponse(SUCCESS, remoteProductManagerBean.getRemoteProduct());
             } catch (Exception e) {
-                response = new ApiResponse(ERROR, "Error fetching remote projects from " + remoteProjectManager.get().getName() + "!");
+                response = new ApiResponse(ERROR,
+                        "Error fetching remote products from " + remoteProductManager.get().getName() + "!");
             }
         } else {
-            response = new ApiResponse(ERROR, "Remote Project Manager with id " + remoteProjectManagerId + " not found!");
+            response = new ApiResponse(ERROR, "Remote Product Manager with id " + remoteProductManagerId + " not found!");
         }
         return response;
     }
 
-    @GetMapping("/{remoteProjectManagerId}/remote-projects/{scopeId}")
+    @GetMapping("/{remoteProductManagerId}/remote-products/{scopeId}")
     @PreAuthorize("hasRole('MANAGER')")
-    public ApiResponse getRemoteProjectByScopeId(@PathVariable Long remoteProjectManagerId, @PathVariable String scopeId) {
-        Optional<RemoteProjectManager> remoteProjectManager = Optional.ofNullable(remoteProjectManagerRepo.findOne(remoteProjectManagerId));
+    public ApiResponse getRemoteProductByScopeId(@PathVariable Long remoteProductManagerId, @PathVariable String scopeId) {
+        Optional<RemoteProductManager> remoteProductManager = Optional
+                .ofNullable(remoteProductManagerRepo.findOne(remoteProductManagerId));
         ApiResponse response;
-        if (remoteProjectManager.isPresent()) {
-            RemoteProjectManagerBean remoteProjectManagerBean = (RemoteProjectManagerBean) managementBeanRegistry.getService(remoteProjectManager.get().getName());
+        if (remoteProductManager.isPresent()) {
+            RemoteProductManagerBean remoteProductManagerBean = (RemoteProductManagerBean) managementBeanRegistry.getService(remoteProductManager.get().getName());
             try {
-                response = new ApiResponse(SUCCESS, remoteProjectManagerBean.getRemoteProjectByScopeId(scopeId));
+                response = new ApiResponse(SUCCESS, remoteProductManagerBean.getRemoteProductByScopeId(scopeId));
             } catch (Exception e) {
-                response = new ApiResponse(ERROR, "Error fetching remote project with scope id " + scopeId + " from " + remoteProjectManager.get().getName() + "!");
+                response = new ApiResponse(ERROR, "Error fetching remote product with scope id " + scopeId + " from " + remoteProductManager.get().getName() + "!");
             }
         } else {
-            response = new ApiResponse(ERROR, "Remote Project Manager with id " + remoteProjectManagerId + " not found!");
+            response = new ApiResponse(ERROR, "Remote Product Manager with id " + remoteProductManagerId + " not found!");
         }
         return response;
     }
 
-    private void reifyProjectRemoteProjectManager(Project project) {
-        Optional<RemoteProjectManager> remoteProjectManager = Optional.ofNullable(project.getRemoteProjectManager());
-        if (remoteProjectManager.isPresent()) {
-            Long remoteProjectManagerId = remoteProjectManager.get().getId();
-            project.setRemoteProjectManager(remoteProjectManagerRepo.findOne(remoteProjectManagerId));
+    private void reifyProductRemoteProductManager(Product product) {
+        Optional<RemoteProductManager> remoteProductManager = Optional.ofNullable(product.getRemoteProductManager());
+        if (remoteProductManager.isPresent()) {
+            Long remoteProductManagerId = remoteProductManager.get().getId();
+            product.setRemoteProductManager(remoteProductManagerRepo.findOne(remoteProductManagerId));
         }
     }
 

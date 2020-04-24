@@ -16,7 +16,7 @@ public class FeatureRequetTest {
         assertNotNull("Could not instantiate feature request!", request);
         assertEquals("Feature request had incorrect title!", "New Feature", request.getTitle());
         assertEquals("Feature request had incorrect description!", "I would like to turn off service through API.", request.getDescription());
-        assertEquals("Feature request had incorrect project id!", 1L, request.getProjectId(), 0);
+        assertEquals("Feature request had incorrect product id!", 1L, request.getProductId(), 0);
         assertEquals("Feature request had incorrect scope id!", "0001", request.getScopeId());
     }
 
@@ -35,10 +35,10 @@ public class FeatureRequetTest {
     }
 
     @Test
-    public void testSetProjectId() {
+    public void testSetProductId() {
         FeatureRequest request = newFeatureRequest();
-        request.setProjectId(2L);
-        assertEquals("Feature request did not set project id!", 2L, request.getProjectId(), 0);
+        request.setProductId(2L);
+        assertEquals("Feature request did not set product id!", 2L, request.getProductId(), 0);
     }
 
     @Test

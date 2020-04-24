@@ -3,12 +3,12 @@ package edu.tamu.app.cache;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.tamu.app.cache.model.ProjectStats;
+import edu.tamu.app.cache.model.ProductStats;
 
-public class ProjectsStatsCache extends AbstractCache<List<ProjectStats>> {
+public class ProductsStatsCache extends AbstractCache<List<ProductStats>> {
 
-    public ProjectsStatsCache() {
-        set(new ArrayList<ProjectStats>());
+    public ProductsStatsCache() {
+        set(new ArrayList<ProductStats>());
     }
 
 }

@@ -7,18 +7,18 @@ import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
-public class ProjectStatsTest {
+public class ProductStatsTest {
 
     @Test
-    public void testNewProjectStats() {
-        ProjectStats projectStats = new ProjectStats("0001", "Sprint 1", 2, 3, 10, 3);
-        assertEquals("0001", projectStats.getId());
-        assertEquals("Sprint 1", projectStats.getName());
-        assertEquals(2, projectStats.getRequestCount());
-        assertEquals(3, projectStats.getIssueCount());
-        assertEquals(10, projectStats.getFeatureCount());
-        assertEquals(3, projectStats.getDefectCount());
-        assertEquals(13, projectStats.getBacklogItemCount());
+    public void testNewProductStats() {
+        ProductStats productStats = new ProductStats("0001", "Sprint 1", 2, 3, 10, 3);
+        assertEquals("0001", productStats.getId());
+        assertEquals("Sprint 1", productStats.getName());
+        assertEquals(2, productStats.getRequestCount());
+        assertEquals(3, productStats.getIssueCount());
+        assertEquals(10, productStats.getFeatureCount());
+        assertEquals(3, productStats.getDefectCount());
+        assertEquals(13, productStats.getBacklogItemCount());
     }
 
 }

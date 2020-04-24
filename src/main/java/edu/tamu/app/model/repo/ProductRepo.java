@@ -2,12 +2,12 @@ package edu.tamu.app.model.repo;
 
 import java.util.Optional;
 
-import edu.tamu.app.model.Project;
-import edu.tamu.app.model.repo.custom.ProjectRepoCustom;
+import edu.tamu.app.model.Product;
+import edu.tamu.app.model.repo.custom.ProductRepoCustom;
 import edu.tamu.weaver.data.model.repo.WeaverRepo;
 
-public interface ProjectRepo extends WeaverRepo<Project>, ProjectRepoCustom {
+public interface ProductRepo extends WeaverRepo<Product>, ProductRepoCustom {
 
-    public Optional<Project> findByName(String name);
+    public Optional<Product> findByName(String name);
 
 }

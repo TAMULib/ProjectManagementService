@@ -18,66 +18,66 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import edu.tamu.app.cache.model.ProjectStats;
-import edu.tamu.app.cache.service.ProjectsStatsScheduledCacheService;
+import edu.tamu.app.cache.model.ProductStats;
+import edu.tamu.app.cache.service.ProductsStatsScheduledCacheService;
 import edu.tamu.weaver.response.ApiResponse;
 import edu.tamu.weaver.response.ApiStatus;
 
 @RunWith(SpringRunner.class)
-public class ProjectsStatsCacheControllerTest {
+public class ProductsStatsCacheControllerTest {
 
     @Mock
-    private ProjectsStatsScheduledCacheService projectsStatsScheduledCacheService;
+    private ProductsStatsScheduledCacheService productsStatsScheduledCacheService;
 
     @InjectMocks
-    private ProjectsStatsCacheController projectsStatsCacheController;
+    private ProductsStatsCacheController productsStatsCacheController;
 
     @Before
     public void setup() throws Exception {
         MockitoAnnotations.initMocks(this);
-        when(projectsStatsScheduledCacheService.get()).thenReturn(getMockProjectsStatsCache());
+        when(productsStatsScheduledCacheService.get()).thenReturn(getMockProductsStatsCache());
     }
 
     @Test
     @SuppressWarnings("unchecked")
     public void testGet() {
-        ApiResponse response = projectsStatsCacheController.get();
+        ApiResponse response = productsStatsCacheController.get();
         assertNotNull("Reponse was null!", response);
         assertEquals("Reponse was not successfull!", ApiStatus.SUCCESS, response.getMeta().getStatus());
 
-        assertNotNull("Reponse payload did not have expected property!", response.getPayload().get("ArrayList<ProjectStats>"));
-        assertProjectsStats((List<ProjectStats>) response.getPayload().get("ArrayList<ProjectStats>"));
+        assertNotNull("Reponse payload did not have expected property!", response.getPayload().get("ArrayList<ProductStats>"));
+        assertProductsStats((List<ProductStats>) response.getPayload().get("ArrayList<ProductStats>"));
     }
 
     @Test
     public void testUpdate() {
-        ApiResponse response = projectsStatsCacheController.update();
+        ApiResponse response = productsStatsCacheController.update();
         assertNotNull(response);
         assertEquals(ApiStatus.SUCCESS, response.getMeta().getStatus());
-        verify(projectsStatsScheduledCacheService, times(1)).update();
-        verify(projectsStatsScheduledCacheService, times(1)).broadcast();
+        verify(productsStatsScheduledCacheService, times(1)).update();
+        verify(productsStatsScheduledCacheService, times(1)).broadcast();
     }
 
-    private void assertProjectsStats(List<ProjectStats> projectsStatsCache) {
-        assertFalse(projectsStatsCache.isEmpty());
-        assertEquals(1, projectsStatsCache.size());
-        assertEquals("0001", projectsStatsCache.get(0).getId());
-        assertEquals("Sprint 1", projectsStatsCache.get(0).getName());
-        assertEquals(2, projectsStatsCache.get(0).getRequestCount());
-        assertEquals(3, projectsStatsCache.get(0).getIssueCount());
-        assertEquals(10, projectsStatsCache.get(0).getFeatureCount());
-        assertEquals(3, projectsStatsCache.get(0).getDefectCount());
-        assertEquals(13, projectsStatsCache.get(0).getBacklogItemCount());
+    private void assertProductsStats(List<ProductStats> productsStatsCache) {
+        assertFalse(productsStatsCache.isEmpty());
+        assertEquals(1, productsStatsCache.size());
+        assertEquals("0001", productsStatsCache.get(0).getId());
+        assertEquals("Sprint 1", productsStatsCache.get(0).getName());
+        assertEquals(2, productsStatsCache.get(0).getRequestCount());
+        assertEquals(3, productsStatsCache.get(0).getIssueCount());
+        assertEquals(10, productsStatsCache.get(0).getFeatureCount());
+        assertEquals(3, productsStatsCache.get(0).getDefectCount());
+        assertEquals(13, productsStatsCache.get(0).getBacklogItemCount());
     }
 
-    private List<ProjectStats> getMockProjectsStatsCache() {
-        List<ProjectStats> projectsStats = new ArrayList<ProjectStats>();
-        projectsStats.add(getMockProjectStats());
-        return projectsStats;
+    private List<ProductStats> getMockProductsStatsCache() {
+        List<ProductStats> productsStats = new ArrayList<ProductStats>();
+        productsStats.add(getMockProductStats());
+        return productsStats;
     }
 
-    private ProjectStats getMockProjectStats() {
-        return new ProjectStats("0001", "Sprint 1", 2, 3, 10, 3);
+    private ProductStats getMockProductStats() {
+        return new ProductStats("0001", "Sprint 1", 2, 3, 10, 3);
     }
 
 }

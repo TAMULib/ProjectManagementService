@@ -18,85 +18,85 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import edu.tamu.app.model.RemoteProjectManager;
+import edu.tamu.app.model.RemoteProductManager;
 import edu.tamu.app.model.ServiceType;
-import edu.tamu.app.model.repo.RemoteProjectManagerRepo;
+import edu.tamu.app.model.repo.RemoteProductManagerRepo;
 import edu.tamu.weaver.response.ApiResponse;
 
 @RunWith(SpringRunner.class)
-public class RemoteProjectManagerControllerTest {
+public class RemoteProductManagerControllerTest {
 
-    private static final String TEST_RMP_ONE_NAME = "Test Remote Project Manager 1";
-    private static final String TEST_RMP_TWO_NAME = "Test Remote Project Manager 2";
-    private static final String TEST_MODIFIED_RMP_NAME = "Modified Remote Project Manager";
+    private static final String TEST_RMP_ONE_NAME = "Test Remote Product Manager 1";
+    private static final String TEST_RMP_TWO_NAME = "Test Remote Product Manager 2";
+    private static final String TEST_MODIFIED_RMP_NAME = "Modified Remote Product Manager";
 
-    private static RemoteProjectManager testRemoteProjectManagerOne = new RemoteProjectManager(TEST_RMP_ONE_NAME, ServiceType.VERSION_ONE);
-    private static RemoteProjectManager testRemoteProjectManagerTwo = new RemoteProjectManager(TEST_RMP_TWO_NAME, ServiceType.VERSION_ONE);
-    private static RemoteProjectManager testModifiedProjectManager = new RemoteProjectManager(TEST_MODIFIED_RMP_NAME, ServiceType.VERSION_ONE);
-    private static List<RemoteProjectManager> mockRemoteProjectManagers = new ArrayList<RemoteProjectManager>(Arrays.asList(new RemoteProjectManager[] { testRemoteProjectManagerOne, testRemoteProjectManagerTwo }));
+    private static RemoteProductManager testRemoteProductManagerOne = new RemoteProductManager(TEST_RMP_ONE_NAME, ServiceType.VERSION_ONE);
+    private static RemoteProductManager testRemoteProductManagerTwo = new RemoteProductManager(TEST_RMP_TWO_NAME, ServiceType.VERSION_ONE);
+    private static RemoteProductManager testModifiedProductManager = new RemoteProductManager(TEST_MODIFIED_RMP_NAME, ServiceType.VERSION_ONE);
+    private static List<RemoteProductManager> mockRemoteProductManagers = new ArrayList<RemoteProductManager>(Arrays.asList(new RemoteProductManager[] { testRemoteProductManagerOne, testRemoteProductManagerTwo }));
 
     @Mock
-    private RemoteProjectManagerRepo remoteProjectManagerRepo;
+    private RemoteProductManagerRepo remoteProductManagerRepo;
 
     @InjectMocks
-    private RemoteProjectManagerController remoteProjectManagerController;
+    private RemoteProductManagerController remoteProductManagerController;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        when(remoteProjectManagerRepo.findAll()).thenReturn(mockRemoteProjectManagers);
-        when(remoteProjectManagerRepo.findOne(any(Long.class))).thenReturn(testRemoteProjectManagerOne);
-        when(remoteProjectManagerRepo.create(any(RemoteProjectManager.class))).thenReturn(testRemoteProjectManagerOne);
-        when(remoteProjectManagerRepo.update(any(RemoteProjectManager.class))).thenReturn(testModifiedProjectManager);
-        doNothing().when(remoteProjectManagerRepo).delete(any(RemoteProjectManager.class));
+        when(remoteProductManagerRepo.findAll()).thenReturn(mockRemoteProductManagers);
+        when(remoteProductManagerRepo.findOne(any(Long.class))).thenReturn(testRemoteProductManagerOne);
+        when(remoteProductManagerRepo.create(any(RemoteProductManager.class))).thenReturn(testRemoteProductManagerOne);
+        when(remoteProductManagerRepo.update(any(RemoteProductManager.class))).thenReturn(testModifiedProductManager);
+        doNothing().when(remoteProductManagerRepo).delete(any(RemoteProductManager.class));
     }
 
     @Test
-    public void testGetAllRemoteProjectManager() {
-        ApiResponse response = remoteProjectManagerController.getAll();
-        assertEquals("Not successful at getting requested Remote Project Managers", SUCCESS, response.getMeta().getStatus());
+    public void testGetAllRemoteProductManager() {
+        ApiResponse response = remoteProductManagerController.getAll();
+        assertEquals("Not successful at getting requested Remote Product Managers", SUCCESS, response.getMeta().getStatus());
         @SuppressWarnings("unchecked")
-        List<RemoteProjectManager> remoteProjectManagers = (List<RemoteProjectManager>) response.getPayload().get("ArrayList<RemoteProjectManager>");
-        assertEquals("Did not get the expected Remote Project Managers", mockRemoteProjectManagers, remoteProjectManagers);
+        List<RemoteProductManager> remoteProductManagers = (List<RemoteProductManager>) response.getPayload().get("ArrayList<RemoteProductManager>");
+        assertEquals("Did not get the expected Remote Product Managers", mockRemoteProductManagers, remoteProductManagers);
     }
 
     @Test
-    public void testGetRemoteProjectManagerById() {
-        ApiResponse response = remoteProjectManagerController.getOne(1L);
-        assertEquals("Not successful at getting requested Remote Project Managers", SUCCESS, response.getMeta().getStatus());
-        RemoteProjectManager remoteProjectManager = (RemoteProjectManager) response.getPayload().get("RemoteProjectManager");
-        assertEquals("Did not get the expected Remote Project Manager", testRemoteProjectManagerOne, remoteProjectManager);
+    public void testGetRemoteProductManagerById() {
+        ApiResponse response = remoteProductManagerController.getOne(1L);
+        assertEquals("Not successful at getting requested Remote Product Managers", SUCCESS, response.getMeta().getStatus());
+        RemoteProductManager remoteProductManager = (RemoteProductManager) response.getPayload().get("RemoteProductManager");
+        assertEquals("Did not get the expected Remote Product Manager", testRemoteProductManagerOne, remoteProductManager);
     }
 
     @Test
     public void testCreate() {
-        ApiResponse response = remoteProjectManagerController.createRemoteProjectManager(testRemoteProjectManagerOne);
-        assertEquals("Not successful at creating Remote Project Manager", SUCCESS, response.getMeta().getStatus());
+        ApiResponse response = remoteProductManagerController.createRemoteProductManager(testRemoteProductManagerOne);
+        assertEquals("Not successful at creating Remote Product Manager", SUCCESS, response.getMeta().getStatus());
     }
 
     @Test
     public void testUpdate() {
-        ApiResponse response = remoteProjectManagerController.updateRemoteProjectManager(testModifiedProjectManager);
-        assertEquals("Note successful at updating Remote Project Manager", SUCCESS, response.getMeta().getStatus());
-        RemoteProjectManager remoteProjectManager = (RemoteProjectManager) response.getPayload().get("RemoteProjectManager");
-        assertEquals("Remote Project Manager title was not properly updated", testModifiedProjectManager.getName(), remoteProjectManager.getName());
+        ApiResponse response = remoteProductManagerController.updateRemoteProductManager(testModifiedProductManager);
+        assertEquals("Note successful at updating Remote Product Manager", SUCCESS, response.getMeta().getStatus());
+        RemoteProductManager remoteProductManager = (RemoteProductManager) response.getPayload().get("RemoteProductManager");
+        assertEquals("Remote Product Manager title was not properly updated", testModifiedProductManager.getName(), remoteProductManager.getName());
     }
 
     @Test
     public void testDelete() {
-        ApiResponse response = remoteProjectManagerController.deleteRemoteProjectManager(testRemoteProjectManagerOne);
-        assertEquals("Not successful at deleting Remote Project Manager", SUCCESS, response.getMeta().getStatus());
+        ApiResponse response = remoteProductManagerController.deleteRemoteProductManager(testRemoteProductManagerOne);
+        assertEquals("Not successful at deleting Remote Product Manager", SUCCESS, response.getMeta().getStatus());
     }
 
     @Test
     public void testGetTypes() {
-        ApiResponse response = remoteProjectManagerController.getTypes();
+        ApiResponse response = remoteProductManagerController.getTypes();
         assertEquals("Not successful at getting service types", SUCCESS, response.getMeta().getStatus());
     }
 
     @Test
     public void testGetScaffolding() {
-        ApiResponse response = remoteProjectManagerController.getTypeScaffolding(ServiceType.VERSION_ONE.toString());
+        ApiResponse response = remoteProductManagerController.getTypeScaffolding(ServiceType.VERSION_ONE.toString());
         assertEquals("Not successful at getting scaffolding", SUCCESS, response.getMeta().getStatus());
     }
 

@@ -8,20 +8,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.tamu.app.model.repo.CardTypeRepo;
 import edu.tamu.app.model.repo.EstimateRepo;
-import edu.tamu.app.model.repo.ProjectRepo;
-import edu.tamu.app.model.repo.RemoteProjectManagerRepo;
+import edu.tamu.app.model.repo.ProductRepo;
+import edu.tamu.app.model.repo.RemoteProductManagerRepo;
 import edu.tamu.app.model.repo.StatusRepo;
 
 public abstract class ModelTest {
 
-    protected static final String TEST_PROJECT_NAME = "Test Project Name";
+    protected static final String TEST_PRODUCT_NAME = "Test Product Name";
 
-    protected static final String TEST_ALTERNATE_PROJECT_NAME = "Alternate Project Name";
+    protected static final String TEST_ALTERNATE_PRODUCT_NAME = "Alternate Product Name";
 
-    protected static final String TEST_REMOTE_PROJECT_MANAGER1_NAME = "Test Remote Project Manager 1";
-    protected static final String TEST_REMOTE_PROJECT_MANAGER2_NAME = "Test Remote Project Manager 2";
+    protected static final String TEST_REMOTE_PRODUCT_MANAGER1_NAME = "Test Remote Product Manager 1";
+    protected static final String TEST_REMOTE_PRODUCT_MANAGER2_NAME = "Test Remote Product Manager 2";
 
-    protected static final String TEST_ALTERNATE_REMOTE_PROJECT_MANAGER_NAME = "Alternate Remote Project Manager";
+    protected static final String TEST_ALTERNATE_REMOTE_PRODUCT_MANAGER_NAME = "Alternate Remote Product Manager";
 
     @Autowired
     protected StatusRepo statusRepo;
@@ -33,10 +33,10 @@ public abstract class ModelTest {
     protected EstimateRepo estimateRepo;
 
     @Autowired
-    protected ProjectRepo projectRepo;
+    protected ProductRepo productRepo;
 
     @Autowired
-    protected RemoteProjectManagerRepo remoteProjectManagerRepo;
+    protected RemoteProductManagerRepo remoteProductManagerRepo;
 
     protected Map<String, String> getMockSettings() {
         return new HashMap<String, String>() {
@@ -54,8 +54,8 @@ public abstract class ModelTest {
         statusRepo.deleteAll();
         cardTypeRepo.deleteAll();
         estimateRepo.deleteAll();
-        projectRepo.deleteAll();
-        remoteProjectManagerRepo.deleteAll();
+        productRepo.deleteAll();
+        remoteProductManagerRepo.deleteAll();
     }
 
 }

@@ -12,93 +12,94 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import edu.tamu.app.cache.ProjectsStatsCache;
-import edu.tamu.app.cache.model.ProjectStats;
-import edu.tamu.app.cache.model.RemoteProject;
-import edu.tamu.app.model.Project;
-import edu.tamu.app.model.RemoteProjectManager;
-import edu.tamu.app.model.repo.ProjectRepo;
+import edu.tamu.app.cache.ProductsStatsCache;
+import edu.tamu.app.cache.model.ProductStats;
+import edu.tamu.app.cache.model.RemoteProduct;
+import edu.tamu.app.model.Product;
+import edu.tamu.app.model.RemoteProductManager;
+import edu.tamu.app.model.repo.ProductRepo;
 import edu.tamu.weaver.response.ApiResponse;
 
 @Service
-public class ProjectsStatsScheduledCacheService extends AbstractProjectScheduledCacheService<List<ProjectStats>, ProjectsStatsCache> {
+public class ProductsStatsScheduledCacheService extends AbstractProductScheduledCacheService<List<ProductStats>, ProductsStatsCache> {
 
-    private static final Logger logger = Logger.getLogger(ProjectsStatsScheduledCacheService.class);
-
-    @Autowired
-    private ProjectRepo projectRepo;
+    private static final Logger logger = Logger.getLogger(ProductsStatsScheduledCacheService.class);
 
     @Autowired
-    private RemoteProjectsScheduledCacheService remoteProjectsScheduledCacheService;
+    private ProductRepo productRepo;
 
-    public ProjectsStatsScheduledCacheService() {
-        super(new ProjectsStatsCache());
+    @Autowired
+    private RemoteProductsScheduledCacheService remoteProductsScheduledCacheService;
+
+    public ProductsStatsScheduledCacheService() {
+        super(new ProductsStatsCache());
     }
 
     @Override
-    @Scheduled(initialDelayString = "${app.cache.projects-stats.delay}", fixedDelayString = "${app.cache.projects-stats.interval}")
+    @Scheduled(initialDelayString = "${app.cache.products-stats.delay}", fixedDelayString = "${app.cache.products-stats.interval}")
     public void schedule() {
         super.schedule();
     }
 
     public void update() {
-        logger.info("Caching projects stats...");
-        List<ProjectStats> projectsStats = new ArrayList<ProjectStats>();
-        projectRepo.findAll().forEach(project -> {
-            projectsStats.add(getProjectStats(project));
+        logger.info("Caching products stats...");
+        List<ProductStats> productsStats = new ArrayList<ProductStats>();
+        productRepo.findAll().forEach(product -> {
+            productsStats.add(getProductStats(product));
         });
-        set(projectsStats);
-        logger.info("Finished caching projects stats");
+        set(productsStats);
+        logger.info("Finished caching products stats");
     }
 
     public void broadcast() {
-        logger.info("Broadcasting cached projects stats");
-        simpMessagingTemplate.convertAndSend("/channel/projects/stats", new ApiResponse(SUCCESS, get()));
+        logger.info("Broadcasting cached products stats");
+        simpMessagingTemplate.convertAndSend("/channel/products/stats", new ApiResponse(SUCCESS, get()));
     }
 
-    public void addProject(Project project) {
-        List<ProjectStats> projectsStats = get();
-        projectsStats.add(getProjectStats(project));
-        set(projectsStats);
+    public void addProduct(Product product) {
+        List<ProductStats> productsStats = get();
+        productsStats.add(getProductStats(product));
+        set(productsStats);
         broadcast();
     }
 
-    public void updateProject(Project project) {
-        List<ProjectStats> projectsStats = get().stream().filter(p -> !p.getId().equals(project.getId().toString())).collect(Collectors.toList());
-        projectsStats.add(getProjectStats(project));
-        set(projectsStats);
+    public void updateProduct(Product product) {
+        List<ProductStats> productsStats = get().stream().filter(p -> !p.getId().equals(product.getId().toString()))
+                .collect(Collectors.toList());
+        productsStats.add(getProductStats(product));
+        set(productsStats);
         broadcast();
     }
 
-    public void removeProject(Project project) {
-        List<ProjectStats> projectsStats = get().stream().filter(p -> !p.getId().equals(project.getId().toString())).collect(Collectors.toList());
-        set(projectsStats);
+    public void removeProduct(Product product) {
+        List<ProductStats> productsStats = get().stream().filter(p -> !p.getId().equals(product.getId().toString())).collect(Collectors.toList());
+        set(productsStats);
         broadcast();
     }
 
-    private ProjectStats getProjectStats(Project project) {
-        String id = project.getId().toString();
-        String name = project.getName();
+    private ProductStats getProductStats(Product product) {
+        String id = product.getId().toString();
+        String name = product.getName();
         int requestCount = 0;
         int issueCount = 0;
         int featureCount = 0;
         int defectCount = 0;
 
-        // NOTE: if and when project can be associated to multiple remote projects, loop here
+        // NOTE: if and when product can be associated to multiple remote products, loop here
 
-        Optional<RemoteProjectManager> remoteProjectManager = Optional.ofNullable(project.getRemoteProjectManager());
-        Optional<String> scopeId = Optional.ofNullable(project.getScopeId());
-        if (remoteProjectManager.isPresent() && scopeId.isPresent()) {
-            Optional<RemoteProject> remoteProject = remoteProjectsScheduledCacheService.getRemoteProject(remoteProjectManager.get().getId(), scopeId.get());
-            if (remoteProject.isPresent()) {
-                requestCount += remoteProject.get().getRequestCount();
-                issueCount += remoteProject.get().getIssueCount();
-                featureCount += remoteProject.get().getFeatureCount();
-                defectCount += remoteProject.get().getDefectCount();
+        Optional<RemoteProductManager> remoteProductManager = Optional.ofNullable(product.getRemoteProductManager());
+        Optional<String> scopeId = Optional.ofNullable(product.getScopeId());
+        if (remoteProductManager.isPresent() && scopeId.isPresent()) {
+            Optional<RemoteProduct> remoteProduct = remoteProductsScheduledCacheService.getRemoteProduct(remoteProductManager.get().getId(), scopeId.get());
+            if (remoteProduct.isPresent()) {
+                requestCount += remoteProduct.get().getRequestCount();
+                issueCount += remoteProduct.get().getIssueCount();
+                featureCount += remoteProduct.get().getFeatureCount();
+                defectCount += remoteProduct.get().getDefectCount();
             }
         }
 
-        return new ProjectStats(id, name, requestCount, issueCount, featureCount, defectCount);
+        return new ProductStats(id, name, requestCount, issueCount, featureCount, defectCount);
     }
 
     @Override

@@ -1,14 +1,14 @@
 package edu.tamu.app.cache.service;
 
 import edu.tamu.app.cache.Cache;
-import edu.tamu.app.model.Project;
+import edu.tamu.app.model.Product;
 
-public interface ProjectScheduledCache<T, C extends Cache<T>> extends ScheduledCache<T, C> {
+public interface ProductScheduledCache<T, C extends Cache<T>> extends ScheduledCache<T, C> {
 
-    public void addProject(Project project);
+    public void addProduct(Product product);
 
-    public void updateProject(Project project);
+    public void updateProduct(Product product);
 
-    public void removeProject(Project project);
+    public void removeProduct(Product product);
 
 }

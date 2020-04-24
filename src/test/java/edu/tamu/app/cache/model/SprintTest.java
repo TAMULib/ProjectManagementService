@@ -24,7 +24,7 @@ public class SprintTest {
         Sprint sprint = new Sprint("1", "Sprint 1", "Application", cards);
         assertEquals("1", sprint.getId());
         assertEquals("Sprint 1", sprint.getName());
-        assertEquals("Application", sprint.getProject());
+        assertEquals("Application", sprint.getProduct());
         assertFalse(sprint.getCards().isEmpty());
         assertEquals(1, sprint.getCards().size());
         assertEquals("1", sprint.getCards().get(0).getId());

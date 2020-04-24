@@ -27,10 +27,10 @@ import com.versionone.apiclient.exceptions.OidException;
 import edu.tamu.app.cache.model.Card;
 import edu.tamu.app.cache.model.Member;
 import edu.tamu.app.cache.model.Sprint;
-import edu.tamu.app.model.Project;
-import edu.tamu.app.model.RemoteProjectManager;
+import edu.tamu.app.model.Product;
+import edu.tamu.app.model.RemoteProductManager;
 import edu.tamu.app.model.ServiceType;
-import edu.tamu.app.model.repo.ProjectRepo;
+import edu.tamu.app.model.repo.ProductRepo;
 import edu.tamu.app.service.manager.VersionOneService;
 import edu.tamu.app.service.registry.ManagementBeanRegistry;
 
@@ -38,7 +38,7 @@ import edu.tamu.app.service.registry.ManagementBeanRegistry;
 public class ActiveSprintsScheduledCacheServiceTest {
 
     @Mock
-    private ProjectRepo projectRepo;
+    private ProductRepo productRepo;
 
     @Mock
     private ManagementBeanRegistry managementBeanRegistry;
@@ -53,9 +53,9 @@ public class ActiveSprintsScheduledCacheServiceTest {
     public void setup() throws ConnectionException, APIException, OidException, IOException {
         MockitoAnnotations.initMocks(this);
         VersionOneService versionOneService = mock(VersionOneService.class);
-        when(projectRepo.findAll()).thenReturn(Arrays.asList(new Project[] { getMockProject() }));
+        when(productRepo.findAll()).thenReturn(Arrays.asList(new Product[] { getMockProduct() }));
         when(managementBeanRegistry.getService(any(String.class))).thenReturn(versionOneService);
-        when(versionOneService.getActiveSprintsByProjectId(any(String.class))).thenReturn(Arrays.asList(new Sprint[] { getMockSprint() }));
+        when(versionOneService.getActiveSprintsByProductId(any(String.class))).thenReturn(Arrays.asList(new Sprint[] { getMockSprint() }));
     }
 
     @Test
@@ -77,26 +77,26 @@ public class ActiveSprintsScheduledCacheServiceTest {
     }
 
     @Test
-    public void testAddProject() {
-        activeSprintsScheduledCacheService.addProject(getMockProject());
+    public void testAddProduct() {
+        activeSprintsScheduledCacheService.addProduct(getMockProduct());
         assertSprints(activeSprintsScheduledCacheService.get());
     }
 
     @Test
-    public void testUpdateProject() {
-        Project project = getMockProject();
-        activeSprintsScheduledCacheService.addProject(project);
-        project.setName("Another Project");
-        project.setScopeId("1001");
-        activeSprintsScheduledCacheService.updateProject(project);
+    public void testUpdateProduct() {
+        Product product = getMockProduct();
+        activeSprintsScheduledCacheService.addProduct(product);
+        product.setName("Another Product");
+        product.setScopeId("1001");
+        activeSprintsScheduledCacheService.updateProduct(product);
         assertTrue(true);
     }
 
     @Test
-    public void testRemoveProject() {
-        Project project = getMockProject();
-        activeSprintsScheduledCacheService.addProject(project);
-        activeSprintsScheduledCacheService.removeProject(project);
+    public void testRemoveProduct() {
+        Product product = getMockProduct();
+        activeSprintsScheduledCacheService.addProduct(product);
+        activeSprintsScheduledCacheService.removeProduct(product);
         assertTrue(activeSprintsScheduledCacheService.get().isEmpty());
     }
 
@@ -112,15 +112,15 @@ public class ActiveSprintsScheduledCacheServiceTest {
         assertSprints(activeSprintsScheduledCacheService.get());
     }
 
-    private Project getMockProject() {
-        RemoteProjectManager remoteProjectManager = new RemoteProjectManager("Test Remote Project Manager", ServiceType.VERSION_ONE);
-        return new Project("Test Project", "1000", remoteProjectManager);
+    private Product getMockProduct() {
+        RemoteProductManager remoteProductManager = new RemoteProductManager("Test Remote Product Manager", ServiceType.VERSION_ONE);
+        return new Product("Test Product", "1000", remoteProductManager);
     }
 
     private Sprint getMockSprint() {
         List<Member> assignees = Arrays.asList(new Member[] { new Member("1", "Bob Boring", "http://gravatar.com/bborring") });
         List<Card> cards = Arrays.asList(new Card[] { new Card("3000", "B-00001", "Feature", "Do the thing", "Do it with these requirements", "In Progress", 1.0f, assignees) });
-        return new Sprint("2000", "Sprint 1", "Test Project", cards);
+        return new Sprint("2000", "Sprint 1", "Test Product", cards);
     }
 
     private void assertSprints(List<Sprint> sprints) {
@@ -128,7 +128,7 @@ public class ActiveSprintsScheduledCacheServiceTest {
         assertEquals(1, sprints.size());
         assertEquals("2000", sprints.get(0).getId());
         assertEquals("Sprint 1", sprints.get(0).getName());
-        assertEquals("Test Project", sprints.get(0).getProject());
+        assertEquals("Test Product", sprints.get(0).getProduct());
         assertFalse(sprints.get(0).getCards().isEmpty());
         assertEquals(1, sprints.get(0).getCards().size());
         assertEquals("3000", sprints.get(0).getCards().get(0).getId());

@@ -52,7 +52,7 @@ import com.versionone.apiclient.services.QueryResult;
 
 import edu.tamu.app.cache.model.Card;
 import edu.tamu.app.cache.model.Member;
-import edu.tamu.app.cache.model.RemoteProject;
+import edu.tamu.app.cache.model.RemoteProduct;
 import edu.tamu.app.cache.model.Sprint;
 import edu.tamu.app.mapping.CardTypeMappingService;
 import edu.tamu.app.mapping.EstimateMappingService;
@@ -60,7 +60,7 @@ import edu.tamu.app.mapping.StatusMappingService;
 import edu.tamu.app.model.CardType;
 import edu.tamu.app.model.Estimate;
 import edu.tamu.app.model.ManagementService;
-import edu.tamu.app.model.RemoteProjectManager;
+import edu.tamu.app.model.RemoteProductManager;
 import edu.tamu.app.model.ServiceType;
 import edu.tamu.app.model.Status;
 import edu.tamu.app.model.repo.CardTypeRepo;
@@ -81,14 +81,14 @@ public class VersionOneServiceTest extends CacheMockTests {
 
     private BasicAuthRestTemplate restTemplate;
 
-    private List<RemoteProject> mockRemoteProjects;
+    private List<RemoteProduct> mockRemoteProducts;
 
     private List<Sprint> mockActiveSprints;
 
     @Before
     @SuppressWarnings("unchecked")
     public void setup() throws JsonParseException, JsonMappingException, IOException, V1Exception {
-        ManagementService managementService = new RemoteProjectManager("Version One", ServiceType.VERSION_ONE, new HashMap<String, String>() {
+        ManagementService managementService = new RemoteProductManager("Version One", ServiceType.VERSION_ONE, new HashMap<String, String>() {
             private static final long serialVersionUID = 2020874481642498006L;
             {
                 put("url", "https://localhost:9101/TexasAMLibrary");
@@ -185,14 +185,14 @@ public class VersionOneServiceTest extends CacheMockTests {
         setField(versionOneService, "restTemplate", restTemplate);
         setField(versionOneService, "members", new HashMap<String, Member>());
 
-        mockRemoteProjects = getMockRemoteProjects();
+        mockRemoteProducts = getMockRemoteProducts();
 
         mockActiveSprints = getMockActiveSprints();
     }
 
     @Test
     public void testVersionOneTokenAuthConnector() {
-        ManagementService managementService = new RemoteProjectManager("Version One", ServiceType.VERSION_ONE, new HashMap<String, String>() {
+        ManagementService managementService = new RemoteProductManager("Version One", ServiceType.VERSION_ONE, new HashMap<String, String>() {
             private static final long serialVersionUID = 2020874481642498006L;
             {
                 put("url", "https://localhost:9101/TexasAMLibrary");
@@ -203,13 +203,13 @@ public class VersionOneServiceTest extends CacheMockTests {
     }
 
     @Test
-    public void testGetRemoteProjects() throws ConnectionException, APIException, OidException, JsonParseException, JsonMappingException, IOException {
+    public void testGetRemoteProducts() throws ConnectionException, APIException, OidException, JsonParseException, JsonMappingException, IOException {
         QueryResult result = mock(QueryResult.class);
         IMetaModel metaModel = mock(IMetaModel.class);
         IAssetType scopeType = mock(IAssetType.class);
         IAttributeDefinition nameAttributeDefinition = mock(IAttributeDefinition.class);
 
-        Asset[] assets = getMockRemoteProjectAssets();
+        Asset[] assets = getMockRemoteProductAssets();
 
         when(scopeType.getDisplayName()).thenReturn("AssetType'Scope");
         when(scopeType.getToken()).thenReturn("Scope");
@@ -234,18 +234,18 @@ public class VersionOneServiceTest extends CacheMockTests {
         doReturn(4).when(versionOneService).getPrimaryWorkItemCount(matches("Story"), any(String.class));
         doReturn(1).when(versionOneService).getPrimaryWorkItemCount(matches("Defect"), any(String.class));
 
-        assertRemoteProjects(versionOneService.getRemoteProjects());
+        assertRemoteProducts(versionOneService.getRemoteProduct());
     }
 
     @Test
-    public void testGetRemoteProjectByScopeId() throws ConnectionException, APIException, OidException, JsonParseException, JsonMappingException, IOException {
+    public void testGetRemoteProductByScopeId() throws ConnectionException, APIException, OidException, JsonParseException, JsonMappingException, IOException {
         Oid oid = mock(Oid.class);
         QueryResult result = mock(QueryResult.class);
         IMetaModel metaModel = mock(IMetaModel.class);
         IAssetType scopeType = mock(IAssetType.class);
         IAttributeDefinition nameAttributeDefinition = mock(IAttributeDefinition.class);
 
-        Asset[] assets = getMockRemoteProjectAssetByScopeId("1934");
+        Asset[] assets = getMockRemoteProductAssetByScopeId("1934");
 
         when(scopeType.getDisplayName()).thenReturn("AssetType'Scope");
         when(scopeType.getToken()).thenReturn("Scope");
@@ -271,10 +271,10 @@ public class VersionOneServiceTest extends CacheMockTests {
         doReturn(4).when(versionOneService).getPrimaryWorkItemCount("Story", "1934");
         doReturn(1).when(versionOneService).getPrimaryWorkItemCount("Defect", "1934");
 
-        RemoteProject remoteProject = versionOneService.getRemoteProjectByScopeId("1934");
+        RemoteProduct remoteProduct = versionOneService.getRemoteProductByScopeId("1934");
 
-        assertEquals("Remote project has incorrect scope id!", mockRemoteProjects.get(0).getId(), remoteProject.getId());
-        assertEquals("Remote project had incorrect name!", mockRemoteProjects.get(0).getName(), remoteProject.getName());
+        assertEquals("Remote product has incorrect scope id!", mockRemoteProducts.get(0).getId(), remoteProduct.getId());
+        assertEquals("Remote product had incorrect name!", mockRemoteProducts.get(0).getName(), remoteProduct.getName());
     }
 
     @Test
@@ -322,7 +322,7 @@ public class VersionOneServiceTest extends CacheMockTests {
     }
 
     @Test
-    public void testGetActiveSprintsByProjectId() throws ConnectionException, APIException, OidException, IOException {
+    public void testGetActiveSprintsByProductId() throws ConnectionException, APIException, OidException, IOException {
         QueryResult result = mock(QueryResult.class);
 
         IMetaModel metaModel = mock(IMetaModel.class);
@@ -380,7 +380,7 @@ public class VersionOneServiceTest extends CacheMockTests {
         List<Card> mocKSprint2Cards = mockActiveSprints.get(1).getCards();
         doReturn(mocKSprint2Cards).when(versionOneService).getActiveSprintsCards("0002");
 
-        List<Sprint> sprints = versionOneService.getActiveSprintsByProjectId("0001");
+        List<Sprint> sprints = versionOneService.getActiveSprintsByProductId("0001");
 
         assertActiveSprints(sprints);
     }
@@ -659,7 +659,7 @@ public class VersionOneServiceTest extends CacheMockTests {
             when(scheduledScopesNameAttributeDefinition.getAssetType()).thenReturn(timeboxType);
 
             when(mockScheduledScopesNameAttribute.getDefinition()).thenReturn(scheduledScopesNameAttributeDefinition);
-            when(mockScheduledScopesNameAttribute.getValues()).thenReturn(new String[] { activeSprint.getProject() });
+            when(mockScheduledScopesNameAttribute.getValues()).thenReturn(new String[] { activeSprint.getProduct() });
 
             when(mockAsset.getOid()).thenReturn(mockOid);
 
@@ -844,14 +844,14 @@ public class VersionOneServiceTest extends CacheMockTests {
         return mockMemberObjects.toArray(new Asset[mockMemberObjects.size()]);
     }
 
-    private Asset[] getMockRemoteProjectAssets() throws JsonParseException, JsonMappingException, IOException, APIException {
+    private Asset[] getMockRemoteProductAssets() throws JsonParseException, JsonMappingException, IOException, APIException {
         List<Asset> mockAssets = new ArrayList<Asset>();
-        for (RemoteProject remoteProject : mockRemoteProjects) {
+        for (RemoteProduct remoteProduct : mockRemoteProducts) {
             Asset mockAsset = mock(Asset.class);
             Oid mockOid = mock(Oid.class);
             Attribute mockNameAttribute = mock(Attribute.class);
-            when(mockNameAttribute.getValue()).thenReturn(remoteProject.getName());
-            when(mockOid.toString()).thenReturn("Scope:" + remoteProject.getId());
+            when(mockNameAttribute.getValue()).thenReturn(remoteProduct.getName());
+            when(mockOid.toString()).thenReturn("Scope:" + remoteProduct.getId());
             when(mockAsset.getOid()).thenReturn(mockOid);
             when(mockAsset.getAttribute(any(IAttributeDefinition.class))).thenReturn(mockNameAttribute);
             mockAssets.add(mockAsset);
@@ -859,15 +859,15 @@ public class VersionOneServiceTest extends CacheMockTests {
         return mockAssets.toArray(new Asset[mockAssets.size()]);
     }
 
-    private Asset[] getMockRemoteProjectAssetByScopeId(String scopeId) throws JsonParseException, JsonMappingException, IOException, APIException {
+    private Asset[] getMockRemoteProductAssetByScopeId(String scopeId) throws JsonParseException, JsonMappingException, IOException, APIException {
         List<Asset> mockAssets = new ArrayList<Asset>();
-        for (RemoteProject remoteProject : mockRemoteProjects) {
-            if (remoteProject.getId().equals(scopeId)) {
+        for (RemoteProduct remoteProduct : mockRemoteProducts) {
+            if (remoteProduct.getId().equals(scopeId)) {
                 Asset mockAsset = mock(Asset.class);
                 Oid mockOid = mock(Oid.class);
                 Attribute mockNameAttribute = mock(Attribute.class);
-                when(mockNameAttribute.getValue()).thenReturn(remoteProject.getName());
-                when(mockOid.toString()).thenReturn("Scope:" + remoteProject.getId());
+                when(mockNameAttribute.getValue()).thenReturn(remoteProduct.getName());
+                when(mockOid.toString()).thenReturn("Scope:" + remoteProduct.getId());
                 when(mockAsset.getOid()).thenReturn(mockOid);
                 when(mockAsset.getAttribute(any(IAttributeDefinition.class))).thenReturn(mockNameAttribute);
                 mockAssets.add(mockAsset);
@@ -950,13 +950,13 @@ public class VersionOneServiceTest extends CacheMockTests {
         return null;
     }
 
-    private void assertRemoteProjects(List<RemoteProject> remoteProjects) {
-        assertEquals("Incorrect number of remote projects!", mockRemoteProjects.size(), remoteProjects.size());
-        for (int i = 0; i < mockRemoteProjects.size(); i++) {
-            RemoteProject remoteProject = remoteProjects.get(i);
-            RemoteProject mockRemoteProject = mockRemoteProjects.get(i);
-            assertEquals("Remote project has incorrect scope id!", mockRemoteProject.getId(), remoteProject.getId());
-            assertEquals("Remote project had incorrect name!", mockRemoteProject.getName(), remoteProject.getName());
+    private void assertRemoteProducts(List<RemoteProduct> remoteProducts) {
+        assertEquals("Incorrect number of remote products!", mockRemoteProducts.size(), remoteProducts.size());
+        for (int i = 0; i < mockRemoteProducts.size(); i++) {
+            RemoteProduct remoteProduct = remoteProducts.get(i);
+            RemoteProduct mockRemoteProduct = mockRemoteProducts.get(i);
+            assertEquals("Remote product has incorrect scope id!", mockRemoteProduct.getId(), remoteProduct.getId());
+            assertEquals("Remote product had incorrect name!", mockRemoteProduct.getName(), remoteProduct.getName());
         }
     }
 
@@ -967,7 +967,7 @@ public class VersionOneServiceTest extends CacheMockTests {
             Sprint mockActiveSprint = mockActiveSprints.get(i);
             assertEquals("Active sprint has incorrect id!", mockActiveSprint.getId(), activeSprint.getId());
             assertEquals("Active sprint had incorrect name!", mockActiveSprint.getName(), activeSprint.getName());
-            assertEquals("Active sprint had incorrect project!", mockActiveSprint.getProject(), activeSprint.getProject());
+            assertEquals("Active sprint had incorrect product!", mockActiveSprint.getProduct(), activeSprint.getProduct());
         }
     }
 

@@ -18,29 +18,29 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
-import edu.tamu.app.model.Project;
-import edu.tamu.app.model.RemoteProjectManager;
+import edu.tamu.app.model.Product;
+import edu.tamu.app.model.RemoteProductManager;
 import edu.tamu.app.model.ServiceType;
-import edu.tamu.app.model.repo.ProjectRepo;
-import edu.tamu.app.model.repo.RemoteProjectManagerRepo;
+import edu.tamu.app.model.repo.ProductRepo;
+import edu.tamu.app.model.repo.RemoteProductManagerRepo;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @RunWith(SpringRunner.class)
-public class ProjectControllerIntegrationTest {
+public class ProductControllerIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
-    private ProjectRepo projectRepo;
+    private ProductRepo productRepo;
 
     @Autowired
-    private RemoteProjectManagerRepo remoteProjectManagerRepo;
+    private RemoteProductManagerRepo remoteProductManagerRepo;
 
     @Before
     public void setup() {
-        RemoteProjectManager remoteProjectManager = remoteProjectManagerRepo.create(new RemoteProjectManager("VersionTwo", ServiceType.VERSION_ONE, new HashMap<String, String>() {
+        RemoteProductManager remoteProductManager = remoteProductManagerRepo.create(new RemoteProductManager("VersionTwo", ServiceType.VERSION_ONE, new HashMap<String, String>() {
             private static final long serialVersionUID = 2020874481642498006L;
             {
                 put("url", "https://localhost:9101/TexasAMLibrary");
@@ -48,48 +48,48 @@ public class ProjectControllerIntegrationTest {
                 put("password", "password");
             }
         }));
-        Project project = projectRepo.create(new Project("Test"));
-        project.setScopeId("123456");
-        project.setRemoteProjectManager(remoteProjectManager);
-        project = projectRepo.update(project);
+        Product product = productRepo.create(new Product("Test"));
+        product.setScopeId("123456");
+        product.setRemoteProductManager(remoteProductManager);
+        product = productRepo.update(product);
     }
 
     @Test
-    public void testGetProjects() throws Exception {
+    public void testGetProducts() throws Exception {
         // @formatter:off
-        mockMvc.perform(get("/projects").accept(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/products").accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("meta.status", equalTo("SUCCESS")))
-            .andExpect(jsonPath("payload.ArrayList<Project>[0].id", equalTo(1)))
-            .andExpect(jsonPath("payload.ArrayList<Project>[0].name", equalTo("Test")))
-            .andExpect(jsonPath("payload.ArrayList<Project>[0].scopeId", equalTo("123456")))
-            .andExpect(jsonPath("payload.ArrayList<Project>[0].remoteProjectManager.id", equalTo(1)))
-            .andExpect(jsonPath("payload.ArrayList<Project>[0].remoteProjectManager.name", equalTo("VersionTwo")))
-            .andExpect(jsonPath("payload.ArrayList<Project>[0].remoteProjectManager.type", equalTo("VERSION_ONE")))
-            .andExpect(jsonPath("payload.ArrayList<Project>[0].remoteProjectManager.settings").doesNotExist());
+            .andExpect(jsonPath("payload.ArrayList<Product>[0].id", equalTo(1)))
+            .andExpect(jsonPath("payload.ArrayList<Product>[0].name", equalTo("Test")))
+            .andExpect(jsonPath("payload.ArrayList<Product>[0].scopeId", equalTo("123456")))
+            .andExpect(jsonPath("payload.ArrayList<Product>[0].remoteProductManager.id", equalTo(1)))
+            .andExpect(jsonPath("payload.ArrayList<Product>[0].remoteProductManager.name", equalTo("VersionTwo")))
+            .andExpect(jsonPath("payload.ArrayList<Product>[0].remoteProductManager.type", equalTo("VERSION_ONE")))
+            .andExpect(jsonPath("payload.ArrayList<Product>[0].remoteProductManager.settings").doesNotExist());
         // @formatter:on
     }
 
     @Test
-    public void testGetProjectById() throws Exception {
-     // @formatter:off
-        mockMvc.perform(get("/projects/2").accept(MediaType.APPLICATION_JSON))
+    public void testGetProductById() throws Exception {
+        // @formatter:off
+        mockMvc.perform(get("/products/2").accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("meta.status", equalTo("SUCCESS")))
-            .andExpect(jsonPath("payload.Project.id", equalTo(2)))
-            .andExpect(jsonPath("payload.Project.name", equalTo("Test")))
-            .andExpect(jsonPath("payload.Project.scopeId", equalTo("123456")))
-            .andExpect(jsonPath("payload.Project.remoteProjectManager.id", equalTo(2)))
-            .andExpect(jsonPath("payload.Project.remoteProjectManager.name", equalTo("VersionTwo")))
-            .andExpect(jsonPath("payload.Project.remoteProjectManager.type", equalTo("VERSION_ONE")))
-            .andExpect(jsonPath("payload.Project.remoteProjectManager.settings").doesNotExist());
+            .andExpect(jsonPath("payload.Product.id", equalTo(2)))
+            .andExpect(jsonPath("payload.Product.name", equalTo("Test")))
+            .andExpect(jsonPath("payload.Product.scopeId", equalTo("123456")))
+            .andExpect(jsonPath("payload.Product.remoteProductManager.id", equalTo(2)))
+            .andExpect(jsonPath("payload.Product.remoteProductManager.name", equalTo("VersionTwo")))
+            .andExpect(jsonPath("payload.Product.remoteProductManager.type", equalTo("VERSION_ONE")))
+            .andExpect(jsonPath("payload.Product.remoteProductManager.settings").doesNotExist());
         // @formatter:on
     }
 
     @After
     public void cleanup() {
-        projectRepo.deleteAll();
-        remoteProjectManagerRepo.deleteAll();
+        productRepo.deleteAll();
+        remoteProductManagerRepo.deleteAll();
     }
 
 }
