@@ -41,14 +41,14 @@ import com.versionone.apiclient.services.QueryResult;
 
 import edu.tamu.app.cache.model.Card;
 import edu.tamu.app.cache.model.Member;
-import edu.tamu.app.cache.model.RemoteProject;
+import edu.tamu.app.cache.model.RemoteProduct;
 import edu.tamu.app.cache.model.Sprint;
 import edu.tamu.app.model.ManagementService;
 import edu.tamu.app.model.request.FeatureRequest;
 import edu.tamu.app.rest.BasicAuthRestTemplate;
 import edu.tamu.app.rest.TokenAuthRestTemplate;
 
-public class VersionOneService extends MappingRemoteProjectManagerBean {
+public class VersionOneService extends MappingRemoteProductManagerBean {
 
     private static final Logger logger = Logger.getLogger(VersionOneService.class);
 
@@ -69,43 +69,43 @@ public class VersionOneService extends MappingRemoteProjectManagerBean {
     }
 
     @Override
-    public List<RemoteProject> getRemoteProjects() throws ConnectionException, APIException, OidException {
-        logger.info("Fetching remote projects");
-        List<RemoteProject> remoteProjects = new ArrayList<RemoteProject>();
+    public List<RemoteProduct> getRemoteProduct() throws ConnectionException, APIException, OidException {
+        logger.info("Fetching remote products");
+        List<RemoteProduct> remoteProducts = new ArrayList<RemoteProduct>();
         IAssetType scopeType = services.getMeta().getAssetType("Scope");
         IAttributeDefinition nameAttributeDefinition = scopeType.getAttributeDefinition("Name");
         Query query = new Query(scopeType);
         query.getSelection().add(nameAttributeDefinition);
         QueryResult result = services.retrieve(query);
-        for (Asset project : result.getAssets()) {
-            String scopeId = parseId(project.getOid());
-            String name = project.getAttribute(nameAttributeDefinition).getValue().toString();
+        for (Asset product : result.getAssets()) {
+            String scopeId = parseId(product.getOid());
+            String name = product.getAttribute(nameAttributeDefinition).getValue().toString();
             int requestCount = getPrimaryWorkItemCount("Request", scopeId);
             int issueCount = getPrimaryWorkItemCount("Issue", scopeId);
             int storyCount = getPrimaryWorkItemCount("Story", scopeId);
             int defectCount = getPrimaryWorkItemCount("Defect", scopeId);
-            remoteProjects.add(new RemoteProject(scopeId, name, requestCount, issueCount, storyCount, defectCount));
+            remoteProducts.add(new RemoteProduct(scopeId, name, requestCount, issueCount, storyCount, defectCount));
 
         }
-        return remoteProjects;
+        return remoteProducts;
     }
 
     @Override
-    public RemoteProject getRemoteProjectByScopeId(final String scopeId) throws ConnectionException, APIException, OidException {
-        logger.info("Fetching remote project by scope id " + scopeId);
+    public RemoteProduct getRemoteProductByScopeId(final String scopeId) throws ConnectionException, APIException, OidException {
+        logger.info("Fetching remote product by scope id " + scopeId);
         Oid oid = services.getOid("Scope:" + scopeId);
         IAssetType scopeType = services.getMeta().getAssetType("Scope");
         IAttributeDefinition nameAttributeDefinition = scopeType.getAttributeDefinition("Name");
         Query query = new Query(oid);
         query.getSelection().add(nameAttributeDefinition);
         QueryResult result = services.retrieve(query);
-        Asset project = result.getAssets()[0];
-        String name = project.getAttribute(nameAttributeDefinition).getValue().toString();
+        Asset product = result.getAssets()[0];
+        String name = product.getAttribute(nameAttributeDefinition).getValue().toString();
         int requestCount = getPrimaryWorkItemCount("Request", scopeId);
         int issueCount = getPrimaryWorkItemCount("Issue", scopeId);
         int storyCount = getPrimaryWorkItemCount("Story", scopeId);
         int defectCount = getPrimaryWorkItemCount("Defect", scopeId);
-        return new RemoteProject(scopeId, name, requestCount, issueCount, storyCount, defectCount);
+        return new RemoteProduct(scopeId, name, requestCount, issueCount, storyCount, defectCount);
     }
 
     public int getPrimaryWorkItemCount(final String type, final String scopeId) throws ConnectionException, APIException, OidException {
@@ -127,8 +127,8 @@ public class VersionOneService extends MappingRemoteProjectManagerBean {
     }
 
     @Override
-    public List<Sprint> getActiveSprintsByProjectId(final String projectScopeId) throws ConnectionException, APIException, OidException, IOException {
-        logger.info("Fetching active sprints for project with scope id " + projectScopeId);
+    public List<Sprint> getActiveSprintsByProductId(final String productScopeId) throws ConnectionException, APIException, OidException, IOException {
+        logger.info("Fetching active sprints for product with scope id " + productScopeId);
         List<Sprint> activeSprints = new ArrayList<Sprint>();
         IAssetType timeboxType = services.getMeta().getAssetType("Timebox");
         IAttributeDefinition nameAttributeDefinition = timeboxType.getAttributeDefinition("Name");
@@ -140,7 +140,7 @@ public class VersionOneService extends MappingRemoteProjectManagerBean {
         stateCodeTerm.equal("ACTV");
 
         FilterTerm scheduleScheduledScopesTerm = new FilterTerm(scheduleScheduledScopesAttributeDefinition);
-        scheduleScheduledScopesTerm.equal("Scope:" + projectScopeId);
+        scheduleScheduledScopesTerm.equal("Scope:" + productScopeId);
 
         GroupFilterTerm groupFilter = new AndFilterTerm(stateCodeTerm, scheduleScheduledScopesTerm);
 
@@ -160,16 +160,16 @@ public class VersionOneService extends MappingRemoteProjectManagerBean {
             Object[] scheduledScopes = sprint.getAttribute(scheduleScheduledScopesAttributeDefinition).getValues();
             Object[] scheduledScopeNames = sprint.getAttribute(scheduleScheduledScopesNameAttributeDefinition).getValues();
 
-            String projectName = null;
+            String productName = null;
             for (int i = 0; i < scheduledScopes.length; i++) {
-                if (scheduledScopes[i].toString().equals("Scope:" + projectScopeId)) {
-                    projectName = scheduledScopeNames[i].toString();
+                if (scheduledScopes[i].toString().equals("Scope:" + productScopeId)) {
+                    productName = scheduledScopeNames[i].toString();
                     break;
                 }
             }
 
             List<Card> cards = getActiveSprintsCards(id);
-            activeSprints.add(new Sprint(id, name, projectName, cards));
+            activeSprints.add(new Sprint(id, name, productName, cards));
         }
         return activeSprints;
     }
@@ -263,7 +263,7 @@ public class VersionOneService extends MappingRemoteProjectManagerBean {
 
     @Override
     public Object push(FeatureRequest featureRequest) throws V1Exception {
-        logger.info("Submitting feature request " + featureRequest.getTitle() + " to project with scope id " + featureRequest.getScopeId());
+        logger.info("Submitting feature request " + featureRequest.getTitle() + " to product with scope id " + featureRequest.getScopeId());
         IAssetType requestType = services.getMeta().getAssetType("Request");
         IAttributeDefinition nameAttributeDefinition = requestType.getAttributeDefinition("Name");
         IAttributeDefinition descriptionAttributeDefinition = requestType.getAttributeDefinition("Description");
@@ -333,14 +333,15 @@ public class VersionOneService extends MappingRemoteProjectManagerBean {
         if (token.isPresent()) {
             // @formatter:off
             connector = V1Connector.withInstanceUrl(getUrl())
-                .withUserAgentHeader("Project Management Service", "1.0")
+                    .withUserAgentHeader("Product Management Service",
+                            "1.0")
                 .withAccessToken(getToken().get())
                 .build();
             // @formatter:on
         } else {
             // @formatter:off
             connector = V1Connector.withInstanceUrl(getUrl())
-                .withUserAgentHeader("Project Management Service", "1.0")
+                    .withUserAgentHeader("Product Management Service", "1.0")
                 .withUsernameAndPassword(getUsername(), getPassword())
                 .build();
             // @formatter:on

@@ -12,7 +12,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.tamu.app.cache.model.RemoteProject;
+import edu.tamu.app.cache.model.RemoteProduct;
 import edu.tamu.app.cache.model.Sprint;
 
 public abstract class CacheMockTests {
@@ -20,8 +20,8 @@ public abstract class CacheMockTests {
     @Value("classpath:mock/cache/active-sprints.json")
     private Resource activeSprints;
 
-    @Value("classpath:mock/cache/remote-projects.json")
-    private Resource remoteProjects;
+    @Value("classpath:mock/cache/remote-products.json")
+    private Resource remoteProducts;
 
     @Spy
     private ObjectMapper objectMapper;
@@ -31,8 +31,8 @@ public abstract class CacheMockTests {
         return objectMapper.readValue(activeSprints.getFile(), new TypeReference<List<Sprint>>() {});
     }
 
-    protected List<RemoteProject> getMockRemoteProjects() throws JsonParseException, JsonMappingException, IOException {
-        return objectMapper.readValue(remoteProjects.getFile(), new TypeReference<List<RemoteProject>>() {});
+    protected List<RemoteProduct> getMockRemoteProducts() throws JsonParseException, JsonMappingException, IOException {
+        return objectMapper.readValue(remoteProducts.getFile(), new TypeReference<List<RemoteProduct>>() {});
     }
     // @formatter:on
 

@@ -1,0 +1,230 @@
+[
+  {
+    "id": "1934",
+    "name": "Legacy DSpace"
+  },
+  {
+    "id": "3781",
+    "name": "Code Management - Maps"
+  },
+  {
+    "id": "3783",
+    "name": "CORAL - Electronic Resource Management"
+  },
+  {
+    "id": "3786",
+    "name": "Piper - Automated Ingest"
+  },
+  {
+    "id": "3789",
+    "name": "Vireo"
+  },
+  {
+    "id": "3798",
+    "name": "Pelican"
+  },
+  {
+    "id": "3816",
+    "name": "VIVO"
+  },
+  {
+    "id": "3930",
+    "name": "Health Based MSL"
+  },
+  {
+    "id": "3968",
+    "name": "ORCID"
+  },
+  {
+    "id": "4114",
+    "name": "MIS Reports"
+  },
+  {
+    "id": "4182",
+    "name": "Collaborative Book Reader"
+  },
+  {
+    "id": "4262",
+    "name": "DI Internal"
+  },
+  {
+    "id": "4391",
+    "name": "LibCat"
+  },
+  {
+    "id": "4557",
+    "name": "Vireo - Undergraduate"
+  },
+  {
+    "id": "4731",
+    "name": "Key Database"
+  },
+  {
+    "id": "4871",
+    "name": "MyLibrary Application"
+  },
+  {
+    "id": "4889",
+    "name": "DSpace"
+  },
+  {
+    "id": "4912",
+    "name": "iRODS"
+  },
+  {
+    "id": "4965",
+    "name": "Hours Application"
+  },
+  {
+    "id": "5070",
+    "name": "MAGPIE"
+  },
+  {
+    "id": "5270",
+    "name": "Directory App Rewrite"
+  },
+  {
+    "id": "5342",
+    "name": "Digital Asset Management Ecosystem"
+  },
+  {
+    "id": "5523",
+    "name": "Applications"
+  },
+  {
+    "id": "5524",
+    "name": "Legacy Products"
+  },
+  {
+    "id": "5525",
+    "name": "Subject Librarians"
+  },
+  {
+    "id": "5798",
+    "name": "Dev Ops"
+  },
+  {
+    "id": "5870",
+    "name": "DSpace UI Prototype"
+  },
+  {
+    "id": "5910",
+    "name": "Library Cascade"
+  },
+  {
+    "id": "5962",
+    "name": "Instructional Request Manager - Old"
+  },
+  {
+    "id": "6004",
+    "name": "Weaver (Spring/Angular Frameworks)"
+  },
+  {
+    "id": "6029",
+    "name": "Sugar CRM UI rewrite"
+  },
+  {
+    "id": "6126",
+    "name": "Catalog Services"
+  },
+  {
+    "id": "6157",
+    "name": "Digital Aggieland Portal"
+  },
+  {
+    "id": "6368",
+    "name": "Instructional Apps"
+  },
+  {
+    "id": "6369",
+    "name": "Instructional Statistics Manager - Old"
+  },
+  {
+    "id": "6373",
+    "name": "Instructional Database"
+  },
+  {
+    "id": "6486",
+    "name": "Automatic Metadata Assignment"
+  },
+  {
+    "id": "6487",
+    "name": "Semi-Automatic NALT Indexer"
+  },
+  {
+    "id": "6620",
+    "name": "Development"
+  },
+  {
+    "id": "6625",
+    "name": "Development Services"
+  },
+  {
+    "id": "6626",
+    "name": "Application Services"
+  },
+  {
+    "id": "6627",
+    "name": "VersionOne Service"
+  },
+  {
+    "id": "6629",
+    "name": "Sugar"
+  },
+  {
+    "id": "6664",
+    "name": "PHP MicroServices"
+  },
+  {
+    "id": "6828",
+    "name": "SharePoint"
+  },
+  {
+    "id": "7001",
+    "name": "SFFRD"
+  },
+  {
+    "id": "7036",
+    "name": "Instructional Request Manager"
+  },
+  {
+    "id": "7037",
+    "name": "Instructional Statistics Manager"
+  },
+  {
+    "id": "7400",
+    "name": "Organization Chart"
+  },
+  {
+    "id": "7509",
+    "name": "Library Service Status System"
+  },
+  {
+    "id": "7516",
+    "name": "Fedora"
+  },
+  {
+    "id": "7517",
+    "name": "Spotlight"
+  },
+  {
+    "id": "7529",
+    "name": "IIIF Generation Service"
+  },
+  {
+    "id": "7797",
+    "name": "chronam"
+  },
+  {
+    "id": "7869",
+    "name": "Cap"
+  },
+  {
+    "id": "7934",
+    "name": "SAGE"
+  },
+  {
+    "id": "7948",
+    "name": "Product Management Service"
+  }
+]

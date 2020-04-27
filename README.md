@@ -1,9 +1,9 @@
-[![Build Status](https://travis-ci.org/TAMULib/ProjectManagementService.svg?branch=master)](https://travis-ci.org/TAMULib/ProjectManagementService) [![Coverage Status](https://coveralls.io/repos/github/TAMULib/ProjectManagementService/badge.svg?branch=master)](https://coveralls.io/github/TAMULib/ProjectManagementService?branch=master)
+[![Build Status](https://travis-ci.org/TAMULib/ProductManagementService.svg?branch=master)](https://travis-ci.org/TAMULib/ProductManagementService) [![Coverage Status](https://coveralls.io/repos/github/TAMULib/ProductManagementService/badge.svg?branch=master)](https://coveralls.io/github/TAMULib/ProductManagementService?branch=master)
 
-# Project Management Service
-The Project Management Service is designed to connect our Library Webservice Status Application to our Version Managagement Software.
+# Product Management Service
+The Product Management Service is designed to connect our Library Webservice Status Application to our Version Managagement Software.
 
-## Building Project Management Service
+## Building Product Management Service
 
 ### Development
 ```bash
@@ -17,15 +17,15 @@ $ mvn clean package -DskipTests -Dproduction
 
 ## Rest API
 
-| **Title**            | **Projects**                                                                                |
+| **Title**            | **Products**                                                                                |
 | :------------------- | :------------------------------------------------------------------------------------------ |
-| **Description**      | Returns a list of all projects.                                                             |
-| **URL**              | ```/projects```                                                                             |
+| **Description**      | Returns a list of all products.                                                             |
+| **URL**              | ```/products```                                                                             |
 | **Method**           | **GET**                                                                                     |
 | **URL Parameters**   |                                                                                             |
 | **Success Response** | **Code:** 200 OK<br/>**Content Type:** application/json<br/>                                |
-| **Sample Request**   | ```/projects```                                                                             |
-| **Notes**            | These are managed projects for this service and not projects from a remote project manager. |
+| **Sample Request**   | ```/products```                                                                             |
+| **Notes**            | These are managed products for this service and not products from a remote product manager. |
 
 ```json
 {
@@ -36,12 +36,12 @@ $ mvn clean package -DskipTests -Dproduction
     "id": String
   },
   "payload": {
-    "ArrayList<Project>": [
+    "ArrayList<Product>": [
       {
         "id": Long,
         "name": String,
         "scopeId": String,
-        "remoteProjectManager": {
+        "remoteProductManager": {
           "id": Long,
           "name": String,
           "type": String
@@ -56,13 +56,13 @@ $ mvn clean package -DskipTests -Dproduction
 
 | **Title**            | **Active Sprints**                                                                                                                                                                                                                                        |
 | :------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Description**      | Returns a list of all active sprints based on associated remote project manager projects.                                                                                                                                                                 |
+| **Description**      | Returns a list of all active sprints based on associated remote product manager products.                                                                                                                                                                 |
 | **URL**              | ```/sprints/active```                                                                                                                                                                                                                                     |
 | **Method**           | **GET**                                                                                                                                                                                                                                                   |
 | **URL Parameters**   |                                                                                                                                                                                                                                                           |
 | **Success Response** | **Code:** 200 OK<br/>**Content Type:** application/json<br/>**Schema:**                                                                                                                                                                                   |
 | **Sample Request**   | ```/sprints/active```                                                                                                                                                                                                                                     |
-| **Notes**            | Currently, VersionOne is the only remote project manager implemented. VersionOne sprints are based on a timebox which is a sprint schedule in the UI. Projects can share the same sprint schedule and will appear to be the same sprint in this response. |
+| **Notes**            | Currently, VersionOne is the only remote product manager implemented. VersionOne sprints are based on a timebox which is a sprint schedule in the UI. Products can share the same sprint schedule and will appear to be the same sprint in this response. |
 
 ```json
 {
@@ -77,7 +77,7 @@ $ mvn clean package -DskipTests -Dproduction
       {
         "id": String,
         "name": String,
-        "project": String,
+        "product": String,
         "cards": [
           {
             "id": String,
@@ -104,14 +104,14 @@ $ mvn clean package -DskipTests -Dproduction
 
 <hr />
 
-| **Title**            | **Projects Stats**                                                                                                  |
+| **Title**            | **Products Stats**                                                                                                  |
 | :------------------- | :------------------------------------------------------------------------------------------------------------------ |
-| **Description**      | Returns a list of all projects with statistics gathered from their associated remote project manager projects. |
-| **URL**              | ```/projects/stats```                                                                                               |
+| **Description**      | Returns a list of all products with statistics gathered from their associated remote product manager products.      |
+| **URL**              | ```/products/stats```                                                                                               |
 | **Method**           | **GET**                                                                                                             |
 | **URL Parameters**   |                                                                                                                     |
 | **Success Response** | **Code:** 200 OK<br/>**Content Type:** application/json                                                             |
-| **Sample Request**   | ```/projects/stats```                                                                                               |
+| **Sample Request**   | ```/products/stats```                                                                                               |
 | **Notes**            |                                                                                                                     |
 
 ```json
@@ -123,7 +123,7 @@ $ mvn clean package -DskipTests -Dproduction
     "id": String
   },
   "payload": {
-    "ArrayList<ProjectStats>": [
+    "ArrayList<ProductStats>": [
       {
         "id": String,
         "name": String,

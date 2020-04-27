@@ -7,7 +7,7 @@ logging:
   level:
     edu.tamu: INFO
     org.springframework: INFO
-  file: logs/project-management-service.log
+  file: logs/product-management-service.log
 
 ---
 security.basic.enabled: false
@@ -22,7 +22,7 @@ spring:
     url: jdbc:h2:mem:AZ;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     # platform: postgres
     # driverClassName: org.postgresql.Driver
-    # url: jdbc:postgresql://localhost:5432/project_management_service
+    # url: jdbc:postgresql://localhost:5432/product_management_service
 
     username: spring
     password: spring
@@ -57,16 +57,16 @@ app:
       delay: 2000
       # 15 minutes in milliseconds
       interval: 900000
-    remote-projects:
+    remote-products:
       # 2 seconds in milliseconds
       delay: 2000
       # 1 hour in milliseconds
       interval: 3600000
-    projects-stats:
+    products-stats:
       # 2 minutes in milliseconds
-      # the projects stats cache is create from the remote projects cache
-      # this delay should be greater than the remote projects delay 
-      # and an estimate on how long the remote projects cache takes to populate
+      # the products stats cache is create from the remote products cache
+      # this delay should be greater than the remote products delay 
+      # and an estimate on how long the remote products cache takes to populate
       delay: 120000
       # 1 hour in milliseconds
       interval: 3600000

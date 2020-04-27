@@ -22,13 +22,13 @@ import org.springframework.test.context.junit4.SpringRunner;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
-import edu.tamu.app.ProjectApplication;
+import edu.tamu.app.ProductApplication;
 import edu.tamu.app.auth.AuthMockTests;
 import edu.tamu.app.model.repo.UserRepo;
 import edu.tamu.weaver.auth.model.Credentials;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = { ProjectApplication.class }, webEnvironment = WebEnvironment.DEFINED_PORT)
+@SpringBootTest(classes = { ProductApplication.class }, webEnvironment = WebEnvironment.DEFINED_PORT)
 public class UserTest extends AuthMockTests {
 
     @Autowired

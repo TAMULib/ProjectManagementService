@@ -12,7 +12,7 @@ public class Sprint implements Serializable {
 
     private final String name;
 
-    private final String project;
+    private final String product;
 
     private final List<Card> cards;
 
@@ -20,15 +20,15 @@ public class Sprint implements Serializable {
         super();
         this.id = "";
         this.name = "";
-        this.project = "";
+        this.product = "";
         this.cards = new ArrayList<Card>();
     }
 
-    public Sprint(String id, String name, String project, List<Card> cards) {
+    public Sprint(String id, String name, String product, List<Card> cards) {
         super();
         this.id = id;
         this.name = name;
-        this.project = project;
+        this.product = product;
         this.cards = cards;
     }
 
@@ -40,8 +40,8 @@ public class Sprint implements Serializable {
         return name;
     }
 
-    public String getProject() {
-        return project;
+    public String getProduct() {
+        return product;
     }
 
     public List<Card> getCards() {

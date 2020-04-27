@@ -3,11 +3,11 @@
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>edu.tamu</groupId>
-  <artifactId>project-management-service</artifactId>
+  <artifactId>product-management-service</artifactId>
   <version>0.2.0</version>
 
-  <name>Project-Management-Service</name>
-  <description>A Webservice to manage Projects</description>
+  <name>Product-Management-Service</name>
+  <description>A Webservice to manage Products</description>
 
   <parent>
     <groupId>edu.tamu.weaver</groupId>
@@ -16,7 +16,7 @@
   </parent>
 
   <properties>
-    <start-class>edu.tamu.app.ProjectApplication</start-class>
+    <start-class>edu.tamu.app.ProductApplication</start-class>
   </properties>
 
   <packaging>war</packaging>
