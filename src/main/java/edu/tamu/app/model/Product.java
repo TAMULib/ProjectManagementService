@@ -29,6 +29,26 @@ public class Product extends ValidatingBaseEntity {
     @JsonView(ApiView.Partial.class)
     private String scopeId;
 
+    @Column(nullable = true)
+    @JsonInclude(Include.NON_NULL)
+    @JsonView(ApiView.Partial.class)
+    private String devUrl;
+
+    @Column(nullable = true)
+    @JsonInclude(Include.NON_NULL)
+    @JsonView(ApiView.Partial.class)
+    private String preUrl;
+
+    @Column(nullable = true)
+    @JsonInclude(Include.NON_NULL)
+    @JsonView(ApiView.Partial.class)
+    private String productionUrl;
+
+    @Column(nullable = true)
+    @JsonInclude(Include.NON_NULL)
+    @JsonView(ApiView.Partial.class)
+    private String wikiUrl;
+
     @JsonInclude(Include.NON_NULL)
     @ManyToOne(fetch = EAGER, cascade = { DETACH, REFRESH, MERGE }, optional = true)
     @JsonView(ApiView.Partial.class)
