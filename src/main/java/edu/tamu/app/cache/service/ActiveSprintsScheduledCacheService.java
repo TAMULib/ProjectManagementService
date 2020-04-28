@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -77,14 +78,16 @@ public class ActiveSprintsScheduledCacheService extends AbstractProductScheduled
 
     private List<Sprint> fetchActiveSprints(Product product) {
         List<Sprint> activeSprints = new ArrayList<Sprint>();
-        Optional<RemoteProductManager> remoteProductManager = Optional.ofNullable(product.getRemoteProductManager());
-        if (remoteProductManager.isPresent()) {
-            RemoteProductManagerBean remoteProductManagerBean = (RemoteProductManagerBean) managementBeanRegistry.getService(remoteProductManager.get().getName());
-            try {
-                activeSprints.addAll(remoteProductManagerBean.getActiveSprintsByProductId(product.getScopeId()));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        Optional<List<Pair<String, RemoteProductManager>>> remoteProducts = Optional.ofNullable(product.getRemoteProducts());
+        if (remoteProducts.isPresent()) {
+            remoteProducts.get().forEach(rp -> {
+                RemoteProductManagerBean remoteProductManagerBean = (RemoteProductManagerBean) managementBeanRegistry.getService(rp.getRight().getName());
+                try {
+                    activeSprints.addAll(remoteProductManagerBean.getActiveSprintsByProductId(rp.getLeft()));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
         }
         return activeSprints;
     }
