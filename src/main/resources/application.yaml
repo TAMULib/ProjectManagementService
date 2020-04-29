@@ -14,8 +14,14 @@ security.basic.enabled: false
 
 ---
 spring:
+  profiles: production, development, test
   profiles.active: production
 
+  h2:
+    console:
+      enabled: true
+      path: /admin/h2console
+      
   datasource:
     platform: h2
     driverClassName: org.h2.Driver
@@ -79,12 +85,12 @@ app:
   # Framework app properties #
   ############################
   # edu.tamu.weaver.auth.service.UserCredentialsService
-  authority.admins: 402001311,613001223,102001721,222004429,709005486,523008230,724001395,123456789,512004707
+  authority.admins: 402001311,613001223,102001721,222004429,709005486,523008230,724001395,123456789,512004707,427008012
   security:
     # edu.tamu.weaver.auth.service.CryptoService
     secret: verysecretsecret
     # edu.tamu.weaver.filter.CorsFilter
-    allow-access: http://localhost,http://localhost:8080,http://machuff.tamu.edu,http://janus.evans.tamu.edu,http://savell.evans.tamu.edu,http://jmicah.tamu.edu
+    allow-access: http://localhost,http://localhost:8080,http://localhost:8181,http://machuff.tamu.edu,http://janus.evans.tamu.edu,http://savell.evans.tamu.edu,http://jmicah.tamu.edu
   # edu.tamu.weaver.email.config.WeaverEmailConfig
   email:
     host: relay.tamu.edu
@@ -107,7 +113,7 @@ auth:
     jwt:
       secret: verysecretsecret
       issuer: localhost
-      duration: 1
+      duration: 100000000
   # edu.tamu.weaver.token.provider.controller.TokenController
   path: /auth
 
@@ -131,4 +137,4 @@ management:
     enabled-by-default: false
     health:
       enabled: true
----
+
