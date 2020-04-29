@@ -9,8 +9,6 @@ import static edu.tamu.weaver.validation.model.BusinessValidationType.UPDATE;
 import java.util.List;
 import java.util.Optional;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -127,16 +125,15 @@ public class ProductController {
         Optional<Product> product = Optional.ofNullable(productRepo.findOne(request.getProductId()));
         ApiResponse response;
         if (product.isPresent()) {
-            // Using the first RemoteProductManager on the list. This will be replaced by #61
-            Optional<Pair<String, RemoteProductManager>> remoteProducts = Optional
-                    .ofNullable(product.get().getRemoteProducts().get(0));
-            if (remoteProducts.isPresent()) {
-                RemoteProductManagerBean remoteProductManagerBean = (RemoteProductManagerBean) managementBeanRegistry.getService(remoteProducts.get().getRight().getName());
-                request.setScopeId(product.get().getRemoteProducts().get(0).getLeft());
+            Optional<RemoteProductManager> remoteProductManager = Optional
+                    .ofNullable(product.get().getRemoteProductManager());
+            if (remoteProductManager.isPresent()) {
+                RemoteProductManagerBean remoteProductManagerBean = (RemoteProductManagerBean) managementBeanRegistry.getService(remoteProductManager.get().getName());
+                request.setScopeId(product.get().getScopeId());
                 try {
                     response = new ApiResponse(SUCCESS, remoteProductManagerBean.push(request));
                 } catch (Exception e) {
-                    response = new ApiResponse(ERROR, "Error pushing request to " + remoteProducts.get().getRight().getName()
+                    response = new ApiResponse(ERROR, "Error pushing request to " + remoteProductManager.get().getName()
                             + " for product " + product.get().getName() + "!");
                 }
             } else {
@@ -189,16 +186,11 @@ public class ProductController {
     }
 
     private void reifyProductRemoteProductManager(Product product) {
-        List<Pair<String, RemoteProductManager>> remoteProducts = product.getRemoteProducts();
-        for (int i = 0; i < product.getRemoteProducts().size(); i++) {
-            Optional<RemoteProductManager> remoteProductManager = Optional.ofNullable(remoteProducts.get(i).getRight());
-            if (remoteProductManager.isPresent()) {
-                Long remoteProductManagerId = remoteProductManager.get().getId();
-                Pair<String, RemoteProductManager> remoteProduct = new ImmutablePair<String, RemoteProductManager>(remoteProducts.get(i).getLeft(), remoteProductManagerRepo.findOne(remoteProductManagerId));
-                remoteProducts.set(i, remoteProduct);
-            }
+        Optional<RemoteProductManager> remoteProductManager = Optional.ofNullable(product.getRemoteProductManager());
+        if (remoteProductManager.isPresent()) {
+            Long remoteProductManagerId = remoteProductManager.get().getId();
+            product.setRemoteProductManager(remoteProductManagerRepo.findOne(remoteProductManagerId));
         }
-        product.setRemoteProducts(remoteProducts);
     }
 
 }

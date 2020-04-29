@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -86,18 +85,17 @@ public class ProductsStatsScheduledCacheService extends AbstractProductScheduled
         int featureCount = 0;
         int defectCount = 0;
 
-        List<Pair<String, RemoteProductManager>> remoteProducts = product.getRemoteProducts();
-        for (Pair<String, RemoteProductManager> rp : remoteProducts) {
-            Optional<RemoteProductManager> remoteProductManager = Optional.ofNullable(rp.getRight());
-            Optional<String> scopeId = Optional.ofNullable(rp.getLeft());
-            if (remoteProductManager.isPresent() && scopeId.isPresent()) {
-                Optional<RemoteProduct> remoteProduct = remoteProductsScheduledCacheService.getRemoteProduct(remoteProductManager.get().getId(), scopeId.get());
-                if (remoteProduct.isPresent()) {
-                    requestCount += remoteProduct.get().getRequestCount();
-                    issueCount += remoteProduct.get().getIssueCount();
-                    featureCount += remoteProduct.get().getFeatureCount();
-                    defectCount += remoteProduct.get().getDefectCount();
-                }
+        // NOTE: if and when product can be associated to multiple remote products, loop here
+
+        Optional<RemoteProductManager> remoteProductManager = Optional.ofNullable(product.getRemoteProductManager());
+        Optional<String> scopeId = Optional.ofNullable(product.getScopeId());
+        if (remoteProductManager.isPresent() && scopeId.isPresent()) {
+            Optional<RemoteProduct> remoteProduct = remoteProductsScheduledCacheService.getRemoteProduct(remoteProductManager.get().getId(), scopeId.get());
+            if (remoteProduct.isPresent()) {
+                requestCount += remoteProduct.get().getRequestCount();
+                issueCount += remoteProduct.get().getIssueCount();
+                featureCount += remoteProduct.get().getFeatureCount();
+                defectCount += remoteProduct.get().getDefectCount();
             }
         }
 
