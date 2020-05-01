@@ -7,17 +7,18 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.tamu.app.cache.ProductsStatsCache;
 import edu.tamu.app.cache.model.ProductStats;
 import edu.tamu.app.cache.model.RemoteProduct;
 import edu.tamu.app.model.Product;
 import edu.tamu.app.model.RemoteProductManager;
+import edu.tamu.app.model.RemoteProductInfo;
 import edu.tamu.app.model.repo.ProductRepo;
 import edu.tamu.weaver.response.ApiResponse;
 
@@ -73,7 +74,8 @@ public class ProductsStatsScheduledCacheService extends AbstractProductScheduled
     }
 
     public void removeProduct(Product product) {
-        List<ProductStats> productsStats = get().stream().filter(p -> !p.getId().equals(product.getId().toString())).collect(Collectors.toList());
+        List<ProductStats> productsStats = get().stream().filter(p -> !p.getId().equals(product.getId().toString()))
+                .collect(Collectors.toList());
         set(productsStats);
         broadcast();
     }
@@ -86,10 +88,10 @@ public class ProductsStatsScheduledCacheService extends AbstractProductScheduled
         int featureCount = 0;
         int defectCount = 0;
 
-        List<Pair<String, RemoteProductManager>> remoteProducts = product.getRemoteProducts();
-        for (Pair<String, RemoteProductManager> rp : remoteProducts) {
-            Optional<RemoteProductManager> remoteProductManager = Optional.ofNullable(rp.getRight());
-            Optional<String> scopeId = Optional.ofNullable(rp.getLeft());
+        List<RemoteProductInfo> remoteProducts = product.getRemoteProducts();
+        for (RemoteProductInfo rp : remoteProducts) {
+            Optional<RemoteProductManager> remoteProductManager = Optional.ofNullable(rp.getRemoteProductManager());
+            Optional<String> scopeId = Optional.ofNullable(rp.getScopeId());
             if (remoteProductManager.isPresent() && scopeId.isPresent()) {
                 Optional<RemoteProduct> remoteProduct = remoteProductsScheduledCacheService.getRemoteProduct(remoteProductManager.get().getId(), scopeId.get());
                 if (remoteProduct.isPresent()) {

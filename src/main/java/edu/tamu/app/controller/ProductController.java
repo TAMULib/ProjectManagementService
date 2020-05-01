@@ -9,8 +9,6 @@ import static edu.tamu.weaver.validation.model.BusinessValidationType.UPDATE;
 import java.util.List;
 import java.util.Optional;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +26,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 
 import edu.tamu.app.cache.service.ProductScheduledCache;
 import edu.tamu.app.model.Product;
+import edu.tamu.app.model.RemoteProductInfo;
 import edu.tamu.app.model.RemoteProductManager;
 import edu.tamu.app.model.repo.ProductRepo;
 import edu.tamu.app.model.repo.RemoteProductManagerRepo;
@@ -128,15 +127,15 @@ public class ProductController {
         ApiResponse response;
         if (product.isPresent()) {
             // Using the first RemoteProductManager on the list. This will be replaced by #61
-            Optional<Pair<String, RemoteProductManager>> remoteProducts = Optional
+            Optional<RemoteProductInfo> remoteProducts = Optional
                     .ofNullable(product.get().getRemoteProducts().get(0));
             if (remoteProducts.isPresent()) {
-                RemoteProductManagerBean remoteProductManagerBean = (RemoteProductManagerBean) managementBeanRegistry.getService(remoteProducts.get().getRight().getName());
-                request.setScopeId(product.get().getRemoteProducts().get(0).getLeft());
+                RemoteProductManagerBean remoteProductManagerBean = (RemoteProductManagerBean) managementBeanRegistry.getService(remoteProducts.get().getRemoteProductManager().getName());
+                request.setScopeId(product.get().getRemoteProducts().get(0).getScopeId());
                 try {
                     response = new ApiResponse(SUCCESS, remoteProductManagerBean.push(request));
                 } catch (Exception e) {
-                    response = new ApiResponse(ERROR, "Error pushing request to " + remoteProducts.get().getRight().getName()
+                    response = new ApiResponse(ERROR, "Error pushing request to " + remoteProducts.get().getRemoteProductManager().getName()
                             + " for product " + product.get().getName() + "!");
                 }
             } else {
@@ -189,12 +188,12 @@ public class ProductController {
     }
 
     private void reifyProductRemoteProductManager(Product product) {
-        List<Pair<String, RemoteProductManager>> remoteProducts = product.getRemoteProducts();
+        List<RemoteProductInfo> remoteProducts = product.getRemoteProducts();
         for (int i = 0; i < product.getRemoteProducts().size(); i++) {
-            Optional<RemoteProductManager> remoteProductManager = Optional.ofNullable(remoteProducts.get(i).getRight());
+            Optional<RemoteProductManager> remoteProductManager = Optional.ofNullable(remoteProducts.get(i).getRemoteProductManager());
             if (remoteProductManager.isPresent()) {
                 Long remoteProductManagerId = remoteProductManager.get().getId();
-                Pair<String, RemoteProductManager> remoteProduct = new ImmutablePair<String, RemoteProductManager>(remoteProducts.get(i).getLeft(), remoteProductManagerRepo.findOne(remoteProductManagerId));
+                RemoteProductInfo remoteProduct = new RemoteProductInfo(remoteProducts.get(i).getScopeId(), remoteProductManagerRepo.findOne(remoteProductManagerId));
                 remoteProducts.set(i, remoteProduct);
             }
         }

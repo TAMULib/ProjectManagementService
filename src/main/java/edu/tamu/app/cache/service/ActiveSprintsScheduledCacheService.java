@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -16,7 +15,7 @@ import org.springframework.stereotype.Service;
 import edu.tamu.app.cache.ActiveSprintsCache;
 import edu.tamu.app.cache.model.Sprint;
 import edu.tamu.app.model.Product;
-import edu.tamu.app.model.RemoteProductManager;
+import edu.tamu.app.model.RemoteProductInfo;
 import edu.tamu.app.model.repo.ProductRepo;
 import edu.tamu.app.service.manager.RemoteProductManagerBean;
 import edu.tamu.weaver.response.ApiResponse;
@@ -78,12 +77,12 @@ public class ActiveSprintsScheduledCacheService extends AbstractProductScheduled
 
     private List<Sprint> fetchActiveSprints(Product product) {
         List<Sprint> activeSprints = new ArrayList<Sprint>();
-        Optional<List<Pair<String, RemoteProductManager>>> remoteProducts = Optional.ofNullable(product.getRemoteProducts());
+        Optional<List<RemoteProductInfo>> remoteProducts = Optional.ofNullable(product.getRemoteProducts());
         if (remoteProducts.isPresent()) {
             remoteProducts.get().forEach(rp -> {
-                RemoteProductManagerBean remoteProductManagerBean = (RemoteProductManagerBean) managementBeanRegistry.getService(rp.getRight().getName());
+                RemoteProductManagerBean remoteProductManagerBean = (RemoteProductManagerBean) managementBeanRegistry.getService(rp.getRemoteProductManager().getName());
                 try {
-                    activeSprints.addAll(remoteProductManagerBean.getActiveSprintsByProductId(rp.getLeft()));
+                    activeSprints.addAll(remoteProductManagerBean.getActiveSprintsByProductId(rp.getScopeId()));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
