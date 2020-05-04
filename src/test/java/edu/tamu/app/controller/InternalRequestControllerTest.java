@@ -28,6 +28,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import edu.tamu.app.cache.service.RemoteProductsScheduledCacheService;
 import edu.tamu.app.model.InternalRequest;
 import edu.tamu.app.model.Product;
+import edu.tamu.app.model.RemoteProductInfo;
 import edu.tamu.app.model.RemoteProductManager;
 import edu.tamu.app.model.ServiceType;
 import edu.tamu.app.model.repo.InternalRequestRepo;
@@ -47,27 +48,30 @@ public class InternalRequestControllerTest {
     private static final String TEST_REQUEST_DESCRIPTION_WHISTLES = "Test Feature Request Description Whistles";
 
     private static final String TEST_PRODUCT1_NAME = "Test Product 1 Name";
-    private static final String TEST_PRODUCT1_SCOPE = "0001";
+    private static final String TEST_PRODUCT1_SCOPE1 = "0010";
+    private static final String TEST_PRODUCT1_SCOPE2 = "0011";
     private static final String TEST_PRODUCT2_NAME = "Test Product 2 Name";
-    private static final String TEST_PRODUCT2_SCOPE = "0002";
     private static final String TEST_PRODUCT_WITHOUT_RPM_NAME = "Test Product Without Remote Product Manager Name";
 
     private static final String PUSH_ERROR_MESSAGE = "Error pushing request to Test Remote Product Manager for product Test Product 1 Name!";
     private static final String NO_RPM_ERROR_MESSAGE = "Test Product Without Remote Product Manager Name product does not have a Remote Product Manager!";
     private static final String NO_PRODUCT_ERROR_MESSAGE = "Product with id null not found!";
 
-    private static final RemoteProductManager TEST_PRODUCT1_REMOTE_PRODUCT_MANAGER = new RemoteProductManager("Test Remote Product Manager", ServiceType.VERSION_ONE, new HashMap<String, String>());
+    private static final RemoteProductManager TEST_REMOTE_PRODUCT_MANAGER = new RemoteProductManager("Test Remote Product Manager", ServiceType.VERSION_ONE, new HashMap<String, String>());
 
-    private static Product TEST_PRODUCT1 = new Product(TEST_PRODUCT1_NAME, TEST_PRODUCT1_SCOPE, TEST_PRODUCT1_REMOTE_PRODUCT_MANAGER);
+    private static final RemoteProductInfo TEST_REMOTE_PRODUCT_INFO_1 = new RemoteProductInfo(TEST_PRODUCT1_SCOPE1, TEST_REMOTE_PRODUCT_MANAGER);
+    private static final RemoteProductInfo TEST_REMOTE_PRODUCT_INFO_2 = new RemoteProductInfo(TEST_PRODUCT1_SCOPE2, TEST_REMOTE_PRODUCT_MANAGER);
+    private static final RemoteProductInfo TEST_REMOTE_PRODUCT_INVALID_RPM = new RemoteProductInfo(TEST_PRODUCT1_SCOPE2, null);
+    private static final RemoteProductInfo TEST_REMOTE_PRODUCT_INVALID_SCOPE = new RemoteProductInfo(null, TEST_REMOTE_PRODUCT_MANAGER);
+
+    private static final List<RemoteProductInfo> TEST_PRODUCT1_REMOTE_PRODUCT_INFO_LIST = new ArrayList<RemoteProductInfo>(Arrays.asList(TEST_REMOTE_PRODUCT_INFO_1, TEST_REMOTE_PRODUCT_INFO_2)
+    );
+
+    private static Product TEST_PRODUCT1 = new Product(TEST_PRODUCT1_NAME, TEST_PRODUCT1_REMOTE_PRODUCT_INFO_LIST);
     private static Product TEST_PRODUCT2 = new Product(TEST_PRODUCT2_NAME);
     private static Product TEST_PRODUCT_WIHTOUT_RPM = new Product(TEST_PRODUCT_WITHOUT_RPM_NAME);
 
-    private static FeatureRequest TEST_FEATURE_REQUEST = new FeatureRequest(TEST_REQUEST_TITLE_BELLS, TEST_REQUEST_DESCRIPTION_BELLS, TEST_PRODUCT1.getId(), TEST_PRODUCT1_SCOPE);
-
-    // NOTE: this is not really an invalid feature request
-    private static FeatureRequest TEST_INVALID_FEATURE_REQUEST = new FeatureRequest(TEST_REQUEST_TITLE_BELLS, TEST_REQUEST_DESCRIPTION_BELLS, TEST_PRODUCT1.getId(), TEST_PRODUCT1_SCOPE);
-    private static FeatureRequest TEST_FEATURE_REQUEST_WIHTOUT_VMS = new FeatureRequest(TEST_REQUEST_TITLE_BELLS, TEST_REQUEST_DESCRIPTION_BELLS, TEST_PRODUCT_WIHTOUT_RPM.getId(), TEST_PRODUCT2_SCOPE);
-    private static FeatureRequest TEST_FEATURE_REQUEST_WITHOUT_PRODUCT = new FeatureRequest();
+    private static FeatureRequest TEST_FEATURE_REQUEST = new FeatureRequest(TEST_REQUEST_TITLE_BELLS, TEST_REQUEST_DESCRIPTION_BELLS, TEST_PRODUCT1.getId(), TEST_PRODUCT1_SCOPE1);
 
     private static Date TEST_REQUEST_CREATED_ON_BELLS = Date.from(Instant.now().minusSeconds(30L));
     private static Date TEST_REQUEST_CREATED_ON_WHISTLES = Date.from(Instant.now());
@@ -144,7 +148,7 @@ public class InternalRequestControllerTest {
 
         when(productRepo.findAll()).thenReturn(mockProductList);
 
-        when(remoteProductManagerRepo.findOne(any(Long.class))).thenReturn(TEST_PRODUCT1_REMOTE_PRODUCT_MANAGER);
+        when(remoteProductManagerRepo.findOne(any(Long.class))).thenReturn(TEST_REMOTE_PRODUCT_MANAGER);
     }
 
     @Test
@@ -193,7 +197,7 @@ public class InternalRequestControllerTest {
         when(managementBeanRegistry.getService(any(String.class))).thenReturn(remoteProductManagementBean);
         when(productRepo.findOne(any(Long.class))).thenReturn(TEST_PRODUCT1);
 
-        apiResponse = internalRequestController.push(TEST_REQUEST_BELLS.getId(), TEST_FEATURE_REQUEST);
+        apiResponse = internalRequestController.push(TEST_REQUEST_BELLS.getId(), TEST_PRODUCT1.getId(), TEST_REMOTE_PRODUCT_INFO_1);
 
         assertEquals("Product controller did not push request", SUCCESS, apiResponse.getMeta().getStatus());
         assertEquals("InternalRequest should be deleted after successful push", initialCount - 1, mockRequestsRepo.size());
@@ -203,7 +207,7 @@ public class InternalRequestControllerTest {
     public void testPushToInvalidRemoteProductManager() {
         when(productRepo.findOne(any(Long.class))).thenReturn(TEST_PRODUCT1);
 
-        apiResponse = internalRequestController.push(TEST_REQUEST_BELLS.getId(), TEST_INVALID_FEATURE_REQUEST);
+        apiResponse = internalRequestController.push(TEST_REQUEST_BELLS.getId(), TEST_PRODUCT1.getId(), TEST_REMOTE_PRODUCT_INVALID_RPM);
 
         assertEquals("Invalid push did not throw an exception", ERROR, apiResponse.getMeta().getStatus());
         assertEquals("Push without Remote Product Manager did not result in the expected error", PUSH_ERROR_MESSAGE, apiResponse.getMeta().getMessage());
@@ -211,10 +215,10 @@ public class InternalRequestControllerTest {
     }
 
     @Test
-    public void testPushWithoutRemoteProductManager() {
+    public void testPushInvalidScope() {
         when(productRepo.findOne(any(Long.class))).thenReturn(TEST_PRODUCT_WIHTOUT_RPM);
 
-        apiResponse = internalRequestController.push(TEST_REQUEST_BELLS.getId(), TEST_FEATURE_REQUEST_WIHTOUT_VMS);
+        apiResponse = internalRequestController.push(TEST_REQUEST_BELLS.getId(), TEST_PRODUCT1.getId(), TEST_REMOTE_PRODUCT_INVALID_SCOPE);
 
         assertEquals("Push without Remote Product Manager did not result in an error", ERROR, apiResponse.getMeta().getStatus());
         assertEquals("Push without Remote Product Manager did not result in the expected error", NO_RPM_ERROR_MESSAGE, apiResponse.getMeta().getMessage());
@@ -222,8 +226,8 @@ public class InternalRequestControllerTest {
     }
 
     @Test
-    public void testPushWithoutProduct() {
-        apiResponse = internalRequestController.push(TEST_REQUEST_BELLS.getId(), TEST_FEATURE_REQUEST_WITHOUT_PRODUCT);
+    public void testPushInvalidProduct() {
+        apiResponse = internalRequestController.push(TEST_REQUEST_BELLS.getId(), 0L, TEST_REMOTE_PRODUCT_INFO_1);
 
         assertEquals("Push without Product did not result in an error", ERROR, apiResponse.getMeta().getStatus());
         assertEquals("Push without Product did not result in the expected error", NO_PRODUCT_ERROR_MESSAGE, apiResponse.getMeta().getMessage());

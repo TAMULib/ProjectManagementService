@@ -8,7 +8,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import org.junit.Before;
@@ -28,6 +30,7 @@ import edu.tamu.app.cache.model.Card;
 import edu.tamu.app.cache.model.Member;
 import edu.tamu.app.cache.model.Sprint;
 import edu.tamu.app.model.Product;
+import edu.tamu.app.model.RemoteProductInfo;
 import edu.tamu.app.model.RemoteProductManager;
 import edu.tamu.app.model.ServiceType;
 import edu.tamu.app.model.repo.ProductRepo;
@@ -36,6 +39,19 @@ import edu.tamu.app.service.registry.ManagementBeanRegistry;
 
 @RunWith(SpringRunner.class)
 public class ActiveSprintsScheduledCacheServiceTest {
+    private static final String TEST_PRODUCT_SCOPE1 = "0010";
+    private static final String TEST_PRODUCT_SCOPE2 = "0011";
+    private static final String TEST_PRODUCT_SCOPE3 = "0020";
+
+    private static final RemoteProductManager TEST_REMOTE_PRODUCT_MANAGER1 = new RemoteProductManager("Test Remote Product Manager 1", ServiceType.VERSION_ONE, new HashMap<String, String>());
+    private static final RemoteProductManager TEST_REMOTE_PRODUCT_MANAGER2 = new RemoteProductManager("Test Remote Product Manager 2", ServiceType.GITHUB, new HashMap<String, String>());
+
+    private static final RemoteProductInfo TEST_REMOTE_PRODUCT_INFO_1 = new RemoteProductInfo(TEST_PRODUCT_SCOPE1, TEST_REMOTE_PRODUCT_MANAGER1);
+    private static final RemoteProductInfo TEST_REMOTE_PRODUCT_INFO_2 = new RemoteProductInfo(TEST_PRODUCT_SCOPE2, TEST_REMOTE_PRODUCT_MANAGER1);
+    private static final RemoteProductInfo TEST_REMOTE_PRODUCT_INFO_3 = new RemoteProductInfo(TEST_PRODUCT_SCOPE3, TEST_REMOTE_PRODUCT_MANAGER2);
+
+    private static final List<RemoteProductInfo> TEST_PRODUCT1_REMOTE_PRODUCT_INFO_LIST1 = new ArrayList<RemoteProductInfo>(Arrays.asList(TEST_REMOTE_PRODUCT_INFO_1, TEST_REMOTE_PRODUCT_INFO_2));
+    private static final List<RemoteProductInfo> TEST_PRODUCT1_REMOTE_PRODUCT_INFO_LIST2 = new ArrayList<RemoteProductInfo>(Arrays.asList(TEST_REMOTE_PRODUCT_INFO_3));
 
     @Mock
     private ProductRepo productRepo;
@@ -87,7 +103,7 @@ public class ActiveSprintsScheduledCacheServiceTest {
         Product product = getMockProduct();
         activeSprintsScheduledCacheService.addProduct(product);
         product.setName("Another Product");
-        product.setScopeId("1001");
+        product.setRemoteProducts(TEST_PRODUCT1_REMOTE_PRODUCT_INFO_LIST2);
         activeSprintsScheduledCacheService.updateProduct(product);
         assertTrue(true);
     }
@@ -113,8 +129,7 @@ public class ActiveSprintsScheduledCacheServiceTest {
     }
 
     private Product getMockProduct() {
-        RemoteProductManager remoteProductManager = new RemoteProductManager("Test Remote Product Manager", ServiceType.VERSION_ONE);
-        return new Product("Test Product", "1000", remoteProductManager);
+        return new Product("Test Product", TEST_PRODUCT1_REMOTE_PRODUCT_INFO_LIST1);
     }
 
     private Sprint getMockSprint() {

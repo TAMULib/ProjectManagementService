@@ -1,7 +1,6 @@
 package edu.tamu.app.model;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.persistence.Column;
@@ -9,8 +8,6 @@ import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 
 import com.fasterxml.jackson.annotation.JsonView;
-
-import org.apache.commons.lang3.tuple.Pair;
 
 import edu.tamu.app.model.validation.ProductValidator;
 import edu.tamu.weaver.response.ApiView;
@@ -37,9 +34,10 @@ public class Product extends ValidatingBaseEntity {
         this.name = name;
     }
 
-    public Product(String name, List<Pair<String, UUID>> remoteProducts) {
+    public Product(String name, List<RemoteProductInfo> remoteProducts) {
         this();
         this.name = name;
+        this.remoteProducts = remoteProducts;
     }
 
     public String getName() {

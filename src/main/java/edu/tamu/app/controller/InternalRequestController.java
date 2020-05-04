@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import edu.tamu.app.model.InternalRequest;
 import edu.tamu.app.model.Product;
+import edu.tamu.app.model.RemoteProductInfo;
 import edu.tamu.app.model.RemoteProductManager;
 import edu.tamu.app.model.repo.InternalRequestRepo;
 import edu.tamu.app.model.repo.ProductRepo;
@@ -78,20 +79,19 @@ public class InternalRequestController {
         return new ApiResponse(SUCCESS);
     }
 
-    @PutMapping("/push/{requestId}")
+    @PutMapping("/push/{requestId}/{productId}")
     @PreAuthorize("hasRole('MANAGER')")
-    public ApiResponse push(@PathVariable Long requestId, @RequestBody FeatureRequest featureRequestParam) {
+    public ApiResponse push(@PathVariable Long requestId, @PathVariable Long productId, @RequestBody RemoteProductInfo rpi) {
         Optional<InternalRequest> internalRequest = Optional.ofNullable(internalRequestRepo.findOne(requestId));
-        Optional<Product> product = Optional.ofNullable(productRepo.findOne(featureRequestParam.getProductId()));
+        Optional<Product> product = Optional.ofNullable(productRepo.findOne(productId));
         ApiResponse response;
 
         if (internalRequest.isPresent() && product.isPresent()) {
-            Optional<RemoteProductManager> remoteProductManager = Optional
-                .ofNullable(product.get().getRemoteProductManager());
+            Optional<RemoteProductManager> remoteProductManager = Optional.ofNullable(rpi.getRemoteProductManager());
 
             if (remoteProductManager.isPresent()) {
                 FeatureRequest featureRequest = new FeatureRequest(
-                        internalRequest.get().getTitle(), internalRequest.get().getDescription(), product.get().getId(), product.get().getScopeId());
+                        internalRequest.get().getTitle(), internalRequest.get().getDescription(), product.get().getId(), rpi.getScopeId());
 
                 RemoteProductManagerBean remoteProductManagerBean = 
                     (RemoteProductManagerBean) managementBeanRegistry.getService(remoteProductManager.get().getName());
@@ -108,7 +108,7 @@ public class InternalRequestController {
                     product.get().getName() + " product does not have a Remote Product Manager!");
             }
         } else if (internalRequest.isPresent()) {
-            response = new ApiResponse(ERROR, "Product with id " + featureRequestParam.getProductId() + " not found!");
+            response = new ApiResponse(ERROR, "Product with id " + productId + " not found!");
 
         } else {
             response = new ApiResponse(ERROR, "Internal Request with id " + requestId + " not found!");

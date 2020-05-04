@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,6 +29,7 @@ import com.versionone.apiclient.exceptions.OidException;
 import edu.tamu.app.cache.model.ProductStats;
 import edu.tamu.app.cache.model.RemoteProduct;
 import edu.tamu.app.model.Product;
+import edu.tamu.app.model.RemoteProductInfo;
 import edu.tamu.app.model.RemoteProductManager;
 import edu.tamu.app.model.ServiceType;
 import edu.tamu.app.model.repo.ProductRepo;
