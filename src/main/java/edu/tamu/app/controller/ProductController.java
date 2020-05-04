@@ -26,6 +26,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 
 import edu.tamu.app.cache.service.ProductScheduledCache;
 import edu.tamu.app.model.Product;
+import edu.tamu.app.model.RemoteProductInfo;
 import edu.tamu.app.model.RemoteProductManager;
 import edu.tamu.app.model.repo.ProductRepo;
 import edu.tamu.app.model.repo.RemoteProductManagerRepo;
@@ -125,15 +126,16 @@ public class ProductController {
         Optional<Product> product = Optional.ofNullable(productRepo.findOne(request.getProductId()));
         ApiResponse response;
         if (product.isPresent()) {
-            Optional<RemoteProductManager> remoteProductManager = Optional
-                    .ofNullable(product.get().getRemoteProductManager());
-            if (remoteProductManager.isPresent()) {
-                RemoteProductManagerBean remoteProductManagerBean = (RemoteProductManagerBean) managementBeanRegistry.getService(remoteProductManager.get().getName());
-                request.setScopeId(product.get().getScopeId());
+            // Using the first RemoteProductManager on the list. This will be replaced by #61
+            Optional<RemoteProductInfo> remoteProducts = Optional
+                    .ofNullable(product.get().getRemoteProducts().get(0));
+            if (remoteProducts.isPresent()) {
+                RemoteProductManagerBean remoteProductManagerBean = (RemoteProductManagerBean) managementBeanRegistry.getService(remoteProducts.get().getRemoteProductManager().getName());
+                request.setScopeId(product.get().getRemoteProducts().get(0).getScopeId());
                 try {
                     response = new ApiResponse(SUCCESS, remoteProductManagerBean.push(request));
                 } catch (Exception e) {
-                    response = new ApiResponse(ERROR, "Error pushing request to " + remoteProductManager.get().getName()
+                    response = new ApiResponse(ERROR, "Error pushing request to " + remoteProducts.get().getRemoteProductManager().getName()
                             + " for product " + product.get().getName() + "!");
                 }
             } else {
@@ -186,11 +188,16 @@ public class ProductController {
     }
 
     private void reifyProductRemoteProductManager(Product product) {
-        Optional<RemoteProductManager> remoteProductManager = Optional.ofNullable(product.getRemoteProductManager());
-        if (remoteProductManager.isPresent()) {
-            Long remoteProductManagerId = remoteProductManager.get().getId();
-            product.setRemoteProductManager(remoteProductManagerRepo.findOne(remoteProductManagerId));
+        List<RemoteProductInfo> remoteProducts = product.getRemoteProducts();
+        for (int i = 0; i < product.getRemoteProducts().size(); i++) {
+            Optional<RemoteProductManager> remoteProductManager = Optional.ofNullable(remoteProducts.get(i).getRemoteProductManager());
+            if (remoteProductManager.isPresent()) {
+                Long remoteProductManagerId = remoteProductManager.get().getId();
+                RemoteProductInfo remoteProduct = new RemoteProductInfo(remoteProducts.get(i).getScopeId(), remoteProductManagerRepo.findOne(remoteProductManagerId));
+                remoteProducts.set(i, remoteProduct);
+            }
         }
+        product.setRemoteProducts(remoteProducts);
     }
 
 }

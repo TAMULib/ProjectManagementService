@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 import edu.tamu.app.cache.ActiveSprintsCache;
 import edu.tamu.app.cache.model.Sprint;
 import edu.tamu.app.model.Product;
-import edu.tamu.app.model.RemoteProductManager;
+import edu.tamu.app.model.RemoteProductInfo;
 import edu.tamu.app.model.repo.ProductRepo;
 import edu.tamu.app.service.manager.RemoteProductManagerBean;
 import edu.tamu.weaver.response.ApiResponse;
@@ -77,14 +77,16 @@ public class ActiveSprintsScheduledCacheService extends AbstractProductScheduled
 
     private List<Sprint> fetchActiveSprints(Product product) {
         List<Sprint> activeSprints = new ArrayList<Sprint>();
-        Optional<RemoteProductManager> remoteProductManager = Optional.ofNullable(product.getRemoteProductManager());
-        if (remoteProductManager.isPresent()) {
-            RemoteProductManagerBean remoteProductManagerBean = (RemoteProductManagerBean) managementBeanRegistry.getService(remoteProductManager.get().getName());
-            try {
-                activeSprints.addAll(remoteProductManagerBean.getActiveSprintsByProductId(product.getScopeId()));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        Optional<List<RemoteProductInfo>> remoteProducts = Optional.ofNullable(product.getRemoteProducts());
+        if (remoteProducts.isPresent()) {
+            remoteProducts.get().forEach(rp -> {
+                RemoteProductManagerBean remoteProductManagerBean = (RemoteProductManagerBean) managementBeanRegistry.getService(rp.getRemoteProductManager().getName());
+                try {
+                    activeSprints.addAll(remoteProductManagerBean.getActiveSprintsByProductId(rp.getScopeId()));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
         }
         return activeSprints;
     }
