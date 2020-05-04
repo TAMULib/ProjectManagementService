@@ -28,9 +28,11 @@ import edu.tamu.app.cache.service.ActiveSprintsScheduledCacheService;
 import edu.tamu.app.cache.service.ProductScheduledCache;
 import edu.tamu.app.cache.service.ProductsStatsScheduledCacheService;
 import edu.tamu.app.cache.service.RemoteProductsScheduledCacheService;
+import edu.tamu.app.model.InternalRequest;
 import edu.tamu.app.model.Product;
 import edu.tamu.app.model.RemoteProductManager;
 import edu.tamu.app.model.ServiceType;
+import edu.tamu.app.model.repo.InternalRequestRepo;
 import edu.tamu.app.model.repo.ProductRepo;
 import edu.tamu.app.model.repo.RemoteProductManagerRepo;
 import edu.tamu.app.model.request.FeatureRequest;
@@ -46,15 +48,12 @@ public class ProductControllerUnitTest {
     private static final String TEST_PRODUCT1_NAME = "Test Product 1 Name";
     private static final String TEST_PRODUCT1_SCOPE = "0001";
     private static final String TEST_PRODUCT2_NAME = "Test Product 2 Name";
-    private static final String TEST_PRODUCT2_SCOPE = "0002";
     private static final String TEST_MODIFIED_PRODUCT_NAME = "Modified Product Name";
     private static final String TEST_FEATURE_REQUEST_TITLE = "Test Feature Request Title";
     private static final String TEST_FEATURE_REQUEST_DESCRIPTION = "Test Feature Request Description";
-    private static final String TEST_PRODUCT_WITHOUT_RPM_NAME = "Test Product Without Remote Product Manager Name";
 
-    private static final String PUSH_ERROR_MESSAGE = "Error pushing request to Test Remote Product Manager for product Test Product 1 Name!";
-    private static final String NO_RPM_ERROR_MESSAGE = "Test Product Without Remote Product Manager Name product does not have a Remote Product Manager!";
-    private static final String NO_PRODUCT_ERROR_MESSAGE = "Product with id null not found!";
+    private static final InternalRequest TEST_REQUEST_NAME = new InternalRequest(TEST_FEATURE_REQUEST_TITLE, TEST_FEATURE_REQUEST_DESCRIPTION);
+
     private static final String INVALID_RPM_ID_ERROR_MESSAGE = "Error fetching remote products from Test Remote Product Manager!";
     private static final String MISSING_RPM_ERROR_MESSAGE = "Remote Product Manager with id null not found!";
     private static final String INVALID_RPM_ID_ERROR_MESSAGE_FIND_BY_ID = "Error fetching remote product with scope id " + TEST_PRODUCT1_SCOPE + " from Test Remote Product Manager!";
@@ -64,16 +63,10 @@ public class ProductControllerUnitTest {
     private static Product TEST_PRODUCT1 = new Product(TEST_PRODUCT1_NAME, TEST_PRODUCT1_SCOPE, TEST_PRODUCT1_REMOTE_PRODUCT_MANAGER);
     private static Product TEST_PRODUCT2 = new Product(TEST_PRODUCT2_NAME);
     private static Product TEST_MODIFIED_PRODUCT = new Product(TEST_MODIFIED_PRODUCT_NAME);
-    private static Product TEST_PRODUCT_WIHTOUT_RPM = new Product(TEST_PRODUCT_WITHOUT_RPM_NAME);
 
     private static TicketRequest TEST_TICKET_REQUEST = new TicketRequest();
 
     private static FeatureRequest TEST_FEATURE_REQUEST = new FeatureRequest(TEST_FEATURE_REQUEST_TITLE, TEST_FEATURE_REQUEST_DESCRIPTION, TEST_PRODUCT1.getId(), TEST_PRODUCT1_SCOPE);
-
-    // NOTE: this is not really an invalid feature request
-    private static FeatureRequest TEST_INVALID_FEATURE_REQUEST = new FeatureRequest(TEST_FEATURE_REQUEST_TITLE, TEST_FEATURE_REQUEST_DESCRIPTION, TEST_PRODUCT1.getId(), TEST_PRODUCT1_SCOPE);
-    private static FeatureRequest TEST_FEATURE_REQUEST_WIHTOUT_VMS = new FeatureRequest(TEST_FEATURE_REQUEST_TITLE, TEST_FEATURE_REQUEST_DESCRIPTION, TEST_PRODUCT_WIHTOUT_RPM.getId(), TEST_PRODUCT2_SCOPE);
-    private static FeatureRequest TEST_FEATURE_REQUEST_WITHOUT_PRODUCT = new FeatureRequest();
 
     private static List<Product> mockProductList = new ArrayList<Product>(Arrays.asList(new Product[] { TEST_PRODUCT1, TEST_PRODUCT2 }));
 
@@ -81,6 +74,9 @@ public class ProductControllerUnitTest {
 
     @Mock
     private ProductRepo productRepo;
+
+    @Mock
+    private InternalRequestRepo internalRequestRepo;
 
     @Mock
     private RemoteProductManagerRepo remoteProductManagerRepo;
@@ -113,6 +109,7 @@ public class ProductControllerUnitTest {
         when(remoteProductManagerRepo.findOne(any(Long.class))).thenReturn(TEST_PRODUCT1_REMOTE_PRODUCT_MANAGER);
         doNothing().when(productRepo).delete(any(Product.class));
         when(sugarService.submit(any(TicketRequest.class))).thenReturn("Successfully submitted issue for test service!");
+        when(internalRequestRepo.create(any(InternalRequest.class))).thenReturn(TEST_REQUEST_NAME);
 
         TEST_PRODUCT1.setId(1L);
         TEST_PRODUCT2.setId(2L);
@@ -191,29 +188,6 @@ public class ProductControllerUnitTest {
         when(productRepo.findOne(any(Long.class))).thenReturn(TEST_PRODUCT1);
         apiResponse = productController.pushRequest(TEST_FEATURE_REQUEST);
         assertEquals("Product controller did not push request", SUCCESS, apiResponse.getMeta().getStatus());
-    }
-
-    @Test
-    public void testPushRequestToInvalidRemoteProductManager() {
-        when(productRepo.findOne(any(Long.class))).thenReturn(TEST_PRODUCT1);
-        apiResponse = productController.pushRequest(TEST_INVALID_FEATURE_REQUEST);
-        assertEquals("Invalid push did not throw an exception", ERROR, apiResponse.getMeta().getStatus());
-        assertEquals("Push without Remote Product Manager did not result in the expected error", PUSH_ERROR_MESSAGE, apiResponse.getMeta().getMessage());
-    }
-
-    @Test
-    public void testPushRequestWithoutRemoteProductManager() {
-        when(productRepo.findOne(any(Long.class))).thenReturn(TEST_PRODUCT_WIHTOUT_RPM);
-        apiResponse = productController.pushRequest(TEST_FEATURE_REQUEST_WIHTOUT_VMS);
-        assertEquals("Push without Remote Product Manager did not result in an error", ERROR, apiResponse.getMeta().getStatus());
-        assertEquals("Push without Remote Product Manager did not result in the expected error", NO_RPM_ERROR_MESSAGE, apiResponse.getMeta().getMessage());
-    }
-
-    @Test
-    public void testPushRequestWithoutProduct() {
-        apiResponse = productController.pushRequest(TEST_FEATURE_REQUEST_WITHOUT_PRODUCT);
-        assertEquals("Push without Product did not result in an error", ERROR, apiResponse.getMeta().getStatus());
-        assertEquals("Push without Product did not result in the expected error", NO_PRODUCT_ERROR_MESSAGE, apiResponse.getMeta().getMessage());
     }
 
     @Test

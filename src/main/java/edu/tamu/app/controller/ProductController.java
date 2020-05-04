@@ -25,9 +25,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import edu.tamu.app.cache.service.ProductScheduledCache;
+import edu.tamu.app.model.InternalRequest;
 import edu.tamu.app.model.Product;
 import edu.tamu.app.model.RemoteProductInfo;
 import edu.tamu.app.model.RemoteProductManager;
+import edu.tamu.app.model.repo.InternalRequestRepo;
 import edu.tamu.app.model.repo.ProductRepo;
 import edu.tamu.app.model.repo.RemoteProductManagerRepo;
 import edu.tamu.app.model.request.FeatureRequest;
@@ -58,6 +60,9 @@ public class ProductController {
 
     @Autowired
     private List<ProductScheduledCache<?, ?>> productSceduledCaches;
+
+    @Autowired
+    private InternalRequestRepo internalRequestRepo;
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -123,29 +128,8 @@ public class ProductController {
     @PostMapping("/feature")
     @PreAuthorize("hasRole('MANAGER') or @whitelist.isAllowed()")
     public ApiResponse pushRequest(@RequestBody FeatureRequest request) {
-        Optional<Product> product = Optional.ofNullable(productRepo.findOne(request.getProductId()));
-        ApiResponse response;
-        if (product.isPresent()) {
-            // Using the first RemoteProductManager on the list. This will be replaced by #61
-            Optional<RemoteProductInfo> remoteProducts = Optional
-                    .ofNullable(product.get().getRemoteProducts().get(0));
-            if (remoteProducts.isPresent()) {
-                RemoteProductManagerBean remoteProductManagerBean = (RemoteProductManagerBean) managementBeanRegistry.getService(remoteProducts.get().getRemoteProductManager().getName());
-                request.setScopeId(product.get().getRemoteProducts().get(0).getScopeId());
-                try {
-                    response = new ApiResponse(SUCCESS, remoteProductManagerBean.push(request));
-                } catch (Exception e) {
-                    response = new ApiResponse(ERROR, "Error pushing request to " + remoteProducts.get().getRemoteProductManager().getName()
-                            + " for product " + product.get().getName() + "!");
-                }
-            } else {
-                response = new ApiResponse(ERROR,
-                        product.get().getName() + " product does not have a Remote Product Manager!");
-            }
-        } else {
-            response = new ApiResponse(ERROR, "Product with id " + request.getProductId() + " not found!");
-        }
-        return response;
+        internalRequestRepo.create(new InternalRequest(request.getTitle(), request.getDescription()));
+        return new ApiResponse(SUCCESS, request);
     }
 
     @GetMapping("/{remoteProductManagerId}/remote-products")
