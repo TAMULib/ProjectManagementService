@@ -1,17 +1,16 @@
 package edu.tamu.app.model;
 
-import static javax.persistence.CascadeType.DETACH;
-import static javax.persistence.CascadeType.MERGE;
-import static javax.persistence.CascadeType.REFRESH;
-import static javax.persistence.FetchType.EAGER;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonView;
+
+import org.apache.commons.lang3.tuple.Pair;
 
 import edu.tamu.app.model.validation.ProductValidator;
 import edu.tamu.weaver.response.ApiView;
@@ -24,15 +23,9 @@ public class Product extends ValidatingBaseEntity {
     @JsonView(ApiView.Partial.class)
     private String name;
 
-    @JsonInclude(Include.NON_NULL)
-    @Column(nullable = true)
+    @ElementCollection
     @JsonView(ApiView.Partial.class)
-    private String scopeId;
-
-    @JsonInclude(Include.NON_NULL)
-    @ManyToOne(fetch = EAGER, cascade = { DETACH, REFRESH, MERGE }, optional = true)
-    @JsonView(ApiView.Partial.class)
-    private RemoteProductManager remoteProductManager;
+    private List<RemoteProductInfo> remoteProducts;
 
     public Product() {
         super();
@@ -44,14 +37,9 @@ public class Product extends ValidatingBaseEntity {
         this.name = name;
     }
 
-    public Product(String name, RemoteProductManager remoteProductManager) {
-        this(name);
-        this.remoteProductManager = remoteProductManager;
-    }
-
-    public Product(String name, String scopeId, RemoteProductManager remoteProductManager) {
-        this(name, remoteProductManager);
-        this.scopeId = scopeId;
+    public Product(String name, List<Pair<String, UUID>> remoteProducts) {
+        this();
+        this.name = name;
     }
 
     public String getName() {
@@ -62,20 +50,22 @@ public class Product extends ValidatingBaseEntity {
         this.name = name;
     }
 
-    public String getScopeId() {
-        return scopeId;
+    public List<RemoteProductInfo> getRemoteProducts() {
+        return remoteProducts;
     }
 
-    public void setScopeId(String scopeId) {
-        this.scopeId = scopeId;
+    public void setRemoteProducts(List<RemoteProductInfo> remoteProducts) {
+        this.remoteProducts = remoteProducts;
     }
 
-    public RemoteProductManager getRemoteProductManager() {
-        return remoteProductManager;
+    public void addRemoteProduct(RemoteProductInfo remoteProduct) {
+        remoteProducts.add(remoteProduct);
     }
 
-    public void setRemoteProductManager(RemoteProductManager remoteProductManager) {
-        this.remoteProductManager = remoteProductManager;
+    public void removeRemoteProduct(RemoteProductInfo remoteProduct) {
+        remoteProducts = remoteProducts.stream()
+            .filter(rp -> {
+                return !rp.getScopeId().equals(remoteProduct.getScopeId()) && !rp.getRemoteProductManager().equals(remoteProduct.getRemoteProductManager());
+            }).collect(Collectors.toList());
     }
-
 }
