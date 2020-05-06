@@ -6,7 +6,9 @@ import static edu.tamu.weaver.validation.model.BusinessValidationType.CREATE;
 import static edu.tamu.weaver.validation.model.BusinessValidationType.DELETE;
 import static edu.tamu.weaver.validation.model.BusinessValidationType.UPDATE;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
+import edu.tamu.app.cache.model.RemoteProduct;
 import edu.tamu.app.cache.service.ProductScheduledCache;
 import edu.tamu.app.model.InternalRequest;
 import edu.tamu.app.model.Product;
@@ -130,6 +133,48 @@ public class ProductController {
     public ApiResponse pushRequest(@RequestBody FeatureRequest request) {
         internalRequestRepo.create(new InternalRequest(request.getTitle(), request.getDescription()));
         return new ApiResponse(SUCCESS, request);
+    }
+
+    @GetMapping("/remote-products/{productId}")
+    @PreAuthorize("hasRole('MANAGER')")
+    public ApiResponse getAllRemoteProductsForProduct(@PathVariable Long productId) {
+        Optional<Product> product = Optional.ofNullable(productRepo.findOne(productId));
+        ApiResponse response;
+
+        if (product.isPresent()) {
+            Map<String, RemoteProduct> remoteProducts = new HashMap<>();
+            Map<String, RemoteProductManagerBean> rpmBeans = new HashMap<>();
+
+            for (RemoteProductInfo rpi : product.get().getRemoteProducts()) {
+                if (remoteProducts.containsKey(rpi.getScopeId())) {
+                    continue;
+                }
+
+                RemoteProductManager rpm = rpi.getRemoteProductManager();
+                RemoteProductManagerBean rpmBean;
+
+                if (rpmBeans.containsKey(rpm.getName())) {
+                    rpmBean = rpmBeans.get(rpm.getName());
+                }
+                else {
+                    rpmBean = (RemoteProductManagerBean) managementBeanRegistry.getService(rpm.getName());
+                }
+
+                try {
+                    RemoteProduct remoteProduct = rpmBean.getRemoteProductByScopeId(rpi.getScopeId());
+                    remoteProducts.put(rpi.getScopeId(), remoteProduct);
+                } catch (Exception e) {
+                    response = new ApiResponse(ERROR, "Error fetching remote products associated with product " + product.get().getName() + "!");
+                    return response;
+                }
+            }
+
+            response = new ApiResponse(SUCCESS, remoteProducts);
+        } else {
+            response = new ApiResponse(ERROR, "Product with id " + productId + " not found!");
+        }
+
+        return response;
     }
 
     @GetMapping("/{remoteProductManagerId}/remote-products")
