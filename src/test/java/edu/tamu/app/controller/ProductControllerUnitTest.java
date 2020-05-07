@@ -60,12 +60,12 @@ public class ProductControllerUnitTest {
     private static final String MISSING_RPM_ERROR_MESSAGE = "Remote Product Manager with id null not found!";
     private static final String INVALID_RPM_ID_ERROR_MESSAGE_FIND_BY_ID = "Error fetching remote product with scope id " + TEST_PRODUCT1_SCOPE1 + " from Test Remote Product Manager!";
 
-    private static final RemoteProductManager TEST_PRODUCT1_REMOTE_PRODUCT_MANAGER = new RemoteProductManager("Test Remote Product Manager", ServiceType.VERSION_ONE, new HashMap<String, String>());
+    private static final RemoteProductManager TEST_REMOTE_PRODUCT_MANAGER = new RemoteProductManager("Test Remote Product Manager", ServiceType.VERSION_ONE, new HashMap<String, String>());
 
-    private static final RemoteProductInfo TEST_REMOTE_PRODUCT_INFO_1 = new RemoteProductInfo(TEST_PRODUCT1_SCOPE1, TEST_PRODUCT1_REMOTE_PRODUCT_MANAGER);
-    private static final RemoteProductInfo TEST_REMOTE_PRODUCT_INFO_2 = new RemoteProductInfo(TEST_PRODUCT1_SCOPE2, TEST_PRODUCT1_REMOTE_PRODUCT_MANAGER);
+    private static final RemoteProductInfo TEST_REMOTE_PRODUCT_INFO1 = new RemoteProductInfo(TEST_PRODUCT1_SCOPE1, TEST_REMOTE_PRODUCT_MANAGER);
+    private static final RemoteProductInfo TEST_REMOTE_PRODUCT_INFO2 = new RemoteProductInfo(TEST_PRODUCT1_SCOPE2, TEST_REMOTE_PRODUCT_MANAGER);
 
-    private static final List<RemoteProductInfo> TEST_PRODUCT1_REMOTE_PRODUCT_INFO_LIST = new ArrayList<RemoteProductInfo>(Arrays.asList(TEST_REMOTE_PRODUCT_INFO_1, TEST_REMOTE_PRODUCT_INFO_2));
+    private static final List<RemoteProductInfo> TEST_PRODUCT1_REMOTE_PRODUCT_INFO_LIST = new ArrayList<RemoteProductInfo>(Arrays.asList(TEST_REMOTE_PRODUCT_INFO1, TEST_REMOTE_PRODUCT_INFO2));
 
     private static Product TEST_PRODUCT1 = new Product(TEST_PRODUCT1_NAME, TEST_PRODUCT1_REMOTE_PRODUCT_INFO_LIST);
     private static Product TEST_PRODUCT2 = new Product(TEST_PRODUCT2_NAME);
@@ -113,7 +113,7 @@ public class ProductControllerUnitTest {
         when(productRepo.create(any(Product.class))).thenReturn(TEST_PRODUCT1);
         when(productRepo.findOne(any(Long.class))).thenReturn(null);
         when(productRepo.update(any(Product.class))).thenReturn(TEST_MODIFIED_PRODUCT);
-        when(remoteProductManagerRepo.findOne(any(Long.class))).thenReturn(TEST_PRODUCT1_REMOTE_PRODUCT_MANAGER);
+        when(remoteProductManagerRepo.findOne(any(Long.class))).thenReturn(TEST_REMOTE_PRODUCT_MANAGER);
         doNothing().when(productRepo).delete(any(Product.class));
         when(sugarService.submit(any(TicketRequest.class))).thenReturn("Successfully submitted issue for test service!");
         when(internalRequestRepo.create(any(InternalRequest.class))).thenReturn(TEST_REQUEST_NAME);
@@ -201,13 +201,13 @@ public class ProductControllerUnitTest {
     public void testGetAllRemoteProducts() throws Exception {
         when(remoteProductManagementBean.push(TEST_FEATURE_REQUEST)).thenReturn(TEST_FEATURE_REQUEST);
         when(managementBeanRegistry.getService(any(String.class))).thenReturn(remoteProductManagementBean);
-        apiResponse = productController.getAllRemoteProducts(TEST_PRODUCT1_REMOTE_PRODUCT_MANAGER.getId());
+        apiResponse = productController.getAllRemoteProducts(TEST_REMOTE_PRODUCT_MANAGER.getId());
         assertEquals("Product controller unable to get all remote products", SUCCESS, apiResponse.getMeta().getStatus());
     }
 
     @Test
     public void testGetAllRemoteProductsWithInvalidRemoteProductManager() {
-        apiResponse = productController.getAllRemoteProducts(TEST_PRODUCT1_REMOTE_PRODUCT_MANAGER.getId());
+        apiResponse = productController.getAllRemoteProducts(TEST_REMOTE_PRODUCT_MANAGER.getId());
         assertEquals("Request with invalid Remote Product Manager id did not result in an error", ERROR, apiResponse.getMeta().getStatus());
         assertEquals("Invalid Remote Product Manager id did not result in the expected error message", INVALID_RPM_ID_ERROR_MESSAGE, apiResponse.getMeta().getMessage());
     }
@@ -215,7 +215,7 @@ public class ProductControllerUnitTest {
     @Test
     public void testGetAllRemoteProductsWithNoRemoteProductManager() {
         when(remoteProductManagerRepo.findOne(any(Long.class))).thenReturn(null);
-        apiResponse = productController.getAllRemoteProducts(TEST_PRODUCT1_REMOTE_PRODUCT_MANAGER.getId());
+        apiResponse = productController.getAllRemoteProducts(TEST_REMOTE_PRODUCT_MANAGER.getId());
         assertEquals("Request without Remote Product Manager did not result in an error", ERROR, apiResponse.getMeta().getStatus());
         assertEquals("Missing Remote Product Manager did not result in the expected error message", MISSING_RPM_ERROR_MESSAGE, apiResponse.getMeta().getMessage());
     }
@@ -224,13 +224,13 @@ public class ProductControllerUnitTest {
     public void testGetRemoteProductByScopeId() throws Exception {
         when(remoteProductManagementBean.getRemoteProductByScopeId(TEST_PRODUCT1_SCOPE1)).thenReturn(new RemoteProduct());
         when(managementBeanRegistry.getService(any(String.class))).thenReturn(remoteProductManagementBean);
-        apiResponse = productController.getRemoteProductByScopeId(TEST_PRODUCT1_REMOTE_PRODUCT_MANAGER.getId(), TEST_PRODUCT1_SCOPE1);
+        apiResponse = productController.getRemoteProductByScopeId(TEST_REMOTE_PRODUCT_MANAGER.getId(), TEST_PRODUCT1_SCOPE1);
         assertEquals("Product controller unable to get remote product by scope id", SUCCESS, apiResponse.getMeta().getStatus());
     }
 
     @Test
     public void testGetRemoteProductByScopeIdWithInvalidRemoteProductManager() {
-        apiResponse = productController.getRemoteProductByScopeId(TEST_PRODUCT1_REMOTE_PRODUCT_MANAGER.getId(), TEST_PRODUCT1_SCOPE1);
+        apiResponse = productController.getRemoteProductByScopeId(TEST_REMOTE_PRODUCT_MANAGER.getId(), TEST_PRODUCT1_SCOPE1);
         assertEquals("Request with invalid Remote Product Manager id did not result in an error", ERROR, apiResponse.getMeta().getStatus());
         assertEquals("Invalid Remote Product Manager id did not result in the expected error message", INVALID_RPM_ID_ERROR_MESSAGE_FIND_BY_ID, apiResponse.getMeta().getMessage());
     }
@@ -238,7 +238,7 @@ public class ProductControllerUnitTest {
     @Test
     public void testGetRemoteProductByScopeIdWithMissingRemoteProductManager() {
         when(remoteProductManagerRepo.findOne(any(Long.class))).thenReturn(null);
-        apiResponse = productController.getRemoteProductByScopeId(TEST_PRODUCT1_REMOTE_PRODUCT_MANAGER.getId(), TEST_PRODUCT1_SCOPE1);
+        apiResponse = productController.getRemoteProductByScopeId(TEST_REMOTE_PRODUCT_MANAGER.getId(), TEST_PRODUCT1_SCOPE1);
         assertEquals("Request with no Remote Product Manager did not result in an error", ERROR, apiResponse.getMeta().getStatus());
         assertEquals("Missing Remote Product Manager did not result in the expected error message", MISSING_RPM_ERROR_MESSAGE, apiResponse.getMeta().getMessage());
     }
