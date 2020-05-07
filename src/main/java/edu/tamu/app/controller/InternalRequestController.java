@@ -90,7 +90,7 @@ public class InternalRequestController {
         Optional<RemoteProductManager> remoteProductManager = Optional.ofNullable(remoteProductManagerRepo.findOne(rpmId));
         ApiResponse response;
 
-        if (internalRequest.isPresent() && product.isPresent() && remoteProductManager.isPresent()) {
+        if (internalRequest.isPresent() && product.isPresent() && remoteProductManager.isPresent() && !scopeId.isEmpty()) {
             FeatureRequest featureRequest = new FeatureRequest(
                     internalRequest.get().getTitle(), internalRequest.get().getDescription(), product.get().getId(), scopeId);
 
@@ -101,15 +101,17 @@ public class InternalRequestController {
                 response = new ApiResponse(SUCCESS, remoteProductManagerBean.push(featureRequest));
                 internalRequestRepo.delete(internalRequest.get());
             } catch (Exception e) {
-                response = new ApiResponse(ERROR, "Error pushing request to " + remoteProductManager.get().getName()
-                    + " for product " + product.get().getName() + "!");
+                response = new ApiResponse(ERROR, "Error pushing Internal Request to " + remoteProductManager.get().getName()
+                    + " for Product " + product.get().getName() + "!");
             }
         } else if (!remoteProductManager.isPresent()) {
             response = new ApiResponse(ERROR, "Remote Product Manager with id " + rpmId + " not found!");
         } else if (!internalRequest.isPresent()) {
             response = new ApiResponse(ERROR, "Internal Request with id " + requestId + " not found!");
-        } else {
+        } else if (!product.isPresent()) {
             response = new ApiResponse(ERROR, "Product with id " + productId + " not found!");
+        } else {
+            response = new ApiResponse(ERROR, "Internal Request is missing the scope id!");
         }
 
         return response;
