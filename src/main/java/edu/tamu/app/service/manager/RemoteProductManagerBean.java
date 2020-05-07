@@ -15,6 +15,8 @@ public interface RemoteProductManagerBean extends ManagementBean {
 
     public List<Sprint> getActiveSprintsByProductId(final String productScopeId) throws Exception;
 
+    public List<Sprint> getAdditionalActiveSprints() throws Exception;
+
     public Object push(final FeatureRequest request) throws Exception;
 
 }
