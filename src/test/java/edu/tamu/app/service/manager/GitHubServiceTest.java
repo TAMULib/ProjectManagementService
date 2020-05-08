@@ -30,6 +30,7 @@ import org.kohsuke.github.GHIssue;
 import org.kohsuke.github.GHLabel;
 import org.kohsuke.github.GHOrganization;
 import org.kohsuke.github.GHProject;
+import org.kohsuke.github.GHProject.ProjectStateFilter;
 import org.kohsuke.github.GHProjectCard;
 import org.kohsuke.github.GHProjectColumn;
 import org.kohsuke.github.GHRepository;
@@ -200,6 +201,7 @@ public class GitHubServiceTest extends CacheMockTests {
 
         when(TEST_REPOSITORY1.getId()).thenReturn(TEST_REPOSITORY1_ID);
         when(TEST_REPOSITORY1.createIssue(any(String.class)).body(any(String.class)).create()).thenReturn(TEST_ISSUE);
+        when(TEST_REPOSITORY1.listProjects(any(ProjectStateFilter.class)).asList()).thenReturn(TEST_PROJECTS);
         when(TEST_REPOSITORY1.listProjects().asList()).thenReturn(TEST_PROJECTS);
         when(TEST_REPOSITORY2.listProjects().asList()).thenReturn(TEST_PROJECTS);
         when(TEST_REPOSITORY1.listLabels().asList()).thenReturn(ALL_TEST_LABELS);

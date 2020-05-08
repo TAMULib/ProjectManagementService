@@ -117,7 +117,7 @@ public class GitHubService extends MappingRemoteProductManagerBean {
             String sprintId = String.valueOf(project.getId());
             String name = project.getName();
             List<Card> cards = getCards(project);
-            sprints.add(new Sprint(sprintId, name, null, cards));
+            sprints.add(new Sprint(sprintId, name, ORGANIZATION, cards));
         }
         return sprints;
     }
