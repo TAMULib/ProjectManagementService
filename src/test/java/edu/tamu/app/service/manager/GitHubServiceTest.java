@@ -108,7 +108,7 @@ public class GitHubServiceTest extends CacheMockTests {
     private static final GHRepository TEST_REPOSITORY1 = mock(GHRepository.class, RETURNS_DEEP_STUBS.get());
     private static final GHRepository TEST_REPOSITORY2 = mock(GHRepository.class, RETURNS_DEEP_STUBS.get());
 
-    private static final GHOrganization TEST_ORGANIZATION = mock(GHOrganization.class);
+    private static final GHOrganization TEST_ORGANIZATION = mock(GHOrganization.class, RETURNS_DEEP_STUBS.get());
 
     private static final FeatureRequest TEST_FEATURE_REQUEST = mock(FeatureRequest.class);
 
@@ -198,6 +198,7 @@ public class GitHubServiceTest extends CacheMockTests {
         when(github.getRepositoryById(any(String.class))).thenReturn(TEST_REPOSITORY1);
 
         when(TEST_ORGANIZATION.getRepositories()).thenReturn(TEST_REPOSITORY_MAP);
+        when(TEST_ORGANIZATION.listProjects(any(ProjectStateFilter.class)).asList()).thenReturn(TEST_PROJECTS);
 
         when(TEST_REPOSITORY1.getId()).thenReturn(TEST_REPOSITORY1_ID);
         when(TEST_REPOSITORY1.createIssue(any(String.class)).body(any(String.class)).create()).thenReturn(TEST_ISSUE);
@@ -351,6 +352,12 @@ public class GitHubServiceTest extends CacheMockTests {
     public void testGetActiveSprintsByProjectId() throws Exception {
         List<Sprint> activeSprints = gitHubService.getActiveSprintsByProductId(String.valueOf(TEST_REPOSITORY1_ID));
         assertEquals("Didn't get all active sprints", 3, activeSprints.size());
+    }
+
+    @Test
+    public void testGetAdditionalActiveSprints() throws Exception {
+        List<Sprint> additionalSprints = gitHubService.getAdditionalActiveSprints();
+        assertEquals("Didn't get all additional sprints", 3, additionalSprints.size());
     }
 
     @Test
