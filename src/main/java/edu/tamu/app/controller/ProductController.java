@@ -217,16 +217,19 @@ public class ProductController {
     }
 
     private void reifyProductRemoteProductManager(Product product) {
-        List<RemoteProductInfo> remoteProducts = product.getRemoteProducts();
-        for (int i = 0; i < product.getRemoteProducts().size(); i++) {
-            Optional<RemoteProductManager> remoteProductManager = Optional.ofNullable(remoteProducts.get(i).getRemoteProductManager());
-            if (remoteProductManager.isPresent()) {
-                Long remoteProductManagerId = remoteProductManager.get().getId();
-                RemoteProductInfo remoteProduct = new RemoteProductInfo(remoteProducts.get(i).getScopeId(), remoteProductManagerRepo.findOne(remoteProductManagerId));
-                remoteProducts.set(i, remoteProduct);
+        Optional<List<RemoteProductInfo>> remoteProducts = Optional.ofNullable(product.getRemoteProducts());
+
+        if (remoteProducts.isPresent()) {
+            for (int i = 0; i < product.getRemoteProducts().size(); i++) {
+                Optional<RemoteProductManager> remoteProductManager = Optional.ofNullable(remoteProducts.get().get(i).getRemoteProductManager());
+                if (remoteProductManager.isPresent()) {
+                    Long remoteProductManagerId = remoteProductManager.get().getId();
+                    RemoteProductInfo remoteProduct = new RemoteProductInfo(remoteProducts.get().get(i).getScopeId(), remoteProductManagerRepo.findOne(remoteProductManagerId));
+                    remoteProducts.get().set(i, remoteProduct);
+                }
             }
+            product.setRemoteProducts(remoteProducts.get());
         }
-        product.setRemoteProducts(remoteProducts);
     }
 
 }

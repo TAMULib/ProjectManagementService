@@ -40,18 +40,16 @@ import edu.tamu.app.service.registry.ManagementBeanRegistry;
 @RunWith(SpringRunner.class)
 public class ActiveSprintsScheduledCacheServiceTest {
     private static final String TEST_PRODUCT_SCOPE1 = "0010";
-    private static final String TEST_PRODUCT_SCOPE2 = "0011";
-    private static final String TEST_PRODUCT_SCOPE3 = "0020";
+    private static final String TEST_PRODUCT_SCOPE2 = "0020";
 
     private static final RemoteProductManager TEST_REMOTE_PRODUCT_MANAGER1 = new RemoteProductManager("Test Remote Product Manager 1", ServiceType.VERSION_ONE, new HashMap<String, String>());
     private static final RemoteProductManager TEST_REMOTE_PRODUCT_MANAGER2 = new RemoteProductManager("Test Remote Product Manager 2", ServiceType.GITHUB, new HashMap<String, String>());
 
-    private static final RemoteProductInfo TEST_REMOTE_PRODUCT_INFO_1 = new RemoteProductInfo(TEST_PRODUCT_SCOPE1, TEST_REMOTE_PRODUCT_MANAGER1);
-    private static final RemoteProductInfo TEST_REMOTE_PRODUCT_INFO_2 = new RemoteProductInfo(TEST_PRODUCT_SCOPE2, TEST_REMOTE_PRODUCT_MANAGER1);
-    private static final RemoteProductInfo TEST_REMOTE_PRODUCT_INFO_3 = new RemoteProductInfo(TEST_PRODUCT_SCOPE3, TEST_REMOTE_PRODUCT_MANAGER2);
+    private static final RemoteProductInfo TEST_REMOTE_PRODUCT_INFO1 = new RemoteProductInfo(TEST_PRODUCT_SCOPE1, TEST_REMOTE_PRODUCT_MANAGER1);
+    private static final RemoteProductInfo TEST_REMOTE_PRODUCT_INFO2 = new RemoteProductInfo(TEST_PRODUCT_SCOPE2, TEST_REMOTE_PRODUCT_MANAGER2);
 
-    private static final List<RemoteProductInfo> TEST_PRODUCT1_REMOTE_PRODUCT_INFO_LIST1 = new ArrayList<RemoteProductInfo>(Arrays.asList(TEST_REMOTE_PRODUCT_INFO_1, TEST_REMOTE_PRODUCT_INFO_2));
-    private static final List<RemoteProductInfo> TEST_PRODUCT1_REMOTE_PRODUCT_INFO_LIST2 = new ArrayList<RemoteProductInfo>(Arrays.asList(TEST_REMOTE_PRODUCT_INFO_3));
+    private static final List<RemoteProductInfo> TEST_PRODUCT1_REMOTE_PRODUCT_INFO_LIST1 = new ArrayList<RemoteProductInfo>(Arrays.asList(TEST_REMOTE_PRODUCT_INFO1));
+    private static final List<RemoteProductInfo> TEST_PRODUCT1_REMOTE_PRODUCT_INFO_LIST2 = new ArrayList<RemoteProductInfo>(Arrays.asList(TEST_REMOTE_PRODUCT_INFO2));
 
     @Mock
     private ProductRepo productRepo;

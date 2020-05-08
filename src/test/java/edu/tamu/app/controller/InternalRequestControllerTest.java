@@ -5,6 +5,7 @@ import static edu.tamu.weaver.response.ApiStatus.SUCCESS;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
@@ -51,25 +52,17 @@ public class InternalRequestControllerTest {
     private static final String TEST_PRODUCT1_SCOPE1 = "0010";
     private static final String TEST_PRODUCT1_SCOPE2 = "0011";
     private static final String TEST_PRODUCT2_NAME = "Test Product 2 Name";
-    private static final String TEST_PRODUCT_WITHOUT_RPM_NAME = "Test Product Without Remote Product Manager Name";
-
-    private static final String PUSH_ERROR_MESSAGE = "Error pushing request to Test Remote Product Manager for product Test Product 1 Name!";
-    private static final String NO_RPM_ERROR_MESSAGE = "Test Product Without Remote Product Manager Name product does not have a Remote Product Manager!";
-    private static final String NO_PRODUCT_ERROR_MESSAGE = "Product with id null not found!";
 
     private static final RemoteProductManager TEST_REMOTE_PRODUCT_MANAGER = new RemoteProductManager("Test Remote Product Manager", ServiceType.VERSION_ONE, new HashMap<String, String>());
 
-    private static final RemoteProductInfo TEST_REMOTE_PRODUCT_INFO_1 = new RemoteProductInfo(TEST_PRODUCT1_SCOPE1, TEST_REMOTE_PRODUCT_MANAGER);
-    private static final RemoteProductInfo TEST_REMOTE_PRODUCT_INFO_2 = new RemoteProductInfo(TEST_PRODUCT1_SCOPE2, TEST_REMOTE_PRODUCT_MANAGER);
-    private static final RemoteProductInfo TEST_REMOTE_PRODUCT_INVALID_RPM = new RemoteProductInfo(TEST_PRODUCT1_SCOPE2, null);
-    private static final RemoteProductInfo TEST_REMOTE_PRODUCT_INVALID_SCOPE = new RemoteProductInfo(null, TEST_REMOTE_PRODUCT_MANAGER);
+    private static final RemoteProductInfo TEST_REMOTE_PRODUCT_INFO1 = new RemoteProductInfo(TEST_PRODUCT1_SCOPE1, TEST_REMOTE_PRODUCT_MANAGER);
+    private static final RemoteProductInfo TEST_REMOTE_PRODUCT_INFO2 = new RemoteProductInfo(TEST_PRODUCT1_SCOPE2, TEST_REMOTE_PRODUCT_MANAGER);
 
-    private static final List<RemoteProductInfo> TEST_PRODUCT1_REMOTE_PRODUCT_INFO_LIST = new ArrayList<RemoteProductInfo>(Arrays.asList(TEST_REMOTE_PRODUCT_INFO_1, TEST_REMOTE_PRODUCT_INFO_2)
+    private static final List<RemoteProductInfo> TEST_PRODUCT1_REMOTE_PRODUCT_INFO_LIST = new ArrayList<RemoteProductInfo>(Arrays.asList(TEST_REMOTE_PRODUCT_INFO1, TEST_REMOTE_PRODUCT_INFO2)
     );
 
     private static Product TEST_PRODUCT1 = new Product(TEST_PRODUCT1_NAME, TEST_PRODUCT1_REMOTE_PRODUCT_INFO_LIST);
     private static Product TEST_PRODUCT2 = new Product(TEST_PRODUCT2_NAME);
-    private static Product TEST_PRODUCT_WIHTOUT_RPM = new Product(TEST_PRODUCT_WITHOUT_RPM_NAME);
 
     private static FeatureRequest TEST_FEATURE_REQUEST = new FeatureRequest(TEST_REQUEST_TITLE_BELLS, TEST_REQUEST_DESCRIPTION_BELLS, TEST_PRODUCT1.getId(), TEST_PRODUCT1_SCOPE1);
 
@@ -110,7 +103,7 @@ public class InternalRequestControllerTest {
     private InternalRequestController internalRequestController;
 
     @Before
-    public void setup() {
+    public void setup() throws Exception {
         MockitoAnnotations.initMocks(this);
 
         TEST_PRODUCT1.setId(1L);
@@ -125,7 +118,7 @@ public class InternalRequestControllerTest {
         when(internalRequestRepo.count()).thenReturn((long) mockRequestsRepo.size());
         when(internalRequestRepo.create(any(InternalRequest.class))).thenReturn(TEST_REQUEST_BELLS);
         when(internalRequestRepo.update(any(InternalRequest.class))).thenReturn(TEST_REQUEST_BELLS);
-        when(internalRequestRepo.findOne(any(Long.class))).thenReturn(TEST_REQUEST_BELLS);
+        when(remoteProductManagementBean.push(any(FeatureRequest.class))).thenReturn(TEST_FEATURE_REQUEST);
         when(managementBeanRegistry.getService(any(String.class))).thenReturn(remoteProductManagementBean);
 
         doAnswer(new Answer<ApiResponse>() {
@@ -162,6 +155,8 @@ public class InternalRequestControllerTest {
 
     @Test
     public void testReadById() {
+        when(internalRequestRepo.findOne(TEST_REQUEST_BELLS.getId())).thenReturn(TEST_REQUEST_BELLS);
+
         ApiResponse apiResponse = internalRequestController.read(TEST_REQUEST_BELLS.getId());
 
         assertEquals("Request for Internal Request was unsuccessful", SUCCESS, apiResponse.getMeta().getStatus());
@@ -190,47 +185,77 @@ public class InternalRequestControllerTest {
     }
 
     @Test
-    public void testPush() throws Exception {
+    public void testPush() {
         int initialCount = mockRequestsRepo.size();
 
-        when(remoteProductManagementBean.push(any(FeatureRequest.class))).thenReturn(TEST_FEATURE_REQUEST);
-        when(managementBeanRegistry.getService(any(String.class))).thenReturn(remoteProductManagementBean);
+        when(internalRequestRepo.findOne(any(Long.class))).thenReturn(TEST_REQUEST_BELLS);
         when(productRepo.findOne(any(Long.class))).thenReturn(TEST_PRODUCT1);
+        when(remoteProductManagerRepo.findOne(any(Long.class))).thenReturn(TEST_REMOTE_PRODUCT_MANAGER);
+        doNothing().when(internalRequestRepo).delete(any(Long.class));
 
-        apiResponse = internalRequestController.push(TEST_REQUEST_BELLS.getId(), TEST_PRODUCT1.getId(), TEST_REMOTE_PRODUCT_INFO_1);
+        apiResponse = internalRequestController.push(TEST_REQUEST_BELLS.getId(), TEST_PRODUCT1.getId(), TEST_REMOTE_PRODUCT_MANAGER.getId(), TEST_REMOTE_PRODUCT_INFO1.getScopeId());
 
-        assertEquals("Product controller did not push request", SUCCESS, apiResponse.getMeta().getStatus());
+        assertEquals("Internal Request controller did not push request", SUCCESS, apiResponse.getMeta().getStatus());
         assertEquals("InternalRequest should be deleted after successful push", initialCount - 1, mockRequestsRepo.size());
     }
 
     @Test
     public void testPushToInvalidRemoteProductManager() {
+        when(internalRequestRepo.findOne(any(Long.class))).thenReturn(TEST_REQUEST_BELLS);
         when(productRepo.findOne(any(Long.class))).thenReturn(TEST_PRODUCT1);
+        when(remoteProductManagerRepo.findOne(any(Long.class))).thenReturn(null);
 
-        apiResponse = internalRequestController.push(TEST_REQUEST_BELLS.getId(), TEST_PRODUCT1.getId(), TEST_REMOTE_PRODUCT_INVALID_RPM);
+        apiResponse = internalRequestController.push(TEST_REQUEST_BELLS.getId(), TEST_PRODUCT1.getId(), null, TEST_REMOTE_PRODUCT_INFO1.getScopeId());
 
-        assertEquals("Invalid push did not throw an exception", ERROR, apiResponse.getMeta().getStatus());
-        assertEquals("Push without Remote Product Manager did not result in the expected error", PUSH_ERROR_MESSAGE, apiResponse.getMeta().getMessage());
+        String expectedMessage = "Remote Product Manager with id null not found!";
+
+        assertEquals("Push without Remote Product Manage did not throw an exception", ERROR, apiResponse.getMeta().getStatus());
+        assertEquals("Push without Remote Product Manager did not result in the expected error", expectedMessage, apiResponse.getMeta().getMessage());
         assertEquals("InternalRequest should not be deleted after failed push", 2, internalRequestRepo.count());
     }
 
     @Test
     public void testPushInvalidScope() {
-        when(productRepo.findOne(any(Long.class))).thenReturn(TEST_PRODUCT_WIHTOUT_RPM);
+        when(internalRequestRepo.findOne(any(Long.class))).thenReturn(TEST_REQUEST_BELLS);
+        when(productRepo.findOne(any(Long.class))).thenReturn(TEST_PRODUCT1);
+        when(remoteProductManagerRepo.findOne(any(Long.class))).thenReturn(TEST_REMOTE_PRODUCT_MANAGER);
 
-        apiResponse = internalRequestController.push(TEST_REQUEST_BELLS.getId(), TEST_PRODUCT1.getId(), TEST_REMOTE_PRODUCT_INVALID_SCOPE);
+        apiResponse = internalRequestController.push(TEST_REQUEST_BELLS.getId(), TEST_PRODUCT1.getId(), TEST_REMOTE_PRODUCT_MANAGER.getId(), "");
 
-        assertEquals("Push without Remote Product Manager did not result in an error", ERROR, apiResponse.getMeta().getStatus());
-        assertEquals("Push without Remote Product Manager did not result in the expected error", NO_RPM_ERROR_MESSAGE, apiResponse.getMeta().getMessage());
+        String expectedMessage = "Internal Request is missing the scope id!";
+
+        assertEquals("Push with invalid Scope did not throw an exception", ERROR, apiResponse.getMeta().getStatus());
+        assertEquals("Push with invalid Scope did not result in the expected error", expectedMessage, apiResponse.getMeta().getMessage());
         assertEquals("InternalRequest should not be deleted after failed push", 2, internalRequestRepo.count());
     }
 
     @Test
     public void testPushInvalidProduct() {
-        apiResponse = internalRequestController.push(TEST_REQUEST_BELLS.getId(), 0L, TEST_REMOTE_PRODUCT_INFO_1);
+        when(internalRequestRepo.findOne(any(Long.class))).thenReturn(TEST_REQUEST_BELLS);
+        when(productRepo.findOne(any(Long.class))).thenReturn(null);
+        when(remoteProductManagerRepo.findOne(any(Long.class))).thenReturn(TEST_REMOTE_PRODUCT_MANAGER);
 
-        assertEquals("Push without Product did not result in an error", ERROR, apiResponse.getMeta().getStatus());
-        assertEquals("Push without Product did not result in the expected error", NO_PRODUCT_ERROR_MESSAGE, apiResponse.getMeta().getMessage());
+        apiResponse = internalRequestController.push(TEST_REQUEST_BELLS.getId(), null, TEST_REMOTE_PRODUCT_MANAGER.getId(), TEST_REMOTE_PRODUCT_INFO1.getScopeId());
+
+        String expectedMessage = "Product with id null not found!";
+
+        assertEquals("Push with invalid Product did not throw an exception", ERROR, apiResponse.getMeta().getStatus());
+        assertEquals("Push with invalid Product did not result in the expected error", expectedMessage, apiResponse.getMeta().getMessage());
+        assertEquals("InternalRequest should not be deleted after failed push", 2, internalRequestRepo.count());
+    }
+
+    @Test
+    public void testPushInvalidInternalRequest() {
+        when(internalRequestRepo.findOne(any(Long.class))).thenReturn(null);
+        when(productRepo.findOne(any(Long.class))).thenReturn(TEST_PRODUCT1);
+        when(remoteProductManagerRepo.findOne(any(Long.class))).thenReturn(TEST_REMOTE_PRODUCT_MANAGER);
+
+        apiResponse = internalRequestController.push(null, TEST_PRODUCT1.getId(), TEST_REMOTE_PRODUCT_MANAGER.getId(), TEST_REMOTE_PRODUCT_INFO1.getScopeId());
+
+        String expectedMessage = "Internal Request with id null not found!";
+
+        assertEquals("Push with invalid Internal Request did not throw an exception", ERROR, apiResponse.getMeta().getStatus());
+        assertEquals("Push with invalid Internal Request did not result in the expected error", expectedMessage, apiResponse.getMeta().getMessage());
         assertEquals("InternalRequest should not be deleted after failed push", 2, internalRequestRepo.count());
     }
 
