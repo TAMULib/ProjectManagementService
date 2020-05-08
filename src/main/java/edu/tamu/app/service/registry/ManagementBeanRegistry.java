@@ -75,4 +75,8 @@ public class ManagementBeanRegistry {
         return services.get(name);
     }
 
+    public Map<String, ManagementBean> getServices() {
+        return services;
+    }
+
 }

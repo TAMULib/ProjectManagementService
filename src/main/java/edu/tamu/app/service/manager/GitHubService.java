@@ -24,6 +24,7 @@ import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GHUser;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
+import org.kohsuke.github.GHProject.ProjectStateFilter;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -96,7 +97,7 @@ public class GitHubService extends MappingRemoteProductManagerBean {
         logger.info("Fetching active sprints for product with scope id " + productScopeId);
         List<Sprint> activeSprints = new ArrayList<Sprint>();
         GHRepository repo = github.getRepositoryById(productScopeId);
-        List<GHProject> projects = repo.listProjects().asList();
+        List<GHProject> projects = repo.listProjects(ProjectStateFilter.OPEN).asList();
         for (GHProject project : projects) {
             String sprintId = String.valueOf(project.getId());
             String name = project.getName();
@@ -105,6 +106,20 @@ public class GitHubService extends MappingRemoteProductManagerBean {
             activeSprints.add(new Sprint(sprintId, name, projectName, cards));
         }
         return activeSprints;
+    }
+
+    @Override
+    public List<Sprint> getAdditionalActiveSprints() throws Exception {
+        GHOrganization organization = github.getOrganization(ORGANIZATION);
+        List<GHProject> projects = organization.listProjects(ProjectStateFilter.OPEN).asList();
+        List<Sprint> sprints = new ArrayList<Sprint>();
+        for (GHProject project : projects) {
+            String sprintId = String.valueOf(project.getId());
+            String name = project.getName();
+            List<Card> cards = getCards(project);
+            sprints.add(new Sprint(sprintId, name, ORGANIZATION, cards));
+        }
+        return sprints;
     }
 
     @Override
@@ -240,7 +255,10 @@ public class GitHubService extends MappingRemoteProductManagerBean {
             List<GHProjectCard> projectCards = column.listCards().asList();
             for (GHProjectCard card : projectCards) {
                 GHIssue content = card.getContent();
-
+                // If content is null the card is a note and shouldn't be included
+                if (content == null) {
+                    continue;
+                }
                 String id = String.valueOf(card.getId());
                 String name = content.getTitle();
                 String number = String.valueOf(content.getNumber());

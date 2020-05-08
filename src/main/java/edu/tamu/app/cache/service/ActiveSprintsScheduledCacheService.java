@@ -18,6 +18,7 @@ import edu.tamu.app.model.Product;
 import edu.tamu.app.model.RemoteProductManager;
 import edu.tamu.app.model.repo.ProductRepo;
 import edu.tamu.app.service.manager.RemoteProductManagerBean;
+import edu.tamu.app.service.registry.ManagementBean;
 import edu.tamu.weaver.response.ApiResponse;
 
 @Service
@@ -44,6 +45,14 @@ public class ActiveSprintsScheduledCacheService extends AbstractProductScheduled
         productRepo.findAll().forEach(product -> {
             activeSprints.addAll(fetchActiveSprints(product));
         });
+        for (ManagementBean managementBean : managementBeanRegistry.getServices().values()) {
+            RemoteProductManagerBean rpm = (RemoteProductManagerBean) managementBean;
+            try {
+                activeSprints.addAll(rpm.getAdditionalActiveSprints());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         set(activeSprints);
         logger.info("Finished caching active sprints");
     }

@@ -30,6 +30,7 @@ import org.kohsuke.github.GHIssue;
 import org.kohsuke.github.GHLabel;
 import org.kohsuke.github.GHOrganization;
 import org.kohsuke.github.GHProject;
+import org.kohsuke.github.GHProject.ProjectStateFilter;
 import org.kohsuke.github.GHProjectCard;
 import org.kohsuke.github.GHProjectColumn;
 import org.kohsuke.github.GHRepository;
@@ -75,6 +76,7 @@ public class GitHubServiceTest extends CacheMockTests {
     private static final String TEST_USER2_AVATAR_PATH = "https://avatars2.githubusercontent.com/u/2222222?v=4";
     private static final String TEST_USER3_AVATAR_PATH = "https://avatars2.githubusercontent.com/u/3333333?v=4";
     private static final String TEST_USER1_AVATAR_NAME = "1234567";
+    private static final String TEST_COLUMN1_NAME = "Test Column 1";
     private static final Long TEST_REPOSITORY1_ID = 1L;
     private static final Long TEST_USER1_ID = 3L;
 
@@ -90,7 +92,7 @@ public class GitHubServiceTest extends CacheMockTests {
     private static final GHUser TEST_USER2 = mock(GHUser.class);
     private static final GHUser TEST_USER3 = mock(GHUser.class);
 
-    private static final GHProjectCard TEST_CARD1 = mock(GHProjectCard.class, RETURNS_DEEP_STUBS.get());
+    private static final GHProjectCard TEST_CARD1 = mock(GHProjectCard.class);
     private static final GHProjectCard TEST_CARD2 = mock(GHProjectCard.class, RETURNS_DEEP_STUBS.get());
     private static final GHProjectCard TEST_CARD3 = mock(GHProjectCard.class, RETURNS_DEEP_STUBS.get());
     private static final GHProjectCard TEST_CARD4 = mock(GHProjectCard.class, RETURNS_DEEP_STUBS.get());
@@ -107,7 +109,7 @@ public class GitHubServiceTest extends CacheMockTests {
     private static final GHRepository TEST_REPOSITORY1 = mock(GHRepository.class, RETURNS_DEEP_STUBS.get());
     private static final GHRepository TEST_REPOSITORY2 = mock(GHRepository.class, RETURNS_DEEP_STUBS.get());
 
-    private static final GHOrganization TEST_ORGANIZATION = mock(GHOrganization.class);
+    private static final GHOrganization TEST_ORGANIZATION = mock(GHOrganization.class, RETURNS_DEEP_STUBS.get());
 
     private static final FeatureRequest TEST_FEATURE_REQUEST = mock(FeatureRequest.class);
 
@@ -197,9 +199,11 @@ public class GitHubServiceTest extends CacheMockTests {
         when(github.getRepositoryById(any(String.class))).thenReturn(TEST_REPOSITORY1);
 
         when(TEST_ORGANIZATION.getRepositories()).thenReturn(TEST_REPOSITORY_MAP);
+        when(TEST_ORGANIZATION.listProjects(any(ProjectStateFilter.class)).asList()).thenReturn(TEST_PROJECTS);
 
         when(TEST_REPOSITORY1.getId()).thenReturn(TEST_REPOSITORY1_ID);
         when(TEST_REPOSITORY1.createIssue(any(String.class)).body(any(String.class)).create()).thenReturn(TEST_ISSUE);
+        when(TEST_REPOSITORY1.listProjects(any(ProjectStateFilter.class)).asList()).thenReturn(TEST_PROJECTS);
         when(TEST_REPOSITORY1.listProjects().asList()).thenReturn(TEST_PROJECTS);
         when(TEST_REPOSITORY2.listProjects().asList()).thenReturn(TEST_PROJECTS);
         when(TEST_REPOSITORY1.listLabels().asList()).thenReturn(ALL_TEST_LABELS);
@@ -213,12 +217,17 @@ public class GitHubServiceTest extends CacheMockTests {
         when(TEST_COLUMN2.listCards().asList()).thenReturn(TEST_COLUMN2_CARDS);
         when(TEST_COLUMN3.listCards().asList()).thenReturn(TEST_COLUMN3_CARDS);
 
-        when(TEST_CARD1.getContent().getLabels()).thenReturn(TEST_CARD1_LABELS);
+        when(TEST_CARD1.getContent()).thenReturn(TEST_ISSUE);
+        when(TEST_ISSUE.getLabels()).thenReturn(TEST_CARD1_LABELS);
+        when(TEST_ISSUE.getAssignees()).thenReturn(TEST_USERS1);
+        when(TEST_CARD1.getColumn()).thenReturn(TEST_COLUMN1);
+
+        when(TEST_COLUMN1.getName()).thenReturn(TEST_COLUMN1_NAME);
+
         when(TEST_CARD2.getContent().getLabels()).thenReturn(TEST_CARD2_LABELS);
         when(TEST_CARD3.getContent().getLabels()).thenReturn(TEST_CARD3_LABELS);
         when(TEST_CARD4.getContent().getLabels()).thenReturn(TEST_CARD4_LABELS);
         when(TEST_CARD5.getContent().getLabels()).thenReturn(TEST_CARD5_LABELS);
-        when(TEST_CARD1.getContent().getAssignees()).thenReturn(TEST_USERS1);
         when(TEST_CARD2.getContent().getAssignees()).thenReturn(TEST_USERS2);
         when(TEST_CARD3.getContent().getAssignees()).thenReturn(TEST_USERS3);
         when(TEST_CARD4.getContent().getAssignees()).thenReturn(TEST_USERS4);
@@ -352,6 +361,12 @@ public class GitHubServiceTest extends CacheMockTests {
     }
 
     @Test
+    public void testGetAdditionalActiveSprints() throws Exception {
+        List<Sprint> additionalSprints = gitHubService.getAdditionalActiveSprints();
+        assertEquals("Didn't get all additional sprints", 3, additionalSprints.size());
+    }
+
+    @Test
     public void testPush() throws Exception {
         GHIssue issue = (GHIssue) gitHubService.push(TEST_FEATURE_REQUEST);
         assertEquals("Didn't get expected issue", TEST_ISSUE, issue);
@@ -386,5 +401,12 @@ public class GitHubServiceTest extends CacheMockTests {
 
         GitHub gitHubInstance = gitHubService.getGitHubInstance();
         assertNotNull("GitHub object was not created", gitHubInstance);
+    }
+
+    @Test
+    public void testGetCardsWithNote() throws Exception {
+        when(TEST_CARD1.getContent()).thenReturn(null);
+        List<Sprint> sprints = gitHubService.getAdditionalActiveSprints();
+        assertEquals("Didn't get expected number of cards", 5, sprints.get(0).getCards().size());
     }
 }

@@ -174,6 +174,12 @@ public class VersionOneService extends MappingRemoteProductManagerBean {
         return activeSprints;
     }
 
+    @Override
+    public List<Sprint> getAdditionalActiveSprints() throws Exception {
+        // Returns empty array to satisfy interface requirement
+        return new ArrayList<Sprint>();
+    }
+
     public List<Card> getActiveSprintsCards(final String timeboxId) throws ConnectionException, APIException, OidException, IOException {
         List<Card> activeSprintsCards = new ArrayList<Card>();
 
