@@ -43,17 +43,17 @@ public class RemoteProductsScheduledCacheService extends AbstractScheduledCacheS
 
     public void update() {
         logger.info("Caching remote products...");
-        Map<Long, List<RemoteProduct>> remoteproducts = new HashMap<Long, List<RemoteProduct>>();
-        for (RemoteProductManager remoteproductManager : remoteProductManagerRepo.findAll()) {
-            RemoteProductManagerBean remoteproductManagerBean = (RemoteProductManagerBean) managementBeanRegistry
-                    .getService(remoteproductManager.getName());
+        Map<Long, List<RemoteProduct>> remoteProducts = new HashMap<Long, List<RemoteProduct>>();
+        for (RemoteProductManager remoteProductManager : remoteProductManagerRepo.findAll()) {
+            RemoteProductManagerBean remoteProductManagerBean = (RemoteProductManagerBean) managementBeanRegistry
+                    .getService(remoteProductManager.getName());
             try {
-                remoteproducts.put(remoteproductManager.getId(), remoteproductManagerBean.getRemoteProduct());
+                remoteProducts.put(remoteProductManager.getId(), remoteProductManagerBean.getRemoteProduct());
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        set(remoteproducts);
+        set(remoteProducts);
         logger.info("Finished caching remote products");
     }
 
@@ -62,18 +62,18 @@ public class RemoteProductsScheduledCacheService extends AbstractScheduledCacheS
         simpMessagingTemplate.convertAndSend("/channel/products/remote", new ApiResponse(SUCCESS, get()));
     }
 
-    public Optional<RemoteProduct> getRemoteProduct(Long remoteproductManagerId, String scopeId) {
-        Optional<RemoteProduct> remoteproduct = Optional.empty();
-        Optional<List<RemoteProduct>> remoteproducts = Optional.ofNullable(get().get(remoteproductManagerId));
-        if (remoteproducts.isPresent()) {
-            for (RemoteProduct rp : remoteproducts.get()) {
+    public Optional<RemoteProduct> getRemoteProduct(Long remoteProductManagerId, String scopeId) {
+        Optional<RemoteProduct> remoteProduct = Optional.empty();
+        Optional<List<RemoteProduct>> remoteProducts = Optional.ofNullable(get().get(remoteProductManagerId));
+        if (remoteProducts.isPresent()) {
+            for (RemoteProduct rp : remoteProducts.get()) {
                 if (rp.getId().equals(scopeId)) {
-                    remoteproduct = Optional.of(rp);
+                    remoteProduct = Optional.of(rp);
                     break;
                 }
             }
         }
-        return remoteproduct;
+        return remoteProduct;
     }
 
     @Override

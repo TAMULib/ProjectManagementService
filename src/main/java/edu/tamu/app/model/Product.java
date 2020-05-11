@@ -1,13 +1,11 @@
 package edu.tamu.app.model;
 
-import static javax.persistence.CascadeType.DETACH;
-import static javax.persistence.CascadeType.MERGE;
-import static javax.persistence.CascadeType.REFRESH;
-import static javax.persistence.FetchType.EAGER;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -24,8 +22,8 @@ public class Product extends ValidatingBaseEntity {
     @JsonView(ApiView.Partial.class)
     private String name;
 
-    @JsonInclude(Include.NON_NULL)
     @Column(nullable = true)
+    @JsonInclude(Include.NON_NULL)
     @JsonView(ApiView.Partial.class)
     private String scopeId;
 
@@ -49,10 +47,9 @@ public class Product extends ValidatingBaseEntity {
     @JsonView(ApiView.Partial.class)
     private String wikiUrl;
 
-    @JsonInclude(Include.NON_NULL)
-    @ManyToOne(fetch = EAGER, cascade = { DETACH, REFRESH, MERGE }, optional = true)
+    @ElementCollection
     @JsonView(ApiView.Partial.class)
-    private RemoteProductManager remoteProductManager;
+    private List<RemoteProductInfo> remoteProducts;
 
     public Product() {
         super();
@@ -64,14 +61,21 @@ public class Product extends ValidatingBaseEntity {
         this.name = name;
     }
 
-    public Product(String name, RemoteProductManager remoteProductManager) {
-        this(name);
-        this.remoteProductManager = remoteProductManager;
+    public Product(String name, List<RemoteProductInfo> remoteProducts) {
+        this();
+        this.name = name;
+        this.remoteProducts = remoteProducts;
     }
 
-    public Product(String name, String scopeId, RemoteProductManager remoteProductManager) {
-        this(name, remoteProductManager);
+    public Product(String name, List<RemoteProductInfo> remoteProducts, String scopeId, String devUrl, String preUrl, String productionUrl, String wikiUrl) {
+        this();
+        this.name = name;
+        this.remoteProducts = remoteProducts;
         this.scopeId = scopeId;
+        this.devUrl = devUrl;
+        this.preUrl = preUrl;
+        this.productionUrl = productionUrl;
+        this.wikiUrl = wikiUrl;
     }
 
     public String getName() {
@@ -90,12 +94,54 @@ public class Product extends ValidatingBaseEntity {
         this.scopeId = scopeId;
     }
 
-    public RemoteProductManager getRemoteProductManager() {
-        return remoteProductManager;
+    public String getDevUrl() {
+        return devUrl;
     }
 
-    public void setRemoteProductManager(RemoteProductManager remoteProductManager) {
-        this.remoteProductManager = remoteProductManager;
+    public void setDevUrl(String devUrl) {
+        this.devUrl = devUrl;
     }
 
+    public String getPreUrl() {
+        return preUrl;
+    }
+
+    public void setPreUrl(String preUrl) {
+        this.preUrl = preUrl;
+    }
+
+    public String getProductionUrl() {
+        return productionUrl;
+    }
+
+    public void setProductionUrl(String productionUrl) {
+        this.productionUrl = productionUrl;
+    }
+
+    public String getWikiUrl() {
+        return wikiUrl;
+    }
+
+    public void setWikiUrl(String wikiUrl) {
+        this.wikiUrl = wikiUrl;
+    }
+
+    public List<RemoteProductInfo> getRemoteProducts() {
+        return remoteProducts;
+    }
+
+    public void setRemoteProducts(List<RemoteProductInfo> remoteProducts) {
+        this.remoteProducts = remoteProducts;
+    }
+
+    public void addRemoteProduct(RemoteProductInfo remoteProduct) {
+        remoteProducts.add(remoteProduct);
+    }
+
+    public void removeRemoteProduct(RemoteProductInfo remoteProduct) {
+        remoteProducts = remoteProducts.stream()
+            .filter(rp -> {
+                return !rp.getScopeId().equals(remoteProduct.getScopeId()) && !rp.getRemoteProductManager().equals(remoteProduct.getRemoteProductManager());
+            }).collect(Collectors.toList());
+    }
 }

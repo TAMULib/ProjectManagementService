@@ -16,6 +16,7 @@ import edu.tamu.app.cache.ProductsStatsCache;
 import edu.tamu.app.cache.model.ProductStats;
 import edu.tamu.app.cache.model.RemoteProduct;
 import edu.tamu.app.model.Product;
+import edu.tamu.app.model.RemoteProductInfo;
 import edu.tamu.app.model.RemoteProductManager;
 import edu.tamu.app.model.repo.ProductRepo;
 import edu.tamu.weaver.response.ApiResponse;
@@ -72,7 +73,8 @@ public class ProductsStatsScheduledCacheService extends AbstractProductScheduled
     }
 
     public void removeProduct(Product product) {
-        List<ProductStats> productsStats = get().stream().filter(p -> !p.getId().equals(product.getId().toString())).collect(Collectors.toList());
+        List<ProductStats> productsStats = get().stream().filter(p -> !p.getId().equals(product.getId().toString()))
+                .collect(Collectors.toList());
         set(productsStats);
         broadcast();
     }
@@ -85,17 +87,18 @@ public class ProductsStatsScheduledCacheService extends AbstractProductScheduled
         int featureCount = 0;
         int defectCount = 0;
 
-        // NOTE: if and when product can be associated to multiple remote products, loop here
-
-        Optional<RemoteProductManager> remoteProductManager = Optional.ofNullable(product.getRemoteProductManager());
-        Optional<String> scopeId = Optional.ofNullable(product.getScopeId());
-        if (remoteProductManager.isPresent() && scopeId.isPresent()) {
-            Optional<RemoteProduct> remoteProduct = remoteProductsScheduledCacheService.getRemoteProduct(remoteProductManager.get().getId(), scopeId.get());
-            if (remoteProduct.isPresent()) {
-                requestCount += remoteProduct.get().getRequestCount();
-                issueCount += remoteProduct.get().getIssueCount();
-                featureCount += remoteProduct.get().getFeatureCount();
-                defectCount += remoteProduct.get().getDefectCount();
+        List<RemoteProductInfo> remoteProducts = product.getRemoteProducts();
+        for (RemoteProductInfo rp : remoteProducts) {
+            Optional<RemoteProductManager> remoteProductManager = Optional.ofNullable(rp.getRemoteProductManager());
+            Optional<String> scopeId = Optional.ofNullable(rp.getScopeId());
+            if (remoteProductManager.isPresent() && scopeId.isPresent()) {
+                Optional<RemoteProduct> remoteProduct = remoteProductsScheduledCacheService.getRemoteProduct(remoteProductManager.get().getId(), scopeId.get());
+                if (remoteProduct.isPresent()) {
+                    requestCount += remoteProduct.get().getRequestCount();
+                    issueCount += remoteProduct.get().getIssueCount();
+                    featureCount += remoteProduct.get().getFeatureCount();
+                    defectCount += remoteProduct.get().getDefectCount();
+                }
             }
         }
 

@@ -14,6 +14,7 @@ security.basic.enabled: false
 
 ---
 spring:
+  # profiles: production, development, test
   profiles.active: production
 
   datasource:
@@ -79,7 +80,7 @@ app:
   # Framework app properties #
   ############################
   # edu.tamu.weaver.auth.service.UserCredentialsService
-  authority.admins: 402001311,613001223,102001721,222004429,709005486,523008230,724001395,123456789,512004707
+  authority.admins: 402001311,613001223,102001721,222004429,709005486,523008230,724001395,123456789,512004707,427008012
   security:
     # edu.tamu.weaver.auth.service.CryptoService
     secret: verysecretsecret
@@ -131,4 +132,4 @@ management:
     enabled-by-default: false
     health:
       enabled: true
----
+

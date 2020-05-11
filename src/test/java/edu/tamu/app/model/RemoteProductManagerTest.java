@@ -2,6 +2,9 @@ package edu.tamu.app.model;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
@@ -49,22 +52,16 @@ public class RemoteProductManagerTest extends ModelTest {
     public void testDelete() {
         RemoteProductManager remoteProductManager = remoteProductManagerRepo.create(new RemoteProductManager(TEST_REMOTE_PRODUCT_MANAGER1_NAME, ServiceType.VERSION_ONE, getMockSettings()));
         remoteProductManagerRepo.delete(remoteProductManager);
-        assertEquals("Remote product manager was note deleted!", 0, remoteProductManagerRepo.count());
-    }
-
-    @Test
-    public void testAssociateToProduct() {
-        RemoteProductManager remoteProductManager = remoteProductManagerRepo.create(new RemoteProductManager(TEST_REMOTE_PRODUCT_MANAGER1_NAME, ServiceType.VERSION_ONE, getMockSettings()));
-        Product product = productRepo.create(new Product(TEST_PRODUCT_NAME, "1000", remoteProductManager));
-        assertEquals("Product has the incorrect Remote Product Manager name!", TEST_REMOTE_PRODUCT_MANAGER1_NAME, product.getRemoteProductManager().getName());
-        assertEquals("Product has the incorrect Remote Product Manager url setting value!", "https://localhost:9101/TexasAMLibrary", product.getRemoteProductManager().getSettings().get("url"));
-
+        assertEquals("Remote product manager was not deleted!", 0, remoteProductManagerRepo.count());
     }
 
     @Test(expected = DataIntegrityViolationException.class)
     public void testDeleteWhenAssociatedToProduct() {
         RemoteProductManager remoteProductManager = remoteProductManagerRepo.create(new RemoteProductManager(TEST_REMOTE_PRODUCT_MANAGER1_NAME, ServiceType.VERSION_ONE, getMockSettings()));
-        productRepo.create(new Product(TEST_PRODUCT_NAME, "1000", remoteProductManager));
+        RemoteProductInfo remoteProductInfo = new RemoteProductInfo("3000", remoteProductManager);
+        List<RemoteProductInfo> remoteProductInfoList = new ArrayList<RemoteProductInfo>(Arrays.asList(remoteProductInfo));
+
+        productRepo.create(new Product(TEST_PRODUCT_NAME, remoteProductInfoList));
         remoteProductManagerRepo.delete(remoteProductManager);
     }
 

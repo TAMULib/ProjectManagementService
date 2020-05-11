@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,12 +29,22 @@ import com.versionone.apiclient.exceptions.OidException;
 import edu.tamu.app.cache.model.ProductStats;
 import edu.tamu.app.cache.model.RemoteProduct;
 import edu.tamu.app.model.Product;
+import edu.tamu.app.model.RemoteProductInfo;
 import edu.tamu.app.model.RemoteProductManager;
 import edu.tamu.app.model.ServiceType;
 import edu.tamu.app.model.repo.ProductRepo;
 
 @RunWith(SpringRunner.class)
 public class ProductsStatsScheduledCacheServiceTest {
+    private static final String TEST_PRODUCT_NAME = "Test Product";
+
+    private static final String TEST_PRODUCT_SCOPE = "0010";
+
+    private static final RemoteProductManager TEST_REMOTE_PRODUCT_MANAGER = new RemoteProductManager("Test Remote Product Manager", ServiceType.VERSION_ONE, new HashMap<String, String>());
+
+    private static final RemoteProductInfo TEST_REMOTE_PRODUCT_INFO = new RemoteProductInfo(TEST_PRODUCT_SCOPE, TEST_REMOTE_PRODUCT_MANAGER);
+
+    private static final List<RemoteProductInfo> TEST_PRODUCT_REMOTE_PRODUCT_INFO_LIST = new ArrayList<RemoteProductInfo>(Arrays.asList(TEST_REMOTE_PRODUCT_INFO));
 
     @Mock
     private ProductRepo productRepo;
@@ -82,7 +93,7 @@ public class ProductsStatsScheduledCacheServiceTest {
     public void testUpdateProduct() {
         Product product = getMockProduct();
         productsStatsScheduledCacheService.addProduct(product);
-        product.setScopeId("1001");
+        product.setName("new Name");
         productsStatsScheduledCacheService.updateProduct(product);
         assertTrue(true);
     }
@@ -114,18 +125,18 @@ public class ProductsStatsScheduledCacheServiceTest {
     }
 
     private ProductStats getMockProductStats() {
-        return new ProductStats("1000", "Test Product", 2, 3, 10, 3);
+        return new ProductStats("1000", TEST_PRODUCT_NAME, 2, 3, 10, 3);
     }
 
     private RemoteProduct getMockRemoteProduct() {
-        return new RemoteProduct("1000", "Test Product", 2, 3, 10, 3);
+        return new RemoteProduct("1000", TEST_PRODUCT_NAME, 2, 3, 10, 3);
     }
 
     private void assertProductsStats(List<ProductStats> productStatsCache) {
         assertFalse(productStatsCache.isEmpty());
         assertEquals(1, productStatsCache.size());
         assertEquals("1000", productStatsCache.get(0).getId());
-        assertEquals("Test Product", productStatsCache.get(0).getName());
+        assertEquals(TEST_PRODUCT_NAME, productStatsCache.get(0).getName());
         assertEquals(2, productStatsCache.get(0).getRequestCount());
         assertEquals(3, productStatsCache.get(0).getIssueCount());
         assertEquals(10, productStatsCache.get(0).getFeatureCount());
@@ -134,8 +145,7 @@ public class ProductsStatsScheduledCacheServiceTest {
     }
 
     private Product getMockProduct() {
-        RemoteProductManager remoteProductManager = new RemoteProductManager("Test Remote Product Manager", ServiceType.VERSION_ONE);
-        Product mockProduct = new Product("Test Product", "0001", remoteProductManager);
+        Product mockProduct = new Product(TEST_PRODUCT_NAME, TEST_PRODUCT_REMOTE_PRODUCT_INFO_LIST);
         mockProduct.setId(1000L);
         return mockProduct;
     }
