@@ -52,7 +52,7 @@ public class RemoteProductManagerTest extends ModelTest {
     public void testDelete() {
         RemoteProductManager remoteProductManager = remoteProductManagerRepo.create(new RemoteProductManager(TEST_REMOTE_PRODUCT_MANAGER1_NAME, ServiceType.VERSION_ONE, getMockSettings()));
         remoteProductManagerRepo.delete(remoteProductManager);
-        assertEquals("Remote product manager was note deleted!", 0, remoteProductManagerRepo.count());
+        assertEquals("Remote product manager was not deleted!", 0, remoteProductManagerRepo.count());
     }
 
     @Test(expected = DataIntegrityViolationException.class)
