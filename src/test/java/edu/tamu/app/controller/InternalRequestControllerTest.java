@@ -259,4 +259,17 @@ public class InternalRequestControllerTest {
         assertEquals("InternalRequest should not be deleted after failed push", 2, internalRequestRepo.count());
     }
 
+    @Test
+    public void testPushWhenRemoteProductManagerBeanFails() throws Exception {
+        when(remoteProductManagementBean.push(any(FeatureRequest.class))).thenThrow(new RuntimeException("fail"));
+        when(internalRequestRepo.findOne(any(Long.class))).thenReturn(TEST_REQUEST_BELLS);
+        when(productRepo.findOne(any(Long.class))).thenReturn(TEST_PRODUCT1);
+        when(remoteProductManagerRepo.findOne(any(Long.class))).thenReturn(TEST_REMOTE_PRODUCT_MANAGER);
+        doNothing().when(internalRequestRepo).delete(any(Long.class));
+
+        apiResponse = internalRequestController.push(TEST_REQUEST_BELLS.getId(), TEST_PRODUCT1.getId(), TEST_REMOTE_PRODUCT_MANAGER.getId(), TEST_REMOTE_PRODUCT_INFO1.getScopeId());
+
+        assertEquals("Pushing Internal Request when Remote Product Management Bean push fails did not result in an error", ERROR, apiResponse.getMeta().getStatus());
+        assertEquals("Pushing Internal Request did not result in the expected error message", "Error pushing Internal Request to " + TEST_REMOTE_PRODUCT_MANAGER.getName() + " for Product " + TEST_PRODUCT1_NAME + "!", apiResponse.getMeta().getMessage());
+    }
 }
