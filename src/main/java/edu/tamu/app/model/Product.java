@@ -7,6 +7,8 @@ import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import edu.tamu.app.model.validation.ProductValidator;
@@ -19,6 +21,31 @@ public class Product extends ValidatingBaseEntity {
     @Column(unique = true, nullable = false)
     @JsonView(ApiView.Partial.class)
     private String name;
+
+    @Column(nullable = true)
+    @JsonInclude(Include.NON_NULL)
+    @JsonView(ApiView.Partial.class)
+    private String scopeId;
+
+    @Column(nullable = true)
+    @JsonInclude(Include.NON_NULL)
+    @JsonView(ApiView.Partial.class)
+    private String devUrl;
+
+    @Column(nullable = true)
+    @JsonInclude(Include.NON_NULL)
+    @JsonView(ApiView.Partial.class)
+    private String preUrl;
+
+    @Column(nullable = true)
+    @JsonInclude(Include.NON_NULL)
+    @JsonView(ApiView.Partial.class)
+    private String productionUrl;
+
+    @Column(nullable = true)
+    @JsonInclude(Include.NON_NULL)
+    @JsonView(ApiView.Partial.class)
+    private String wikiUrl;
 
     @ElementCollection
     @JsonView(ApiView.Partial.class)

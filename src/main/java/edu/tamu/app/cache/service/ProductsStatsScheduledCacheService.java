@@ -11,14 +11,13 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import edu.tamu.app.cache.ProductsStatsCache;
 import edu.tamu.app.cache.model.ProductStats;
 import edu.tamu.app.cache.model.RemoteProduct;
 import edu.tamu.app.model.Product;
-import edu.tamu.app.model.RemoteProductManager;
 import edu.tamu.app.model.RemoteProductInfo;
+import edu.tamu.app.model.RemoteProductManager;
 import edu.tamu.app.model.repo.ProductRepo;
 import edu.tamu.weaver.response.ApiResponse;
 
