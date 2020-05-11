@@ -145,7 +145,7 @@ public class ProductController {
             Map<String, RemoteProduct> remoteProducts = new HashMap<>();
             Map<String, RemoteProductManagerBean> rpmBeans = new HashMap<>();
 
-            for (RemoteProductInfo rpi : product.get().getRemoteProducts()) {
+            for (RemoteProductInfo rpi : product.get().getRemoteProductInfo()) {
                 if (remoteProducts.containsKey(rpi.getScopeId())) {
                     continue;
                 }
@@ -217,18 +217,18 @@ public class ProductController {
     }
 
     private void reifyProductRemoteProductManager(Product product) {
-        Optional<List<RemoteProductInfo>> remoteProducts = Optional.ofNullable(product.getRemoteProducts());
+        Optional<List<RemoteProductInfo>> remoteProductInfo = Optional.ofNullable(product.getRemoteProductInfo());
 
-        if (remoteProducts.isPresent()) {
-            for (int i = 0; i < product.getRemoteProducts().size(); i++) {
-                Optional<RemoteProductManager> remoteProductManager = Optional.ofNullable(remoteProducts.get().get(i).getRemoteProductManager());
+        if (remoteProductInfo.isPresent()) {
+            for (int i = 0; i < product.getRemoteProductInfo().size(); i++) {
+                Optional<RemoteProductManager> remoteProductManager = Optional.ofNullable(remoteProductInfo.get().get(i).getRemoteProductManager());
                 if (remoteProductManager.isPresent()) {
                     Long remoteProductManagerId = remoteProductManager.get().getId();
-                    RemoteProductInfo remoteProduct = new RemoteProductInfo(remoteProducts.get().get(i).getScopeId(), remoteProductManagerRepo.findOne(remoteProductManagerId));
-                    remoteProducts.get().set(i, remoteProduct);
+                    RemoteProductInfo rpi = new RemoteProductInfo(remoteProductInfo.get().get(i).getScopeId(), remoteProductManagerRepo.findOne(remoteProductManagerId));
+                    remoteProductInfo.get().set(i, rpi);
                 }
             }
-            product.setRemoteProductInfo(remoteProducts.get());
+            product.setRemoteProductInfo(remoteProductInfo.get());
         }
     }
 

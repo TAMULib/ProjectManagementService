@@ -126,7 +126,7 @@ public class Product extends ValidatingBaseEntity {
         this.wikiUrl = wikiUrl;
     }
 
-    public List<RemoteProductInfo> getRemoteProducts() {
+    public List<RemoteProductInfo> getRemoteProductInfo() {
         return remoteProductInfo;
     }
 
