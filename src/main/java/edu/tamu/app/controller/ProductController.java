@@ -228,7 +228,7 @@ public class ProductController {
                     remoteProducts.get().set(i, remoteProduct);
                 }
             }
-            product.setRemoteProducts(remoteProducts.get());
+            product.setRemoteProductInfo(remoteProducts.get());
         }
     }
 

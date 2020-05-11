@@ -105,14 +105,14 @@ public class ProductModelTest extends ModelTest {
     @Test
     public void testSetRemoteProducts() {
         Product product = new Product(TEST_PRODUCT_NAME, TEST_PRODUCT_REMOTE_PRODUCT_INFO_LIST1);
-        product.setRemoteProducts(TEST_PRODUCT_REMOTE_PRODUCT_INFO_LIST2);
+        product.setRemoteProductInfo(TEST_PRODUCT_REMOTE_PRODUCT_INFO_LIST2);
         assertEquals("Product did not return the correct remote product info!", TEST_PRODUCT_REMOTE_PRODUCT_INFO_LIST2, product.getRemoteProducts());
     }
 
     @Test
     public void testAddRemoteProduct() {
         Product product = new Product(TEST_PRODUCT_NAME, TEST_PRODUCT_REMOTE_PRODUCT_INFO_LIST1);
-        product.addRemoteProduct(TEST_REMOTE_PRODUCT_INFO3);
+        product.addRemoteProductInfo(TEST_REMOTE_PRODUCT_INFO3);
         List<RemoteProductInfo> remoteProducts = product.getRemoteProducts();
         assertEquals("Product did not correctly add the remote product!", true, remoteProducts.contains(TEST_REMOTE_PRODUCT_INFO3));
     }

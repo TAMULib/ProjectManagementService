@@ -44,7 +44,7 @@ public class ProductTest extends ModelTest {
         List<RemoteProductInfo> newRemoteProductInfoList = new ArrayList<RemoteProductInfo>(Arrays.asList(newRemoteProductInfo));
 
         product.setName(TEST_ALTERNATE_PRODUCT_NAME);
-        product.setRemoteProducts(newRemoteProductInfoList);
+        product.setRemoteProductInfo(newRemoteProductInfoList);
         product = productRepo.update(product);
 
         assertEquals("Product name was not updated!", TEST_ALTERNATE_PRODUCT_NAME, product.getName());

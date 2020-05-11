@@ -61,7 +61,7 @@ public class ProductControllerIntegrationTest {
         remoteProductInfoList.add(remoteProductInfo);
 
         Product product = productRepo.create(new Product("Test"));
-        product.setRemoteProducts(remoteProductInfoList);
+        product.setRemoteProductInfo(remoteProductInfoList);
         product = productRepo.update(product);
     }
 
@@ -72,7 +72,12 @@ public class ProductControllerIntegrationTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("meta.status", equalTo("SUCCESS")))
             .andExpect(jsonPath("payload.ArrayList<Product>[0].id", equalTo(1)))
-                .andExpect(jsonPath("payload.ArrayList<Product>[0].name", equalTo("Test"))).andExpect(jsonPath("payload.ArrayList<Product>[0].remoteProducts[0].scopeId", equalTo(TEST_PRODUCT_SCOPE1))).andExpect(jsonPath("payload.ArrayList<Product>[0].remoteProducts[0].remoteProductManager.id", equalTo(1))).andExpect(jsonPath("payload.ArrayList<Product>[0].remoteProducts[0].remoteProductManager.name", equalTo("VersionTwo"))).andExpect(jsonPath("payload.ArrayList<Product>[0].remoteProducts[0].remoteProductManager.type", equalTo("VERSION_ONE"))).andExpect(jsonPath("payload.ArrayList<Product>[0].remoteProducts[0].remoteProductManager.settings").doesNotExist());
+                .andExpect(jsonPath("payload.ArrayList<Product>[0].name", equalTo("Test")))
+                .andExpect(jsonPath("payload.ArrayList<Product>[0].remoteProductInfo[0].scopeId", equalTo(TEST_PRODUCT_SCOPE1)))
+                .andExpect(jsonPath("payload.ArrayList<Product>[0].remoteProductInfo[0].remoteProductManager.id", equalTo(1)))
+                .andExpect(jsonPath("payload.ArrayList<Product>[0].remoteProductInfo[0].remoteProductManager.name", equalTo("VersionTwo")))
+                .andExpect(jsonPath("payload.ArrayList<Product>[0].remoteProductInfo[0].remoteProductManager.type", equalTo("VERSION_ONE")))
+                .andExpect(jsonPath("payload.ArrayList<Product>[0].remoteProductInfo[0].remoteProductManager.settings").doesNotExist());
         // @formatter:on
     }
 
@@ -83,7 +88,12 @@ public class ProductControllerIntegrationTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("meta.status", equalTo("SUCCESS")))
             .andExpect(jsonPath("payload.Product.id", equalTo(2)))
-                .andExpect(jsonPath("payload.Product.name", equalTo("Test"))).andExpect(jsonPath("payload.Product.remoteProducts[0].scopeId", equalTo(TEST_PRODUCT_SCOPE1))).andExpect(jsonPath("payload.Product.remoteProducts[0].remoteProductManager.id", equalTo(2))).andExpect(jsonPath("payload.Product.remoteProducts[0].remoteProductManager.name", equalTo("VersionTwo"))).andExpect(jsonPath("payload.Product.remoteProducts[0].remoteProductManager.type", equalTo("VERSION_ONE"))).andExpect(jsonPath("payload.Product.remoteProducts[0].remoteProductManager.settings").doesNotExist());
+                .andExpect(jsonPath("payload.Product.name", equalTo("Test")))
+                .andExpect(jsonPath("payload.Product.remoteProductInfo[0].scopeId", equalTo(TEST_PRODUCT_SCOPE1)))
+                .andExpect(jsonPath("payload.Product.remoteProductInfo[0].remoteProductManager.id", equalTo(2)))
+                .andExpect(jsonPath("payload.Product.remoteProductInfo[0].remoteProductManager.name", equalTo("VersionTwo")))
+                .andExpect(jsonPath("payload.Product.remoteProductInfo[0].remoteProductManager.type", equalTo("VERSION_ONE")))
+                .andExpect(jsonPath("payload.Product.remoteProductInfo[0].remoteProductManager.settings").doesNotExist());
         // @formatter:on
     }
 
