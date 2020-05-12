@@ -28,6 +28,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import edu.tamu.app.cache.service.RemoteProductsScheduledCacheService;
 import edu.tamu.app.model.InternalRequest;
+import edu.tamu.app.model.InternalStats;
 import edu.tamu.app.model.Product;
 import edu.tamu.app.model.RemoteProductInfo;
 import edu.tamu.app.model.RemoteProductManager;
@@ -271,5 +272,13 @@ public class InternalRequestControllerTest {
 
         assertEquals("Pushing Internal Request when Remote Product Management Bean push fails did not result in an error", ERROR, apiResponse.getMeta().getStatus());
         assertEquals("Pushing Internal Request did not result in the expected error message", "Error pushing Internal Request to " + TEST_REMOTE_PRODUCT_MANAGER.getName() + " for Product " + TEST_PRODUCT1_NAME + "!", apiResponse.getMeta().getMessage());
+    }
+
+    @Test
+    public void testStats() {
+        ApiResponse apiResponse = internalRequestController.stats();
+
+        assertEquals("Request for Internal Request stats was unsuccessful", SUCCESS, apiResponse.getMeta().getStatus());
+        assertEquals("Number of Internal Requests was not correct", 2L, ((InternalStats) apiResponse.getPayload().get("InternalStats")).getInternalCount());
     }
 }

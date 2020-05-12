@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import edu.tamu.app.model.InternalRequest;
+import edu.tamu.app.model.InternalStats;
 import edu.tamu.app.model.Product;
 import edu.tamu.app.model.RemoteProductManager;
 import edu.tamu.app.model.repo.InternalRequestRepo;
@@ -115,6 +116,11 @@ public class InternalRequestController {
         }
 
         return response;
+    }
+
+    @GetMapping("/stats")
+    public ApiResponse stats() {
+        return new ApiResponse(SUCCESS, new InternalStats(internalRequestRepo.count()));
     }
 
 }
