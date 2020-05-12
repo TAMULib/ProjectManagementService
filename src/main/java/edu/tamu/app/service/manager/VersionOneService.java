@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -44,6 +45,8 @@ import edu.tamu.app.cache.model.Member;
 import edu.tamu.app.cache.model.RemoteProduct;
 import edu.tamu.app.cache.model.Sprint;
 import edu.tamu.app.model.ManagementService;
+import edu.tamu.app.model.SprintBlacklist;
+import edu.tamu.app.model.repo.SprintBlacklistRepo;
 import edu.tamu.app.model.request.FeatureRequest;
 import edu.tamu.app.rest.BasicAuthRestTemplate;
 import edu.tamu.app.rest.TokenAuthRestTemplate;
@@ -59,6 +62,9 @@ public class VersionOneService extends MappingRemoteProductManagerBean {
     private final RestTemplate restTemplate;
 
     private final Map<String, Member> members;
+
+    @Autowired
+    private SprintBlacklistRepo sprintBlacklistRepo;
 
     public VersionOneService(ManagementService managementService) throws MalformedURLException, V1Exception {
         this.managementService = managementService;
@@ -168,7 +174,9 @@ public class VersionOneService extends MappingRemoteProductManagerBean {
             }
 
             List<Card> cards = getActiveSprintsCards(id);
-            activeSprints.add(new Sprint(id, name, productName, cards));
+            if (!blacklisted(id)) {
+                activeSprints.add(new Sprint(id, name, productName, cards));
+            }
         }
         return activeSprints;
     }
@@ -231,6 +239,15 @@ public class VersionOneService extends MappingRemoteProductManagerBean {
             activeSprintsCards.add(new Card(id, number, mapCardType(type), name, description, mapStatus(status), mapEstimate(estimate), assignees));
         }
         return activeSprintsCards;
+    }
+
+    private boolean blacklisted(String sprintId) {
+        List<SprintBlacklist> blacklist = sprintBlacklistRepo.findAll();
+        return blacklist.stream()
+            .anyMatch(sb -> {
+                return sb.getRemoteProductInfo().getScopeId().equals(sprintId) &&
+                    sb.getRemoteProductInfo().getRemoteProductManager().getName().equals(this.managementService.getName());
+            });
     }
 
     public Member getMember(final String id) throws ConnectionException, APIException, OidException, IOException {

@@ -25,6 +25,7 @@ import org.kohsuke.github.GHUser;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
 import org.kohsuke.github.GHProject.ProjectStateFilter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -38,6 +39,8 @@ import edu.tamu.app.cache.model.Member;
 import edu.tamu.app.cache.model.RemoteProduct;
 import edu.tamu.app.cache.model.Sprint;
 import edu.tamu.app.model.ManagementService;
+import edu.tamu.app.model.SprintBlacklist;
+import edu.tamu.app.model.repo.SprintBlacklistRepo;
 import edu.tamu.app.model.request.FeatureRequest;
 import edu.tamu.app.rest.BasicAuthRestTemplate;
 import edu.tamu.app.rest.TokenAuthRestTemplate;
@@ -63,6 +66,9 @@ public class GitHubService extends MappingRemoteProductManagerBean {
     private final RestTemplate restTemplate;
 
     private GHLabel label;
+
+    @Autowired
+    private SprintBlacklistRepo sprintBlacklistRepo;
 
     public GitHubService(final ManagementService managementService) throws IOException {
         this.managementService = managementService;
@@ -103,7 +109,9 @@ public class GitHubService extends MappingRemoteProductManagerBean {
             String name = project.getName();
             String projectName = repo.getName();
             List<Card> cards = getCards(project);
-            activeSprints.add(new Sprint(sprintId, name, projectName, cards));
+            if (!blacklisted(sprintId)) {
+                activeSprints.add(new Sprint(sprintId, name, projectName, cards));
+            }
         }
         return activeSprints;
     }
@@ -117,7 +125,9 @@ public class GitHubService extends MappingRemoteProductManagerBean {
             String sprintId = String.valueOf(project.getId());
             String name = project.getName();
             List<Card> cards = getCards(project);
-            sprints.add(new Sprint(sprintId, name, ORGANIZATION, cards));
+            if (!blacklisted(sprintId)) {
+                sprints.add(new Sprint(sprintId, name, ORGANIZATION, cards));
+            }
         }
         return sprints;
     }
@@ -151,6 +161,15 @@ public class GitHubService extends MappingRemoteProductManagerBean {
                 .build();
         }
         return githubInstance;
+    }
+
+    private boolean blacklisted(String sprintId) {
+        List<SprintBlacklist> blacklist = sprintBlacklistRepo.findAll();
+        return blacklist.stream()
+            .anyMatch(sb -> {
+                return sb.getRemoteProductInfo().getScopeId().equals(sprintId) &&
+                    sb.getRemoteProductInfo().getRemoteProductManager().getName().equals(this.managementService.getName());
+            });
     }
 
     private String getSettingValue(final String key) {
