@@ -173,9 +173,10 @@ public class VersionOneService extends MappingRemoteProductManagerBean {
                 }
             }
 
+            String rpmId = this.managementService.getId().toString();
             List<Card> cards = getActiveSprintsCards(id);
             if (!blacklisted(id)) {
-                activeSprints.add(new Sprint(id, name, productName, cards));
+                activeSprints.add(new Sprint(id, name, productName, rpmId, cards));
             }
         }
         return activeSprints;

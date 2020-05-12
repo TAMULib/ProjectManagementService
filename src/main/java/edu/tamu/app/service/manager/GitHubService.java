@@ -108,9 +108,10 @@ public class GitHubService extends MappingRemoteProductManagerBean {
             String sprintId = String.valueOf(project.getId());
             String name = project.getName();
             String projectName = repo.getName();
+            String rpmId = this.managementService.getId().toString();
             List<Card> cards = getCards(project);
             if (!blacklisted(sprintId)) {
-                activeSprints.add(new Sprint(sprintId, name, projectName, cards));
+                activeSprints.add(new Sprint(sprintId, name, projectName, rpmId, cards));
             }
         }
         return activeSprints;
@@ -124,9 +125,10 @@ public class GitHubService extends MappingRemoteProductManagerBean {
         for (GHProject project : projects) {
             String sprintId = String.valueOf(project.getId());
             String name = project.getName();
+            String rpmId = this.managementService.getId().toString();
             List<Card> cards = getCards(project);
             if (!blacklisted(sprintId)) {
-                sprints.add(new Sprint(sprintId, name, ORGANIZATION, cards));
+                sprints.add(new Sprint(sprintId, name, ORGANIZATION, rpmId, cards));
             }
         }
         return sprints;
@@ -168,7 +170,7 @@ public class GitHubService extends MappingRemoteProductManagerBean {
         return blacklist.stream()
             .anyMatch(sb -> {
                 return sb.getRemoteProductInfo().getScopeId().equals(sprintId) &&
-                    sb.getRemoteProductInfo().getRemoteProductManager().getName().equals(this.managementService.getName());
+                    sb.getRemoteProductInfo().getRemoteProductManager().getId().equals(this.managementService.getId());
             });
     }
 
