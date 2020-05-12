@@ -49,7 +49,7 @@ public class Product extends ValidatingBaseEntity {
 
     @ElementCollection
     @JsonView(ApiView.Partial.class)
-    private List<RemoteProductInfo> remoteProducts;
+    private List<RemoteProductInfo> remoteProductInfo;
 
     public Product() {
         super();
@@ -64,13 +64,13 @@ public class Product extends ValidatingBaseEntity {
     public Product(String name, List<RemoteProductInfo> remoteProducts) {
         this();
         this.name = name;
-        this.remoteProducts = remoteProducts;
+        this.remoteProductInfo = remoteProducts;
     }
 
     public Product(String name, List<RemoteProductInfo> remoteProducts, String scopeId, String devUrl, String preUrl, String productionUrl, String wikiUrl) {
         this();
         this.name = name;
-        this.remoteProducts = remoteProducts;
+        this.remoteProductInfo = remoteProducts;
         this.scopeId = scopeId;
         this.devUrl = devUrl;
         this.preUrl = preUrl;
@@ -126,22 +126,22 @@ public class Product extends ValidatingBaseEntity {
         this.wikiUrl = wikiUrl;
     }
 
-    public List<RemoteProductInfo> getRemoteProducts() {
-        return remoteProducts;
+    public List<RemoteProductInfo> getRemoteProductInfo() {
+        return remoteProductInfo;
     }
 
-    public void setRemoteProducts(List<RemoteProductInfo> remoteProducts) {
-        this.remoteProducts = remoteProducts;
+    public void setRemoteProductInfo(List<RemoteProductInfo> remoteProductInfo) {
+        this.remoteProductInfo = remoteProductInfo;
     }
 
-    public void addRemoteProduct(RemoteProductInfo remoteProduct) {
-        remoteProducts.add(remoteProduct);
+    public void addRemoteProductInfo(RemoteProductInfo remoteProductInfo) {
+        this.remoteProductInfo.add(remoteProductInfo);
     }
 
-    public void removeRemoteProduct(RemoteProductInfo remoteProduct) {
-        remoteProducts = remoteProducts.stream()
+    public void removeRemoteProduct(RemoteProductInfo remoteProductInfo) {
+        this.remoteProductInfo = this.remoteProductInfo.stream()
             .filter(rp -> {
-                return !rp.getScopeId().equals(remoteProduct.getScopeId()) && !rp.getRemoteProductManager().equals(remoteProduct.getRemoteProductManager());
+                return !rp.getScopeId().equals(remoteProductInfo.getScopeId()) && !rp.getRemoteProductManager().equals(remoteProductInfo.getRemoteProductManager());
             }).collect(Collectors.toList());
     }
 }

@@ -85,7 +85,6 @@ public class VersionOneService extends MappingRemoteProductManagerBean {
             int storyCount = getPrimaryWorkItemCount("Story", scopeId);
             int defectCount = getPrimaryWorkItemCount("Defect", scopeId);
             remoteProducts.add(new RemoteProduct(scopeId, name, requestCount, issueCount, storyCount, defectCount));
-
         }
         return remoteProducts;
     }

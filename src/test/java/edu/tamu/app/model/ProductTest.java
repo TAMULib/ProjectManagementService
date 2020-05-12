@@ -44,11 +44,11 @@ public class ProductTest extends ModelTest {
         List<RemoteProductInfo> newRemoteProductInfoList = new ArrayList<RemoteProductInfo>(Arrays.asList(newRemoteProductInfo));
 
         product.setName(TEST_ALTERNATE_PRODUCT_NAME);
-        product.setRemoteProducts(newRemoteProductInfoList);
+        product.setRemoteProductInfo(newRemoteProductInfoList);
         product = productRepo.update(product);
 
         assertEquals("Product name was not updated!", TEST_ALTERNATE_PRODUCT_NAME, product.getName());
-        assertEquals("Product remote product info was not updated!", newScope, product.getRemoteProducts().get(0).getScopeId());
+        assertEquals("Product remote product info was not updated!", newScope, product.getRemoteProductInfo().get(0).getScopeId());
     }
 
     @Test
@@ -78,7 +78,7 @@ public class ProductTest extends ModelTest {
         Product createdProduct = productRepo.create(product);
 
         assertEquals("Product has the incorrect name!", TEST_PRODUCT_NAME, createdProduct.getName());
-        assertEquals("Product has the incorrect Remote Product Info!", TEST_PRODUCT_REMOTE_PRODUCT_INFO_LIST1, createdProduct.getRemoteProducts());
+        assertEquals("Product has the incorrect Remote Product Info!", TEST_PRODUCT_REMOTE_PRODUCT_INFO_LIST1, createdProduct.getRemoteProductInfo());
 
         productRepo.delete(createdProduct);
 

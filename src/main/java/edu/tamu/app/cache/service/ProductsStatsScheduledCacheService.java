@@ -87,10 +87,10 @@ public class ProductsStatsScheduledCacheService extends AbstractProductScheduled
         int featureCount = 0;
         int defectCount = 0;
 
-        List<RemoteProductInfo> remoteProducts = product.getRemoteProducts();
-        for (RemoteProductInfo rp : remoteProducts) {
-            Optional<RemoteProductManager> remoteProductManager = Optional.ofNullable(rp.getRemoteProductManager());
-            Optional<String> scopeId = Optional.ofNullable(rp.getScopeId());
+        List<RemoteProductInfo> remoteProductInfo = product.getRemoteProductInfo();
+        for (RemoteProductInfo rpi : remoteProductInfo) {
+            Optional<RemoteProductManager> remoteProductManager = Optional.ofNullable(rpi.getRemoteProductManager());
+            Optional<String> scopeId = Optional.ofNullable(rpi.getScopeId());
             if (remoteProductManager.isPresent() && scopeId.isPresent()) {
                 Optional<RemoteProduct> remoteProduct = remoteProductsScheduledCacheService.getRemoteProduct(remoteProductManager.get().getId(), scopeId.get());
                 if (remoteProduct.isPresent()) {

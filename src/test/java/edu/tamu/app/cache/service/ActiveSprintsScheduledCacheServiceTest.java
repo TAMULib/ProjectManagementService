@@ -101,7 +101,7 @@ public class ActiveSprintsScheduledCacheServiceTest {
         Product product = getMockProduct();
         activeSprintsScheduledCacheService.addProduct(product);
         product.setName("Another Product");
-        product.setRemoteProducts(TEST_PRODUCT1_REMOTE_PRODUCT_INFO_LIST2);
+        product.setRemoteProductInfo(TEST_PRODUCT1_REMOTE_PRODUCT_INFO_LIST2);
         activeSprintsScheduledCacheService.updateProduct(product);
         assertTrue(true);
     }

@@ -86,9 +86,9 @@ public class ActiveSprintsScheduledCacheService extends AbstractProductScheduled
 
     private List<Sprint> fetchActiveSprints(Product product) {
         List<Sprint> activeSprints = new ArrayList<Sprint>();
-        Optional<List<RemoteProductInfo>> remoteProducts = Optional.ofNullable(product.getRemoteProducts());
-        if (remoteProducts.isPresent()) {
-            remoteProducts.get().forEach(rp -> {
+        Optional<List<RemoteProductInfo>> remoteProductInfo = Optional.ofNullable(product.getRemoteProductInfo());
+        if (remoteProductInfo.isPresent()) {
+            remoteProductInfo.get().forEach(rp -> {
                 RemoteProductManagerBean remoteProductManagerBean = (RemoteProductManagerBean) managementBeanRegistry.getService(rp.getRemoteProductManager().getName());
                 try {
                     activeSprints.addAll(remoteProductManagerBean.getActiveSprintsByProductId(rp.getScopeId()));
