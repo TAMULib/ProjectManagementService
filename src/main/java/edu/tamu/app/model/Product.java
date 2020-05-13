@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -47,7 +48,7 @@ public class Product extends ValidatingBaseEntity {
     @JsonView(ApiView.Partial.class)
     private String wikiUrl;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @JsonView(ApiView.Partial.class)
     private List<RemoteProductInfo> remoteProductInfo;
 
