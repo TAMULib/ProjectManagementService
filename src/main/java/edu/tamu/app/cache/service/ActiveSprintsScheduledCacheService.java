@@ -91,7 +91,7 @@ public class ActiveSprintsScheduledCacheService extends AbstractProductScheduled
             remoteProductInfo.get().forEach(rp -> {
                 RemoteProductManagerBean remoteProductManagerBean = (RemoteProductManagerBean) managementBeanRegistry.getService(rp.getRemoteProductManager().getName());
                 try {
-                    activeSprints.addAll(remoteProductManagerBean.getActiveSprintsByProductId(rp.getScopeId()));
+                    activeSprints.addAll(remoteProductManagerBean.getActiveSprintsByProductIdAndName(rp.getScopeId(), product.getName()));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

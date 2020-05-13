@@ -13,7 +13,7 @@ public interface RemoteProductManagerBean extends ManagementBean {
 
     public RemoteProduct getRemoteProductByScopeId(final String scopeId) throws Exception;
 
-    public List<Sprint> getActiveSprintsByProductId(final String productScopeId) throws Exception;
+    public List<Sprint> getActiveSprintsByProductIdAndName(final String productScopeId, final String productName) throws Exception;
 
     public List<Sprint> getAdditionalActiveSprints() throws Exception;
 

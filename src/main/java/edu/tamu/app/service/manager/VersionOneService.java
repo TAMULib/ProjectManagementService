@@ -126,7 +126,7 @@ public class VersionOneService extends MappingRemoteProductManagerBean {
     }
 
     @Override
-    public List<Sprint> getActiveSprintsByProductId(final String productScopeId) throws ConnectionException, APIException, OidException, IOException {
+    public List<Sprint> getActiveSprintsByProductIdAndName(final String productScopeId, final String productName) throws ConnectionException, APIException, OidException, IOException {
         logger.info("Fetching active sprints for product with scope id " + productScopeId);
         List<Sprint> activeSprints = new ArrayList<Sprint>();
         IAssetType timeboxType = services.getMeta().getAssetType("Timebox");
@@ -155,17 +155,6 @@ public class VersionOneService extends MappingRemoteProductManagerBean {
         for (Asset sprint : result.getAssets()) {
             String id = parseId(sprint.getOid());
             String name = sprint.getAttribute(nameAttributeDefinition).getValue().toString();
-
-            Object[] scheduledScopes = sprint.getAttribute(scheduleScheduledScopesAttributeDefinition).getValues();
-            Object[] scheduledScopeNames = sprint.getAttribute(scheduleScheduledScopesNameAttributeDefinition).getValues();
-
-            String productName = null;
-            for (int i = 0; i < scheduledScopes.length; i++) {
-                if (scheduledScopes[i].toString().equals("Scope:" + productScopeId)) {
-                    productName = scheduledScopeNames[i].toString();
-                    break;
-                }
-            }
 
             List<Card> cards = getActiveSprintsCards(id);
             activeSprints.add(new Sprint(id, name, productName, cards));

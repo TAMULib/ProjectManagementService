@@ -93,7 +93,7 @@ public class GitHubService extends MappingRemoteProductManagerBean {
     }
 
     @Override
-    public List<Sprint> getActiveSprintsByProductId(final String productScopeId) throws Exception {
+    public List<Sprint> getActiveSprintsByProductIdAndName(final String productScopeId, final String productName) throws Exception {
         logger.info("Fetching active sprints for product with scope id " + productScopeId);
         List<Sprint> activeSprints = new ArrayList<Sprint>();
         GHRepository repo = github.getRepositoryById(productScopeId);
@@ -101,9 +101,8 @@ public class GitHubService extends MappingRemoteProductManagerBean {
         for (GHProject project : projects) {
             String sprintId = String.valueOf(project.getId());
             String name = project.getName();
-            String projectName = repo.getName();
             List<Card> cards = getCards(project);
-            activeSprints.add(new Sprint(sprintId, name, projectName, cards));
+            activeSprints.add(new Sprint(sprintId, name, productName, cards));
         }
         return activeSprints;
     }
