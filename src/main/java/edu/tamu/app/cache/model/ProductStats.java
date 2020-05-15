@@ -10,13 +10,13 @@ public class ProductStats implements Serializable {
 
     private final String name;
 
-    private final int requestCount;
+    private final long requestCount;
 
-    private final int issueCount;
+    private final long issueCount;
 
-    private final int featureCount;
+    private final long featureCount;
 
-    private final int defectCount;
+    private final long defectCount;
 
     public ProductStats() {
         super();
@@ -28,7 +28,7 @@ public class ProductStats implements Serializable {
         defectCount = 0;
     }
 
-    public ProductStats(String id, String name, int requestCount, int issueCount, int featureCount, int defectCount) {
+    public ProductStats(String id, String name, long requestCount, long issueCount, long featureCount, long defectCount) {
         super();
         this.id = id;
         this.name = name;
@@ -46,23 +46,23 @@ public class ProductStats implements Serializable {
         return name;
     }
 
-    public int getRequestCount() {
+    public long getRequestCount() {
         return requestCount;
     }
 
-    public int getIssueCount() {
+    public long getIssueCount() {
         return issueCount;
     }
 
-    public int getFeatureCount() {
+    public long getFeatureCount() {
         return featureCount;
     }
 
-    public int getDefectCount() {
+    public long getDefectCount() {
         return defectCount;
     }
 
-    public int getBacklogItemCount() {
+    public long getBacklogItemCount() {
         return featureCount + defectCount;
     }
 

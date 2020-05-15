@@ -8,7 +8,7 @@ public class RemoteProduct extends ProductStats {
         super();
     }
 
-    public RemoteProduct(String id, String name, int requestCount, int issueCount, int featureCount, int defectCount) {
+    public RemoteProduct(String id, String name, long requestCount, long issueCount, long featureCount, long defectCount) {
         super(id, name, requestCount, issueCount, featureCount, defectCount);
     }
 
