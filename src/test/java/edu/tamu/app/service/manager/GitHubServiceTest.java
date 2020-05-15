@@ -27,6 +27,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.kohsuke.github.GHIssue;
+import org.kohsuke.github.GHIssueState;
 import org.kohsuke.github.GHLabel;
 import org.kohsuke.github.GHOrganization;
 import org.kohsuke.github.GHProject;
@@ -86,7 +87,11 @@ public class GitHubServiceTest extends CacheMockTests {
     private static final GHLabel TEST_LABEL4 = mock(GHLabel.class);
     private static final GHLabel TEST_LABEL5 = mock(GHLabel.class);
 
-    private static final GHIssue TEST_ISSUE = mock(GHIssue.class);
+    private static final GHIssue TEST_ISSUE1 = mock(GHIssue.class, RETURNS_DEEP_STUBS.get());
+    private static final GHIssue TEST_ISSUE2 = mock(GHIssue.class, RETURNS_DEEP_STUBS.get());
+    private static final GHIssue TEST_ISSUE3 = mock(GHIssue.class, RETURNS_DEEP_STUBS.get());
+    private static final GHIssue TEST_ISSUE4 = mock(GHIssue.class, RETURNS_DEEP_STUBS.get());
+    private static final GHIssue TEST_ISSUE5 = mock(GHIssue.class, RETURNS_DEEP_STUBS.get());
 
     private static final GHUser TEST_USER1 = mock(GHUser.class);
     private static final GHUser TEST_USER2 = mock(GHUser.class);
@@ -146,6 +151,9 @@ public class GitHubServiceTest extends CacheMockTests {
     private static final List<GHProjectCard> TEST_COLUMN3_CARDS = new ArrayList<GHProjectCard>(
             Arrays.asList(new GHProjectCard[] { TEST_CARD5 }));
 
+    private static final List<GHIssue> TEST_ISSUE_LIST = new ArrayList<GHIssue>(
+            Arrays.asList((new GHIssue[] { TEST_ISSUE1, TEST_ISSUE2, TEST_ISSUE3, TEST_ISSUE4, TEST_ISSUE5 })));
+
     private static final List<GHProjectColumn> TEST_PROJECT_COLUMNS = new ArrayList<GHProjectColumn>(
             Arrays.asList(new GHProjectColumn[] { TEST_COLUMN1, TEST_COLUMN2, TEST_COLUMN3 }));
 
@@ -202,9 +210,11 @@ public class GitHubServiceTest extends CacheMockTests {
         when(TEST_ORGANIZATION.listProjects(any(ProjectStateFilter.class)).asList()).thenReturn(TEST_PROJECTS);
 
         when(TEST_REPOSITORY1.getId()).thenReturn(TEST_REPOSITORY1_ID);
-        when(TEST_REPOSITORY1.createIssue(any(String.class)).body(any(String.class)).create()).thenReturn(TEST_ISSUE);
+        when(TEST_REPOSITORY1.createIssue(any(String.class)).body(any(String.class)).create()).thenReturn(TEST_ISSUE1);
         when(TEST_REPOSITORY1.listProjects(any(ProjectStateFilter.class)).asList()).thenReturn(TEST_PROJECTS);
         when(TEST_REPOSITORY1.listProjects().asList()).thenReturn(TEST_PROJECTS);
+        when(TEST_REPOSITORY1.listIssues(any(GHIssueState.class)).asList()).thenReturn(TEST_ISSUE_LIST);
+        when(TEST_REPOSITORY2.listIssues(any(GHIssueState.class)).asList()).thenReturn(TEST_ISSUE_LIST);
         when(TEST_REPOSITORY2.listProjects().asList()).thenReturn(TEST_PROJECTS);
         when(TEST_REPOSITORY1.listLabels().asList()).thenReturn(ALL_TEST_LABELS);
         when(TEST_REPOSITORY2.listLabels().asList()).thenReturn(ALL_TEST_LABELS);
@@ -217,10 +227,16 @@ public class GitHubServiceTest extends CacheMockTests {
         when(TEST_COLUMN2.listCards().asList()).thenReturn(TEST_COLUMN2_CARDS);
         when(TEST_COLUMN3.listCards().asList()).thenReturn(TEST_COLUMN3_CARDS);
 
-        when(TEST_CARD1.getContent()).thenReturn(TEST_ISSUE);
-        when(TEST_ISSUE.getLabels()).thenReturn(TEST_CARD1_LABELS);
-        when(TEST_ISSUE.getAssignees()).thenReturn(TEST_USERS1);
+        when(TEST_CARD1.getContent()).thenReturn(TEST_ISSUE1);
         when(TEST_CARD1.getColumn()).thenReturn(TEST_COLUMN1);
+
+        when(TEST_ISSUE1.getLabels()).thenReturn(TEST_CARD1_LABELS);
+        when(TEST_ISSUE2.getLabels()).thenReturn(TEST_CARD2_LABELS);
+        when(TEST_ISSUE3.getLabels()).thenReturn(TEST_CARD3_LABELS);
+        when(TEST_ISSUE4.getLabels()).thenReturn(TEST_CARD4_LABELS);
+        when(TEST_ISSUE5.getLabels()).thenReturn(TEST_CARD5_LABELS);
+        when(TEST_ISSUE1.getAssignees()).thenReturn(TEST_USERS1);
+        
 
         when(TEST_COLUMN1.getName()).thenReturn(TEST_COLUMN1_NAME);
 
@@ -337,10 +353,10 @@ public class GitHubServiceTest extends CacheMockTests {
     public void testGetRemoteProjects() throws Exception {
         List<RemoteProduct> remoteProjects = gitHubService.getRemoteProduct();
         assertEquals("Didn't get all the remote projects", 2, remoteProjects.size());
-        assertEquals("Number of Requests was incorrect", 3, remoteProjects.get(0).getRequestCount());
-        assertEquals("Number of Issues was incorrect", 6, remoteProjects.get(0).getIssueCount());
-        assertEquals("Number of Features was incorrect", 6, remoteProjects.get(0).getFeatureCount());
-        assertEquals("Number of Defects was incorrect", 3, remoteProjects.get(0).getDefectCount());
+        assertEquals("Number of Requests was incorrect", 1, remoteProjects.get(0).getRequestCount());
+        assertEquals("Number of Issues was incorrect", 2, remoteProjects.get(0).getIssueCount());
+        assertEquals("Number of Features was incorrect", 1, remoteProjects.get(0).getFeatureCount());
+        assertEquals("Number of Defects was incorrect", 1, remoteProjects.get(0).getDefectCount());
     }
 
     @Test
@@ -348,10 +364,10 @@ public class GitHubServiceTest extends CacheMockTests {
         RemoteProduct project = gitHubService.getRemoteProductByScopeId(String.valueOf(TEST_REPOSITORY1_ID));
         assertNotNull("Didn't get the remote project", project);
         assertEquals("Did not get the expected project", String.valueOf(TEST_REPOSITORY1_ID), project.getId());
-        assertEquals("Number of Requests was incorrect", 3, project.getRequestCount());
-        assertEquals("Number of Issues was incorrect", 6, project.getIssueCount());
-        assertEquals("Number of Features was incorrect", 6, project.getFeatureCount());
-        assertEquals("Number of Defects was incorrect", 3, project.getDefectCount());
+        assertEquals("Number of Requests was incorrect", 1, project.getRequestCount());
+        assertEquals("Number of Issues was incorrect", 2, project.getIssueCount());
+        assertEquals("Number of Features was incorrect", 1, project.getFeatureCount());
+        assertEquals("Number of Defects was incorrect", 1, project.getDefectCount());
     }
 
     @Test
@@ -369,7 +385,7 @@ public class GitHubServiceTest extends CacheMockTests {
     @Test
     public void testPush() throws Exception {
         GHIssue issue = (GHIssue) gitHubService.push(TEST_FEATURE_REQUEST);
-        assertEquals("Didn't get expected issue", TEST_ISSUE, issue);
+        assertEquals("Didn't get expected issue", TEST_ISSUE1, issue);
     }
 
     @Test
