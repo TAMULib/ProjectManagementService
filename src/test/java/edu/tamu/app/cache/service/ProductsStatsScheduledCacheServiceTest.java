@@ -125,11 +125,11 @@ public class ProductsStatsScheduledCacheServiceTest {
     }
 
     private ProductStats getMockProductStats() {
-        return new ProductStats("1000", TEST_PRODUCT_NAME, 2, 3, 10, 3);
+        return new ProductStats("1000", TEST_PRODUCT_NAME, 2, 3, 10, 3, 1);
     }
 
     private RemoteProduct getMockRemoteProduct() {
-        return new RemoteProduct("1000", TEST_PRODUCT_NAME, 2, 3, 10, 3);
+        return new RemoteProduct("1000", TEST_PRODUCT_NAME, 2, 3, 10, 3, 1);
     }
 
     private void assertProductsStats(List<ProductStats> productStatsCache) {
@@ -141,6 +141,7 @@ public class ProductsStatsScheduledCacheServiceTest {
         assertEquals(3, productStatsCache.get(0).getIssueCount());
         assertEquals(10, productStatsCache.get(0).getFeatureCount());
         assertEquals(3, productStatsCache.get(0).getDefectCount());
+        assertEquals(1, productStatsCache.get(0).getInternalCount());
         assertEquals(13, productStatsCache.get(0).getBacklogItemCount());
     }
 

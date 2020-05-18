@@ -46,6 +46,7 @@ public class InternalRequestControllerTest {
 
     private static final String TEST_REQUEST_TITLE_BELLS = "Test Feature Request Title Bells";
     private static final String TEST_REQUEST_TITLE_WHISTLES = "Test Feature Request Title Whistles";
+
     private static final String TEST_REQUEST_DESCRIPTION_BELLS = "Test Feature Request Description Bells";
     private static final String TEST_REQUEST_DESCRIPTION_WHISTLES = "Test Feature Request Description Whistles";
 
@@ -70,8 +71,8 @@ public class InternalRequestControllerTest {
     private static Date TEST_REQUEST_CREATED_ON_BELLS = Date.from(Instant.now().minusSeconds(30L));
     private static Date TEST_REQUEST_CREATED_ON_WHISTLES = Date.from(Instant.now());
 
-    private static InternalRequest TEST_REQUEST_BELLS = new InternalRequest(TEST_REQUEST_TITLE_BELLS, TEST_REQUEST_DESCRIPTION_BELLS, TEST_REQUEST_CREATED_ON_BELLS);
-    private static InternalRequest TEST_REQUEST_WHISTLES = new InternalRequest(TEST_REQUEST_TITLE_WHISTLES, TEST_REQUEST_DESCRIPTION_WHISTLES, TEST_REQUEST_CREATED_ON_WHISTLES);
+    private static InternalRequest TEST_REQUEST_BELLS = new InternalRequest(TEST_REQUEST_TITLE_BELLS, TEST_REQUEST_DESCRIPTION_BELLS, TEST_PRODUCT1, TEST_REQUEST_CREATED_ON_BELLS);
+    private static InternalRequest TEST_REQUEST_WHISTLES = new InternalRequest(TEST_REQUEST_TITLE_WHISTLES, TEST_REQUEST_DESCRIPTION_WHISTLES, null, TEST_REQUEST_CREATED_ON_WHISTLES);
 
     private static List<Product> mockProductList = new ArrayList<Product>(Arrays.asList(new Product[] { TEST_PRODUCT1, TEST_PRODUCT2 }));
 
@@ -116,7 +117,9 @@ public class InternalRequestControllerTest {
         mockRequestsRepo = new ArrayList<InternalRequest>(Arrays.asList(new InternalRequest[] { TEST_REQUEST_BELLS, TEST_REQUEST_WHISTLES }));
 
         when(internalRequestRepo.findAll()).thenReturn(mockRequestsRepo);
-        when(internalRequestRepo.count()).thenReturn((long) mockRequestsRepo.size());
+        when(internalRequestRepo.count()).thenReturn(2L);
+        when(internalRequestRepo.countByProductId(any(Long.class))).thenReturn(1L);
+        when(internalRequestRepo.countByProductIsNull()).thenReturn(1L);
         when(internalRequestRepo.create(any(InternalRequest.class))).thenReturn(TEST_REQUEST_BELLS);
         when(internalRequestRepo.update(any(InternalRequest.class))).thenReturn(TEST_REQUEST_BELLS);
         when(remoteProductManagementBean.push(any(FeatureRequest.class))).thenReturn(TEST_FEATURE_REQUEST);
@@ -275,10 +278,26 @@ public class InternalRequestControllerTest {
     }
 
     @Test
-    public void testStats() {
+    public void testStatsAssigned() {
+        ApiResponse apiResponse = internalRequestController.stats();
+
+        assertEquals("Request for assigned Internal Request stats was unsuccessful", SUCCESS, apiResponse.getMeta().getStatus());
+        assertEquals("Number of assigned Internal Requests was not correct", 1L, ((InternalStats) apiResponse.getPayload().get("InternalStats")).getAssignedCount());
+    }
+
+    @Test
+    public void testStatsUnassigned() {
+        ApiResponse apiResponse = internalRequestController.stats();
+
+        assertEquals("Request for unassigned Internal Request stats was unsuccessful", SUCCESS, apiResponse.getMeta().getStatus());
+        assertEquals("Number of unassigned Internal Requests was not correct", 1L, ((InternalStats) apiResponse.getPayload().get("InternalStats")).getUnassignedCount());
+    }
+
+    @Test
+    public void testStatsTotal() {
         ApiResponse apiResponse = internalRequestController.stats();
 
         assertEquals("Request for Internal Request stats was unsuccessful", SUCCESS, apiResponse.getMeta().getStatus());
-        assertEquals("Number of Internal Requests was not correct", 2L, ((InternalStats) apiResponse.getPayload().get("InternalStats")).getInternalCount());
+        assertEquals("Number of Internal Requests was not correct", 2L, ((InternalStats) apiResponse.getPayload().get("InternalStats")).getTotalCount());
     }
 }

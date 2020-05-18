@@ -23,6 +23,8 @@ public abstract class ModelTest {
 
     protected static final String TEST_ALTERNATE_PRODUCT_NAME = "Alternate Product Name";
 
+    protected static final Product TEST_PRODUCT = new Product(TEST_PRODUCT_NAME);
+
     protected static final String TEST_REMOTE_PRODUCT_MANAGER1_NAME = "Test Remote Product Manager 1";
     protected static final String TEST_REMOTE_PRODUCT_MANAGER2_NAME = "Test Remote Product Manager 2";
 
@@ -51,8 +53,8 @@ public abstract class ModelTest {
     protected static final List<RemoteProductInfo> TEST_PRODUCT_REMOTE_PRODUCT_INFO_LIST1 = new ArrayList<RemoteProductInfo>(Arrays.asList(TEST_REMOTE_PRODUCT_INFO1, TEST_REMOTE_PRODUCT_INFO2));
     protected static final List<RemoteProductInfo> TEST_PRODUCT_REMOTE_PRODUCT_INFO_LIST2 = new ArrayList<RemoteProductInfo>(Arrays.asList(TEST_REMOTE_PRODUCT_INFO3));
 
-    protected static final InternalRequest TEST_INTERNAL_REQUEST1 = new InternalRequest(TEST_INTERNAL_REQUEST_TITLE1, TEST_INTERNAL_REQUEST_DESCRIPTION1, TEST_INTERNAL_REQUEST_CREATED_ON1);
-    protected static final InternalRequest TEST_INTERNAL_REQUEST2 = new InternalRequest(TEST_INTERNAL_REQUEST_TITLE2, TEST_INTERNAL_REQUEST_DESCRIPTION2, TEST_INTERNAL_REQUEST_CREATED_ON2);
+    protected static final InternalRequest TEST_INTERNAL_REQUEST1 = new InternalRequest(TEST_INTERNAL_REQUEST_TITLE1, TEST_INTERNAL_REQUEST_DESCRIPTION1, TEST_PRODUCT, TEST_INTERNAL_REQUEST_CREATED_ON1);
+    protected static final InternalRequest TEST_INTERNAL_REQUEST2 = new InternalRequest(TEST_INTERNAL_REQUEST_TITLE2, TEST_INTERNAL_REQUEST_DESCRIPTION2, null, TEST_INTERNAL_REQUEST_CREATED_ON2);
 
     @Autowired
     protected StatusRepo statusRepo;

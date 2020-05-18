@@ -6,20 +6,31 @@ public class InternalStats implements Serializable {
 
     private static final long serialVersionUID = -1622544796949909087L;
 
-    private final long internalCount;
+    private final long unassignedCount;
+    private final long totalCount;
 
     public InternalStats() {
         super();
-        internalCount = 0;
+        unassignedCount = 0;
+        totalCount = 0;
     }
 
-    public InternalStats(long internalCount) {
+    public InternalStats(long unassignedCount, long totalCount) {
         super();
-        this.internalCount = internalCount;
+        this.unassignedCount = unassignedCount;
+        this.totalCount = totalCount;
     }
 
-    public long getInternalCount() {
-        return internalCount;
+    public long getAssignedCount() {
+        return totalCount - unassignedCount;
+    }
+
+    public long getUnassignedCount() {
+        return unassignedCount;
+    }
+
+    public long getTotalCount() {
+        return totalCount;
     }
 
 }

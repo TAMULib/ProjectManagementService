@@ -72,6 +72,7 @@ public class RemoteProductsCacheControllerTest {
         assertEquals(3, remoteProducts.get(0).getIssueCount());
         assertEquals(10, remoteProducts.get(0).getFeatureCount());
         assertEquals(3, remoteProducts.get(0).getDefectCount());
+        assertEquals(1, remoteProducts.get(0).getInternalCount());
         assertEquals(13, remoteProducts.get(0).getBacklogItemCount());
     }
 
@@ -84,7 +85,7 @@ public class RemoteProductsCacheControllerTest {
     }
 
     private RemoteProduct getMockRemoteProduct() {
-        return new RemoteProduct("0001", "Sprint 1", 2, 3, 10, 3);
+        return new RemoteProduct("0001", "Sprint 1", 2, 3, 10, 3, 1);
     }
 
 }

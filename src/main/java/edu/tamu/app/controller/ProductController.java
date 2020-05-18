@@ -6,6 +6,7 @@ import static edu.tamu.weaver.validation.model.BusinessValidationType.CREATE;
 import static edu.tamu.weaver.validation.model.BusinessValidationType.DELETE;
 import static edu.tamu.weaver.validation.model.BusinessValidationType.UPDATE;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -131,8 +132,17 @@ public class ProductController {
     @PostMapping("/feature")
     @PreAuthorize("hasRole('MANAGER') or @whitelist.isAllowed()")
     public ApiResponse pushRequest(@RequestBody FeatureRequest request) {
-        internalRequestRepo.create(new InternalRequest(request.getTitle(), request.getDescription()));
-        return new ApiResponse(SUCCESS, request);
+        Optional<Product> product = Optional.ofNullable(productRepo.findOne(request.getProductId()));
+        ApiResponse response;
+
+        if (product.isPresent()) {
+            internalRequestRepo.create(new InternalRequest(request.getTitle(), request.getDescription(), product.get(), new Date()));
+            response = new ApiResponse(SUCCESS, request);
+        } else {
+            response = new ApiResponse(ERROR, "Product with id " + request.getProductId() + " not found!");
+        }
+
+        return response;
     }
 
     @GetMapping("/remote-products/{productId}")

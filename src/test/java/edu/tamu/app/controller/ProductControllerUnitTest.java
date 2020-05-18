@@ -8,8 +8,10 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -54,8 +56,6 @@ public class ProductControllerUnitTest {
     private static final String TEST_FEATURE_REQUEST_TITLE = "Test Feature Request Title";
     private static final String TEST_FEATURE_REQUEST_DESCRIPTION = "Test Feature Request Description";
 
-    private static final InternalRequest TEST_REQUEST_NAME = new InternalRequest(TEST_FEATURE_REQUEST_TITLE, TEST_FEATURE_REQUEST_DESCRIPTION);
-
     private static final String INVALID_RPM_ID_ERROR_MESSAGE = "Error fetching remote products from Test Remote Product Manager!";
     private static final String MISSING_RPM_ERROR_MESSAGE = "Remote Product Manager with id null not found!";
     private static final String INVALID_RPM_ID_ERROR_MESSAGE_FIND_BY_ID = "Error fetching remote product with scope id " + TEST_PRODUCT1_SCOPE1 + " from Test Remote Product Manager!";
@@ -68,9 +68,14 @@ public class ProductControllerUnitTest {
 
     private static final List<RemoteProductInfo> TEST_PRODUCT1_REMOTE_PRODUCT_INFO_LIST = new ArrayList<RemoteProductInfo>(Arrays.asList(TEST_REMOTE_PRODUCT_INFO1, TEST_REMOTE_PRODUCT_INFO2));
 
+    private static Instant TEST_INSTANT_NOW = new Date().toInstant();
+    private static Date TEST_CREATED_ON1 = Date.from(TEST_INSTANT_NOW);
+
     private static Product TEST_PRODUCT1 = new Product(TEST_PRODUCT1_NAME, TEST_PRODUCT1_REMOTE_PRODUCT_INFO_LIST);
     private static Product TEST_PRODUCT2 = new Product(TEST_PRODUCT2_NAME);
     private static Product TEST_MODIFIED_PRODUCT = new Product(TEST_MODIFIED_PRODUCT_NAME);
+
+    private static final InternalRequest TEST_REQUEST1 = new InternalRequest(TEST_FEATURE_REQUEST_TITLE, TEST_FEATURE_REQUEST_DESCRIPTION, TEST_PRODUCT1, TEST_CREATED_ON1);
 
     private static TicketRequest TEST_TICKET_REQUEST = new TicketRequest();
 
@@ -117,7 +122,7 @@ public class ProductControllerUnitTest {
         when(remoteProductManagerRepo.findOne(any(Long.class))).thenReturn(TEST_REMOTE_PRODUCT_MANAGER);
         doNothing().when(productRepo).delete(any(Product.class));
         when(sugarService.submit(any(TicketRequest.class))).thenReturn("Successfully submitted issue for test service!");
-        when(internalRequestRepo.create(any(InternalRequest.class))).thenReturn(TEST_REQUEST_NAME);
+        when(internalRequestRepo.create(any(InternalRequest.class))).thenReturn(TEST_REQUEST1);
 
         TEST_PRODUCT1.setId(1L);
         TEST_PRODUCT2.setId(2L);

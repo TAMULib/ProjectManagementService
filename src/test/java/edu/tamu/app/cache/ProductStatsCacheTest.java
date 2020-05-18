@@ -54,7 +54,7 @@ public class ProductStatsCacheTest {
     }
 
     private ProductStats getMockProductStats() {
-        return new ProductStats("0001", "Sprint 1", 2, 3, 10, 3);
+        return new ProductStats("0001", "Sprint 1", 2, 3, 10, 3, 1);
     }
 
 }

@@ -112,7 +112,7 @@ public class RemoteProductsScheduledCacheServiceTest {
     }
 
     private RemoteProduct getMockRemoteProduct() {
-        return new RemoteProduct("0001", "Sprint 1", 2, 3, 10, 3);
+        return new RemoteProduct("0001", "Sprint 1", 2, 3, 10, 3, 1);
     }
 
     private void assertRemoteProducts(Map<Long, List<RemoteProduct>> remoteProductsCache) {
@@ -131,6 +131,7 @@ public class RemoteProductsScheduledCacheServiceTest {
         assertEquals(3, remoteProduct.getIssueCount());
         assertEquals(10, remoteProduct.getFeatureCount());
         assertEquals(3, remoteProduct.getDefectCount());
+        assertEquals(1, remoteProduct.getInternalCount());
         assertEquals(13, remoteProduct.getBacklogItemCount());
     }
 

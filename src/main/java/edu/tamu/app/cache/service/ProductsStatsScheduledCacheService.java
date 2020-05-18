@@ -18,6 +18,7 @@ import edu.tamu.app.cache.model.RemoteProduct;
 import edu.tamu.app.model.Product;
 import edu.tamu.app.model.RemoteProductInfo;
 import edu.tamu.app.model.RemoteProductManager;
+import edu.tamu.app.model.repo.InternalRequestRepo;
 import edu.tamu.app.model.repo.ProductRepo;
 import edu.tamu.weaver.response.ApiResponse;
 
@@ -28,6 +29,9 @@ public class ProductsStatsScheduledCacheService extends AbstractProductScheduled
 
     @Autowired
     private ProductRepo productRepo;
+
+    @Autowired
+    private InternalRequestRepo internalRequestRepo;
 
     @Autowired
     private RemoteProductsScheduledCacheService remoteProductsScheduledCacheService;
@@ -82,10 +86,11 @@ public class ProductsStatsScheduledCacheService extends AbstractProductScheduled
     private ProductStats getProductStats(Product product) {
         String id = product.getId().toString();
         String name = product.getName();
-        int requestCount = 0;
-        int issueCount = 0;
-        int featureCount = 0;
-        int defectCount = 0;
+        long requestCount = 0;
+        long issueCount = 0;
+        long featureCount = 0;
+        long defectCount = 0;
+        long internalCount = internalRequestRepo.countByProductId(product.getId());
 
         List<RemoteProductInfo> remoteProductInfo = product.getRemoteProductInfo();
         for (RemoteProductInfo rpi : remoteProductInfo) {
@@ -102,7 +107,7 @@ public class ProductsStatsScheduledCacheService extends AbstractProductScheduled
             }
         }
 
-        return new ProductStats(id, name, requestCount, issueCount, featureCount, defectCount);
+        return new ProductStats(id, name, requestCount, issueCount, featureCount, defectCount, internalCount);
     }
 
     @Override
