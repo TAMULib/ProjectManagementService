@@ -90,7 +90,12 @@ public class ProductsStatsScheduledCacheService extends AbstractProductScheduled
         long issueCount = 0;
         long featureCount = 0;
         long defectCount = 0;
-        long internalCount = internalRequestRepo.countByProductId(product.getId());
+        long internalCount = 0;
+
+        Optional<Long> productId = Optional.ofNullable(product.getId());
+        if (productId.isPresent()) {
+            internalCount = internalRequestRepo.countByProductId(productId.get());
+        }
 
         List<RemoteProductInfo> remoteProductInfo = product.getRemoteProductInfo();
         for (RemoteProductInfo rpi : remoteProductInfo) {

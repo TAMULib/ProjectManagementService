@@ -32,6 +32,7 @@ import edu.tamu.app.model.Product;
 import edu.tamu.app.model.RemoteProductInfo;
 import edu.tamu.app.model.RemoteProductManager;
 import edu.tamu.app.model.ServiceType;
+import edu.tamu.app.model.repo.InternalRequestRepo;
 import edu.tamu.app.model.repo.ProductRepo;
 
 @RunWith(SpringRunner.class)
@@ -50,6 +51,9 @@ public class ProductsStatsScheduledCacheServiceTest {
     private ProductRepo productRepo;
 
     @Mock
+    private InternalRequestRepo internalRequestRepo;
+
+    @Mock
     private RemoteProductsScheduledCacheService remoteProductsScheduledCacheService;
 
     @Mock
@@ -63,6 +67,7 @@ public class ProductsStatsScheduledCacheServiceTest {
         MockitoAnnotations.initMocks(this);
         when(productRepo.findAll()).thenReturn(Arrays.asList(new Product[] { getMockProduct() }));
         when(remoteProductsScheduledCacheService.getRemoteProduct(any(Long.class), any(String.class))).thenReturn(Optional.of(getMockRemoteProduct()));
+        when(internalRequestRepo.countByProductId(any(Long.class))).thenReturn(1L);
     }
 
     @Test

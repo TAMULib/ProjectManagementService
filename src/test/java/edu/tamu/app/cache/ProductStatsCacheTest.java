@@ -50,6 +50,7 @@ public class ProductStatsCacheTest {
         assertEquals("Cached product stats had incorrect number of issues!", 3, remoteProductsCache.get(0).getIssueCount());
         assertEquals("Cached product stats had incorrect number of features!", 10, remoteProductsCache.get(0).getFeatureCount());
         assertEquals("Cached product stats had incorrect number of defects!", 3, remoteProductsCache.get(0).getDefectCount());
+        assertEquals("Cached product stats had incorrect number of internals!", 1, remoteProductsCache.get(0).getInternalCount());
         assertEquals("Cached product stats had incorrect total backlog items!", 13, remoteProductsCache.get(0).getBacklogItemCount());
     }
 

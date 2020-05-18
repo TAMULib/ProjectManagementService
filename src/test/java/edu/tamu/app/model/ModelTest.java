@@ -87,6 +87,7 @@ public abstract class ModelTest {
 
     @After
     public void cleanup() {
+        internalRequestRepo.deleteAll();
         statusRepo.deleteAll();
         cardTypeRepo.deleteAll();
         estimateRepo.deleteAll();
