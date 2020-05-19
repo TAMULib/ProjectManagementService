@@ -32,46 +32,4 @@ public class RemoteProjectController {
 
     @Autowired
     private ManagementBeanRegistry managementBeanRegistry;
-
-    @GetMapping("/by-product/{productId}")
-    @PreAuthorize("hasRole('MANAGER')")
-    public ApiResponse getAllForProduct(@PathVariable Long productId) {
-        Optional<Product> product = Optional.ofNullable(productRepo.findOne(productId));
-        ApiResponse response;
-
-        if (product.isPresent()) {
-            Map<String, RemoteProject> remoteProjects = new HashMap<>();
-            Map<String, RemoteProjectManagerBean> rpmBeans = new HashMap<>();
-
-            for (RemoteProjectInfo rpi : product.get().getRemoteProjectInfo()) {
-                if (remoteProjects.containsKey(rpi.getScopeId())) {
-                    continue;
-                }
-
-                RemoteProjectManager rpm = rpi.getRemoteProjectManager();
-                RemoteProjectManagerBean rpmBean;
-
-                if (rpmBeans.containsKey(rpm.getName())) {
-                    rpmBean = rpmBeans.get(rpm.getName());
-                }
-                else {
-                    rpmBean = (RemoteProjectManagerBean) managementBeanRegistry.getService(rpm.getName());
-                }
-
-                try {
-                    RemoteProject remoteProject = rpmBean.getRemoteProjectByScopeId(rpi.getScopeId());
-                    remoteProjects.put(rpi.getScopeId(), remoteProject);
-                } catch (Exception e) {
-                    response = new ApiResponse(ERROR, "Error fetching remote projects associated with product " + product.get().getName() + "!");
-                    return response;
-                }
-            }
-
-            response = new ApiResponse(SUCCESS, remoteProjects);
-        } else {
-            response = new ApiResponse(ERROR, "Product with id " + productId + " not found!");
-        }
-
-        return response;
-    }
 }

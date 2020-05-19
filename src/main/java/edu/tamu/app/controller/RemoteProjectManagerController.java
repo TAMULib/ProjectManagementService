@@ -1,12 +1,9 @@
 package edu.tamu.app.controller;
 
-import static edu.tamu.weaver.response.ApiStatus.ERROR;
 import static edu.tamu.weaver.response.ApiStatus.SUCCESS;
 import static edu.tamu.weaver.validation.model.BusinessValidationType.CREATE;
 import static edu.tamu.weaver.validation.model.BusinessValidationType.DELETE;
 import static edu.tamu.weaver.validation.model.BusinessValidationType.UPDATE;
-
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,8 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 import edu.tamu.app.model.RemoteProjectManager;
 import edu.tamu.app.model.ServiceType;
 import edu.tamu.app.model.repo.RemoteProjectManagerRepo;
-import edu.tamu.app.service.manager.RemoteProjectManagerBean;
-import edu.tamu.app.service.registry.ManagementBeanRegistry;
 import edu.tamu.weaver.response.ApiResponse;
 import edu.tamu.weaver.validation.aspect.annotation.WeaverValidatedModel;
 import edu.tamu.weaver.validation.aspect.annotation.WeaverValidation;
@@ -35,9 +30,6 @@ public class RemoteProjectManagerController {
 
     @Autowired
     private RemoteProjectManagerRepo remoteProjectManagerRepo;
-
-    @Autowired
-    private ManagementBeanRegistry managementBeanRegistry;
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -90,41 +82,5 @@ public class RemoteProjectManagerController {
     public ApiResponse getTypeScaffolding(@PathVariable String type) {
         ServiceType serviceType = ServiceType.valueOf(type);
         return new ApiResponse(SUCCESS, serviceType.getScaffold());
-    }
-
-    @GetMapping("/{remoteProjectManagerId}/remote-projects")
-    @PreAuthorize("hasRole('MANAGER')")
-    public ApiResponse getAllRemoteProjects(@PathVariable Long remoteProjectManagerId) {
-        Optional<RemoteProjectManager> remoteProjectManager = Optional.ofNullable(remoteProjectManagerRepo.findOne(remoteProjectManagerId));
-        ApiResponse response;
-        if (remoteProjectManager.isPresent()) {
-            RemoteProjectManagerBean remoteProjectManagerBean = (RemoteProjectManagerBean) managementBeanRegistry.getService(remoteProjectManager.get().getName());
-            try {
-                response = new ApiResponse(SUCCESS, remoteProjectManagerBean.getRemoteProject());
-            } catch (Exception e) {
-                response = new ApiResponse(ERROR, "Error fetching remote projects from " + remoteProjectManager.get().getName() + "!");
-            }
-        } else {
-            response = new ApiResponse(ERROR, "Remote Project Manager with id " + remoteProjectManagerId + " not found!");
-        }
-        return response;
-    }
-
-    @GetMapping("/{remoteProjectManagerId}/remote-projects/{scopeId}")
-    @PreAuthorize("hasRole('MANAGER')")
-    public ApiResponse getRemoteProjectByScopeId(@PathVariable Long remoteProjectManagerId, @PathVariable String scopeId) {
-        Optional<RemoteProjectManager> remoteProjectManager = Optional.ofNullable(remoteProjectManagerRepo.findOne(remoteProjectManagerId));
-        ApiResponse response;
-        if (remoteProjectManager.isPresent()) {
-            RemoteProjectManagerBean remoteProjectManagerBean = (RemoteProjectManagerBean) managementBeanRegistry.getService(remoteProjectManager.get().getName());
-            try {
-                response = new ApiResponse(SUCCESS, remoteProjectManagerBean.getRemoteProjectByScopeId(scopeId));
-            } catch (Exception e) {
-                response = new ApiResponse(ERROR, "Error fetching remote project with scope id " + scopeId + " from " + remoteProjectManager.get().getName() + "!");
-            }
-        } else {
-            response = new ApiResponse(ERROR, "Remote Project Manager with id " + remoteProjectManagerId + " not found!");
-        }
-        return response;
     }
 }

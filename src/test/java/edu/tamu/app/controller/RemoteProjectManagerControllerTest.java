@@ -1,6 +1,5 @@
 package edu.tamu.app.controller;
 
-import static edu.tamu.weaver.response.ApiStatus.ERROR;
 import static edu.tamu.weaver.response.ApiStatus.SUCCESS;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
@@ -19,14 +18,12 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import edu.tamu.app.cache.model.RemoteProject;
 import edu.tamu.app.model.Product;
 import edu.tamu.app.model.RemoteProjectInfo;
 import edu.tamu.app.model.RemoteProjectManager;
 import edu.tamu.app.model.ServiceType;
 import edu.tamu.app.model.repo.ProductRepo;
 import edu.tamu.app.model.repo.RemoteProjectManagerRepo;
-import edu.tamu.app.model.request.FeatureRequest;
 import edu.tamu.app.service.manager.RemoteProjectManagerBean;
 import edu.tamu.app.service.registry.ManagementBeanRegistry;
 import edu.tamu.weaver.response.ApiResponse;
@@ -39,18 +36,11 @@ public class RemoteProjectManagerControllerTest {
 
     private static final String TEST_PROJECT1_SCOPE1 = "0010";
     private static final String TEST_PROJECT1_SCOPE2 = "0011";
-    private static final String TEST_INVALID_SCOPE = "XXXX";
-
-    private static final String TEST_FEATURE_REQUEST_TITLE = "Test Feature Request Title";
-    private static final String TEST_FEATURE_REQUEST_DESCRIPTION = "Test Feature Request Description";
 
     private static final String TEST_RMP_ONE_NAME = "Test Remote Project Manager 1";
     private static final String TEST_RMP_TWO_NAME = "Test Remote Project Manager 2";
     private static final String TEST_MODIFIED_RMP_NAME = "Modified Remote Project Manager";
 
-    private static final String INVALID_RPM_ID_ERROR_MESSAGE = "Error fetching remote projects from " + TEST_RMP_ONE_NAME + "!";
-    private static final String MISSING_RPM_ERROR_MESSAGE = "Remote Project Manager with id null not found!";
-    private static final String INVALID_RPM_ID_ERROR_MESSAGE_FIND_BY_ID = "Error fetching remote project with scope id " + TEST_INVALID_SCOPE + " from " + TEST_RMP_ONE_NAME + "!";
 
     private static RemoteProjectManager testRemoteProjectManagerOne = new RemoteProjectManager(TEST_RMP_ONE_NAME, ServiceType.VERSION_ONE);
     private static RemoteProjectManager testRemoteProjectManagerTwo = new RemoteProjectManager(TEST_RMP_TWO_NAME, ServiceType.VERSION_ONE);
@@ -65,11 +55,7 @@ public class RemoteProjectManagerControllerTest {
     private static Product TEST_PRODUCT1 = new Product(TEST_PRODUCT1_NAME, TEST_PRODUCT1_REMOTE_PROJECT_INFO_LIST);
     private static Product TEST_PRODUCT2 = new Product(TEST_PRODUCT2_NAME);
 
-    private static FeatureRequest TEST_FEATURE_REQUEST = new FeatureRequest(TEST_FEATURE_REQUEST_TITLE, TEST_FEATURE_REQUEST_DESCRIPTION, TEST_PRODUCT1.getId(), TEST_PROJECT1_SCOPE1);
-
     private static List<Product> mockProductList = new ArrayList<Product>(Arrays.asList(new Product[] { TEST_PRODUCT1, TEST_PRODUCT2 }));
-
-    private static ApiResponse apiResponse;
 
     @Mock
     private ProductRepo productRepo;
@@ -148,56 +134,6 @@ public class RemoteProjectManagerControllerTest {
     public void testGetScaffolding() {
         ApiResponse response = remoteProjectManagerController.getTypeScaffolding(ServiceType.VERSION_ONE.toString());
         assertEquals("Not successful at getting scaffolding", SUCCESS, response.getMeta().getStatus());
-    }
-
-    @Test
-    public void testGetAllRemoteProjects() throws Exception {
-        when(remoteProjectManagerRepo.findOne(any(Long.class))).thenReturn(testRemoteProjectManagerOne);
-        when(remoteProjectManagementBean.push(TEST_FEATURE_REQUEST)).thenReturn(TEST_FEATURE_REQUEST);
-        when(managementBeanRegistry.getService(any(String.class))).thenReturn(remoteProjectManagementBean);
-        apiResponse = remoteProjectManagerController.getAllRemoteProjects(testRemoteProjectManagerOne.getId());
-        assertEquals("Remote Project Manager controller unable to get all remote projects", SUCCESS, apiResponse.getMeta().getStatus());
-    }
-
-    @Test
-    public void testGetAllRemoteProjectsWithInvalidRemoteProjectManager() {
-        when(remoteProjectManagerRepo.findOne(any(Long.class))).thenReturn(testRemoteProjectManagerOne);
-        apiResponse = remoteProjectManagerController.getAllRemoteProjects(testRemoteProjectManagerOne.getId());
-        assertEquals("Request with invalid Remote Project Manager id did not result in an error", ERROR, apiResponse.getMeta().getStatus());
-        assertEquals("Invalid Remote Project Manager id did not result in the expected error message", INVALID_RPM_ID_ERROR_MESSAGE, apiResponse.getMeta().getMessage());
-    }
-
-    @Test
-    public void testGetAllRemoteProjectsWithNoRemoteProjectManager() {
-        when(remoteProjectManagerRepo.findOne(any(Long.class))).thenReturn(null);
-        apiResponse = remoteProjectManagerController.getAllRemoteProjects(testRemoteProjectManagerOne.getId());
-        assertEquals("Request without Remote Project Manager did not result in an error", ERROR, apiResponse.getMeta().getStatus());
-        assertEquals("Missing Remote Project Manager did not result in the expected error message", MISSING_RPM_ERROR_MESSAGE, apiResponse.getMeta().getMessage());
-    }
-
-    @Test
-    public void testGetRemoteProjectByScopeId() throws Exception {
-        when(remoteProjectManagerRepo.findOne(any(Long.class))).thenReturn(testRemoteProjectManagerOne);
-        when(remoteProjectManagementBean.getRemoteProjectByScopeId(TEST_PROJECT1_SCOPE1)).thenReturn(new RemoteProject());
-        when(managementBeanRegistry.getService(any(String.class))).thenReturn(remoteProjectManagementBean);
-        apiResponse = remoteProjectManagerController.getRemoteProjectByScopeId(testRemoteProjectManagerOne.getId(), TEST_PROJECT1_SCOPE1);
-        assertEquals("Product controller unable to get remote project by scope id", SUCCESS, apiResponse.getMeta().getStatus());
-    }
-
-    @Test
-    public void testGetRemoteProjectByScopeIdWithInvalidScope() {
-        when(remoteProjectManagerRepo.findOne(any(Long.class))).thenReturn(testRemoteProjectManagerOne);
-        apiResponse = remoteProjectManagerController.getRemoteProjectByScopeId(testRemoteProjectManagerOne.getId(), TEST_INVALID_SCOPE);
-        assertEquals("Request with invalid Remote Project Manager id did not result in an error", ERROR, apiResponse.getMeta().getStatus());
-        assertEquals("Invalid Remote Project Manager id did not result in the expected error message", INVALID_RPM_ID_ERROR_MESSAGE_FIND_BY_ID, apiResponse.getMeta().getMessage());
-    }
-
-    @Test
-    public void testGetRemoteProjectByScopeIdWithMissingRemoteProjectManager() {
-        when(remoteProjectManagerRepo.findOne(any(Long.class))).thenReturn(null);
-        apiResponse = remoteProjectManagerController.getRemoteProjectByScopeId(testRemoteProjectManagerOne.getId(), TEST_PROJECT1_SCOPE1);
-        assertEquals("Request with no Remote Project Manager did not result in an error", ERROR, apiResponse.getMeta().getStatus());
-        assertEquals("Missing Remote Project Manager did not result in the expected error message", MISSING_RPM_ERROR_MESSAGE, apiResponse.getMeta().getMessage());
     }
 
 }
