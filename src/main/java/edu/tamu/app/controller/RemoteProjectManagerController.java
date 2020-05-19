@@ -97,9 +97,7 @@ public class RemoteProjectManagerController {
     public ApiResponse getAllRemoteProjects(@PathVariable Long remoteProjectManagerId) {
         Optional<RemoteProjectManager> remoteProjectManager = Optional.ofNullable(remoteProjectManagerRepo.findOne(remoteProjectManagerId));
         ApiResponse response;
-        System.out.print("\n\n\nDEBUG:\nRPM = " + remoteProjectManagerId + "\n");
         if (remoteProjectManager.isPresent()) {
-            System.out.print("\n\n\nDEBUG:\nRPM = " + remoteProjectManagerId + ", found.\n");
             RemoteProjectManagerBean remoteProjectManagerBean = (RemoteProjectManagerBean) managementBeanRegistry.getService(remoteProjectManager.get().getName());
             try {
                 response = new ApiResponse(SUCCESS, remoteProjectManagerBean.getRemoteProject());
@@ -107,7 +105,6 @@ public class RemoteProjectManagerController {
                 response = new ApiResponse(ERROR, "Error fetching remote projects from " + remoteProjectManager.get().getName() + "!");
             }
         } else {
-            System.out.print("\n\n\nDEBUG:\nRPM = " + remoteProjectManagerId + ", missed.\n");
             response = new ApiResponse(ERROR, "Remote Project Manager with id " + remoteProjectManagerId + " not found!");
         }
         return response;
