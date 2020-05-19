@@ -26,18 +26,18 @@ import org.mockito.stubbing.Answer;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import edu.tamu.app.cache.service.RemoteProductsScheduledCacheService;
+import edu.tamu.app.cache.service.RemoteProjectsScheduledCacheService;
 import edu.tamu.app.model.InternalRequest;
 import edu.tamu.app.model.InternalStats;
 import edu.tamu.app.model.Product;
-import edu.tamu.app.model.RemoteProductInfo;
-import edu.tamu.app.model.RemoteProductManager;
+import edu.tamu.app.model.RemoteProjectInfo;
+import edu.tamu.app.model.RemoteProjectManager;
 import edu.tamu.app.model.ServiceType;
 import edu.tamu.app.model.repo.InternalRequestRepo;
 import edu.tamu.app.model.repo.ProductRepo;
-import edu.tamu.app.model.repo.RemoteProductManagerRepo;
+import edu.tamu.app.model.repo.RemoteProjectManagerRepo;
 import edu.tamu.app.model.request.FeatureRequest;
-import edu.tamu.app.service.manager.RemoteProductManagerBean;
+import edu.tamu.app.service.manager.RemoteProjectManagerBean;
 import edu.tamu.app.service.registry.ManagementBeanRegistry;
 import edu.tamu.weaver.response.ApiResponse;
 
@@ -51,22 +51,23 @@ public class InternalRequestControllerTest {
     private static final String TEST_REQUEST_DESCRIPTION_WHISTLES = "Test Feature Request Description Whistles";
 
     private static final String TEST_PRODUCT1_NAME = "Test Product 1 Name";
-    private static final String TEST_PRODUCT1_SCOPE1 = "0010";
-    private static final String TEST_PRODUCT1_SCOPE2 = "0011";
     private static final String TEST_PRODUCT2_NAME = "Test Product 2 Name";
 
-    private static final RemoteProductManager TEST_REMOTE_PRODUCT_MANAGER = new RemoteProductManager("Test Remote Product Manager", ServiceType.VERSION_ONE, new HashMap<String, String>());
+    private static final String TEST_PROJECT1_SCOPE1 = "0010";
+    private static final String TEST_PROJECT1_SCOPE2 = "0011";
 
-    private static final RemoteProductInfo TEST_REMOTE_PRODUCT_INFO1 = new RemoteProductInfo(TEST_PRODUCT1_SCOPE1, TEST_REMOTE_PRODUCT_MANAGER);
-    private static final RemoteProductInfo TEST_REMOTE_PRODUCT_INFO2 = new RemoteProductInfo(TEST_PRODUCT1_SCOPE2, TEST_REMOTE_PRODUCT_MANAGER);
+    private static final RemoteProjectManager TEST_REMOTE_PROJECT_MANAGER = new RemoteProjectManager("Test Remote Project Manager", ServiceType.VERSION_ONE, new HashMap<String, String>());
 
-    private static final List<RemoteProductInfo> TEST_PRODUCT1_REMOTE_PRODUCT_INFO_LIST = new ArrayList<RemoteProductInfo>(Arrays.asList(TEST_REMOTE_PRODUCT_INFO1, TEST_REMOTE_PRODUCT_INFO2)
+    private static final RemoteProjectInfo TEST_REMOTE_PROJECT_INFO1 = new RemoteProjectInfo(TEST_PROJECT1_SCOPE1, TEST_REMOTE_PROJECT_MANAGER);
+    private static final RemoteProjectInfo TEST_REMOTE_PROJECT_INFO2 = new RemoteProjectInfo(TEST_PROJECT1_SCOPE2, TEST_REMOTE_PROJECT_MANAGER);
+
+    private static final List<RemoteProjectInfo> TEST_PRODUCT1_REMOTE_PROJECT_INFO_LIST = new ArrayList<RemoteProjectInfo>(Arrays.asList(TEST_REMOTE_PROJECT_INFO1, TEST_REMOTE_PROJECT_INFO2)
     );
 
-    private static Product TEST_PRODUCT1 = new Product(TEST_PRODUCT1_NAME, TEST_PRODUCT1_REMOTE_PRODUCT_INFO_LIST);
+    private static Product TEST_PRODUCT1 = new Product(TEST_PRODUCT1_NAME, TEST_PRODUCT1_REMOTE_PROJECT_INFO_LIST);
     private static Product TEST_PRODUCT2 = new Product(TEST_PRODUCT2_NAME);
 
-    private static FeatureRequest TEST_FEATURE_REQUEST = new FeatureRequest(TEST_REQUEST_TITLE_BELLS, TEST_REQUEST_DESCRIPTION_BELLS, TEST_PRODUCT1.getId(), TEST_PRODUCT1_SCOPE1);
+    private static FeatureRequest TEST_FEATURE_REQUEST = new FeatureRequest(TEST_REQUEST_TITLE_BELLS, TEST_REQUEST_DESCRIPTION_BELLS, TEST_PRODUCT1.getId(), TEST_PROJECT1_SCOPE1);
 
     private static Date TEST_REQUEST_CREATED_ON_BELLS = Date.from(Instant.now().minusSeconds(30L));
     private static Date TEST_REQUEST_CREATED_ON_WHISTLES = Date.from(Instant.now());
@@ -87,19 +88,19 @@ public class InternalRequestControllerTest {
     private ProductRepo productRepo;
 
     @Mock
-    private RemoteProductManagerRepo remoteProductManagerRepo;
+    private RemoteProjectManagerRepo remoteProjectManagerRepo;
 
     @Mock
     private ManagementBeanRegistry managementBeanRegistry;
 
     @Mock
-    private RemoteProductManagerBean remoteProductManagementBean;
+    private RemoteProjectManagerBean remoteProjectManagementBean;
 
     @Mock
     private SimpMessagingTemplate simpMessagingTemplate;
 
     @Mock
-    private RemoteProductsScheduledCacheService remoteProductsScheduledCacheService;
+    private RemoteProjectsScheduledCacheService remoteProjectsScheduledCacheService;
 
     @InjectMocks
     private InternalRequestController internalRequestController;
@@ -122,8 +123,8 @@ public class InternalRequestControllerTest {
         when(internalRequestRepo.countByProductIsNull()).thenReturn(1L);
         when(internalRequestRepo.create(any(InternalRequest.class))).thenReturn(TEST_REQUEST_BELLS);
         when(internalRequestRepo.update(any(InternalRequest.class))).thenReturn(TEST_REQUEST_BELLS);
-        when(remoteProductManagementBean.push(any(FeatureRequest.class))).thenReturn(TEST_FEATURE_REQUEST);
-        when(managementBeanRegistry.getService(any(String.class))).thenReturn(remoteProductManagementBean);
+        when(remoteProjectManagementBean.push(any(FeatureRequest.class))).thenReturn(TEST_FEATURE_REQUEST);
+        when(managementBeanRegistry.getService(any(String.class))).thenReturn(remoteProjectManagementBean);
 
         doAnswer(new Answer<ApiResponse>() {
             @Override
@@ -145,7 +146,7 @@ public class InternalRequestControllerTest {
 
         when(productRepo.findAll()).thenReturn(mockProductList);
 
-        when(remoteProductManagerRepo.findOne(any(Long.class))).thenReturn(TEST_REMOTE_PRODUCT_MANAGER);
+        when(remoteProjectManagerRepo.findOne(any(Long.class))).thenReturn(TEST_REMOTE_PROJECT_MANAGER);
     }
 
     @Test
@@ -194,10 +195,10 @@ public class InternalRequestControllerTest {
 
         when(internalRequestRepo.findOne(any(Long.class))).thenReturn(TEST_REQUEST_BELLS);
         when(productRepo.findOne(any(Long.class))).thenReturn(TEST_PRODUCT1);
-        when(remoteProductManagerRepo.findOne(any(Long.class))).thenReturn(TEST_REMOTE_PRODUCT_MANAGER);
+        when(remoteProjectManagerRepo.findOne(any(Long.class))).thenReturn(TEST_REMOTE_PROJECT_MANAGER);
         doNothing().when(internalRequestRepo).delete(any(Long.class));
 
-        apiResponse = internalRequestController.push(TEST_REQUEST_BELLS.getId(), TEST_PRODUCT1.getId(), TEST_REMOTE_PRODUCT_MANAGER.getId(), TEST_REMOTE_PRODUCT_INFO1.getScopeId());
+        apiResponse = internalRequestController.push(TEST_REQUEST_BELLS.getId(), TEST_PRODUCT1.getId(), TEST_REMOTE_PROJECT_MANAGER.getId(), TEST_REMOTE_PROJECT_INFO1.getScopeId());
 
         assertEquals("Internal Request controller did not push request", SUCCESS, apiResponse.getMeta().getStatus());
         assertEquals("InternalRequest should be deleted after successful push", initialCount - 1, mockRequestsRepo.size());
@@ -207,14 +208,14 @@ public class InternalRequestControllerTest {
     public void testPushToInvalidRemoteProductManager() {
         when(internalRequestRepo.findOne(any(Long.class))).thenReturn(TEST_REQUEST_BELLS);
         when(productRepo.findOne(any(Long.class))).thenReturn(TEST_PRODUCT1);
-        when(remoteProductManagerRepo.findOne(any(Long.class))).thenReturn(null);
+        when(remoteProjectManagerRepo.findOne(any(Long.class))).thenReturn(null);
 
-        apiResponse = internalRequestController.push(TEST_REQUEST_BELLS.getId(), TEST_PRODUCT1.getId(), null, TEST_REMOTE_PRODUCT_INFO1.getScopeId());
+        apiResponse = internalRequestController.push(TEST_REQUEST_BELLS.getId(), TEST_PRODUCT1.getId(), null, TEST_REMOTE_PROJECT_INFO1.getScopeId());
 
-        String expectedMessage = "Remote Product Manager with id null not found!";
+        String expectedMessage = "Remote Project Manager with id null not found!";
 
-        assertEquals("Push without Remote Product Manage did not throw an exception", ERROR, apiResponse.getMeta().getStatus());
-        assertEquals("Push without Remote Product Manager did not result in the expected error", expectedMessage, apiResponse.getMeta().getMessage());
+        assertEquals("Push without Remote Project Manager did not throw an exception", ERROR, apiResponse.getMeta().getStatus());
+        assertEquals("Push without Remote Project Manager did not result in the expected error", expectedMessage, apiResponse.getMeta().getMessage());
         assertEquals("InternalRequest should not be deleted after failed push", 2, internalRequestRepo.count());
     }
 
@@ -222,9 +223,9 @@ public class InternalRequestControllerTest {
     public void testPushInvalidScope() {
         when(internalRequestRepo.findOne(any(Long.class))).thenReturn(TEST_REQUEST_BELLS);
         when(productRepo.findOne(any(Long.class))).thenReturn(TEST_PRODUCT1);
-        when(remoteProductManagerRepo.findOne(any(Long.class))).thenReturn(TEST_REMOTE_PRODUCT_MANAGER);
+        when(remoteProjectManagerRepo.findOne(any(Long.class))).thenReturn(TEST_REMOTE_PROJECT_MANAGER);
 
-        apiResponse = internalRequestController.push(TEST_REQUEST_BELLS.getId(), TEST_PRODUCT1.getId(), TEST_REMOTE_PRODUCT_MANAGER.getId(), "");
+        apiResponse = internalRequestController.push(TEST_REQUEST_BELLS.getId(), TEST_PRODUCT1.getId(), TEST_REMOTE_PROJECT_MANAGER.getId(), "");
 
         String expectedMessage = "Internal Request is missing the scope id!";
 
@@ -237,9 +238,9 @@ public class InternalRequestControllerTest {
     public void testPushInvalidProduct() {
         when(internalRequestRepo.findOne(any(Long.class))).thenReturn(TEST_REQUEST_BELLS);
         when(productRepo.findOne(any(Long.class))).thenReturn(null);
-        when(remoteProductManagerRepo.findOne(any(Long.class))).thenReturn(TEST_REMOTE_PRODUCT_MANAGER);
+        when(remoteProjectManagerRepo.findOne(any(Long.class))).thenReturn(TEST_REMOTE_PROJECT_MANAGER);
 
-        apiResponse = internalRequestController.push(TEST_REQUEST_BELLS.getId(), null, TEST_REMOTE_PRODUCT_MANAGER.getId(), TEST_REMOTE_PRODUCT_INFO1.getScopeId());
+        apiResponse = internalRequestController.push(TEST_REQUEST_BELLS.getId(), null, TEST_REMOTE_PROJECT_MANAGER.getId(), TEST_REMOTE_PROJECT_INFO1.getScopeId());
 
         String expectedMessage = "Product with id null not found!";
 
@@ -252,9 +253,9 @@ public class InternalRequestControllerTest {
     public void testPushInvalidInternalRequest() {
         when(internalRequestRepo.findOne(any(Long.class))).thenReturn(null);
         when(productRepo.findOne(any(Long.class))).thenReturn(TEST_PRODUCT1);
-        when(remoteProductManagerRepo.findOne(any(Long.class))).thenReturn(TEST_REMOTE_PRODUCT_MANAGER);
+        when(remoteProjectManagerRepo.findOne(any(Long.class))).thenReturn(TEST_REMOTE_PROJECT_MANAGER);
 
-        apiResponse = internalRequestController.push(null, TEST_PRODUCT1.getId(), TEST_REMOTE_PRODUCT_MANAGER.getId(), TEST_REMOTE_PRODUCT_INFO1.getScopeId());
+        apiResponse = internalRequestController.push(null, TEST_PRODUCT1.getId(), TEST_REMOTE_PROJECT_MANAGER.getId(), TEST_REMOTE_PROJECT_INFO1.getScopeId());
 
         String expectedMessage = "Internal Request with id null not found!";
 
@@ -265,16 +266,16 @@ public class InternalRequestControllerTest {
 
     @Test
     public void testPushWhenRemoteProductManagerBeanFails() throws Exception {
-        when(remoteProductManagementBean.push(any(FeatureRequest.class))).thenThrow(new RuntimeException("fail"));
+        when(remoteProjectManagementBean.push(any(FeatureRequest.class))).thenThrow(new RuntimeException("fail"));
         when(internalRequestRepo.findOne(any(Long.class))).thenReturn(TEST_REQUEST_BELLS);
         when(productRepo.findOne(any(Long.class))).thenReturn(TEST_PRODUCT1);
-        when(remoteProductManagerRepo.findOne(any(Long.class))).thenReturn(TEST_REMOTE_PRODUCT_MANAGER);
+        when(remoteProjectManagerRepo.findOne(any(Long.class))).thenReturn(TEST_REMOTE_PROJECT_MANAGER);
         doNothing().when(internalRequestRepo).delete(any(Long.class));
 
-        apiResponse = internalRequestController.push(TEST_REQUEST_BELLS.getId(), TEST_PRODUCT1.getId(), TEST_REMOTE_PRODUCT_MANAGER.getId(), TEST_REMOTE_PRODUCT_INFO1.getScopeId());
+        apiResponse = internalRequestController.push(TEST_REQUEST_BELLS.getId(), TEST_PRODUCT1.getId(), TEST_REMOTE_PROJECT_MANAGER.getId(), TEST_REMOTE_PROJECT_INFO1.getScopeId());
 
-        assertEquals("Pushing Internal Request when Remote Product Management Bean push fails did not result in an error", ERROR, apiResponse.getMeta().getStatus());
-        assertEquals("Pushing Internal Request did not result in the expected error message", "Error pushing Internal Request to " + TEST_REMOTE_PRODUCT_MANAGER.getName() + " for Product " + TEST_PRODUCT1_NAME + "!", apiResponse.getMeta().getMessage());
+        assertEquals("Pushing Internal Request when Remote Project Management Bean push fails did not result in an error", ERROR, apiResponse.getMeta().getStatus());
+        assertEquals("Pushing Internal Request did not result in the expected error message", "Error pushing Internal Request to " + TEST_REMOTE_PROJECT_MANAGER.getName() + " for Product " + TEST_PRODUCT1_NAME + "!", apiResponse.getMeta().getMessage());
     }
 
     @Test

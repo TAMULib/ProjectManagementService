@@ -12,32 +12,32 @@ import edu.tamu.app.ProductApplication;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = { ProductApplication.class }, webEnvironment = WebEnvironment.DEFINED_PORT)
-public class RemoteProductInfoModelTest extends ModelTest {
+public class RemoteProjectInfoModelTest extends ModelTest {
 
     @Test
     public void testGetScopeId() {
-        RemoteProductInfo rpi = new RemoteProductInfo(TEST_PRODUCT_SCOPE1, TEST_REMOTE_PRODUCT_MANAGER1);
-        assertEquals("RemoteProductInfo did not return the correct scope id!", TEST_PRODUCT_SCOPE1, rpi.getScopeId());
+        RemoteProjectInfo rpi = new RemoteProjectInfo(TEST_PROJECT_SCOPE1, TEST_REMOTE_PROJECT_MANAGER1);
+        assertEquals("RemoteProjectInfo did not return the correct scope id!", TEST_PROJECT_SCOPE1, rpi.getScopeId());
     }
 
     @Test
-    public void testGetRemoteProductManager() {
-        RemoteProductInfo rpi = new RemoteProductInfo(TEST_PRODUCT_SCOPE1, TEST_REMOTE_PRODUCT_MANAGER1);
-        assertEquals("RemoteProductInfo did not return the correct remote product manager!", TEST_REMOTE_PRODUCT_MANAGER1, rpi.getRemoteProductManager());
+    public void testGetRemoteProjectManager() {
+        RemoteProjectInfo rpi = new RemoteProjectInfo(TEST_PROJECT_SCOPE1, TEST_REMOTE_PROJECT_MANAGER1);
+        assertEquals("RemoteProjectInfo did not return the correct remote project manager!", TEST_REMOTE_PROJECT_MANAGER1, rpi.getRemoteProjectManager());
     }
 
     @Test
     public void testSetScopeId() {
-        RemoteProductInfo rpi = new RemoteProductInfo(TEST_PRODUCT_SCOPE1, TEST_REMOTE_PRODUCT_MANAGER1);
-        rpi.setScopeId(TEST_PRODUCT_SCOPE2);
-        assertEquals("RemoteProductInfo did not correctly update the scope id!", TEST_PRODUCT_SCOPE2, rpi.getScopeId());
+        RemoteProjectInfo rpi = new RemoteProjectInfo(TEST_PROJECT_SCOPE1, TEST_REMOTE_PROJECT_MANAGER1);
+        rpi.setScopeId(TEST_PROJECT_SCOPE2);
+        assertEquals("RemoteProjectInfo did not correctly update the scope id!", TEST_PROJECT_SCOPE2, rpi.getScopeId());
     }
 
     @Test
     public void testSetRemoteProductManager() {
-        RemoteProductInfo rpi = new RemoteProductInfo(TEST_PRODUCT_SCOPE1, TEST_REMOTE_PRODUCT_MANAGER1);
-        rpi.setRemoteProductManager(TEST_REMOTE_PRODUCT_MANAGER2);
-        assertEquals("RemoteProductInfo did not return the correct remote product manager!", TEST_REMOTE_PRODUCT_MANAGER2, rpi.getRemoteProductManager());
+        RemoteProjectInfo rpi = new RemoteProjectInfo(TEST_PROJECT_SCOPE1, TEST_REMOTE_PROJECT_MANAGER1);
+        rpi.setRemoteProjectManager(TEST_REMOTE_PROJECT_MANAGER2);
+        assertEquals("RemoteProjectInfo did not return the correct remote project manager!", TEST_REMOTE_PROJECT_MANAGER2, rpi.getRemoteProjectManager());
     }
 
 }

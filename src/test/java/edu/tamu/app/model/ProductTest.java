@@ -24,7 +24,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import edu.tamu.app.ProductApplication;
-import edu.tamu.app.cache.service.RemoteProductsScheduledCacheService;
+import edu.tamu.app.cache.service.RemoteProjectsScheduledCacheService;
 import edu.tamu.app.service.manager.VersionOneService;
 import edu.tamu.app.service.registry.ManagementBeanRegistry;
 
@@ -39,7 +39,7 @@ public class ProductTest extends ModelTest {
     private SimpMessagingTemplate simpMessagingTemplate;
 
     @InjectMocks
-    private RemoteProductsScheduledCacheService remoteProductsScheduledCacheService;
+    private RemoteProjectsScheduledCacheService remoteProjectsScheduledCacheService;
 
     @Before
     public void setup() {
@@ -48,7 +48,7 @@ public class ProductTest extends ModelTest {
         VersionOneService versionOneService = mock(VersionOneService.class);
         when(managementBeanRegistry.getService(any(String.class))).thenReturn(versionOneService);
 
-        remoteProductManagerRepo.create(TEST_REMOTE_PRODUCT_MANAGER1);
+        remoteProjectManagerRepo.create(TEST_REMOTE_PROJECT_MANAGER1);
     }
 
     @Test
@@ -70,15 +70,15 @@ public class ProductTest extends ModelTest {
         Product product = productRepo.create(TEST_PRODUCT);
         String newScope = "123456";
 
-        RemoteProductInfo newRemoteProductInfo = new RemoteProductInfo(newScope, TEST_REMOTE_PRODUCT_MANAGER1);
-        List<RemoteProductInfo> newRemoteProductInfoList = new ArrayList<RemoteProductInfo>(Arrays.asList(newRemoteProductInfo));
+        RemoteProjectInfo newRemoteProjectInfo = new RemoteProjectInfo(newScope, TEST_REMOTE_PROJECT_MANAGER1);
+        List<RemoteProjectInfo> newRemoteProjectInfoList = new ArrayList<RemoteProjectInfo>(Arrays.asList(newRemoteProjectInfo));
 
         product.setName(TEST_ALTERNATE_PRODUCT_NAME);
-        product.setRemoteProductInfo(newRemoteProductInfoList);
+        product.setRemoteProductInfo(newRemoteProjectInfoList);
         product = productRepo.update(product);
 
         assertEquals("Product name was not updated!", TEST_ALTERNATE_PRODUCT_NAME, product.getName());
-        assertEquals("Product remote product info was not updated!", newScope, product.getRemoteProductInfo().get(0).getScopeId());
+        assertEquals("Product remote project info was not updated!", newScope, product.getRemoteProjectInfo().get(0).getScopeId());
     }
 
     @Test
@@ -105,7 +105,7 @@ public class ProductTest extends ModelTest {
         Product createdProduct = productRepo.create(TEST_PRODUCT);
 
         assertEquals("Product has the incorrect name!", TEST_PRODUCT_NAME, createdProduct.getName());
-        assertEquals("Product has the incorrect Remote Product Info!", TEST_PRODUCT.getRemoteProductInfo().size(), createdProduct.getRemoteProductInfo().size());
+        assertEquals("Product has the incorrect Remote Project Info!", TEST_PRODUCT.getRemoteProjectInfo().size(), createdProduct.getRemoteProjectInfo().size());
 
         productRepo.delete(createdProduct);
 

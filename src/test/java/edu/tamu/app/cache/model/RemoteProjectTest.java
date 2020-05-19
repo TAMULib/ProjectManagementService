@@ -7,19 +7,19 @@ import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
-public class RemoteProductTest {
+public class RemoteProjectTest {
 
     @Test
     public void testNewRemoteProduct() {
-        RemoteProduct remoteProduct = new RemoteProduct("0001", "Sprint 1", 2, 3, 10, 3, 1);
-        assertEquals("0001", remoteProduct.getId());
-        assertEquals("Sprint 1", remoteProduct.getName());
-        assertEquals(2, remoteProduct.getRequestCount());
-        assertEquals(3, remoteProduct.getIssueCount());
-        assertEquals(10, remoteProduct.getFeatureCount());
-        assertEquals(3, remoteProduct.getDefectCount());
-        assertEquals(1, remoteProduct.getInternalCount());
-        assertEquals(13, remoteProduct.getBacklogItemCount());
+        RemoteProject remoteProject = new RemoteProject("0001", "Sprint 1", 2, 3, 10, 3, 1);
+        assertEquals("0001", remoteProject.getId());
+        assertEquals("Sprint 1", remoteProject.getName());
+        assertEquals(2, remoteProject.getRequestCount());
+        assertEquals(3, remoteProject.getIssueCount());
+        assertEquals(10, remoteProject.getFeatureCount());
+        assertEquals(3, remoteProject.getDefectCount());
+        assertEquals(1, remoteProject.getInternalCount());
+        assertEquals(13, remoteProject.getBacklogItemCount());
     }
 
 }

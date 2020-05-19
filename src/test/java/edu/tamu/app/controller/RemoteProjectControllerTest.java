@@ -1,5 +1,6 @@
 package edu.tamu.app.controller;
 
+import static edu.tamu.weaver.response.ApiStatus.ERROR;
 import static edu.tamu.weaver.response.ApiStatus.SUCCESS;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
@@ -7,10 +8,8 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -22,40 +21,33 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import edu.tamu.app.cache.service.ActiveSprintsScheduledCacheService;
-import edu.tamu.app.cache.service.ProductScheduledCache;
 import edu.tamu.app.cache.service.ProductsStatsScheduledCacheService;
-import edu.tamu.app.cache.service.RemoteProjectsScheduledCacheService;
-import edu.tamu.app.model.InternalRequest;
 import edu.tamu.app.model.Product;
 import edu.tamu.app.model.RemoteProjectInfo;
 import edu.tamu.app.model.RemoteProjectManager;
 import edu.tamu.app.model.ServiceType;
-import edu.tamu.app.model.repo.InternalRequestRepo;
 import edu.tamu.app.model.repo.ProductRepo;
 import edu.tamu.app.model.repo.RemoteProjectManagerRepo;
 import edu.tamu.app.model.request.FeatureRequest;
-import edu.tamu.app.model.request.TicketRequest;
 import edu.tamu.app.service.manager.RemoteProjectManagerBean;
 import edu.tamu.app.service.registry.ManagementBeanRegistry;
-import edu.tamu.app.service.ticketing.SugarService;
 import edu.tamu.weaver.response.ApiResponse;
 
 @RunWith(SpringRunner.class)
-public class ProductControllerTest {
+public class RemoteProjectControllerTest {
 
     private static final String TEST_PRODUCT1_NAME = "Test Product 1 Name";
     private static final String TEST_PRODUCT2_NAME = "Test Product 2 Name";
-
-    private static final String TEST_MODIFIED_PRODUCT_NAME = "Modified Product Name";
 
     private static final String TEST_PROJECT1_SCOPE1 = "0010";
     private static final String TEST_PROJECT1_SCOPE2 = "0011";
 
     private static final String TEST_FEATURE_REQUEST_TITLE = "Test Feature Request Title";
     private static final String TEST_FEATURE_REQUEST_DESCRIPTION = "Test Feature Request Description";
+
+    private static final String INVALID_PRODUCT_ID_ERROR_MESSAGE = "Product with id null not found!";
 
     private static final RemoteProjectManager TEST_REMOTE_PROJECT_MANAGER = new RemoteProjectManager("Test Remote Project Manager", ServiceType.VERSION_ONE, new HashMap<String, String>());
 
@@ -64,16 +56,8 @@ public class ProductControllerTest {
 
     private static final List<RemoteProjectInfo> TEST_PRODUCT1_REMOTE_PROJECT_INFO_LIST = new ArrayList<RemoteProjectInfo>(Arrays.asList(TEST_REMOTE_PROJECT_INFO1, TEST_REMOTE_PROJECT_INFO2));
 
-    private static Instant TEST_INSTANT_NOW = new Date().toInstant();
-    private static Date TEST_CREATED_ON1 = Date.from(TEST_INSTANT_NOW);
-
     private static Product TEST_PRODUCT1 = new Product(TEST_PRODUCT1_NAME, TEST_PRODUCT1_REMOTE_PROJECT_INFO_LIST);
     private static Product TEST_PRODUCT2 = new Product(TEST_PRODUCT2_NAME);
-    private static Product TEST_MODIFIED_PRODUCT = new Product(TEST_MODIFIED_PRODUCT_NAME);
-
-    private static final InternalRequest TEST_REQUEST1 = new InternalRequest(TEST_FEATURE_REQUEST_TITLE, TEST_FEATURE_REQUEST_DESCRIPTION, TEST_PRODUCT1, TEST_CREATED_ON1);
-
-    private static TicketRequest TEST_TICKET_REQUEST = new TicketRequest();
 
     private static FeatureRequest TEST_FEATURE_REQUEST = new FeatureRequest(TEST_FEATURE_REQUEST_TITLE, TEST_FEATURE_REQUEST_DESCRIPTION, TEST_PRODUCT1.getId(), TEST_PROJECT1_SCOPE1);
 
@@ -85,13 +69,7 @@ public class ProductControllerTest {
     private ProductRepo productRepo;
 
     @Mock
-    private InternalRequestRepo internalRequestRepo;
-
-    @Mock
     private RemoteProjectManagerRepo remoteProjectManagerRepo;
-
-    @Mock
-    private SugarService sugarService;
 
     @Mock
     private ManagementBeanRegistry managementBeanRegistry;
@@ -102,11 +80,8 @@ public class ProductControllerTest {
     @Mock
     private SimpMessagingTemplate simpMessagingTemplate;
 
-    @Mock
-    private RemoteProjectsScheduledCacheService remoteProjectsScheduledCacheService;
-
     @InjectMocks
-    private ProductController productController = new ProductController();
+    private RemoteProjectController remoteProjectController = new RemoteProjectController();
 
     @Before
     public void setup() throws Exception {
@@ -114,11 +89,8 @@ public class ProductControllerTest {
         when(productRepo.findAll()).thenReturn(mockProductList);
         when(productRepo.create(any(Product.class))).thenReturn(TEST_PRODUCT1);
         when(productRepo.findOne(any(Long.class))).thenReturn(null);
-        when(productRepo.update(any(Product.class))).thenReturn(TEST_MODIFIED_PRODUCT);
         when(remoteProjectManagerRepo.findOne(any(Long.class))).thenReturn(TEST_REMOTE_PROJECT_MANAGER);
         doNothing().when(productRepo).delete(any(Product.class));
-        when(sugarService.submit(any(TicketRequest.class))).thenReturn("Successfully submitted issue for test service!");
-        when(internalRequestRepo.create(any(InternalRequest.class))).thenReturn(TEST_REQUEST1);
 
         TEST_PRODUCT1.setId(1L);
         TEST_PRODUCT2.setId(2L);
@@ -134,69 +106,33 @@ public class ProductControllerTest {
         doNothing().when(activeSprintsScheduledCacheService).addProduct(any(Product.class));
         doNothing().when(activeSprintsScheduledCacheService).updateProduct(any(Product.class));
         doNothing().when(activeSprintsScheduledCacheService).removeProduct(any(Product.class));
-
-        List<ProductScheduledCache<?, ?>> productSceduledCaches = new ArrayList<ProductScheduledCache<?, ?>>() {
-            private static final long serialVersionUID = 621069988291823739L;
-            {
-                add(productsStatsScheduledCacheService);
-                add(activeSprintsScheduledCacheService);
-            }
-        };
-
-        ReflectionTestUtils.setField(productController, "productSceduledCaches", productSceduledCaches);
     }
 
     @Test
-    @SuppressWarnings("unchecked")
-    public void testGetAllProducts() {
-        apiResponse = productController.getAll();
-        assertEquals("Not successful at getting requested Product", SUCCESS, apiResponse.getMeta().getStatus());
-        List<Product> products = (List<Product>) apiResponse.getPayload().get("ArrayList<Product>");
-        assertEquals("Did not get the expected Products", mockProductList, products);
-    }
-
-    @Test
-    public void testGetProductById() {
-        when(productRepo.findOne(any(Long.class))).thenReturn(TEST_PRODUCT1);
-        apiResponse = productController.getOne(TEST_PRODUCT1.getId());
-        assertEquals("Not successful at getting requested Product", SUCCESS, apiResponse.getMeta().getStatus());
-        Product product = (Product) apiResponse.getPayload().get("Product");
-        assertEquals("Did not get the expected Product", TEST_PRODUCT1, product);
-    }
-
-    @Test
-    public void testCreate() {
-        apiResponse = productController.createProduct(TEST_PRODUCT1);
-        assertEquals("Not successful at creating Product", SUCCESS, apiResponse.getMeta().getStatus());
-    }
-
-    @Test
-    public void testUpdate() {
-        apiResponse = productController.updateProduct(TEST_MODIFIED_PRODUCT);
-        assertEquals("Not successful at updating Product", SUCCESS, apiResponse.getMeta().getStatus());
-        Product product = (Product) apiResponse.getPayload().get("Product");
-        assertEquals("Product title was not properly updated", TEST_MODIFIED_PRODUCT.getName(), product.getName());
-    }
-
-    @Test
-    public void testDelete() {
-        apiResponse = productController.deleteProduct(TEST_PRODUCT1);
-        assertEquals("Not successful at deleting Product", SUCCESS, apiResponse.getMeta().getStatus());
-    }
-
-    @Test
-    public void testSubmitIssueRequest() {
-        apiResponse = productController.submitIssueRequest(TEST_TICKET_REQUEST);
-        assertEquals("Not successful at submitting issue request", SUCCESS, apiResponse.getMeta().getStatus());
-    }
-
-    @Test
-    public void testPushRequest() throws Exception {
+    public void testGetAllRemoteProductsForProduct() throws Exception {
         when(remoteProjectManagementBean.push(TEST_FEATURE_REQUEST)).thenReturn(TEST_FEATURE_REQUEST);
         when(managementBeanRegistry.getService(any(String.class))).thenReturn(remoteProjectManagementBean);
         when(productRepo.findOne(any(Long.class))).thenReturn(TEST_PRODUCT1);
-        apiResponse = productController.pushRequest(TEST_FEATURE_REQUEST);
-        assertEquals("Product controller did not push request", SUCCESS, apiResponse.getMeta().getStatus());
+        apiResponse = remoteProjectController.getAllForProduct(TEST_PRODUCT1.getId());
+        assertEquals("Remote Project controller unable to get all remote products for the specified product", SUCCESS, apiResponse.getMeta().getStatus());
+    }
+
+    @Test
+    public void testGetAllRemoteProductsForProductWithInvalidId() throws Exception {
+        when(remoteProjectManagementBean.push(TEST_FEATURE_REQUEST)).thenReturn(TEST_FEATURE_REQUEST);
+        when(managementBeanRegistry.getService(any(String.class))).thenReturn(remoteProjectManagementBean);
+        apiResponse = remoteProjectController.getAllForProduct(null);
+        assertEquals("Request with invalid Product id did not result in an error", ERROR, apiResponse.getMeta().getStatus());
+        assertEquals("Invalid Product id did not result in the expected error message", INVALID_PRODUCT_ID_ERROR_MESSAGE, apiResponse.getMeta().getMessage());
+    }
+
+    @Test
+    public void testGetAllRemoteProductsForProductWithNoRemoteProductManager() {
+        when(remoteProjectManagerRepo.findOne(any(Long.class))).thenReturn(null);
+        when(productRepo.findOne(any(Long.class))).thenReturn(TEST_PRODUCT1);
+        apiResponse = remoteProjectController.getAllForProduct(TEST_PRODUCT1.getId());
+        assertEquals("Request without Remote Project Manager did not result in an error", ERROR, apiResponse.getMeta().getStatus());
+        assertEquals("Missing Remote Project Manager did not result in the expected error message", "Error fetching remote projects associated with product " + TEST_PRODUCT1.getName() + "!", apiResponse.getMeta().getMessage());
     }
 
 }

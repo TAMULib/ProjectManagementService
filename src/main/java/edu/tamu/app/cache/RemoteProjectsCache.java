@@ -4,12 +4,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import edu.tamu.app.cache.model.RemoteProduct;
+import edu.tamu.app.cache.model.RemoteProject;
 
-public class RemoteProductsCache extends AbstractCache<Map<Long, List<RemoteProduct>>> {
+public class RemoteProjectsCache extends AbstractCache<Map<Long, List<RemoteProject>>> {
 
-    public RemoteProductsCache() {
-        set(new HashMap<Long, List<RemoteProduct>>());
+    public RemoteProjectsCache() {
+        set(new HashMap<Long, List<RemoteProject>>());
     }
 
 }

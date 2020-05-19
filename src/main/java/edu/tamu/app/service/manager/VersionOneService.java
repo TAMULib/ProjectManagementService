@@ -41,14 +41,14 @@ import com.versionone.apiclient.services.QueryResult;
 
 import edu.tamu.app.cache.model.Card;
 import edu.tamu.app.cache.model.Member;
-import edu.tamu.app.cache.model.RemoteProduct;
+import edu.tamu.app.cache.model.RemoteProject;
 import edu.tamu.app.cache.model.Sprint;
 import edu.tamu.app.model.ManagementService;
 import edu.tamu.app.model.request.FeatureRequest;
 import edu.tamu.app.rest.BasicAuthRestTemplate;
 import edu.tamu.app.rest.TokenAuthRestTemplate;
 
-public class VersionOneService extends MappingRemoteProductManagerBean {
+public class VersionOneService extends MappingRemoteProjectManagerBean {
 
     private static final Logger logger = Logger.getLogger(VersionOneService.class);
 
@@ -69,44 +69,44 @@ public class VersionOneService extends MappingRemoteProductManagerBean {
     }
 
     @Override
-    public List<RemoteProduct> getRemoteProduct() throws ConnectionException, APIException, OidException {
-        logger.info("Fetching remote products");
-        List<RemoteProduct> remoteProducts = new ArrayList<RemoteProduct>();
+    public List<RemoteProject> getRemoteProject() throws ConnectionException, APIException, OidException {
+        logger.info("Fetching remote projects");
+        List<RemoteProject> remoteProjects = new ArrayList<RemoteProject>();
         IAssetType scopeType = services.getMeta().getAssetType("Scope");
         IAttributeDefinition nameAttributeDefinition = scopeType.getAttributeDefinition("Name");
         Query query = new Query(scopeType);
         query.getSelection().add(nameAttributeDefinition);
         QueryResult result = services.retrieve(query);
-        for (Asset product : result.getAssets()) {
-            String scopeId = parseId(product.getOid());
-            String name = product.getAttribute(nameAttributeDefinition).getValue().toString();
+        for (Asset project : result.getAssets()) {
+            String scopeId = parseId(project.getOid());
+            String name = project.getAttribute(nameAttributeDefinition).getValue().toString();
             long requestCount = getPrimaryWorkItemCount("Request", scopeId);
             long issueCount = getPrimaryWorkItemCount("Issue", scopeId);
             long storyCount = getPrimaryWorkItemCount("Story", scopeId);
             long defectCount = getPrimaryWorkItemCount("Defect", scopeId);
             long internalCount = 0;
-            remoteProducts.add(new RemoteProduct(scopeId, name, requestCount, issueCount, storyCount, defectCount, internalCount));
+            remoteProjects.add(new RemoteProject(scopeId, name, requestCount, issueCount, storyCount, defectCount, internalCount));
         }
-        return remoteProducts;
+        return remoteProjects;
     }
 
     @Override
-    public RemoteProduct getRemoteProductByScopeId(final String scopeId) throws ConnectionException, APIException, OidException {
-        logger.info("Fetching remote product by scope id " + scopeId);
+    public RemoteProject getRemoteProjectByScopeId(final String scopeId) throws ConnectionException, APIException, OidException {
+        logger.info("Fetching remote project by scope id " + scopeId);
         Oid oid = services.getOid("Scope:" + scopeId);
         IAssetType scopeType = services.getMeta().getAssetType("Scope");
         IAttributeDefinition nameAttributeDefinition = scopeType.getAttributeDefinition("Name");
         Query query = new Query(oid);
         query.getSelection().add(nameAttributeDefinition);
         QueryResult result = services.retrieve(query);
-        Asset product = result.getAssets()[0];
-        String name = product.getAttribute(nameAttributeDefinition).getValue().toString();
+        Asset project = result.getAssets()[0];
+        String name = project.getAttribute(nameAttributeDefinition).getValue().toString();
         long requestCount = getPrimaryWorkItemCount("Request", scopeId);
         long issueCount = getPrimaryWorkItemCount("Issue", scopeId);
         long storyCount = getPrimaryWorkItemCount("Story", scopeId);
         long defectCount = getPrimaryWorkItemCount("Defect", scopeId);
 
-        return new RemoteProduct(scopeId, name, requestCount, issueCount, storyCount, defectCount, 0L);
+        return new RemoteProject(scopeId, name, requestCount, issueCount, storyCount, defectCount, 0L);
     }
 
     public int getPrimaryWorkItemCount(final String type, final String scopeId) throws ConnectionException, APIException, OidException {
@@ -128,8 +128,8 @@ public class VersionOneService extends MappingRemoteProductManagerBean {
     }
 
     @Override
-    public List<Sprint> getActiveSprintsByProductId(final String productScopeId) throws ConnectionException, APIException, OidException, IOException {
-        logger.info("Fetching active sprints for product with scope id " + productScopeId);
+    public List<Sprint> getActiveSprintsByScopeId(final String scopeId) throws ConnectionException, APIException, OidException, IOException {
+        logger.info("Fetching active sprints for remote project with scope id " + scopeId);
         List<Sprint> activeSprints = new ArrayList<Sprint>();
         IAssetType timeboxType = services.getMeta().getAssetType("Timebox");
         IAttributeDefinition nameAttributeDefinition = timeboxType.getAttributeDefinition("Name");
@@ -141,7 +141,7 @@ public class VersionOneService extends MappingRemoteProductManagerBean {
         stateCodeTerm.equal("ACTV");
 
         FilterTerm scheduleScheduledScopesTerm = new FilterTerm(scheduleScheduledScopesAttributeDefinition);
-        scheduleScheduledScopesTerm.equal("Scope:" + productScopeId);
+        scheduleScheduledScopesTerm.equal("Scope:" + scopeId);
 
         GroupFilterTerm groupFilter = new AndFilterTerm(stateCodeTerm, scheduleScheduledScopesTerm);
 
@@ -163,7 +163,7 @@ public class VersionOneService extends MappingRemoteProductManagerBean {
 
             String productName = null;
             for (int i = 0; i < scheduledScopes.length; i++) {
-                if (scheduledScopes[i].toString().equals("Scope:" + productScopeId)) {
+                if (scheduledScopes[i].toString().equals("Scope:" + scopeId)) {
                     productName = scheduledScopeNames[i].toString();
                     break;
                 }

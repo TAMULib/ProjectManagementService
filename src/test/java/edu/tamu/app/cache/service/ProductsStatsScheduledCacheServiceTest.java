@@ -27,10 +27,10 @@ import com.versionone.apiclient.exceptions.ConnectionException;
 import com.versionone.apiclient.exceptions.OidException;
 
 import edu.tamu.app.cache.model.ProductStats;
-import edu.tamu.app.cache.model.RemoteProduct;
+import edu.tamu.app.cache.model.RemoteProject;
 import edu.tamu.app.model.Product;
-import edu.tamu.app.model.RemoteProductInfo;
-import edu.tamu.app.model.RemoteProductManager;
+import edu.tamu.app.model.RemoteProjectInfo;
+import edu.tamu.app.model.RemoteProjectManager;
 import edu.tamu.app.model.ServiceType;
 import edu.tamu.app.model.repo.InternalRequestRepo;
 import edu.tamu.app.model.repo.ProductRepo;
@@ -39,13 +39,13 @@ import edu.tamu.app.model.repo.ProductRepo;
 public class ProductsStatsScheduledCacheServiceTest {
     private static final String TEST_PRODUCT_NAME = "Test Product";
 
-    private static final String TEST_PRODUCT_SCOPE = "0010";
+    private static final String TEST_PROJECT_SCOPE = "0010";
 
-    private static final RemoteProductManager TEST_REMOTE_PRODUCT_MANAGER = new RemoteProductManager("Test Remote Product Manager", ServiceType.VERSION_ONE, new HashMap<String, String>());
+    private static final RemoteProjectManager TEST_REMOTE_PROJECT_MANAGER = new RemoteProjectManager("Test Remote Project Manager", ServiceType.VERSION_ONE, new HashMap<String, String>());
 
-    private static final RemoteProductInfo TEST_REMOTE_PRODUCT_INFO = new RemoteProductInfo(TEST_PRODUCT_SCOPE, TEST_REMOTE_PRODUCT_MANAGER);
+    private static final RemoteProjectInfo TEST_REMOTE_PROJECT_INFO = new RemoteProjectInfo(TEST_PROJECT_SCOPE, TEST_REMOTE_PROJECT_MANAGER);
 
-    private static final List<RemoteProductInfo> TEST_PRODUCT_REMOTE_PRODUCT_INFO_LIST = new ArrayList<RemoteProductInfo>(Arrays.asList(TEST_REMOTE_PRODUCT_INFO));
+    private static final List<RemoteProjectInfo> TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST = new ArrayList<RemoteProjectInfo>(Arrays.asList(TEST_REMOTE_PROJECT_INFO));
 
     @Mock
     private ProductRepo productRepo;
@@ -54,7 +54,7 @@ public class ProductsStatsScheduledCacheServiceTest {
     private InternalRequestRepo internalRequestRepo;
 
     @Mock
-    private RemoteProductsScheduledCacheService remoteProductsScheduledCacheService;
+    private RemoteProjectsScheduledCacheService remoteProjectsScheduledCacheService;
 
     @Mock
     private SimpMessagingTemplate simpMessagingTemplate;
@@ -66,7 +66,7 @@ public class ProductsStatsScheduledCacheServiceTest {
     public void setup() throws ConnectionException, APIException, OidException, IOException {
         MockitoAnnotations.initMocks(this);
         when(productRepo.findAll()).thenReturn(Arrays.asList(new Product[] { getMockProduct() }));
-        when(remoteProductsScheduledCacheService.getRemoteProduct(any(Long.class), any(String.class))).thenReturn(Optional.of(getMockRemoteProduct()));
+        when(remoteProjectsScheduledCacheService.getRemoteProject(any(Long.class), any(String.class))).thenReturn(Optional.of(getMockRemoteProduct()));
         when(internalRequestRepo.countByProductId(any(Long.class))).thenReturn(1L);
     }
 
@@ -133,8 +133,8 @@ public class ProductsStatsScheduledCacheServiceTest {
         return new ProductStats("1000", TEST_PRODUCT_NAME, 2, 3, 10, 3, 1);
     }
 
-    private RemoteProduct getMockRemoteProduct() {
-        return new RemoteProduct("1000", TEST_PRODUCT_NAME, 2, 3, 10, 3, 1);
+    private RemoteProject getMockRemoteProduct() {
+        return new RemoteProject("1000", TEST_PRODUCT_NAME, 2, 3, 10, 3, 1);
     }
 
     private void assertProductsStats(List<ProductStats> productStatsCache) {
@@ -151,7 +151,7 @@ public class ProductsStatsScheduledCacheServiceTest {
     }
 
     private Product getMockProduct() {
-        Product mockProduct = new Product(TEST_PRODUCT_NAME, TEST_PRODUCT_REMOTE_PRODUCT_INFO_LIST);
+        Product mockProduct = new Product(TEST_PRODUCT_NAME, TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST);
         mockProduct.setId(1000L);
         return mockProduct;
     }

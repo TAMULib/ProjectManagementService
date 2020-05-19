@@ -1,5 +1,5 @@
 package edu.tamu.app.model.repo.custom;
 
-public interface RemoteProductManagerRepoCustom {
+public interface RemoteProjectManagerRepoCustom {
 
 }

@@ -28,19 +28,19 @@ import com.versionone.apiclient.exceptions.APIException;
 import com.versionone.apiclient.exceptions.ConnectionException;
 import com.versionone.apiclient.exceptions.OidException;
 
-import edu.tamu.app.cache.model.RemoteProduct;
-import edu.tamu.app.model.RemoteProductManager;
+import edu.tamu.app.cache.model.RemoteProject;
+import edu.tamu.app.model.RemoteProjectManager;
 import edu.tamu.app.model.ServiceType;
 import edu.tamu.app.model.repo.InternalRequestRepo;
-import edu.tamu.app.model.repo.RemoteProductManagerRepo;
+import edu.tamu.app.model.repo.RemoteProjectManagerRepo;
 import edu.tamu.app.service.manager.VersionOneService;
 import edu.tamu.app.service.registry.ManagementBeanRegistry;
 
 @RunWith(SpringRunner.class)
-public class RemoteProductsScheduledCacheServiceTest {
+public class RemoteProjectsScheduledCacheServiceTest {
 
     @Mock
-    private RemoteProductManagerRepo remoteProductManagerRepo;
+    private RemoteProjectManagerRepo remoteProjectManagerRepo;
 
     @Mock
     private InternalRequestRepo internalRequestRepo;
@@ -52,92 +52,92 @@ public class RemoteProductsScheduledCacheServiceTest {
     private SimpMessagingTemplate simpMessagingTemplate;
 
     @InjectMocks
-    private RemoteProductsScheduledCacheService remoteProductsScheduledCacheService;
+    private RemoteProjectsScheduledCacheService remoteProjectsScheduledCacheService;
 
     @Before
     public void setup() throws ConnectionException, APIException, OidException, IOException {
         MockitoAnnotations.initMocks(this);
         VersionOneService versionOneService = mock(VersionOneService.class);
-        when(remoteProductManagerRepo.findAll()).thenReturn(Arrays.asList(new RemoteProductManager[] { getMockRemoteProductManager() }));
+        when(remoteProjectManagerRepo.findAll()).thenReturn(Arrays.asList(new RemoteProjectManager[] { getMockRemoteProductManager() }));
         when(managementBeanRegistry.getService(any(String.class))).thenReturn(versionOneService);
         when(internalRequestRepo.countByProductId(any(Long.class))).thenReturn(1L);
-        when(versionOneService.getRemoteProduct()).thenReturn(Arrays.asList(new RemoteProduct[] { getMockRemoteProduct() }));
+        when(versionOneService.getRemoteProject()).thenReturn(Arrays.asList(new RemoteProject[] { getMockRemoteProduct() }));
     }
 
     @Test
     public void testSchedule() {
-        remoteProductsScheduledCacheService.schedule();
-        assertRemoteProducts(remoteProductsScheduledCacheService.get());
+        remoteProjectsScheduledCacheService.schedule();
+        assertRemoteProducts(remoteProjectsScheduledCacheService.get());
     }
 
     @Test
     public void testUpdate() {
-        remoteProductsScheduledCacheService.update();
-        assertRemoteProducts(remoteProductsScheduledCacheService.get());
+        remoteProjectsScheduledCacheService.update();
+        assertRemoteProducts(remoteProjectsScheduledCacheService.get());
     }
 
     @Test
     public void testBroadcast() {
-        remoteProductsScheduledCacheService.broadcast();
+        remoteProjectsScheduledCacheService.broadcast();
         assertTrue(true);
     }
 
     @Test
     public void testGet() {
-        remoteProductsScheduledCacheService.schedule();
-        assertRemoteProducts(remoteProductsScheduledCacheService.get());
+        remoteProjectsScheduledCacheService.schedule();
+        assertRemoteProducts(remoteProjectsScheduledCacheService.get());
     }
 
     @Test
     public void testSet() {
-        remoteProductsScheduledCacheService.set(getMockRemoteProductsCache());
-        assertRemoteProducts(remoteProductsScheduledCacheService.get());
+        remoteProjectsScheduledCacheService.set(getMockRemoteProductsCache());
+        assertRemoteProducts(remoteProjectsScheduledCacheService.get());
     }
 
     @Test
     public void testGetRemoteProduct() {
-        remoteProductsScheduledCacheService.set(getMockRemoteProductsCache());
-        Optional<RemoteProduct> remoteProduct = remoteProductsScheduledCacheService.getRemoteProduct(1L, "0001");
-        assertTrue("Coult not find remote product!", remoteProduct.isPresent());
-        assertRemoteProduct(remoteProduct.get());
+        remoteProjectsScheduledCacheService.set(getMockRemoteProductsCache());
+        Optional<RemoteProject> remoteProject = remoteProjectsScheduledCacheService.getRemoteProject(1L, "0001");
+        assertTrue("Coult not find remote project!", remoteProject.isPresent());
+        assertRemoteProduct(remoteProject.get());
     }
 
-    private RemoteProductManager getMockRemoteProductManager() {
-        RemoteProductManager remoteProductManager = new RemoteProductManager("Test Remote Product Manager", ServiceType.VERSION_ONE);
-        remoteProductManager.setId(1L);
-        return remoteProductManager;
+    private RemoteProjectManager getMockRemoteProductManager() {
+        RemoteProjectManager remoteProjectManager = new RemoteProjectManager("Test Remote Project Manager", ServiceType.VERSION_ONE);
+        remoteProjectManager.setId(1L);
+        return remoteProjectManager;
     }
 
-    private Map<Long, List<RemoteProduct>> getMockRemoteProductsCache() {
-        Map<Long, List<RemoteProduct>> remoteProductCache = new HashMap<Long, List<RemoteProduct>>();
-        List<RemoteProduct> remoteProducts = new ArrayList<RemoteProduct>();
-        remoteProducts.add(getMockRemoteProduct());
-        remoteProductCache.put(1L, remoteProducts);
+    private Map<Long, List<RemoteProject>> getMockRemoteProductsCache() {
+        Map<Long, List<RemoteProject>> remoteProductCache = new HashMap<Long, List<RemoteProject>>();
+        List<RemoteProject> remoteProjects = new ArrayList<RemoteProject>();
+        remoteProjects.add(getMockRemoteProduct());
+        remoteProductCache.put(1L, remoteProjects);
         return remoteProductCache;
     }
 
-    private RemoteProduct getMockRemoteProduct() {
-        return new RemoteProduct("0001", "Sprint 1", 2, 3, 10, 3, 1);
+    private RemoteProject getMockRemoteProduct() {
+        return new RemoteProject("0001", "Sprint 1", 2, 3, 10, 3, 1);
     }
 
-    private void assertRemoteProducts(Map<Long, List<RemoteProduct>> remoteProductsCache) {
+    private void assertRemoteProducts(Map<Long, List<RemoteProject>> remoteProductsCache) {
         assertFalse(remoteProductsCache.isEmpty());
         assertEquals(1, remoteProductsCache.size());
-        List<RemoteProduct> remoteProducts = remoteProductsCache.get(1L);
-        assertFalse(remoteProducts.isEmpty());
-        assertEquals(1, remoteProducts.size());
-        assertRemoteProduct(remoteProducts.get(0));
+        List<RemoteProject> remoteProjects = remoteProductsCache.get(1L);
+        assertFalse(remoteProjects.isEmpty());
+        assertEquals(1, remoteProjects.size());
+        assertRemoteProduct(remoteProjects.get(0));
     }
 
-    private void assertRemoteProduct(RemoteProduct remoteProduct) {
-        assertEquals("0001", remoteProduct.getId());
-        assertEquals("Sprint 1", remoteProduct.getName());
-        assertEquals(2, remoteProduct.getRequestCount());
-        assertEquals(3, remoteProduct.getIssueCount());
-        assertEquals(10, remoteProduct.getFeatureCount());
-        assertEquals(3, remoteProduct.getDefectCount());
-        assertEquals(1, remoteProduct.getInternalCount());
-        assertEquals(13, remoteProduct.getBacklogItemCount());
+    private void assertRemoteProduct(RemoteProject remoteProject) {
+        assertEquals("0001", remoteProject.getId());
+        assertEquals("Sprint 1", remoteProject.getName());
+        assertEquals(2, remoteProject.getRequestCount());
+        assertEquals(3, remoteProject.getIssueCount());
+        assertEquals(10, remoteProject.getFeatureCount());
+        assertEquals(3, remoteProject.getDefectCount());
+        assertEquals(1, remoteProject.getInternalCount());
+        assertEquals(13, remoteProject.getBacklogItemCount());
     }
 
 }

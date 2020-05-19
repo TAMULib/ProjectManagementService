@@ -7,18 +7,18 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.tamu.app.cache.service.ScheduledCache;
-import edu.tamu.app.model.RemoteProductManager;
-import edu.tamu.app.model.repo.RemoteProductManagerRepo;
-import edu.tamu.app.model.repo.custom.RemoteProductManagerRepoCustom;
+import edu.tamu.app.model.RemoteProjectManager;
+import edu.tamu.app.model.repo.RemoteProjectManagerRepo;
+import edu.tamu.app.model.repo.custom.RemoteProjectManagerRepoCustom;
 import edu.tamu.app.service.registry.ManagementBeanRegistry;
 import edu.tamu.weaver.data.model.repo.impl.AbstractWeaverRepoImpl;
 
-public class RemoteProductManagerRepoImpl extends AbstractWeaverRepoImpl<RemoteProductManager, RemoteProductManagerRepo> implements RemoteProductManagerRepoCustom {
+public class RemoteProjectManagerRepoImpl extends AbstractWeaverRepoImpl<RemoteProjectManager, RemoteProjectManagerRepo> implements RemoteProjectManagerRepoCustom {
 
-    private static final Logger logger = Logger.getLogger(RemoteProductManagerRepoImpl.class);
+    private static final Logger logger = Logger.getLogger(RemoteProjectManagerRepoImpl.class);
 
     @Autowired
-    private RemoteProductManagerRepo remoteProductManagerRepo;
+    private RemoteProjectManagerRepo remoteProjectManagerRepo;
 
     @Autowired
     private ManagementBeanRegistry managementBeanRegistry;
@@ -27,33 +27,33 @@ public class RemoteProductManagerRepoImpl extends AbstractWeaverRepoImpl<RemoteP
     private List<ScheduledCache<?, ?>> scheduledCaches;
 
     @Override
-    public RemoteProductManager create(RemoteProductManager remoteProductManager) {
-        remoteProductManager = super.create(remoteProductManager);
-        managementBeanRegistry.register(remoteProductManager);
+    public RemoteProjectManager create(RemoteProjectManager remoteProjectManager) {
+        remoteProjectManager = super.create(remoteProjectManager);
+        managementBeanRegistry.register(remoteProjectManager);
         updateCache();
-        return remoteProductManager;
+        return remoteProjectManager;
     }
 
     @Override
-    public RemoteProductManager update(RemoteProductManager remoteProductManager) {
-        RemoteProductManager existingRemoteProductManager = remoteProductManagerRepo.findOne(remoteProductManager.getId());
+    public RemoteProjectManager update(RemoteProjectManager remoteProjectManager) {
+        RemoteProjectManager existingRemoteProductManager = remoteProjectManagerRepo.findOne(remoteProjectManager.getId());
         managementBeanRegistry.unregister(existingRemoteProductManager);
-        remoteProductManager = super.update(remoteProductManager);
-        managementBeanRegistry.register(remoteProductManager);
+        remoteProjectManager = super.update(remoteProjectManager);
+        managementBeanRegistry.register(remoteProjectManager);
         updateCache();
-        return remoteProductManager;
+        return remoteProjectManager;
     }
 
     @Override
-    public void delete(RemoteProductManager remoteProductManager) {
-        managementBeanRegistry.unregister(remoteProductManager);
-        super.delete(remoteProductManager);
+    public void delete(RemoteProjectManager remoteProjectManager) {
+        managementBeanRegistry.unregister(remoteProjectManager);
+        super.delete(remoteProjectManager);
         updateCache();
     }
 
     @Override
     protected String getChannel() {
-        return "/channel/remote-product-manager";
+        return "/channel/remote-project-manager";
     }
 
     private void updateCache() {

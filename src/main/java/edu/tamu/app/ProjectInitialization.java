@@ -10,25 +10,25 @@ import org.springframework.stereotype.Component;
 
 import edu.tamu.app.model.CardType;
 import edu.tamu.app.model.repo.CardTypeRepo;
-import edu.tamu.app.model.repo.RemoteProductManagerRepo;
+import edu.tamu.app.model.repo.RemoteProjectManagerRepo;
 import edu.tamu.app.service.registry.ManagementBeanRegistry;
 
 @Component
 @Profile("!test")
-public class ProductInitialization implements CommandLineRunner {
+public class ProjectInitialization implements CommandLineRunner {
 
     @Autowired
     private ManagementBeanRegistry managementBeanRegistry;
 
     @Autowired
-    private RemoteProductManagerRepo remoteProductManagerRepo;
+    private RemoteProjectManagerRepo remoteProjectManagerRepo;
 
     @Autowired
     private CardTypeRepo cardTypeRepo;
 
     @Override
     public void run(String... args) throws Exception {
-        remoteProductManagerRepo.findAll().forEach(versionManagementSoftware -> {
+        remoteProjectManagerRepo.findAll().forEach(versionManagementSoftware -> {
             managementBeanRegistry.register(versionManagementSoftware);
         });
         CardType type = cardTypeRepo.findByIdentifier("Feature");

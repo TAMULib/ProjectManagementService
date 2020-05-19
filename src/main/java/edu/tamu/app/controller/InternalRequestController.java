@@ -22,12 +22,12 @@ import org.springframework.web.bind.annotation.RestController;
 import edu.tamu.app.model.InternalRequest;
 import edu.tamu.app.model.InternalStats;
 import edu.tamu.app.model.Product;
-import edu.tamu.app.model.RemoteProductManager;
+import edu.tamu.app.model.RemoteProjectManager;
 import edu.tamu.app.model.repo.InternalRequestRepo;
 import edu.tamu.app.model.repo.ProductRepo;
-import edu.tamu.app.model.repo.RemoteProductManagerRepo;
+import edu.tamu.app.model.repo.RemoteProjectManagerRepo;
 import edu.tamu.app.model.request.FeatureRequest;
-import edu.tamu.app.service.manager.RemoteProductManagerBean;
+import edu.tamu.app.service.manager.RemoteProjectManagerBean;
 import edu.tamu.app.service.registry.ManagementBeanRegistry;
 import edu.tamu.weaver.response.ApiResponse;
 import edu.tamu.weaver.validation.aspect.annotation.WeaverValidatedModel;
@@ -47,7 +47,7 @@ public class InternalRequestController {
     private ManagementBeanRegistry managementBeanRegistry;
 
     @Autowired
-    private RemoteProductManagerRepo remoteProductManagerRepo;
+    private RemoteProjectManagerRepo remoteProjectManagerRepo;
 
     @GetMapping
     @PreAuthorize("hasRole('MANAGER')")
@@ -88,25 +88,25 @@ public class InternalRequestController {
     public ApiResponse push(@PathVariable Long requestId, @PathVariable Long productId, @PathVariable Long rpmId, @RequestBody String scopeId) {
         Optional<InternalRequest> internalRequest = Optional.ofNullable(internalRequestRepo.findOne(requestId));
         Optional<Product> product = Optional.ofNullable(productRepo.findOne(productId));
-        Optional<RemoteProductManager> remoteProductManager = Optional.ofNullable(remoteProductManagerRepo.findOne(rpmId));
+        Optional<RemoteProjectManager> remoteProjectManager = Optional.ofNullable(remoteProjectManagerRepo.findOne(rpmId));
         ApiResponse response;
 
-        if (internalRequest.isPresent() && product.isPresent() && remoteProductManager.isPresent() && !scopeId.isEmpty()) {
+        if (internalRequest.isPresent() && product.isPresent() && remoteProjectManager.isPresent() && !scopeId.isEmpty()) {
             FeatureRequest featureRequest = new FeatureRequest(
                     internalRequest.get().getTitle(), internalRequest.get().getDescription(), product.get().getId(), scopeId);
 
-            RemoteProductManagerBean remoteProductManagerBean =
-                (RemoteProductManagerBean) managementBeanRegistry.getService(remoteProductManager.get().getName());
+            RemoteProjectManagerBean remoteProjectManagerBean =
+                (RemoteProjectManagerBean) managementBeanRegistry.getService(remoteProjectManager.get().getName());
 
             try {
-                response = new ApiResponse(SUCCESS, remoteProductManagerBean.push(featureRequest));
+                response = new ApiResponse(SUCCESS, remoteProjectManagerBean.push(featureRequest));
                 internalRequestRepo.delete(internalRequest.get());
             } catch (Exception e) {
-                response = new ApiResponse(ERROR, "Error pushing Internal Request to " + remoteProductManager.get().getName()
+                response = new ApiResponse(ERROR, "Error pushing Internal Request to " + remoteProjectManager.get().getName()
                     + " for Product " + product.get().getName() + "!");
             }
-        } else if (!remoteProductManager.isPresent()) {
-            response = new ApiResponse(ERROR, "Remote Product Manager with id " + rpmId + " not found!");
+        } else if (!remoteProjectManager.isPresent()) {
+            response = new ApiResponse(ERROR, "Remote Project Manager with id " + rpmId + " not found!");
         } else if (!internalRequest.isPresent()) {
             response = new ApiResponse(ERROR, "Internal Request with id " + requestId + " not found!");
         } else if (!product.isPresent()) {

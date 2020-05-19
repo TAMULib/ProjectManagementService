@@ -5,17 +5,17 @@ import java.util.Map;
 import javax.persistence.Entity;
 
 @Entity
-public class RemoteProductManager extends ManagementService {
+public class RemoteProjectManager extends ManagementService {
 
-    public RemoteProductManager() {
+    public RemoteProjectManager() {
         super();
     }
 
-    public RemoteProductManager(String name, ServiceType type) {
+    public RemoteProjectManager(String name, ServiceType type) {
         super(name, type);
     }
 
-    public RemoteProductManager(String name, ServiceType type, Map<String, String> settings) {
+    public RemoteProjectManager(String name, ServiceType type, Map<String, String> settings) {
         super(name, type, settings);
     }
 
