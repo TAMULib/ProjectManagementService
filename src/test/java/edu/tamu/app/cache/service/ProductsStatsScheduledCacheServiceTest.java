@@ -32,6 +32,7 @@ import edu.tamu.app.model.Product;
 import edu.tamu.app.model.RemoteProductInfo;
 import edu.tamu.app.model.RemoteProductManager;
 import edu.tamu.app.model.ServiceType;
+import edu.tamu.app.model.repo.InternalRequestRepo;
 import edu.tamu.app.model.repo.ProductRepo;
 
 @RunWith(SpringRunner.class)
@@ -50,6 +51,9 @@ public class ProductsStatsScheduledCacheServiceTest {
     private ProductRepo productRepo;
 
     @Mock
+    private InternalRequestRepo internalRequestRepo;
+
+    @Mock
     private RemoteProductsScheduledCacheService remoteProductsScheduledCacheService;
 
     @Mock
@@ -63,6 +67,7 @@ public class ProductsStatsScheduledCacheServiceTest {
         MockitoAnnotations.initMocks(this);
         when(productRepo.findAll()).thenReturn(Arrays.asList(new Product[] { getMockProduct() }));
         when(remoteProductsScheduledCacheService.getRemoteProduct(any(Long.class), any(String.class))).thenReturn(Optional.of(getMockRemoteProduct()));
+        when(internalRequestRepo.countByProductId(any(Long.class))).thenReturn(1L);
     }
 
     @Test
@@ -125,11 +130,11 @@ public class ProductsStatsScheduledCacheServiceTest {
     }
 
     private ProductStats getMockProductStats() {
-        return new ProductStats("1000", TEST_PRODUCT_NAME, 2, 3, 10, 3);
+        return new ProductStats("1000", TEST_PRODUCT_NAME, 2, 3, 10, 3, 1);
     }
 
     private RemoteProduct getMockRemoteProduct() {
-        return new RemoteProduct("1000", TEST_PRODUCT_NAME, 2, 3, 10, 3);
+        return new RemoteProduct("1000", TEST_PRODUCT_NAME, 2, 3, 10, 3, 1);
     }
 
     private void assertProductsStats(List<ProductStats> productStatsCache) {
@@ -141,6 +146,7 @@ public class ProductsStatsScheduledCacheServiceTest {
         assertEquals(3, productStatsCache.get(0).getIssueCount());
         assertEquals(10, productStatsCache.get(0).getFeatureCount());
         assertEquals(3, productStatsCache.get(0).getDefectCount());
+        assertEquals(1, productStatsCache.get(0).getInternalCount());
         assertEquals(13, productStatsCache.get(0).getBacklogItemCount());
     }
 

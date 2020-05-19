@@ -57,11 +57,12 @@ public class RemoteProductsCacheTest {
         assertEquals("Cached remote product had incorrect number of issues!", 3, remoteProductsCache.get(1L).get(0).getIssueCount());
         assertEquals("Cached remote product had incorrect number of features!", 10, remoteProductsCache.get(1L).get(0).getFeatureCount());
         assertEquals("Cached remote product had incorrect number of defects!", 3, remoteProductsCache.get(1L).get(0).getDefectCount());
+        assertEquals("Cached remote product had incorrect number of internals!", 1, remoteProductsCache.get(1L).get(0).getInternalCount());
         assertEquals("Cached remote product had incorrect total backlog items!", 13, remoteProductsCache.get(1L).get(0).getBacklogItemCount());
     }
 
     private RemoteProduct getMockRemoteProduct() {
-        return new RemoteProduct("0001", "Sprint 1", 2, 3, 10, 3);
+        return new RemoteProduct("0001", "Sprint 1", 2, 3, 10, 3, 1);
     }
 
 }

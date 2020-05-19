@@ -11,8 +11,10 @@ public class InternalStatsTest {
 
     @Test
     public void testNewInternalStats() {
-        InternalStats internalStats = new InternalStats(3);
-        assertEquals(3, internalStats.getInternalCount());
+        InternalStats internalStats = new InternalStats(1, 3);
+        assertEquals(2, internalStats.getAssignedCount());
+        assertEquals(1, internalStats.getUnassignedCount());
+        assertEquals(3, internalStats.getTotalCount());
     }
 
 }

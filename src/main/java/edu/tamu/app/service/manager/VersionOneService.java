@@ -80,11 +80,12 @@ public class VersionOneService extends MappingRemoteProductManagerBean {
         for (Asset product : result.getAssets()) {
             String scopeId = parseId(product.getOid());
             String name = product.getAttribute(nameAttributeDefinition).getValue().toString();
-            int requestCount = getPrimaryWorkItemCount("Request", scopeId);
-            int issueCount = getPrimaryWorkItemCount("Issue", scopeId);
-            int storyCount = getPrimaryWorkItemCount("Story", scopeId);
-            int defectCount = getPrimaryWorkItemCount("Defect", scopeId);
-            remoteProducts.add(new RemoteProduct(scopeId, name, requestCount, issueCount, storyCount, defectCount));
+            long requestCount = getPrimaryWorkItemCount("Request", scopeId);
+            long issueCount = getPrimaryWorkItemCount("Issue", scopeId);
+            long storyCount = getPrimaryWorkItemCount("Story", scopeId);
+            long defectCount = getPrimaryWorkItemCount("Defect", scopeId);
+            long internalCount = 0;
+            remoteProducts.add(new RemoteProduct(scopeId, name, requestCount, issueCount, storyCount, defectCount, internalCount));
         }
         return remoteProducts;
     }
@@ -100,11 +101,12 @@ public class VersionOneService extends MappingRemoteProductManagerBean {
         QueryResult result = services.retrieve(query);
         Asset product = result.getAssets()[0];
         String name = product.getAttribute(nameAttributeDefinition).getValue().toString();
-        int requestCount = getPrimaryWorkItemCount("Request", scopeId);
-        int issueCount = getPrimaryWorkItemCount("Issue", scopeId);
-        int storyCount = getPrimaryWorkItemCount("Story", scopeId);
-        int defectCount = getPrimaryWorkItemCount("Defect", scopeId);
-        return new RemoteProduct(scopeId, name, requestCount, issueCount, storyCount, defectCount);
+        long requestCount = getPrimaryWorkItemCount("Request", scopeId);
+        long issueCount = getPrimaryWorkItemCount("Issue", scopeId);
+        long storyCount = getPrimaryWorkItemCount("Story", scopeId);
+        long defectCount = getPrimaryWorkItemCount("Defect", scopeId);
+
+        return new RemoteProduct(scopeId, name, requestCount, issueCount, storyCount, defectCount, 0L);
     }
 
     public int getPrimaryWorkItemCount(final String type, final String scopeId) throws ConnectionException, APIException, OidException {

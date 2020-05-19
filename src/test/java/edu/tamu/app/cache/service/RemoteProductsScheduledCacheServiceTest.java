@@ -31,6 +31,7 @@ import com.versionone.apiclient.exceptions.OidException;
 import edu.tamu.app.cache.model.RemoteProduct;
 import edu.tamu.app.model.RemoteProductManager;
 import edu.tamu.app.model.ServiceType;
+import edu.tamu.app.model.repo.InternalRequestRepo;
 import edu.tamu.app.model.repo.RemoteProductManagerRepo;
 import edu.tamu.app.service.manager.VersionOneService;
 import edu.tamu.app.service.registry.ManagementBeanRegistry;
@@ -40,6 +41,9 @@ public class RemoteProductsScheduledCacheServiceTest {
 
     @Mock
     private RemoteProductManagerRepo remoteProductManagerRepo;
+
+    @Mock
+    private InternalRequestRepo internalRequestRepo;
 
     @Mock
     private ManagementBeanRegistry managementBeanRegistry;
@@ -56,6 +60,7 @@ public class RemoteProductsScheduledCacheServiceTest {
         VersionOneService versionOneService = mock(VersionOneService.class);
         when(remoteProductManagerRepo.findAll()).thenReturn(Arrays.asList(new RemoteProductManager[] { getMockRemoteProductManager() }));
         when(managementBeanRegistry.getService(any(String.class))).thenReturn(versionOneService);
+        when(internalRequestRepo.countByProductId(any(Long.class))).thenReturn(1L);
         when(versionOneService.getRemoteProduct()).thenReturn(Arrays.asList(new RemoteProduct[] { getMockRemoteProduct() }));
     }
 
@@ -112,7 +117,7 @@ public class RemoteProductsScheduledCacheServiceTest {
     }
 
     private RemoteProduct getMockRemoteProduct() {
-        return new RemoteProduct("0001", "Sprint 1", 2, 3, 10, 3);
+        return new RemoteProduct("0001", "Sprint 1", 2, 3, 10, 3, 1);
     }
 
     private void assertRemoteProducts(Map<Long, List<RemoteProduct>> remoteProductsCache) {
@@ -131,6 +136,7 @@ public class RemoteProductsScheduledCacheServiceTest {
         assertEquals(3, remoteProduct.getIssueCount());
         assertEquals(10, remoteProduct.getFeatureCount());
         assertEquals(3, remoteProduct.getDefectCount());
+        assertEquals(1, remoteProduct.getInternalCount());
         assertEquals(13, remoteProduct.getBacklogItemCount());
     }
 

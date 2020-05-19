@@ -121,7 +121,7 @@ public class InternalRequestController {
     @PreAuthorize("hasRole('ANONYMOUS')")
     @GetMapping("/stats")
     public ApiResponse stats() {
-        return new ApiResponse(SUCCESS, new InternalStats(internalRequestRepo.count()));
+        return new ApiResponse(SUCCESS, new InternalStats(internalRequestRepo.countByProductIsNull(), internalRequestRepo.count()));
     }
 
 }

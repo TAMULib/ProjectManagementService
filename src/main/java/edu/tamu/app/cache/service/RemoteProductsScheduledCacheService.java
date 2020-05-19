@@ -43,16 +43,22 @@ public class RemoteProductsScheduledCacheService extends AbstractScheduledCacheS
 
     public void update() {
         logger.info("Caching remote products...");
+
         Map<Long, List<RemoteProduct>> remoteProducts = new HashMap<Long, List<RemoteProduct>>();
-        for (RemoteProductManager remoteProductManager : remoteProductManagerRepo.findAll()) {
-            RemoteProductManagerBean remoteProductManagerBean = (RemoteProductManagerBean) managementBeanRegistry
-                    .getService(remoteProductManager.getName());
-            try {
-                remoteProducts.put(remoteProductManager.getId(), remoteProductManagerBean.getRemoteProduct());
-            } catch (Exception e) {
-                e.printStackTrace();
+        Optional<List<RemoteProductManager>> remoteProductManagers = Optional.ofNullable(remoteProductManagerRepo.findAll());
+
+        if (remoteProductManagers.isPresent()){
+            for (RemoteProductManager remoteProductManager : remoteProductManagers.get()) {
+                RemoteProductManagerBean remoteProductManagerBean = (RemoteProductManagerBean) managementBeanRegistry
+                        .getService(remoteProductManager.getName());
+                try {
+                    remoteProducts.put(remoteProductManager.getId(), remoteProductManagerBean.getRemoteProduct());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
+
         set(remoteProducts);
         logger.info("Finished caching remote products");
     }

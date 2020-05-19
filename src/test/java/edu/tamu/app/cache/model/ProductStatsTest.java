@@ -11,13 +11,14 @@ public class ProductStatsTest {
 
     @Test
     public void testNewProductStats() {
-        ProductStats productStats = new ProductStats("0001", "Sprint 1", 2, 3, 10, 3);
+        ProductStats productStats = new ProductStats("0001", "Sprint 1", 2, 3, 10, 3, 1);
         assertEquals("0001", productStats.getId());
         assertEquals("Sprint 1", productStats.getName());
         assertEquals(2, productStats.getRequestCount());
         assertEquals(3, productStats.getIssueCount());
         assertEquals(10, productStats.getFeatureCount());
         assertEquals(3, productStats.getDefectCount());
+        assertEquals(1, productStats.getInternalCount());
         assertEquals(13, productStats.getBacklogItemCount());
     }
 

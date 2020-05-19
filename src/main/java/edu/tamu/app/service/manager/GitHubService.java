@@ -19,13 +19,13 @@ import org.kohsuke.github.GHIssueState;
 import org.kohsuke.github.GHLabel;
 import org.kohsuke.github.GHOrganization;
 import org.kohsuke.github.GHProject;
+import org.kohsuke.github.GHProject.ProjectStateFilter;
 import org.kohsuke.github.GHProjectCard;
 import org.kohsuke.github.GHProjectColumn;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GHUser;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
-import org.kohsuke.github.GHProject.ProjectStateFilter;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -176,7 +176,7 @@ public class GitHubService extends MappingRemoteProductManagerBean {
         long featureCount = getPrimaryWorkItemCount(FEATURE_LABEL, repo, labels);
         long defectCount = getPrimaryWorkItemCount(DEFECT_LABEL, repo, labels);
 
-        return new RemoteProduct(scopeId, name, requestCount, issueCount, featureCount, defectCount);
+        return new RemoteProduct(scopeId, name, requestCount, issueCount, featureCount, defectCount, 0L);
     }
 
     private long getPrimaryWorkItemCount(final String type, final GHRepository repo, final List<GHLabel> labels)

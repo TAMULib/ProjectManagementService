@@ -67,6 +67,7 @@ public class ProductsStatsCacheControllerTest {
         assertEquals(3, productsStatsCache.get(0).getIssueCount());
         assertEquals(10, productsStatsCache.get(0).getFeatureCount());
         assertEquals(3, productsStatsCache.get(0).getDefectCount());
+        assertEquals(1, productsStatsCache.get(0).getInternalCount());
         assertEquals(13, productsStatsCache.get(0).getBacklogItemCount());
     }
 
@@ -77,7 +78,7 @@ public class ProductsStatsCacheControllerTest {
     }
 
     private ProductStats getMockProductStats() {
-        return new ProductStats("0001", "Sprint 1", 2, 3, 10, 3);
+        return new ProductStats("0001", "Sprint 1", 2, 3, 10, 3, 1);
     }
 
 }

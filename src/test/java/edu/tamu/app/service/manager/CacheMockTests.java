@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.app.cache.model.RemoteProduct;
 import edu.tamu.app.cache.model.Sprint;
+import edu.tamu.app.model.InternalRequest;
 
 public abstract class CacheMockTests {
 
@@ -22,6 +23,9 @@ public abstract class CacheMockTests {
 
     @Value("classpath:mock/cache/remote-products.json")
     private Resource remoteProducts;
+
+    @Value("classpath:mock/cache/internal-requests.json")
+    private Resource internalRequests;
 
     @Spy
     private ObjectMapper objectMapper;
@@ -33,6 +37,10 @@ public abstract class CacheMockTests {
 
     protected List<RemoteProduct> getMockRemoteProducts() throws JsonParseException, JsonMappingException, IOException {
         return objectMapper.readValue(remoteProducts.getFile(), new TypeReference<List<RemoteProduct>>() {});
+    }
+
+    protected List<InternalRequest> getMockInternalRequests() throws JsonParseException, JsonMappingException, IOException {
+        return objectMapper.readValue(internalRequests.getFile(), new TypeReference<List<InternalRequest>>() {});
     }
     // @formatter:on
 

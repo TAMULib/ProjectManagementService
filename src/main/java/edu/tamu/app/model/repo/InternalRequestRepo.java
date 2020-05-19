@@ -6,4 +6,8 @@ import edu.tamu.weaver.data.model.repo.WeaverRepo;
 
 public interface InternalRequestRepo extends WeaverRepo<InternalRequest>, InternalRequestRepoCustom {
 
+    public Long countByProductId(Long productId);
+
+    public Long countByProductIsNull();
+
 }
