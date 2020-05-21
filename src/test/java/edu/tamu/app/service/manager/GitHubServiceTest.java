@@ -49,7 +49,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestTemplate;
 
 import edu.tamu.app.cache.model.Member;
-import edu.tamu.app.cache.model.RemoteProduct;
+import edu.tamu.app.cache.model.RemoteProject;
 import edu.tamu.app.cache.model.Sprint;
 import edu.tamu.app.mapping.CardTypeMappingService;
 import edu.tamu.app.mapping.EstimateMappingService;
@@ -57,7 +57,7 @@ import edu.tamu.app.mapping.StatusMappingService;
 import edu.tamu.app.model.CardType;
 import edu.tamu.app.model.Estimate;
 import edu.tamu.app.model.ManagementService;
-import edu.tamu.app.model.RemoteProductManager;
+import edu.tamu.app.model.RemoteProjectManager;
 import edu.tamu.app.model.ServiceType;
 import edu.tamu.app.model.Status;
 import edu.tamu.app.model.repo.CardTypeRepo;
@@ -172,7 +172,7 @@ public class GitHubServiceTest extends CacheMockTests {
 
     @Before
     public void setUp() throws Exception {
-        ManagementService managementService = new RemoteProductManager("GitHub", ServiceType.GITHUB,
+        ManagementService managementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB,
                 new HashMap<String, String>() {
                     private static final long serialVersionUID = 2020874481642498006L;
                     {
@@ -351,7 +351,7 @@ public class GitHubServiceTest extends CacheMockTests {
 
     @Test
     public void testGetRemoteProjects() throws Exception {
-        List<RemoteProduct> remoteProjects = gitHubService.getRemoteProduct();
+        List<RemoteProject> remoteProjects = gitHubService.getRemoteProject();
         assertEquals("Didn't get all the remote projects", 2, remoteProjects.size());
         assertEquals("Number of Requests was incorrect", 1, remoteProjects.get(0).getRequestCount());
         assertEquals("Number of Issues was incorrect", 2, remoteProjects.get(0).getIssueCount());
@@ -361,7 +361,7 @@ public class GitHubServiceTest extends CacheMockTests {
 
     @Test
     public void testGetRemoteProjectByScopeId() throws Exception {
-        RemoteProduct project = gitHubService.getRemoteProductByScopeId(String.valueOf(TEST_REPOSITORY1_ID));
+        RemoteProject project = gitHubService.getRemoteProjectByScopeId(String.valueOf(TEST_REPOSITORY1_ID));
         assertNotNull("Didn't get the remote project", project);
         assertEquals("Did not get the expected project", String.valueOf(TEST_REPOSITORY1_ID), project.getId());
         assertEquals("Number of Requests was incorrect", 1, project.getRequestCount());
@@ -372,7 +372,7 @@ public class GitHubServiceTest extends CacheMockTests {
 
     @Test
     public void testGetActiveSprintsByProjectId() throws Exception {
-        List<Sprint> activeSprints = gitHubService.getActiveSprintsByProductId(String.valueOf(TEST_REPOSITORY1_ID));
+        List<Sprint> activeSprints = gitHubService.getActiveSprintsByScopeId(String.valueOf(TEST_REPOSITORY1_ID));
         assertEquals("Didn't get all active sprints", 3, activeSprints.size());
     }
 
@@ -404,7 +404,7 @@ public class GitHubServiceTest extends CacheMockTests {
 
     @Test
     public void testGetGitHubInstanceByToken() throws IOException {
-        ManagementService tokenManagementService = new RemoteProductManager("GitHub", ServiceType.GITHUB,
+        ManagementService tokenManagementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB,
                 new HashMap<String, String>() {
                     private static final long serialVersionUID = 2020874481642498006L;
                     {

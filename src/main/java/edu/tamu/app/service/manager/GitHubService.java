@@ -36,14 +36,14 @@ import org.springframework.web.client.RestTemplate;
 
 import edu.tamu.app.cache.model.Card;
 import edu.tamu.app.cache.model.Member;
-import edu.tamu.app.cache.model.RemoteProduct;
+import edu.tamu.app.cache.model.RemoteProject;
 import edu.tamu.app.cache.model.Sprint;
 import edu.tamu.app.model.ManagementService;
 import edu.tamu.app.model.request.FeatureRequest;
 import edu.tamu.app.rest.BasicAuthRestTemplate;
 import edu.tamu.app.rest.TokenAuthRestTemplate;
 
-public class GitHubService extends MappingRemoteProductManagerBean {
+public class GitHubService extends MappingRemoteProjectManagerBean {
 
     private static final Logger logger = Logger.getLogger(GitHubService.class);
 
@@ -74,30 +74,30 @@ public class GitHubService extends MappingRemoteProductManagerBean {
     }
 
     @Override
-    public List<RemoteProduct> getRemoteProduct() throws Exception {
-        logger.info("Fetching remote products");
-        final List<RemoteProduct> remoteProducts = new ArrayList<RemoteProduct>();
+    public List<RemoteProject> getRemoteProject() throws Exception {
+        logger.info("Fetching remote projects");
+        final List<RemoteProject> remoteProjects = new ArrayList<RemoteProject>();
         final GHOrganization org = github.getOrganization(ORGANIZATION);
         for (GHRepository repo : org.getRepositories().values()) {
             final List<GHLabel> labels = repo.listLabels().asList();
-            remoteProducts.add(buildRemoteProduct(repo, labels));
+            remoteProjects.add(buildRemoteProject(repo, labels));
         }
-        return remoteProducts;
+        return remoteProjects;
     }
 
     @Override
-    public RemoteProduct getRemoteProductByScopeId(final String scopeId) throws Exception {
-        logger.info("Fetching remote product by scope id " + scopeId);
+    public RemoteProject getRemoteProjectByScopeId(final String scopeId) throws Exception {
+        logger.info("Fetching remote project by scope id " + scopeId);
         GHRepository repo = github.getRepositoryById(scopeId);
         List<GHLabel> labels = repo.listLabels().asList();
-        return buildRemoteProduct(repo, labels);
+        return buildRemoteProject(repo, labels);
     }
 
     @Override
-    public List<Sprint> getActiveSprintsByProductId(final String productScopeId) throws Exception {
-        logger.info("Fetching active sprints for product with scope id " + productScopeId);
+    public List<Sprint> getActiveSprintsByScopeId(final String scopeId) throws Exception {
+        logger.info("Fetching active sprints for remote project with scope id " + scopeId);
         List<Sprint> activeSprints = new ArrayList<Sprint>();
-        GHRepository repo = github.getRepositoryById(productScopeId);
+        GHRepository repo = github.getRepositoryById(scopeId);
         List<GHProject> projects = repo.listProjects(ProjectStateFilter.OPEN).asList();
         for (GHProject project : projects) {
             String sprintId = String.valueOf(project.getId());
@@ -168,7 +168,7 @@ public class GitHubService extends MappingRemoteProductManagerBean {
         return StringUtils.isNotBlank(token) ? new TokenAuthRestTemplate(token) : new BasicAuthRestTemplate(getSettingValue("username"), getSettingValue("password"));
     }
 
-    private RemoteProduct buildRemoteProduct(GHRepository repo, List<GHLabel> labels) throws IOException {
+    private RemoteProject buildRemoteProject(GHRepository repo, List<GHLabel> labels) throws IOException {
         final String scopeId = String.valueOf(repo.getId());
         final String name = repo.getName();
         long requestCount = getPrimaryWorkItemCount(REQUEST_LABEL, repo, labels);
@@ -176,7 +176,7 @@ public class GitHubService extends MappingRemoteProductManagerBean {
         long featureCount = getPrimaryWorkItemCount(FEATURE_LABEL, repo, labels);
         long defectCount = getPrimaryWorkItemCount(DEFECT_LABEL, repo, labels);
 
-        return new RemoteProduct(scopeId, name, requestCount, issueCount, featureCount, defectCount, 0L);
+        return new RemoteProject(scopeId, name, requestCount, issueCount, featureCount, defectCount, 0L);
     }
 
     private long getPrimaryWorkItemCount(final String type, final GHRepository repo, final List<GHLabel> labels)

@@ -50,7 +50,7 @@ public class Product extends ValidatingBaseEntity {
 
     @ElementCollection(fetch = FetchType.EAGER)
     @JsonView(ApiView.Partial.class)
-    private List<RemoteProductInfo> remoteProductInfo;
+    private List<RemoteProjectInfo> remoteProjectInfo;
 
     public Product() {
         super();
@@ -62,16 +62,16 @@ public class Product extends ValidatingBaseEntity {
         this.name = name;
     }
 
-    public Product(String name, List<RemoteProductInfo> remoteProducts) {
+    public Product(String name, List<RemoteProjectInfo> remoteProjectInfo) {
         this();
         this.name = name;
-        this.remoteProductInfo = remoteProducts;
+        this.remoteProjectInfo = remoteProjectInfo;
     }
 
-    public Product(String name, List<RemoteProductInfo> remoteProducts, String scopeId, String devUrl, String preUrl, String productionUrl, String wikiUrl) {
+    public Product(String name, List<RemoteProjectInfo> remoteProjectInfo, String scopeId, String devUrl, String preUrl, String productionUrl, String wikiUrl) {
         this();
         this.name = name;
-        this.remoteProductInfo = remoteProducts;
+        this.remoteProjectInfo = remoteProjectInfo;
         this.scopeId = scopeId;
         this.devUrl = devUrl;
         this.preUrl = preUrl;
@@ -127,22 +127,22 @@ public class Product extends ValidatingBaseEntity {
         this.wikiUrl = wikiUrl;
     }
 
-    public List<RemoteProductInfo> getRemoteProductInfo() {
-        return remoteProductInfo;
+    public List<RemoteProjectInfo> getRemoteProjectInfo() {
+        return remoteProjectInfo;
     }
 
-    public void setRemoteProductInfo(List<RemoteProductInfo> remoteProductInfo) {
-        this.remoteProductInfo = remoteProductInfo;
+    public void setRemoteProductInfo(List<RemoteProjectInfo> remoteProjectInfo) {
+        this.remoteProjectInfo = remoteProjectInfo;
     }
 
-    public void addRemoteProductInfo(RemoteProductInfo remoteProductInfo) {
-        this.remoteProductInfo.add(remoteProductInfo);
+    public void addRemoteProductInfo(RemoteProjectInfo remoteProjectInfo) {
+        this.remoteProjectInfo.add(remoteProjectInfo);
     }
 
-    public void removeRemoteProduct(RemoteProductInfo remoteProductInfo) {
-        this.remoteProductInfo = this.remoteProductInfo.stream()
+    public void removeRemoteProduct(RemoteProjectInfo remoteProjectInfo) {
+        this.remoteProjectInfo = this.remoteProjectInfo.stream()
             .filter(rp -> {
-                return !rp.getScopeId().equals(remoteProductInfo.getScopeId()) && !rp.getRemoteProductManager().equals(remoteProductInfo.getRemoteProductManager());
+                return !rp.getScopeId().equals(remoteProjectInfo.getScopeId()) && !rp.getRemoteProjectManager().equals(remoteProjectInfo.getRemoteProjectManager());
             }).collect(Collectors.toList());
     }
 }

@@ -13,20 +13,20 @@ import com.fasterxml.jackson.annotation.JsonView;
 import edu.tamu.weaver.response.ApiView;
 
 @Embeddable
-public class RemoteProductInfo {
+public class RemoteProjectInfo {
 
     @JsonView(ApiView.Partial.class)
     private String scopeId;
 
     @JsonView(ApiView.Partial.class)
-    @ManyToOne(targetEntity = RemoteProductManager.class, fetch = EAGER, cascade = { DETACH, REFRESH, MERGE }, optional = true)
-    private RemoteProductManager remoteProductManager;
+    @ManyToOne(targetEntity = RemoteProjectManager.class, fetch = EAGER, cascade = { DETACH, REFRESH, MERGE }, optional = true)
+    private RemoteProjectManager remoteProjectManager;
 
-    public RemoteProductInfo() {}
+    public RemoteProjectInfo() {}
 
-    public RemoteProductInfo(String scopeId, RemoteProductManager remoteProductManager) {
+    public RemoteProjectInfo(String scopeId, RemoteProjectManager remoteProjectManager) {
         this.scopeId = scopeId;
-        this.remoteProductManager = remoteProductManager;
+        this.remoteProjectManager = remoteProjectManager;
     }
 
     public String getScopeId() {
@@ -37,11 +37,11 @@ public class RemoteProductInfo {
         this.scopeId = scopeId;
     }
 
-    public RemoteProductManager getRemoteProductManager() {
-        return remoteProductManager;
+    public RemoteProjectManager getRemoteProjectManager() {
+        return remoteProjectManager;
     }
 
-    public void setRemoteProductManager(RemoteProductManager remoteProductManager) {
-        this.remoteProductManager = remoteProductManager;
+    public void setRemoteProjectManager(RemoteProjectManager remoteProjectManager) {
+        this.remoteProjectManager = remoteProjectManager;
     }
 }

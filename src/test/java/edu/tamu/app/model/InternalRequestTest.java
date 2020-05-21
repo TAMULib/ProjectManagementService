@@ -17,7 +17,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import edu.tamu.app.ProductApplication;
-import edu.tamu.app.cache.service.RemoteProductsScheduledCacheService;
+import edu.tamu.app.cache.service.RemoteProjectsScheduledCacheService;
 import edu.tamu.app.service.manager.VersionOneService;
 import edu.tamu.app.service.registry.ManagementBeanRegistry;
 
@@ -32,7 +32,7 @@ public class InternalRequestTest extends ModelTest {
     private SimpMessagingTemplate simpMessagingTemplate;
 
     @InjectMocks
-    private RemoteProductsScheduledCacheService remoteProductsScheduledCacheService;
+    private RemoteProjectsScheduledCacheService remoteProjectsScheduledCacheService;
 
     @Before
     public void setup() {
@@ -41,7 +41,7 @@ public class InternalRequestTest extends ModelTest {
         VersionOneService versionOneService = mock(VersionOneService.class);
         when(managementBeanRegistry.getService(any(String.class))).thenReturn(versionOneService);
 
-        remoteProductManagerRepo.create(TEST_REMOTE_PRODUCT_MANAGER1);
+        remoteProjectManagerRepo.create(TEST_REMOTE_PROJECT_MANAGER1);
         productRepo.create(TEST_PRODUCT);
     }
 

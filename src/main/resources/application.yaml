@@ -58,7 +58,7 @@ app:
       delay: 2000
       # 15 minutes in milliseconds
       interval: 900000
-    remote-products:
+    remote-projects:
       # 2 seconds in milliseconds
       delay: 2000
       # 1 hour in milliseconds

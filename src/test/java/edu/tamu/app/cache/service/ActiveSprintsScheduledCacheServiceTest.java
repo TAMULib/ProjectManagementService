@@ -30,8 +30,8 @@ import edu.tamu.app.cache.model.Card;
 import edu.tamu.app.cache.model.Member;
 import edu.tamu.app.cache.model.Sprint;
 import edu.tamu.app.model.Product;
-import edu.tamu.app.model.RemoteProductInfo;
-import edu.tamu.app.model.RemoteProductManager;
+import edu.tamu.app.model.RemoteProjectInfo;
+import edu.tamu.app.model.RemoteProjectManager;
 import edu.tamu.app.model.ServiceType;
 import edu.tamu.app.model.repo.ProductRepo;
 import edu.tamu.app.service.manager.VersionOneService;
@@ -39,17 +39,17 @@ import edu.tamu.app.service.registry.ManagementBeanRegistry;
 
 @RunWith(SpringRunner.class)
 public class ActiveSprintsScheduledCacheServiceTest {
-    private static final String TEST_PRODUCT_SCOPE1 = "0010";
-    private static final String TEST_PRODUCT_SCOPE2 = "0020";
+    private static final String TEST_PROJECT_SCOPE1 = "0010";
+    private static final String TEST_PROJECT_SCOPE2 = "0020";
 
-    private static final RemoteProductManager TEST_REMOTE_PRODUCT_MANAGER1 = new RemoteProductManager("Test Remote Product Manager 1", ServiceType.VERSION_ONE, new HashMap<String, String>());
-    private static final RemoteProductManager TEST_REMOTE_PRODUCT_MANAGER2 = new RemoteProductManager("Test Remote Product Manager 2", ServiceType.GITHUB, new HashMap<String, String>());
+    private static final RemoteProjectManager TEST_REMOTE_PROJECT_MANAGER1 = new RemoteProjectManager("Test Remote Project Manager 1", ServiceType.VERSION_ONE, new HashMap<String, String>());
+    private static final RemoteProjectManager TEST_REMOTE_PROJECT_MANAGER2 = new RemoteProjectManager("Test Remote Project Manager 2", ServiceType.GITHUB, new HashMap<String, String>());
 
-    private static final RemoteProductInfo TEST_REMOTE_PRODUCT_INFO1 = new RemoteProductInfo(TEST_PRODUCT_SCOPE1, TEST_REMOTE_PRODUCT_MANAGER1);
-    private static final RemoteProductInfo TEST_REMOTE_PRODUCT_INFO2 = new RemoteProductInfo(TEST_PRODUCT_SCOPE2, TEST_REMOTE_PRODUCT_MANAGER2);
+    private static final RemoteProjectInfo TEST_REMOTE_PROJECT_INFO1 = new RemoteProjectInfo(TEST_PROJECT_SCOPE1, TEST_REMOTE_PROJECT_MANAGER1);
+    private static final RemoteProjectInfo TEST_REMOTE_PROJECT_INFO2 = new RemoteProjectInfo(TEST_PROJECT_SCOPE2, TEST_REMOTE_PROJECT_MANAGER2);
 
-    private static final List<RemoteProductInfo> TEST_PRODUCT1_REMOTE_PRODUCT_INFO_LIST1 = new ArrayList<RemoteProductInfo>(Arrays.asList(TEST_REMOTE_PRODUCT_INFO1));
-    private static final List<RemoteProductInfo> TEST_PRODUCT1_REMOTE_PRODUCT_INFO_LIST2 = new ArrayList<RemoteProductInfo>(Arrays.asList(TEST_REMOTE_PRODUCT_INFO2));
+    private static final List<RemoteProjectInfo> TEST_PRODUCT1_REMOTE_PROJECT_INFO_LIST1 = new ArrayList<RemoteProjectInfo>(Arrays.asList(TEST_REMOTE_PROJECT_INFO1));
+    private static final List<RemoteProjectInfo> TEST_PRODUCT1_REMOTE_PROJECT_INFO_LIST2 = new ArrayList<RemoteProjectInfo>(Arrays.asList(TEST_REMOTE_PROJECT_INFO2));
 
     @Mock
     private ProductRepo productRepo;
@@ -69,7 +69,7 @@ public class ActiveSprintsScheduledCacheServiceTest {
         VersionOneService versionOneService = mock(VersionOneService.class);
         when(productRepo.findAll()).thenReturn(Arrays.asList(new Product[] { getMockProduct() }));
         when(managementBeanRegistry.getService(any(String.class))).thenReturn(versionOneService);
-        when(versionOneService.getActiveSprintsByProductId(any(String.class))).thenReturn(Arrays.asList(new Sprint[] { getMockSprint() }));
+        when(versionOneService.getActiveSprintsByScopeId(any(String.class))).thenReturn(Arrays.asList(new Sprint[] { getMockSprint() }));
     }
 
     @Test
@@ -101,7 +101,7 @@ public class ActiveSprintsScheduledCacheServiceTest {
         Product product = getMockProduct();
         activeSprintsScheduledCacheService.addProduct(product);
         product.setName("Another Product");
-        product.setRemoteProductInfo(TEST_PRODUCT1_REMOTE_PRODUCT_INFO_LIST2);
+        product.setRemoteProductInfo(TEST_PRODUCT1_REMOTE_PROJECT_INFO_LIST2);
         activeSprintsScheduledCacheService.updateProduct(product);
         assertTrue(true);
     }
@@ -127,7 +127,7 @@ public class ActiveSprintsScheduledCacheServiceTest {
     }
 
     private Product getMockProduct() {
-        return new Product("Test Product", TEST_PRODUCT1_REMOTE_PRODUCT_INFO_LIST1);
+        return new Product("Test Product", TEST_PRODUCT1_REMOTE_PROJECT_INFO_LIST1);
     }
 
     private Sprint getMockSprint() {
