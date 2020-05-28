@@ -7,7 +7,7 @@ logging:
   level:
     edu.tamu: INFO
     org.springframework: INFO
-  file: logs/project-management-service.log
+  file: logs/product-management-service.log
 
 ---
 security.basic.enabled: false
@@ -58,11 +58,11 @@ app:
       delay: 900000
       # 1 hour in milliseconds
       interval: 3600000
-    projects-stats:
+    products-stats:
       # 30 minutes in milliseconds
-      # the projects stats cache is create from the remote projects cache
-      # this delay should be greater than the remote projects delay 
-      # and an estimate on how long the remote projects cache takes to populate
+      # the products stats cache is create from the remote products cache
+      # this delay should be greater than the remote products delay 
+      # and an estimate on how long the remote products cache takes to populate
       delay: 1800000
       # 1 hour in milliseconds
       interval: 3600000

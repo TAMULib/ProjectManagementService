@@ -37,7 +37,7 @@ public class RemoteProjectsCacheControllerTest {
     @Before
     public void setup() throws Exception {
         MockitoAnnotations.initMocks(this);
-        when(remoteProjectsScheduledCacheService.get()).thenReturn(getMockRemoteProjectsCache());
+        when(remoteProjectsScheduledCacheService.get()).thenReturn(getMockRemoteProductsCache());
     }
 
     @Test
@@ -48,7 +48,7 @@ public class RemoteProjectsCacheControllerTest {
         assertEquals("Reponse was not successfull!", ApiStatus.SUCCESS, response.getMeta().getStatus());
 
         assertNotNull("Reponse payload did not have expected property!", response.getPayload().get("HashMap"));
-        assertRemoteProjects((Map<Long, List<RemoteProject>>) response.getPayload().get("HashMap"));
+        assertRemoteProducts((Map<Long, List<RemoteProject>>) response.getPayload().get("HashMap"));
     }
 
     @Test
@@ -60,10 +60,10 @@ public class RemoteProjectsCacheControllerTest {
         verify(remoteProjectsScheduledCacheService, times(1)).broadcast();
     }
 
-    private void assertRemoteProjects(Map<Long, List<RemoteProject>> remoteProjectsCache) {
-        assertFalse(remoteProjectsCache.isEmpty());
-        assertEquals(1, remoteProjectsCache.size());
-        List<RemoteProject> remoteProjects = remoteProjectsCache.get(1L);
+    private void assertRemoteProducts(Map<Long, List<RemoteProject>> remoteProductsCache) {
+        assertFalse(remoteProductsCache.isEmpty());
+        assertEquals(1, remoteProductsCache.size());
+        List<RemoteProject> remoteProjects = remoteProductsCache.get(1L);
         assertFalse(remoteProjects.isEmpty());
         assertEquals(1, remoteProjects.size());
         assertEquals("0001", remoteProjects.get(0).getId());
@@ -72,19 +72,20 @@ public class RemoteProjectsCacheControllerTest {
         assertEquals(3, remoteProjects.get(0).getIssueCount());
         assertEquals(10, remoteProjects.get(0).getFeatureCount());
         assertEquals(3, remoteProjects.get(0).getDefectCount());
+        assertEquals(1, remoteProjects.get(0).getInternalCount());
         assertEquals(13, remoteProjects.get(0).getBacklogItemCount());
     }
 
-    private Map<Long, List<RemoteProject>> getMockRemoteProjectsCache() {
-        Map<Long, List<RemoteProject>> remoteProjectCache = new HashMap<Long, List<RemoteProject>>();
+    private Map<Long, List<RemoteProject>> getMockRemoteProductsCache() {
+        Map<Long, List<RemoteProject>> remoteProductCache = new HashMap<Long, List<RemoteProject>>();
         List<RemoteProject> remoteProjects = new ArrayList<RemoteProject>();
-        remoteProjects.add(getMockRemoteProject());
-        remoteProjectCache.put(1L, remoteProjects);
-        return remoteProjectCache;
+        remoteProjects.add(getMockRemoteProduct());
+        remoteProductCache.put(1L, remoteProjects);
+        return remoteProductCache;
     }
 
-    private RemoteProject getMockRemoteProject() {
-        return new RemoteProject("0001", "Sprint 1", 2, 3, 10, 3);
+    private RemoteProject getMockRemoteProduct() {
+        return new RemoteProject("0001", "Sprint 1", 2, 3, 10, 3, 1);
     }
 
 }

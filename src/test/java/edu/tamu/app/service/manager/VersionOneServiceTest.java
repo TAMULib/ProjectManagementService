@@ -203,13 +203,13 @@ public class VersionOneServiceTest extends CacheMockTests {
     }
 
     @Test
-    public void testGetRemoteProjects() throws ConnectionException, APIException, OidException, JsonParseException, JsonMappingException, IOException {
+    public void testGetRemoteProducts() throws ConnectionException, APIException, OidException, JsonParseException, JsonMappingException, IOException {
         QueryResult result = mock(QueryResult.class);
         IMetaModel metaModel = mock(IMetaModel.class);
         IAssetType scopeType = mock(IAssetType.class);
         IAttributeDefinition nameAttributeDefinition = mock(IAttributeDefinition.class);
 
-        Asset[] assets = getMockRemoteProjectAssets();
+        Asset[] assets = getMockRemoteProductAssets();
 
         when(scopeType.getDisplayName()).thenReturn("AssetType'Scope");
         when(scopeType.getToken()).thenReturn("Scope");
@@ -234,18 +234,18 @@ public class VersionOneServiceTest extends CacheMockTests {
         doReturn(4).when(versionOneService).getPrimaryWorkItemCount(matches("Story"), any(String.class));
         doReturn(1).when(versionOneService).getPrimaryWorkItemCount(matches("Defect"), any(String.class));
 
-        assertRemoteProjects(versionOneService.getRemoteProjects());
+        assertRemoteProducts(versionOneService.getRemoteProject());
     }
 
     @Test
-    public void testGetRemoteProjectByScopeId() throws ConnectionException, APIException, OidException, JsonParseException, JsonMappingException, IOException {
+    public void testGetRemoteProductByScopeId() throws ConnectionException, APIException, OidException, JsonParseException, JsonMappingException, IOException {
         Oid oid = mock(Oid.class);
         QueryResult result = mock(QueryResult.class);
         IMetaModel metaModel = mock(IMetaModel.class);
         IAssetType scopeType = mock(IAssetType.class);
         IAttributeDefinition nameAttributeDefinition = mock(IAttributeDefinition.class);
 
-        Asset[] assets = getMockRemoteProjectAssetByScopeId("1934");
+        Asset[] assets = getMockRemoteProductAssetByScopeId("1934");
 
         when(scopeType.getDisplayName()).thenReturn("AssetType'Scope");
         when(scopeType.getToken()).thenReturn("Scope");
@@ -322,7 +322,7 @@ public class VersionOneServiceTest extends CacheMockTests {
     }
 
     @Test
-    public void testGetActiveSprintsByProjectId() throws ConnectionException, APIException, OidException, IOException {
+    public void testGetActiveSprintsByProductId() throws ConnectionException, APIException, OidException, IOException {
         QueryResult result = mock(QueryResult.class);
 
         IMetaModel metaModel = mock(IMetaModel.class);
@@ -380,7 +380,7 @@ public class VersionOneServiceTest extends CacheMockTests {
         List<Card> mocKSprint2Cards = mockActiveSprints.get(1).getCards();
         doReturn(mocKSprint2Cards).when(versionOneService).getActiveSprintsCards("0002");
 
-        List<Sprint> sprints = versionOneService.getActiveSprintsByProjectId("0001");
+        List<Sprint> sprints = versionOneService.getActiveSprintsByScopeId("0001");
 
         assertActiveSprints(sprints);
     }
@@ -659,7 +659,7 @@ public class VersionOneServiceTest extends CacheMockTests {
             when(scheduledScopesNameAttributeDefinition.getAssetType()).thenReturn(timeboxType);
 
             when(mockScheduledScopesNameAttribute.getDefinition()).thenReturn(scheduledScopesNameAttributeDefinition);
-            when(mockScheduledScopesNameAttribute.getValues()).thenReturn(new String[] { activeSprint.getProject() });
+            when(mockScheduledScopesNameAttribute.getValues()).thenReturn(new String[] { activeSprint.getProduct() });
 
             when(mockAsset.getOid()).thenReturn(mockOid);
 
@@ -844,7 +844,7 @@ public class VersionOneServiceTest extends CacheMockTests {
         return mockMemberObjects.toArray(new Asset[mockMemberObjects.size()]);
     }
 
-    private Asset[] getMockRemoteProjectAssets() throws JsonParseException, JsonMappingException, IOException, APIException {
+    private Asset[] getMockRemoteProductAssets() throws JsonParseException, JsonMappingException, IOException, APIException {
         List<Asset> mockAssets = new ArrayList<Asset>();
         for (RemoteProject remoteProject : mockRemoteProjects) {
             Asset mockAsset = mock(Asset.class);
@@ -859,7 +859,7 @@ public class VersionOneServiceTest extends CacheMockTests {
         return mockAssets.toArray(new Asset[mockAssets.size()]);
     }
 
-    private Asset[] getMockRemoteProjectAssetByScopeId(String scopeId) throws JsonParseException, JsonMappingException, IOException, APIException {
+    private Asset[] getMockRemoteProductAssetByScopeId(String scopeId) throws JsonParseException, JsonMappingException, IOException, APIException {
         List<Asset> mockAssets = new ArrayList<Asset>();
         for (RemoteProject remoteProject : mockRemoteProjects) {
             if (remoteProject.getId().equals(scopeId)) {
@@ -950,13 +950,13 @@ public class VersionOneServiceTest extends CacheMockTests {
         return null;
     }
 
-    private void assertRemoteProjects(List<RemoteProject> remoteProjects) {
+    private void assertRemoteProducts(List<RemoteProject> remoteProjects) {
         assertEquals("Incorrect number of remote projects!", mockRemoteProjects.size(), remoteProjects.size());
         for (int i = 0; i < mockRemoteProjects.size(); i++) {
             RemoteProject remoteProject = remoteProjects.get(i);
-            RemoteProject mockRemoteProject = mockRemoteProjects.get(i);
-            assertEquals("Remote project has incorrect scope id!", mockRemoteProject.getId(), remoteProject.getId());
-            assertEquals("Remote project had incorrect name!", mockRemoteProject.getName(), remoteProject.getName());
+            RemoteProject mockRemoteProduct = mockRemoteProjects.get(i);
+            assertEquals("Remote project has incorrect scope id!", mockRemoteProduct.getId(), remoteProject.getId());
+            assertEquals("Remote project had incorrect name!", mockRemoteProduct.getName(), remoteProject.getName());
         }
     }
 
@@ -967,7 +967,7 @@ public class VersionOneServiceTest extends CacheMockTests {
             Sprint mockActiveSprint = mockActiveSprints.get(i);
             assertEquals("Active sprint has incorrect id!", mockActiveSprint.getId(), activeSprint.getId());
             assertEquals("Active sprint had incorrect name!", mockActiveSprint.getName(), activeSprint.getName());
-            assertEquals("Active sprint had incorrect project!", mockActiveSprint.getProject(), activeSprint.getProject());
+            assertEquals("Active sprint had incorrect product!", mockActiveSprint.getProduct(), activeSprint.getProduct());
         }
     }
 

@@ -72,7 +72,7 @@ public class ActiveSprintsCacheControllerTest {
         assertEquals(1, sprints.size());
         assertEquals("1", sprints.get(0).getId());
         assertEquals("Sprint 1", sprints.get(0).getName());
-        assertEquals("Application", sprints.get(0).getProject());
+        assertEquals("Application", sprints.get(0).getProduct());
         assertFalse(sprints.get(0).getCards().isEmpty());
         assertEquals(1, sprints.get(0).getCards().size());
         assertEquals("1", sprints.get(0).getCards().get(0).getId());

@@ -7,13 +7,14 @@ logging:
   level:
     edu.tamu: INFO
     org.springframework: INFO
-  file: logs/project-management-service.log
+  file: logs/product-management-service.log
 
 ---
 security.basic.enabled: false
 
 ---
 spring:
+  # profiles: production, development, test
   profiles.active: production
 
   datasource:
@@ -22,7 +23,7 @@ spring:
     url: jdbc:h2:mem:AZ;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     # platform: postgres
     # driverClassName: org.postgresql.Driver
-    # url: jdbc:postgresql://localhost:5432/project_management_service
+    # url: jdbc:postgresql://localhost:5432/product_management_service
 
     username: spring
     password: spring
@@ -62,11 +63,11 @@ app:
       delay: 2000
       # 1 hour in milliseconds
       interval: 3600000
-    projects-stats:
+    products-stats:
       # 2 minutes in milliseconds
-      # the projects stats cache is create from the remote projects cache
-      # this delay should be greater than the remote projects delay 
-      # and an estimate on how long the remote projects cache takes to populate
+      # the products stats cache is create from the remote products cache
+      # this delay should be greater than the remote products delay 
+      # and an estimate on how long the remote products cache takes to populate
       delay: 120000
       # 1 hour in milliseconds
       interval: 3600000
@@ -79,7 +80,7 @@ app:
   # Framework app properties #
   ############################
   # edu.tamu.weaver.auth.service.UserCredentialsService
-  authority.admins: 402001311,613001223,102001721,222004429,709005486,523008230,724001395,123456789,512004707
+  authority.admins: 402001311,613001223,102001721,222004429,709005486,523008230,724001395,123456789,512004707,427008012
   security:
     # edu.tamu.weaver.auth.service.CryptoService
     secret: verysecretsecret
@@ -131,4 +132,4 @@ management:
     enabled-by-default: false
     health:
       enabled: true
----
+

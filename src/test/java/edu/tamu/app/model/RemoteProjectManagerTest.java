@@ -2,6 +2,9 @@ package edu.tamu.app.model;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
@@ -11,10 +14,10 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import edu.tamu.app.ProjectApplication;
+import edu.tamu.app.ProductApplication;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = { ProjectApplication.class }, webEnvironment = WebEnvironment.DEFINED_PORT)
+@SpringBootTest(classes = { ProductApplication.class }, webEnvironment = WebEnvironment.DEFINED_PORT)
 public class RemoteProjectManagerTest extends ModelTest {
 
     @Test
@@ -49,22 +52,16 @@ public class RemoteProjectManagerTest extends ModelTest {
     public void testDelete() {
         RemoteProjectManager remoteProjectManager = remoteProjectManagerRepo.create(new RemoteProjectManager(TEST_REMOTE_PROJECT_MANAGER1_NAME, ServiceType.VERSION_ONE, getMockSettings()));
         remoteProjectManagerRepo.delete(remoteProjectManager);
-        assertEquals("Remote project manager was note deleted!", 0, remoteProjectManagerRepo.count());
-    }
-
-    @Test
-    public void testAssociateToProject() {
-        RemoteProjectManager remoteProjectManager = remoteProjectManagerRepo.create(new RemoteProjectManager(TEST_REMOTE_PROJECT_MANAGER1_NAME, ServiceType.VERSION_ONE, getMockSettings()));
-        Project project = projectRepo.create(new Project(TEST_PROJECT_NAME, "1000", remoteProjectManager));
-        assertEquals("Project has the incorrect Remote Project Manager name!", TEST_REMOTE_PROJECT_MANAGER1_NAME, project.getRemoteProjectManager().getName());
-        assertEquals("Project has the incorrect Remote Project Manager url setting value!", "https://localhost:9101/TexasAMLibrary", project.getRemoteProjectManager().getSettings().get("url"));
-
+        assertEquals("Remote project manager was not deleted!", 0, remoteProjectManagerRepo.count());
     }
 
     @Test(expected = DataIntegrityViolationException.class)
-    public void testDeleteWhenAssociatedToProject() {
+    public void testDeleteWhenAssociatedToProduct() {
         RemoteProjectManager remoteProjectManager = remoteProjectManagerRepo.create(new RemoteProjectManager(TEST_REMOTE_PROJECT_MANAGER1_NAME, ServiceType.VERSION_ONE, getMockSettings()));
-        projectRepo.create(new Project(TEST_PROJECT_NAME, "1000", remoteProjectManager));
+        RemoteProjectInfo remoteProjectInfo = new RemoteProjectInfo("3000", remoteProjectManager);
+        List<RemoteProjectInfo> remoteProductInfoList = new ArrayList<RemoteProjectInfo>(Arrays.asList(remoteProjectInfo));
+
+        productRepo.create(new Product(TEST_PRODUCT_NAME, remoteProductInfoList));
         remoteProjectManagerRepo.delete(remoteProjectManager);
     }
 

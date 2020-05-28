@@ -15,9 +15,11 @@ import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kohsuke.github.GHIssue;
+import org.kohsuke.github.GHIssueState;
 import org.kohsuke.github.GHLabel;
 import org.kohsuke.github.GHOrganization;
 import org.kohsuke.github.GHProject;
+import org.kohsuke.github.GHProject.ProjectStateFilter;
 import org.kohsuke.github.GHProjectCard;
 import org.kohsuke.github.GHProjectColumn;
 import org.kohsuke.github.GHRepository;
@@ -72,7 +74,7 @@ public class GitHubService extends MappingRemoteProjectManagerBean {
     }
 
     @Override
-    public List<RemoteProject> getRemoteProjects() throws Exception {
+    public List<RemoteProject> getRemoteProject() throws Exception {
         logger.info("Fetching remote projects");
         final List<RemoteProject> remoteProjects = new ArrayList<RemoteProject>();
         final GHOrganization org = github.getOrganization(ORGANIZATION);
@@ -92,11 +94,11 @@ public class GitHubService extends MappingRemoteProjectManagerBean {
     }
 
     @Override
-    public List<Sprint> getActiveSprintsByProjectId(final String projectScopeId) throws Exception {
-        logger.info("Fetching active sprints for project with scope id " + projectScopeId);
+    public List<Sprint> getActiveSprintsByScopeId(final String scopeId) throws Exception {
+        logger.info("Fetching active sprints for remote project with scope id " + scopeId);
         List<Sprint> activeSprints = new ArrayList<Sprint>();
-        GHRepository repo = github.getRepositoryById(projectScopeId);
-        List<GHProject> projects = repo.listProjects().asList();
+        GHRepository repo = github.getRepositoryById(scopeId);
+        List<GHProject> projects = repo.listProjects(ProjectStateFilter.OPEN).asList();
         for (GHProject project : projects) {
             String sprintId = String.valueOf(project.getId());
             String name = project.getName();
@@ -108,9 +110,23 @@ public class GitHubService extends MappingRemoteProjectManagerBean {
     }
 
     @Override
+    public List<Sprint> getAdditionalActiveSprints() throws Exception {
+        GHOrganization organization = github.getOrganization(ORGANIZATION);
+        List<GHProject> projects = organization.listProjects(ProjectStateFilter.OPEN).asList();
+        List<Sprint> sprints = new ArrayList<Sprint>();
+        for (GHProject project : projects) {
+            String sprintId = String.valueOf(project.getId());
+            String name = project.getName();
+            List<Card> cards = getCards(project);
+            sprints.add(new Sprint(sprintId, name, ORGANIZATION, cards));
+        }
+        return sprints;
+    }
+
+    @Override
     public Object push(final FeatureRequest request) throws Exception {
-        logger.info("Submitting feature request " + request.getTitle() + " to project with scope id " + request.getScopeId());
-        String repoId = String.valueOf(request.getProjectId());
+        logger.info("Submitting feature request " + request.getTitle() + " to product with scope id " + request.getScopeId());
+        String repoId = String.valueOf(request.getProductId());
         String title = request.getTitle();
         String body = request.getDescription();
         GHRepository repo = github.getRepositoryById(repoId);
@@ -153,36 +169,27 @@ public class GitHubService extends MappingRemoteProjectManagerBean {
     }
 
     private RemoteProject buildRemoteProject(GHRepository repo, List<GHLabel> labels) throws IOException {
-        List<GHProject> projects = repo.listProjects().asList();
         final String scopeId = String.valueOf(repo.getId());
         final String name = repo.getName();
-        int requestCount = 0;
-        int issueCount = 0;
-        int featureCount = 0;
-        int defectCount = 0;
+        long requestCount = getPrimaryWorkItemCount(REQUEST_LABEL, repo, labels);
+        long issueCount = getPrimaryWorkItemCount(ISSUE_LABEL, repo, labels);
+        long featureCount = getPrimaryWorkItemCount(FEATURE_LABEL, repo, labels);
+        long defectCount = getPrimaryWorkItemCount(DEFECT_LABEL, repo, labels);
 
-        for (GHProject project : projects) {
-            requestCount += getPrimaryWorkItemCount(REQUEST_LABEL, project, labels);
-            issueCount += getPrimaryWorkItemCount(ISSUE_LABEL, project, labels);
-            featureCount += getPrimaryWorkItemCount(FEATURE_LABEL, project, labels);
-            defectCount += getPrimaryWorkItemCount(DEFECT_LABEL, project, labels);
-        }
-
-        return new RemoteProject(scopeId, name, requestCount, issueCount, featureCount, defectCount);
+        return new RemoteProject(scopeId, name, requestCount, issueCount, featureCount, defectCount, 0L);
     }
 
-    private int getPrimaryWorkItemCount(final String type, final GHProject project, final List<GHLabel> labels)
+    private long getPrimaryWorkItemCount(final String type, final GHRepository repo, final List<GHLabel> labels)
             throws IOException {
         label = getLabelByName(labels, type);
         if (label == null) {
             return 0;
         }
-        return project.listColumns()
+        return repo.listIssues(GHIssueState.OPEN)
             .asList()
             .stream()
-            .map(this::countCardsOnColumn)
-            .reduce(0L, (a, b) -> a + b)
-            .intValue();
+            .filter(this::cardIsLabelType)
+            .count();
     }
 
     private GHLabel getLabelByName(final List<GHLabel> labels, final String name) {
@@ -196,21 +203,9 @@ public class GitHubService extends MappingRemoteProjectManagerBean {
         return returnValue;
     }
 
-    private long countCardsOnColumn(GHProjectColumn column) {
+    private boolean cardIsLabelType(GHIssue card) {
         try {
-            return column.listCards()
-                .asList()
-                .stream()
-                .filter(this::cardIsLabelType)
-                .count();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private boolean cardIsLabelType(GHProjectCard card) {
-        try {
-            Collection<GHLabel> labels = card.getContent().getLabels();
+            Collection<GHLabel> labels = card.getLabels();
             if (label.getName().equals(ISSUE_LABEL) && isAnIssue(card)) {
                 return true;
             }
@@ -220,8 +215,8 @@ public class GitHubService extends MappingRemoteProjectManagerBean {
         }
     }
 
-    private boolean isAnIssue(GHProjectCard card) throws IOException {
-        Collection<GHLabel> labels = card.getContent().getLabels();
+    private boolean isAnIssue(GHIssue card) throws IOException {
+        Collection<GHLabel> labels = card.getLabels();
         return !hasLabelByName(labels, REQUEST_LABEL)
             && !hasLabelByName(labels, DEFECT_LABEL)
             && !hasLabelByName(labels, FEATURE_LABEL);
@@ -240,7 +235,10 @@ public class GitHubService extends MappingRemoteProjectManagerBean {
             List<GHProjectCard> projectCards = column.listCards().asList();
             for (GHProjectCard card : projectCards) {
                 GHIssue content = card.getContent();
-
+                // If content is null the card is a note and shouldn't be included
+                if (content == null) {
+                    continue;
+                }
                 String id = String.valueOf(card.getId());
                 String name = content.getTitle();
                 String number = String.valueOf(content.getNumber());

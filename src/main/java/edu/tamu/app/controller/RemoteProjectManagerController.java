@@ -83,5 +83,4 @@ public class RemoteProjectManagerController {
         ServiceType serviceType = ServiceType.valueOf(type);
         return new ApiResponse(SUCCESS, serviceType.getScaffold());
     }
-
 }

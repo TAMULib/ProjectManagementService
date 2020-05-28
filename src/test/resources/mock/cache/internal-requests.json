@@ -1,0 +1,15 @@
+[
+  {
+    "id": 1,
+    "title": "Example Internal Request 1",
+    "description": "This is a mocked internal request.",
+    "productId": 1,
+    "createdOn": 1588262229449
+  }, {
+    "id": 2,
+    "title": "Example Internal Request 2",
+    "description": "This is a mocked internal request without a productId.",
+    "productId": null,
+    "createdOn": 1588262230449
+  }
+]

@@ -14,19 +14,20 @@ import org.springframework.stereotype.Service;
 
 import edu.tamu.app.cache.ActiveSprintsCache;
 import edu.tamu.app.cache.model.Sprint;
-import edu.tamu.app.model.Project;
-import edu.tamu.app.model.RemoteProjectManager;
-import edu.tamu.app.model.repo.ProjectRepo;
+import edu.tamu.app.model.Product;
+import edu.tamu.app.model.RemoteProjectInfo;
+import edu.tamu.app.model.repo.ProductRepo;
 import edu.tamu.app.service.manager.RemoteProjectManagerBean;
+import edu.tamu.app.service.registry.ManagementBean;
 import edu.tamu.weaver.response.ApiResponse;
 
 @Service
-public class ActiveSprintsScheduledCacheService extends AbstractProjectScheduledCacheService<List<Sprint>, ActiveSprintsCache> {
+public class ActiveSprintsScheduledCacheService extends AbstractProductScheduledCacheService<List<Sprint>, ActiveSprintsCache> {
 
     private static final Logger logger = Logger.getLogger(ActiveSprintsScheduledCacheService.class);
 
     @Autowired
-    private ProjectRepo projectRepo;
+    private ProductRepo productRepo;
 
     public ActiveSprintsScheduledCacheService() {
         super(new ActiveSprintsCache());
@@ -41,9 +42,17 @@ public class ActiveSprintsScheduledCacheService extends AbstractProjectScheduled
     public void update() {
         logger.info("Caching active sprints...");
         List<Sprint> activeSprints = new ArrayList<Sprint>();
-        projectRepo.findAll().forEach(project -> {
-            activeSprints.addAll(fetchActiveSprints(project));
+        productRepo.findAll().forEach(product -> {
+            activeSprints.addAll(fetchActiveSprints(product));
         });
+        for (ManagementBean managementBean : managementBeanRegistry.getServices().values()) {
+            RemoteProjectManagerBean rpm = (RemoteProjectManagerBean) managementBean;
+            try {
+                activeSprints.addAll(rpm.getAdditionalActiveSprints());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         set(activeSprints);
         logger.info("Finished caching active sprints");
     }
@@ -53,36 +62,40 @@ public class ActiveSprintsScheduledCacheService extends AbstractProjectScheduled
         simpMessagingTemplate.convertAndSend("/channel/sprints/active", new ApiResponse(SUCCESS, get()));
     }
 
-    public void addProject(Project project) {
+    public void addProduct(Product product) {
         List<Sprint> activeSprints = get();
-        activeSprints.addAll(fetchActiveSprints(project));
+        activeSprints.addAll(fetchActiveSprints(product));
         set(activeSprints);
         broadcast();
     }
 
-    public void updateProject(Project project) {
-        List<Sprint> activeSprints = get().stream().filter(as -> !as.getProject().equals(project.getName())).collect(Collectors.toList());
-        activeSprints.addAll(fetchActiveSprints(project));
+    public void updateProduct(Product product) {
+        List<Sprint> activeSprints = get().stream().filter(as -> !as.getProduct().equals(product.getName()))
+                .collect(Collectors.toList());
+        activeSprints.addAll(fetchActiveSprints(product));
         set(activeSprints);
         broadcast();
     }
 
-    public void removeProject(Project project) {
-        List<Sprint> activeSprints = get().stream().filter(p -> !p.getProject().equals(project.getName())).collect(Collectors.toList());
+    public void removeProduct(Product product) {
+        List<Sprint> activeSprints = get().stream().filter(p -> !p.getProduct().equals(product.getName()))
+                .collect(Collectors.toList());
         set(activeSprints);
         broadcast();
     }
 
-    private List<Sprint> fetchActiveSprints(Project project) {
+    private List<Sprint> fetchActiveSprints(Product product) {
         List<Sprint> activeSprints = new ArrayList<Sprint>();
-        Optional<RemoteProjectManager> remoteProjectManager = Optional.ofNullable(project.getRemoteProjectManager());
-        if (remoteProjectManager.isPresent()) {
-            RemoteProjectManagerBean remoteProjectManagerBean = (RemoteProjectManagerBean) managementBeanRegistry.getService(remoteProjectManager.get().getName());
-            try {
-                activeSprints.addAll(remoteProjectManagerBean.getActiveSprintsByProjectId(project.getScopeId()));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        Optional<List<RemoteProjectInfo>> remoteProjectInfo = Optional.ofNullable(product.getRemoteProjectInfo());
+        if (remoteProjectInfo.isPresent()) {
+            remoteProjectInfo.get().forEach(rp -> {
+                RemoteProjectManagerBean remoteProjectManagerBean = (RemoteProjectManagerBean) managementBeanRegistry.getService(rp.getRemoteProjectManager().getName());
+                try {
+                    activeSprints.addAll(remoteProjectManagerBean.getActiveSprintsByScopeId(rp.getScopeId()));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
         }
         return activeSprints;
     }

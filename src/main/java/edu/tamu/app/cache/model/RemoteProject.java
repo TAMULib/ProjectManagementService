@@ -1,6 +1,6 @@
 package edu.tamu.app.cache.model;
 
-public class RemoteProject extends ProjectStats {
+public class RemoteProject extends ProductStats {
 
     private static final long serialVersionUID = 8384046327331854613L;
 
@@ -8,8 +8,8 @@ public class RemoteProject extends ProjectStats {
         super();
     }
 
-    public RemoteProject(String id, String name, int requestCount, int issueCount, int featureCount, int defectCount) {
-        super(id, name, requestCount, issueCount, featureCount, defectCount);
+    public RemoteProject(String id, String name, long requestCount, long issueCount, long featureCount, long defectCount, long internalCount) {
+        super(id, name, requestCount, issueCount, featureCount, defectCount, internalCount);
     }
 
 }

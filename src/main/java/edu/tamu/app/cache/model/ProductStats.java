@@ -2,7 +2,7 @@ package edu.tamu.app.cache.model;
 
 import java.io.Serializable;
 
-public class ProjectStats implements Serializable {
+public class ProductStats implements Serializable {
 
     private static final long serialVersionUID = -1622544796949909087L;
 
@@ -10,15 +10,17 @@ public class ProjectStats implements Serializable {
 
     private final String name;
 
-    private final int requestCount;
+    private final long requestCount;
 
-    private final int issueCount;
+    private final long issueCount;
 
-    private final int featureCount;
+    private final long featureCount;
 
-    private final int defectCount;
+    private final long defectCount;
 
-    public ProjectStats() {
+    private final long internalCount;
+
+    public ProductStats() {
         super();
         id = "";
         name = "";
@@ -26,9 +28,10 @@ public class ProjectStats implements Serializable {
         issueCount = 0;
         featureCount = 0;
         defectCount = 0;
+        internalCount = 0;
     }
 
-    public ProjectStats(String id, String name, int requestCount, int issueCount, int featureCount, int defectCount) {
+    public ProductStats(String id, String name, long requestCount, long issueCount, long featureCount, long defectCount, long internalCount) {
         super();
         this.id = id;
         this.name = name;
@@ -36,6 +39,7 @@ public class ProjectStats implements Serializable {
         this.issueCount = issueCount;
         this.featureCount = featureCount;
         this.defectCount = defectCount;
+        this.internalCount = internalCount;
     }
 
     public String getId() {
@@ -46,23 +50,27 @@ public class ProjectStats implements Serializable {
         return name;
     }
 
-    public int getRequestCount() {
+    public long getRequestCount() {
         return requestCount;
     }
 
-    public int getIssueCount() {
+    public long getIssueCount() {
         return issueCount;
     }
 
-    public int getFeatureCount() {
+    public long getFeatureCount() {
         return featureCount;
     }
 
-    public int getDefectCount() {
+    public long getDefectCount() {
         return defectCount;
     }
 
-    public int getBacklogItemCount() {
+    public long getInternalCount() {
+        return internalCount;
+    }
+
+    public long getBacklogItemCount() {
         return featureCount + defectCount;
     }
 

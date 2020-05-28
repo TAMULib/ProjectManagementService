@@ -36,8 +36,8 @@ public class RemoteProjectManagerRepoImpl extends AbstractWeaverRepoImpl<RemoteP
 
     @Override
     public RemoteProjectManager update(RemoteProjectManager remoteProjectManager) {
-        RemoteProjectManager existingRemoteProjectManager = remoteProjectManagerRepo.findOne(remoteProjectManager.getId());
-        managementBeanRegistry.unregister(existingRemoteProjectManager);
+        RemoteProjectManager existingRemoteProductManager = remoteProjectManagerRepo.findOne(remoteProjectManager.getId());
+        managementBeanRegistry.unregister(existingRemoteProductManager);
         remoteProjectManager = super.update(remoteProjectManager);
         managementBeanRegistry.register(remoteProjectManager);
         updateCache();

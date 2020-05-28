@@ -43,15 +43,22 @@ public class RemoteProjectsScheduledCacheService extends AbstractScheduledCacheS
 
     public void update() {
         logger.info("Caching remote projects...");
+
         Map<Long, List<RemoteProject>> remoteProjects = new HashMap<Long, List<RemoteProject>>();
-        for (RemoteProjectManager remoteProjectManager : remoteProjectManagerRepo.findAll()) {
-            RemoteProjectManagerBean remoteProjectManagerBean = (RemoteProjectManagerBean) managementBeanRegistry.getService(remoteProjectManager.getName());
-            try {
-                remoteProjects.put(remoteProjectManager.getId(), remoteProjectManagerBean.getRemoteProjects());
-            } catch (Exception e) {
-                e.printStackTrace();
+        Optional<List<RemoteProjectManager>> remoteProjectManagers = Optional.ofNullable(remoteProjectManagerRepo.findAll());
+
+        if (remoteProjectManagers.isPresent()){
+            for (RemoteProjectManager remoteProjectManager : remoteProjectManagers.get()) {
+                RemoteProjectManagerBean remoteProjectManagerBean = (RemoteProjectManagerBean) managementBeanRegistry
+                        .getService(remoteProjectManager.getName());
+                try {
+                    remoteProjects.put(remoteProjectManager.getId(), remoteProjectManagerBean.getRemoteProject());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
+
         set(remoteProjects);
         logger.info("Finished caching remote projects");
     }
