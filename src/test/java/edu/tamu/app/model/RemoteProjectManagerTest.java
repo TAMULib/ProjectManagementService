@@ -23,15 +23,16 @@ public class RemoteProjectManagerTest extends ModelTest {
     @Test
     public void testCreate() {
         Map<String, String> settings = getMockSettings();
+        Map<String, String> settingsToken = getMockSettings(true);
         RemoteProjectManager remoteProjectManager1 = remoteProjectManagerRepo.create(new RemoteProjectManager(TEST_REMOTE_PROJECT_MANAGER1_NAME, ServiceType.VERSION_ONE, settings));
-        RemoteProjectManager remoteProjectManager2 = remoteProjectManagerRepo.create(new RemoteProjectManager(TEST_REMOTE_PROJECT_MANAGER2_NAME, ServiceType.GITHUB, settings));
+        RemoteProjectManager remoteProjectManager2 = remoteProjectManagerRepo.create(new RemoteProjectManager(TEST_REMOTE_PROJECT_MANAGER2_NAME, ServiceType.GITHUB, settingsToken));
         assertEquals("Remote project manager repo had incorrect number of remote project managers!", 2, remoteProjectManagerRepo.count());
         assertEquals("Remote project manager had incorrect name!", TEST_REMOTE_PROJECT_MANAGER1_NAME, remoteProjectManager1.getName());
         assertEquals("Remote project manager had incorrect service type!", ServiceType.VERSION_ONE, remoteProjectManager1.getType());
         assertEquals("Remote project manager had incorrect settings!", settings, remoteProjectManager1.getSettings());
         assertEquals("Remote project manager had incorrect name!", TEST_REMOTE_PROJECT_MANAGER2_NAME, remoteProjectManager2.getName());
         assertEquals("Remote project manager had incorrect service type!", ServiceType.GITHUB, remoteProjectManager2.getType());
-        assertEquals("Remote project manager had incorrect settings!", settings, remoteProjectManager2.getSettings());
+        assertEquals("Remote project manager had incorrect settings!", settingsToken, remoteProjectManager2.getSettings());
     }
 
     @Test

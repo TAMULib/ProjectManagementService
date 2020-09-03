@@ -75,6 +75,20 @@ public abstract class ModelTest {
     protected InternalRequestRepo internalRequestRepo;
 
     protected static Map<String, String> getMockSettings() {
+        return getMockSettings(false);
+    }
+
+    protected static Map<String, String> getMockSettings(boolean token) {
+        if (token) {
+            return new HashMap<String, String>() {
+                private static final long serialVersionUID = 2020874481642498007L;
+                {
+                    put("url", "https://localhost:9101/TexasAMLibrary");
+                    put("token", "token");
+                }
+            };
+        }
+        
         return new HashMap<String, String>() {
             private static final long serialVersionUID = 2020874481642498006L;
             {
