@@ -29,6 +29,8 @@ import org.junit.runner.RunWith;
 import org.kohsuke.github.GHIssue;
 import org.kohsuke.github.GHIssueState;
 import org.kohsuke.github.GHLabel;
+import org.kohsuke.github.GHMilestone;
+import org.kohsuke.github.GHMilestoneState;
 import org.kohsuke.github.GHOrganization;
 import org.kohsuke.github.GHProject;
 import org.kohsuke.github.GHProject.ProjectStateFilter;
@@ -97,7 +99,9 @@ public class GitHubServiceTest extends CacheMockTests {
     private static final GHUser TEST_USER2 = mock(GHUser.class);
     private static final GHUser TEST_USER3 = mock(GHUser.class);
 
-    private static final GHProjectCard TEST_CARD1 = mock(GHProjectCard.class);
+    private static final GHMilestone TEST_MILESTONE = mock(GHMilestone.class);
+
+    private static final GHProjectCard TEST_CARD1 = mock(GHProjectCard.class, RETURNS_DEEP_STUBS.get());
     private static final GHProjectCard TEST_CARD2 = mock(GHProjectCard.class, RETURNS_DEEP_STUBS.get());
     private static final GHProjectCard TEST_CARD3 = mock(GHProjectCard.class, RETURNS_DEEP_STUBS.get());
     private static final GHProjectCard TEST_CARD4 = mock(GHProjectCard.class, RETURNS_DEEP_STUBS.get());
@@ -227,7 +231,19 @@ public class GitHubServiceTest extends CacheMockTests {
         when(TEST_COLUMN2.listCards().asList()).thenReturn(TEST_COLUMN2_CARDS);
         when(TEST_COLUMN3.listCards().asList()).thenReturn(TEST_COLUMN3_CARDS);
 
+        when(TEST_MILESTONE.getState()).thenReturn(GHMilestoneState.OPEN);
+
+        when(TEST_CARD1.getId()).thenReturn(1L);
+        when(TEST_CARD2.getId()).thenReturn(2L);
+        when(TEST_CARD3.getId()).thenReturn(3L);
+        when(TEST_CARD4.getId()).thenReturn(4L);
+        when(TEST_CARD5.getId()).thenReturn(5L);
+
         when(TEST_CARD1.getContent()).thenReturn(TEST_ISSUE1);
+        when(TEST_CARD2.getContent()).thenReturn(TEST_ISSUE2);
+        when(TEST_CARD3.getContent()).thenReturn(TEST_ISSUE3);
+        when(TEST_CARD4.getContent()).thenReturn(TEST_ISSUE4);
+        when(TEST_CARD5.getContent()).thenReturn(TEST_ISSUE5);
         when(TEST_CARD1.getColumn()).thenReturn(TEST_COLUMN1);
 
         when(TEST_ISSUE1.getLabels()).thenReturn(TEST_CARD1_LABELS);
@@ -236,7 +252,11 @@ public class GitHubServiceTest extends CacheMockTests {
         when(TEST_ISSUE4.getLabels()).thenReturn(TEST_CARD4_LABELS);
         when(TEST_ISSUE5.getLabels()).thenReturn(TEST_CARD5_LABELS);
         when(TEST_ISSUE1.getAssignees()).thenReturn(TEST_USERS1);
-        
+        when(TEST_ISSUE1.getMilestone()).thenReturn(TEST_MILESTONE);
+        when(TEST_ISSUE2.getMilestone()).thenReturn(TEST_MILESTONE);
+        when(TEST_ISSUE3.getMilestone()).thenReturn(TEST_MILESTONE);
+        when(TEST_ISSUE4.getMilestone()).thenReturn(TEST_MILESTONE);
+        when(TEST_ISSUE5.getMilestone()).thenReturn(TEST_MILESTONE);
 
         when(TEST_COLUMN1.getName()).thenReturn(TEST_COLUMN1_NAME);
 
@@ -423,6 +443,7 @@ public class GitHubServiceTest extends CacheMockTests {
     public void testGetCardsWithNote() throws Exception {
         when(TEST_CARD1.getContent()).thenReturn(null);
         List<Sprint> sprints = gitHubService.getAdditionalActiveSprints();
+        System.out.println("\n\n\nsprints: " + sprints.get(1).getCards().get(0).getId() + "\n\n\n");
         assertEquals("Didn't get expected number of cards", 5, sprints.get(0).getCards().size());
     }
 }
