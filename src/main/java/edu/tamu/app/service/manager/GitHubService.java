@@ -122,8 +122,10 @@ public class GitHubService extends MappingRemoteProjectManagerBean {
         for (GHProject project : projects) {
             String sprintId = String.valueOf(project.getId());
             Map<String, List<Card>> partitionedCards = getCards(project);
+            int count = 0;
             for (Entry<String, List<Card>> partition : partitionedCards.entrySet()) {
-                sprints.add(new Sprint(sprintId, partition.getKey(), ORGANIZATION, partition.getValue()));
+                sprints.add(new Sprint(sprintId + "-" + count, partition.getKey(), ORGANIZATION, partition.getValue()));
+                count++;
             }
         }
         return sprints;
@@ -244,7 +246,10 @@ public class GitHubService extends MappingRemoteProjectManagerBean {
                 cardContents.put(card.getId(), card.getContent());
             }
             Map<GHMilestone, List<GHProjectCard>> partitionedCards = projectCards.stream()
+                // Card without contents is a note
                 .filter(c -> cardContents.get(c.getId()) != null)
+                // Card without a milestone is not on the sprint
+                .filter(c -> cardContents.get(c.getId()).getMilestone() != null)
                 .collect(Collectors.groupingBy(c -> cardContents.get(c.getId()).getMilestone()));
             for (Entry<GHMilestone, List<GHProjectCard>> partition : partitionedCards.entrySet()) {
                 List<Card> cards = new ArrayList<Card>();
