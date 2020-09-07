@@ -269,7 +269,7 @@ public class VersionOneService extends MappingRemoteProjectManagerBean {
     }
 
     @Override
-    public Object push(FeatureRequest featureRequest) throws V1Exception {
+    public String push(FeatureRequest featureRequest) throws V1Exception {
         logger.info("Submitting feature request " + featureRequest.getTitle() + " to product with scope id " + featureRequest.getScopeId());
         IAssetType requestType = services.getMeta().getAssetType("Request");
         IAttributeDefinition nameAttributeDefinition = requestType.getAttributeDefinition("Name");
@@ -286,7 +286,7 @@ public class VersionOneService extends MappingRemoteProjectManagerBean {
 
         services.save(request);
 
-        return request;
+        return request.getOid().getToken();
     }
 
     private void clearMembers() {

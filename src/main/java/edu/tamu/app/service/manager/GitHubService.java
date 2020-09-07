@@ -124,13 +124,15 @@ public class GitHubService extends MappingRemoteProjectManagerBean {
     }
 
     @Override
-    public Object push(final FeatureRequest request) throws Exception {
+    public String push(final FeatureRequest request) throws Exception {
         logger.info("Submitting feature request " + request.getTitle() + " to product with scope id " + request.getScopeId());
-        String repoId = String.valueOf(request.getProductId());
+
+        String scopeId = String.valueOf(request.getScopeId());
         String title = request.getTitle();
         String body = request.getDescription();
-        GHRepository repo = github.getRepositoryById(repoId);
-        return repo.createIssue(title).body(body).create();
+        GHRepository repo = github.getRepositoryById(scopeId);
+
+        return Long.toString(repo.createIssue(title).body(body).create().getId());
     }
 
     protected GitHub getGitHubInstance() throws IOException {

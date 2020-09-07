@@ -17,6 +17,6 @@ public interface RemoteProjectManagerBean extends ManagementBean {
 
     public List<Sprint> getAdditionalActiveSprints() throws Exception;
 
-    public Object push(final FeatureRequest request) throws Exception;
+    public String push(final FeatureRequest request) throws Exception;
 
 }

@@ -123,7 +123,7 @@ public class InternalRequestControllerTest {
         when(internalRequestRepo.countByProductIsNull()).thenReturn(1L);
         when(internalRequestRepo.create(any(InternalRequest.class))).thenReturn(TEST_REQUEST_BELLS);
         when(internalRequestRepo.update(any(InternalRequest.class))).thenReturn(TEST_REQUEST_BELLS);
-        when(remoteProjectManagementBean.push(any(FeatureRequest.class))).thenReturn(TEST_FEATURE_REQUEST);
+        when(remoteProjectManagementBean.push(any(FeatureRequest.class))).thenReturn("1");
         when(managementBeanRegistry.getService(any(String.class))).thenReturn(remoteProjectManagementBean);
 
         doAnswer(new Answer<ApiResponse>() {

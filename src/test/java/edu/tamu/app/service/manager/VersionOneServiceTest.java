@@ -240,6 +240,7 @@ public class VersionOneServiceTest extends CacheMockTests {
     @Test
     public void testGetRemoteProductByScopeId() throws ConnectionException, APIException, OidException, JsonParseException, JsonMappingException, IOException {
         Oid oid = mock(Oid.class);
+
         QueryResult result = mock(QueryResult.class);
         IMetaModel metaModel = mock(IMetaModel.class);
         IAssetType scopeType = mock(IAssetType.class);
@@ -499,6 +500,7 @@ public class VersionOneServiceTest extends CacheMockTests {
     @Test
     public void testGetMember() throws JsonParseException, JsonMappingException, APIException, IOException, OidException, ConnectionException {
         Oid oid = mock(Oid.class);
+
         QueryResult result = mock(QueryResult.class);
         IMetaModel metaModel = mock(IMetaModel.class);
         IAssetType memberType = mock(IAssetType.class);
@@ -545,6 +547,7 @@ public class VersionOneServiceTest extends CacheMockTests {
     @Test
     public void testGetMemberWithAvatarImage() throws JsonParseException, JsonMappingException, APIException, IOException, OidException, ConnectionException {
         Oid oid = mock(Oid.class);
+
         QueryResult result = mock(QueryResult.class);
         IMetaModel metaModel = mock(IMetaModel.class);
         IAssetType memberType = mock(IAssetType.class);
@@ -591,6 +594,8 @@ public class VersionOneServiceTest extends CacheMockTests {
     @Test
     public void testPush() throws V1Exception {
         Oid oid = mock(Oid.class);
+        Oid assetOid = mock(Oid.class);
+
         IMetaModel metaModel = mock(IMetaModel.class);
         IAssetType assetType = mock(IAssetType.class);
         IAttributeDefinition attributeDefinition = mock(IAttributeDefinition.class);
@@ -599,10 +604,13 @@ public class VersionOneServiceTest extends CacheMockTests {
 
         when(assetType.getAttributeDefinition(any(String.class))).thenReturn(attributeDefinition);
         when(metaModel.getAssetType(any(String.class))).thenReturn(assetType);
+
         when(services.getOid(any(String.class))).thenReturn(oid);
         when(services.getMeta()).thenReturn(metaModel);
-
         when(services.createNew(any(IAssetType.class), any(Oid.class))).thenReturn(mockAsset);
+
+        when(mockAsset.getOid()).thenReturn(assetOid);
+        when(assetOid.getToken()).thenReturn("token:assetOid");
 
         doNothing().when(mockAsset).setAttributeValue(any(IAttributeDefinition.class), any(Object.class));
 
@@ -912,8 +920,13 @@ public class VersionOneServiceTest extends CacheMockTests {
         when(mockAvatarAttribute.getDefinition()).thenReturn(avatarAttributeDefinition);
 
         Oid oid = mock(Oid.class);
+        Oid assetOid = mock(Oid.class);
+
         when(oid.toString()).thenReturn(withImage ? "Image:" + member.getId() : "NULL");
         when(mockAvatarAttribute.getValue()).thenReturn(oid);
+
+        when(mockAsset.getOid()).thenReturn(assetOid);
+        when(assetOid.getToken()).thenReturn("token:assetOid");
 
         when(mockAsset.getAttribute(any(IAttributeDefinition.class))).thenAnswer(new Answer<Attribute>() {
             @Override
