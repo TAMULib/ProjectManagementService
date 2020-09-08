@@ -384,8 +384,8 @@ public class GitHubServiceTest extends CacheMockTests {
 
     @Test
     public void testPush() throws Exception {
-        GHIssue issue = (GHIssue) gitHubService.push(TEST_FEATURE_REQUEST);
-        assertEquals("Didn't get expected issue", TEST_ISSUE1, issue);
+        String id = gitHubService.push(TEST_FEATURE_REQUEST);
+        assertNotNull(id);
     }
 
     @Test

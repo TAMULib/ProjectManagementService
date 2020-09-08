@@ -203,7 +203,7 @@ public class ProductControllerTest {
 
     @Test
     public void testPushRequest() throws Exception {
-        when(remoteProjectManagementBean.push(TEST_FEATURE_REQUEST)).thenReturn(TEST_FEATURE_REQUEST);
+        when(remoteProjectManagementBean.push(TEST_FEATURE_REQUEST)).thenReturn(TEST_FEATURE_REQUEST.getScopeId());
         when(managementBeanRegistry.getService(any(String.class))).thenReturn(remoteProjectManagementBean);
         when(productRepo.findOne(any(Long.class))).thenReturn(TEST_PRODUCT1);
         apiResponse = productController.pushRequest(TEST_FEATURE_REQUEST);
@@ -212,7 +212,7 @@ public class ProductControllerTest {
 
     @Test
     public void testGetAllRemoteProductsForProduct() throws Exception {
-        when(remoteProjectManagementBean.push(TEST_FEATURE_REQUEST)).thenReturn(TEST_FEATURE_REQUEST);
+        when(remoteProjectManagementBean.push(TEST_FEATURE_REQUEST)).thenReturn(TEST_FEATURE_REQUEST.getScopeId());
         when(managementBeanRegistry.getService(any(String.class))).thenReturn(remoteProjectManagementBean);
         when(productRepo.findOne(any(Long.class))).thenReturn(TEST_PRODUCT1);
         apiResponse = productController.getAllRemoteProjectsForProduct(TEST_PRODUCT1.getId());
@@ -221,7 +221,7 @@ public class ProductControllerTest {
 
     @Test
     public void testGetAllRemoteProductsForProductWithInvalidId() throws Exception {
-        when(remoteProjectManagementBean.push(TEST_FEATURE_REQUEST)).thenReturn(TEST_FEATURE_REQUEST);
+        when(remoteProjectManagementBean.push(TEST_FEATURE_REQUEST)).thenReturn(TEST_FEATURE_REQUEST.getScopeId());
         when(managementBeanRegistry.getService(any(String.class))).thenReturn(remoteProjectManagementBean);
         apiResponse = productController.getAllRemoteProjectsForProduct(null);
         assertEquals("Request with invalid Product id did not result in an error", ERROR, apiResponse.getMeta().getStatus());
@@ -240,7 +240,7 @@ public class ProductControllerTest {
     @Test
     public void testGetAllRemoteProjects() throws Exception {
         when(remoteProjectManagerRepo.findOne(any(Long.class))).thenReturn(testRemoteProjectManagerOne);
-        when(remoteProjectManagementBean.push(TEST_FEATURE_REQUEST)).thenReturn(TEST_FEATURE_REQUEST);
+        when(remoteProjectManagementBean.push(TEST_FEATURE_REQUEST)).thenReturn("1");
         when(managementBeanRegistry.getService(any(String.class))).thenReturn(remoteProjectManagementBean);
         apiResponse = productController.getAllRemoteProjects(testRemoteProjectManagerOne.getId());
         assertEquals("Remote Project Manager controller unable to get all remote projects", SUCCESS, apiResponse.getMeta().getStatus());
