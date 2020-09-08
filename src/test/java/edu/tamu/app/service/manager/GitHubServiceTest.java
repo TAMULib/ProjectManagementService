@@ -396,6 +396,44 @@ public class GitHubServiceTest extends CacheMockTests {
     }
 
     @Test
+    public void testGetGitHubInstanceWithInvalidServiceEndpoint() throws IOException {
+        ManagementService invalidManagementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB,
+        new HashMap<String, String>() {
+            private static final long serialVersionUID = 2020874481642498006L;
+            {
+                put("token", "token");
+            }
+        });
+
+        setField(gitHubService, "managementService", invalidManagementService);
+
+        try {
+            gitHubService.getGitHubInstance();
+        } catch (RuntimeException e) {
+            assertEquals(e.getMessage(), "GitHub service endpoint was not defined");
+        }
+    }
+
+    @Test
+    public void testGetGitHubInstanceWithInvalidToken() throws IOException {
+        ManagementService invalidManagementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB,
+        new HashMap<String, String>() {
+            private static final long serialVersionUID = 2020874481642498006L;
+            {
+                put("url", "https://localhost:9101/TexasAMLibrary");
+            }
+        });
+
+        setField(gitHubService, "managementService", invalidManagementService);
+
+        try {
+            gitHubService.getGitHubInstance();
+        } catch (RuntimeException e) {
+            assertEquals(e.getMessage(), "GitHub token was not defined");
+        }
+    }
+
+    @Test
     public void testGetGitHubInstanceByToken() throws IOException {
         GitHub gitHubInstance = gitHubService.getGitHubInstance();
         assertNotNull("GitHub object was not created", gitHubInstance);

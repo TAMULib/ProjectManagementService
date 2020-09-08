@@ -135,7 +135,7 @@ public class GitHubService extends MappingRemoteProjectManagerBean {
         final Optional<String> endpoint = managementService.getSettingValue("url");
         final Optional<String> token = managementService.getSettingValue("token");
         if (!endpoint.isPresent()) {
-            throw new RuntimeException("GitHub service enpoint was not defined");
+            throw new RuntimeException("GitHub service endpoint was not defined");
         }
         if (!token.isPresent()) {
             throw new RuntimeException("GitHub token was not defined");
