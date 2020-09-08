@@ -40,7 +40,7 @@ public class ProjectInitialization implements CommandLineRunner {
                 if (!versionManagementSoftware.getSettingValue("url").isPresent()) {
                     return;
                 }
-                
+
                 if (versionManagementSoftware.getSettingValue("url").get().isEmpty()) {
                     return;
                 }
