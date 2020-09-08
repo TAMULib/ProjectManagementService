@@ -10,7 +10,7 @@ public class StatusMappingService extends AbstractRepoMappingService<String, Str
 
     @Override
     public String handleUnmapped(String rawData) {
-        return rawData == null ? "None" : rawData;
+        return rawData == null ? "None" : "In Progress";
     }
 
 }
