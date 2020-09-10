@@ -9,7 +9,6 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,7 +40,11 @@ public class ProductsStatsScheduledCacheServiceTest {
 
     private static final String TEST_PROJECT_SCOPE = "0010";
 
-    private static final RemoteProjectManager TEST_REMOTE_PROJECT_MANAGER = new RemoteProjectManager("Test Remote Project Manager", ServiceType.VERSION_ONE, new HashMap<String, String>());
+    private static final String TEST_PROJECT_URL1 = "http://localhost/1";
+
+    private static final String TEST_PROJECT_TOKEN1 = "0123456789";
+
+    private static final RemoteProjectManager TEST_REMOTE_PROJECT_MANAGER = new RemoteProjectManager("Test Remote Project Manager", ServiceType.VERSION_ONE, TEST_PROJECT_URL1, TEST_PROJECT_TOKEN1);
 
     private static final RemoteProjectInfo TEST_REMOTE_PROJECT_INFO = new RemoteProjectInfo(TEST_PROJECT_SCOPE, TEST_REMOTE_PROJECT_MANAGER);
 

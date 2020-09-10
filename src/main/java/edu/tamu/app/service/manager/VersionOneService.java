@@ -27,6 +27,7 @@ import com.versionone.apiclient.Asset;
 import com.versionone.apiclient.Query;
 import com.versionone.apiclient.Services;
 import com.versionone.apiclient.V1Connector;
+import com.versionone.apiclient.V1Connector.ISetUserAgentMakeRequest;
 import com.versionone.apiclient.exceptions.APIException;
 import com.versionone.apiclient.exceptions.ConnectionException;
 import com.versionone.apiclient.exceptions.OidException;
@@ -45,7 +46,6 @@ import edu.tamu.app.cache.model.RemoteProject;
 import edu.tamu.app.cache.model.Sprint;
 import edu.tamu.app.model.ManagementService;
 import edu.tamu.app.model.request.FeatureRequest;
-import edu.tamu.app.rest.BasicAuthRestTemplate;
 import edu.tamu.app.rest.TokenAuthRestTemplate;
 
 public class VersionOneService extends MappingRemoteProjectManagerBean {
@@ -330,55 +330,19 @@ public class VersionOneService extends MappingRemoteProjectManagerBean {
     }
 
     private String getUrl() {
-        String url = getSettingValue("url");
+        String url = managementService.getUrl();
         return url.endsWith("/") ? url.substring(0, url.length() - 1) : url;
     }
 
     private V1Connector buildConnector() throws MalformedURLException, V1Exception {
-        Optional<String> token = getToken();
-        V1Connector connector;
-        if (token.isPresent()) {
-            // @formatter:off
-            connector = V1Connector.withInstanceUrl(getUrl())
-                    .withUserAgentHeader("Product Management Service",
-                            "1.0")
-                .withAccessToken(getToken().get())
-                .build();
-            // @formatter:on
-        } else {
-            // @formatter:off
-            connector = V1Connector.withInstanceUrl(getUrl())
-                    .withUserAgentHeader("Product Management Service", "1.0")
-                .withUsernameAndPassword(getUsername(), getPassword())
-                .build();
-            // @formatter:on
-        }
-        return connector;
+        ISetUserAgentMakeRequest request = V1Connector.withInstanceUrl(getUrl());
+
+        return request.withUserAgentHeader("Product Management Service", "1.0")
+            .withAccessToken(managementService.getToken()).build();
     }
 
     private RestTemplate getRestTemplate() {
-        Optional<String> token = getToken();
-        return token.isPresent() ? new TokenAuthRestTemplate(token.get()) : new BasicAuthRestTemplate(getUsername(), getPassword());
-    }
-
-    private String getUsername() {
-        return getSettingValue("username");
-    }
-
-    private String getPassword() {
-        return getSettingValue("password");
-    }
-
-    private Optional<String> getToken() {
-        return managementService.getSettingValue("token");
-    }
-
-    private String getSettingValue(String key) {
-        Optional<String> setting = managementService.getSettingValue(key);
-        if (setting.isPresent()) {
-            return setting.get();
-        }
-        throw new RuntimeException("No setting " + key + " found in settings for service " + managementService.getName());
+        return new TokenAuthRestTemplate(managementService.getToken());
     }
 
 }

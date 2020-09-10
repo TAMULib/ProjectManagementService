@@ -39,6 +39,10 @@ import edu.tamu.app.service.registry.ManagementBeanRegistry;
 @RunWith(SpringRunner.class)
 public class RemoteProjectsScheduledCacheServiceTest {
 
+    private static final String TEST_PROJECT_URL1 = "http://localhost/1";
+
+    private static final String TEST_PROJECT_TOKEN1 = "0123456789";
+
     @Mock
     private RemoteProjectManagerRepo remoteProjectManagerRepo;
 
@@ -103,7 +107,7 @@ public class RemoteProjectsScheduledCacheServiceTest {
     }
 
     private RemoteProjectManager getMockRemoteProductManager() {
-        RemoteProjectManager remoteProjectManager = new RemoteProjectManager("Test Remote Project Manager", ServiceType.VERSION_ONE);
+        RemoteProjectManager remoteProjectManager = new RemoteProjectManager("Test Remote Project Manager", ServiceType.VERSION_ONE, TEST_PROJECT_URL1, TEST_PROJECT_TOKEN1);
         remoteProjectManager.setId(1L);
         return remoteProjectManager;
     }

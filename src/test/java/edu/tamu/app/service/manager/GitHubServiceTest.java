@@ -81,6 +81,10 @@ public class GitHubServiceTest extends CacheMockTests {
     private static final Long TEST_REPOSITORY1_ID = 1L;
     private static final Long TEST_USER1_ID = 3L;
 
+    private static final String TEST_PROJECT_URL1 = "http://localhost/1";
+
+    private static final String TEST_PROJECT_TOKEN1 = "0123456789";
+
     private static final GHLabel TEST_LABEL1 = mock(GHLabel.class);
     private static final GHLabel TEST_LABEL2 = mock(GHLabel.class);
     private static final GHLabel TEST_LABEL3 = mock(GHLabel.class);
@@ -172,14 +176,7 @@ public class GitHubServiceTest extends CacheMockTests {
 
     @Before
     public void setUp() throws Exception {
-        ManagementService managementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB,
-            new HashMap<String, String>() {
-                private static final long serialVersionUID = 2020874481642498006L;
-                {
-                    put("url", "https://localhost:9101/TexasAMLibrary");
-                    put("token", "token");
-                }
-            });
+        ManagementService managementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB, TEST_PROJECT_URL1, TEST_PROJECT_TOKEN1);
 
 
         CardTypeRepo cardTypeRepo = mock(CardTypeRepo.class);
@@ -397,13 +394,7 @@ public class GitHubServiceTest extends CacheMockTests {
 
     @Test
     public void testGetGitHubInstanceWithInvalidServiceEndpoint() throws IOException {
-        ManagementService invalidManagementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB,
-        new HashMap<String, String>() {
-            private static final long serialVersionUID = 2020874481642498006L;
-            {
-                put("token", "token");
-            }
-        });
+        ManagementService invalidManagementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB, TEST_PROJECT_URL1, TEST_PROJECT_TOKEN1);
 
         setField(gitHubService, "managementService", invalidManagementService);
 
@@ -416,13 +407,7 @@ public class GitHubServiceTest extends CacheMockTests {
 
     @Test
     public void testGetGitHubInstanceWithInvalidToken() throws IOException {
-        ManagementService invalidManagementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB,
-        new HashMap<String, String>() {
-            private static final long serialVersionUID = 2020874481642498006L;
-            {
-                put("url", "https://localhost:9101/TexasAMLibrary");
-            }
-        });
+        ManagementService invalidManagementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB, TEST_PROJECT_URL1, TEST_PROJECT_TOKEN1);
 
         setField(gitHubService, "managementService", invalidManagementService);
 

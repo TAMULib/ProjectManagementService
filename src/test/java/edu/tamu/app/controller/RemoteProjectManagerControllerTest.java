@@ -37,14 +37,20 @@ public class RemoteProjectManagerControllerTest {
     private static final String TEST_PROJECT1_SCOPE1 = "0010";
     private static final String TEST_PROJECT1_SCOPE2 = "0011";
 
+    private static final String TEST_PROJECT_URL1 = "http://localhost/1";
+    private static final String TEST_PROJECT_URL2 = "http://localhost/2";
+
+    private static final String TEST_PROJECT_TOKEN1 = "0123456789";
+    private static final String TEST_PROJECT_TOKEN2 = "9876543210";
+
     private static final String TEST_RMP_ONE_NAME = "Test Remote Project Manager 1";
     private static final String TEST_RMP_TWO_NAME = "Test Remote Project Manager 2";
     private static final String TEST_MODIFIED_RMP_NAME = "Modified Remote Project Manager";
 
 
-    private static RemoteProjectManager testRemoteProjectManagerOne = new RemoteProjectManager(TEST_RMP_ONE_NAME, ServiceType.VERSION_ONE);
-    private static RemoteProjectManager testRemoteProjectManagerTwo = new RemoteProjectManager(TEST_RMP_TWO_NAME, ServiceType.VERSION_ONE);
-    private static RemoteProjectManager testModifiedProjectManager = new RemoteProjectManager(TEST_MODIFIED_RMP_NAME, ServiceType.VERSION_ONE);
+    private static RemoteProjectManager testRemoteProjectManagerOne = new RemoteProjectManager(TEST_RMP_ONE_NAME, ServiceType.VERSION_ONE, TEST_PROJECT_URL1, TEST_PROJECT_TOKEN1);
+    private static RemoteProjectManager testRemoteProjectManagerTwo = new RemoteProjectManager(TEST_RMP_TWO_NAME, ServiceType.VERSION_ONE, TEST_PROJECT_URL2, TEST_PROJECT_TOKEN2);
+    private static RemoteProjectManager testModifiedProjectManager = new RemoteProjectManager(TEST_MODIFIED_RMP_NAME, ServiceType.VERSION_ONE, TEST_PROJECT_URL1, TEST_PROJECT_TOKEN1);
     private static List<RemoteProjectManager> mockRemoteProjectManagers = new ArrayList<RemoteProjectManager>(Arrays.asList(new RemoteProjectManager[] { testRemoteProjectManagerOne, testRemoteProjectManagerTwo }));
 
     private static final RemoteProjectInfo TEST_REMOTE_PROJECT_INFO1 = new RemoteProjectInfo(TEST_PROJECT1_SCOPE1, testRemoteProjectManagerOne);
