@@ -9,6 +9,10 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
+
 import com.fasterxml.jackson.annotation.JsonView;
 
 import edu.tamu.app.model.validation.ProductValidator;
@@ -47,6 +51,7 @@ public class Product extends ValidatingBaseEntity {
     @JsonView(ApiView.Partial.class)
     private String wikiUrl;
 
+    @LazyCollection(LazyCollectionOption.FALSE)
     @ElementCollection
     @JsonInclude(Include.NON_NULL)
     @JsonView(ApiView.Partial.class)
