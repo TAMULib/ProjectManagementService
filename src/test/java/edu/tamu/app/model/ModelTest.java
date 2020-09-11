@@ -38,6 +38,9 @@ public abstract class ModelTest {
     protected static final String TEST_INTERNAL_REQUEST_DESCRIPTION1 = "Test Internal Request Description 1";
     protected static final String TEST_INTERNAL_REQUEST_DESCRIPTION2 = "Test Internal Request Description 2";
 
+    protected static final String TEST_OTHER_URL_1 = "Test Other URL 1";
+    protected static final String TEST_OTHER_URL_2 = "Test Other URL 2";
+
     protected static final Date TEST_INTERNAL_REQUEST_CREATED_ON1 = new Date();
     protected static final Date TEST_INTERNAL_REQUEST_CREATED_ON2 = new Date(System.currentTimeMillis() + 100);
 
@@ -51,7 +54,9 @@ public abstract class ModelTest {
     protected static final List<RemoteProjectInfo> TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST1 = new ArrayList<RemoteProjectInfo>(Arrays.asList(TEST_REMOTE_PROJECT_INFO1, TEST_REMOTE_PROJECT_INFO2));
     protected static final List<RemoteProjectInfo> TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST2 = new ArrayList<RemoteProjectInfo>(Arrays.asList(TEST_REMOTE_PROJECT_INFO3));
 
-    protected static final Product TEST_PRODUCT = new Product(TEST_PRODUCT_NAME, TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST1);
+    protected static final List<String> TEST_OTHER_URLS = new ArrayList<String>(Arrays.asList(TEST_OTHER_URL_1, TEST_OTHER_URL_2));
+
+    protected static final Product TEST_PRODUCT = new Product(TEST_PRODUCT_NAME, TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST1, TEST_PROJECT_SCOPE1, "", "", "", "", TEST_OTHER_URLS);
 
     protected static final InternalRequest TEST_INTERNAL_REQUEST1 = new InternalRequest(TEST_INTERNAL_REQUEST_TITLE1, TEST_INTERNAL_REQUEST_DESCRIPTION1, TEST_PRODUCT, TEST_INTERNAL_REQUEST_CREATED_ON1);
     protected static final InternalRequest TEST_INTERNAL_REQUEST2 = new InternalRequest(TEST_INTERNAL_REQUEST_TITLE2, TEST_INTERNAL_REQUEST_DESCRIPTION2, null, TEST_INTERNAL_REQUEST_CREATED_ON2);

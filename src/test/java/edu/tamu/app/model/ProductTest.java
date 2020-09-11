@@ -112,4 +112,15 @@ public class ProductTest extends ModelTest {
         assertEquals("Product repo had incorrect number of products!", 0, productRepo.count());
     }
 
+    @Test
+    public void testOtherUrlsCanBeSet() {
+        productRepo.create(TEST_PRODUCT);
+        Optional<Product> product = productRepo.findByName(TEST_PRODUCT_NAME);
+        assertTrue("Could not read product!", product.isPresent());
+        assertEquals("Product read did not have the correct name!", TEST_PRODUCT_NAME, product.get().getName());
+        assertEquals("Product did not have the expected other URLs", 2, product.get().getOtherUrls().size());
+        assertEquals("First other URL does not match", TEST_OTHER_URL_1, product.get().getOtherUrls().get(0));
+        assertEquals("Second other URL does not match", TEST_OTHER_URL_2, product.get().getOtherUrls().get(1));
+    }
+
 }
