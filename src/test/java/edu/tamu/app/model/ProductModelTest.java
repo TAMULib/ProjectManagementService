@@ -2,6 +2,8 @@ package edu.tamu.app.model;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
@@ -123,6 +125,28 @@ public class ProductModelTest extends ModelTest {
         product.removeRemoteProduct(TEST_REMOTE_PROJECT_INFO1);
         List<RemoteProjectInfo> remoteProjectInfo = product.getRemoteProjectInfo();
         assertEquals("Product did not correctly add the remote project!", false, remoteProjectInfo.contains(TEST_REMOTE_PROJECT_INFO1));
+    }
+
+    @Test
+    public void testSetOtherUrls() {
+        Product product = new Product(TEST_PRODUCT_NAME, TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST1);
+        product.setOtherUrls(TEST_OTHER_URLS);
+        assertEquals("Product did not correctly set the other URLs", 2, product.getOtherUrls().size());
+    }
+
+    @Test
+    public void testAddOtherUrl() {
+        Product product = new Product(TEST_PRODUCT_NAME, TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST1, TEST_PROJECT_SCOPE1, "", "", "", "", new ArrayList<String>(Arrays.asList(TEST_OTHER_URL_1)));
+        product.addOtherUrl(TEST_OTHER_URL_2);
+        assertEquals("Product did not correctly add the second URL", 2, product.getOtherUrls().size());
+    }
+
+    @Test
+    public void testRemoveOtherUrl() {
+        Product product = new Product(TEST_PRODUCT_NAME, TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST1, TEST_PROJECT_SCOPE1, "", "", "", "", TEST_OTHER_URLS);
+        product.removeOtherUrl(TEST_OTHER_URL_1);
+        assertEquals("Product did not remove other URL", 1, product.getOtherUrls().size());
+        assertEquals("Product did not remove correct other URL", TEST_OTHER_URL_2, product.getOtherUrls().get(0));
     }
 
 }
