@@ -7,7 +7,6 @@ import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -48,6 +47,11 @@ public class Product extends ValidatingBaseEntity {
     @JsonView(ApiView.Partial.class)
     private String wikiUrl;
 
+    @ElementCollection
+    @JsonInclude(Include.NON_NULL)
+    @JsonView(ApiView.Partial.class)
+    private List<String> otherUrls;
+
     @ElementCollection(fetch = FetchType.EAGER)
     @JsonView(ApiView.Partial.class)
     private List<RemoteProjectInfo> remoteProjectInfo;
@@ -68,7 +72,7 @@ public class Product extends ValidatingBaseEntity {
         this.remoteProjectInfo = remoteProjectInfo;
     }
 
-    public Product(String name, List<RemoteProjectInfo> remoteProjectInfo, String scopeId, String devUrl, String preUrl, String productionUrl, String wikiUrl) {
+    public Product(String name, List<RemoteProjectInfo> remoteProjectInfo, String scopeId, String devUrl, String preUrl, String productionUrl, String wikiUrl, List<String> otherUrls) {
         this();
         this.name = name;
         this.remoteProjectInfo = remoteProjectInfo;
@@ -77,6 +81,7 @@ public class Product extends ValidatingBaseEntity {
         this.preUrl = preUrl;
         this.productionUrl = productionUrl;
         this.wikiUrl = wikiUrl;
+        this.otherUrls = otherUrls;
     }
 
     public String getName() {
@@ -125,6 +130,24 @@ public class Product extends ValidatingBaseEntity {
 
     public void setWikiUrl(String wikiUrl) {
         this.wikiUrl = wikiUrl;
+    }
+
+    public List<String> getOtherUrls() {
+        return otherUrls;
+    }
+
+    public void setOtherUrls(List<String> otherUrls) {
+        this.otherUrls = otherUrls;
+    }
+
+    public void addOtherUrl(String otherUrl) {
+        this.otherUrls.add(otherUrl);
+    }
+
+    public void removeOtherUrl(String otherUrl) {
+        this.otherUrls = this.otherUrls.stream()
+            .filter(o -> !o.equals(otherUrl))
+            .collect(Collectors.toList());
     }
 
     public List<RemoteProjectInfo> getRemoteProjectInfo() {

@@ -26,31 +26,31 @@ public class ProductModelTest extends ModelTest {
 
     @Test
     public void testGetScopeId() {
-        Product product = new Product(TEST_PRODUCT_NAME, TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST1, TEST_PROJECT_SCOPE1, "", "", "", "");
+        Product product = new Product(TEST_PRODUCT_NAME, TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST1, TEST_PROJECT_SCOPE1, "", "", "", "", null);
         assertEquals("Product did not return the correct scope id!", TEST_PROJECT_SCOPE1, product.getScopeId());
     }
 
     @Test
     public void testGetDevUri() {
-        Product product = new Product(TEST_PRODUCT_NAME, TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST1, TEST_PROJECT_SCOPE1, TEST_URL_1, "", "", "");
+        Product product = new Product(TEST_PRODUCT_NAME, TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST1, TEST_PROJECT_SCOPE1, TEST_URL_1, "", "", "", null);
         assertEquals("Product did not return the correct dev URL!", TEST_URL_1, product.getDevUrl());
     }
 
     @Test
     public void testGetPreUri() {
-        Product product = new Product(TEST_PRODUCT_NAME, TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST1, TEST_PROJECT_SCOPE1, "", TEST_URL_1, "", "");
+        Product product = new Product(TEST_PRODUCT_NAME, TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST1, TEST_PROJECT_SCOPE1, "", TEST_URL_1, "", "", null);
         assertEquals("Product did not return the correct pre URL!", TEST_URL_1, product.getPreUrl());
     }
 
     @Test
     public void testGetProductionUrl() {
-        Product product = new Product(TEST_PRODUCT_NAME, TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST1, TEST_PROJECT_SCOPE1, "", "", TEST_URL_1, "");
+        Product product = new Product(TEST_PRODUCT_NAME, TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST1, TEST_PROJECT_SCOPE1, "", "", TEST_URL_1, "", null);
         assertEquals("Product did not return the correct production URL!", TEST_URL_1, product.getProductionUrl());
     }
 
     @Test
     public void testGetWikiUrl() {
-        Product product = new Product(TEST_PRODUCT_NAME, TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST1, TEST_PROJECT_SCOPE1, "", "", "", TEST_URL_1);
+        Product product = new Product(TEST_PRODUCT_NAME, TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST1, TEST_PROJECT_SCOPE1, "", "", "", TEST_URL_1, null);
         assertEquals("Product did not return the correct wiki URL!", TEST_URL_1, product.getWikiUrl());
     }
 
@@ -69,35 +69,35 @@ public class ProductModelTest extends ModelTest {
 
     @Test
     public void testSetDevUrl() {
-        Product product = new Product(TEST_PRODUCT_NAME, TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST1, TEST_PROJECT_SCOPE1, TEST_URL_1, "", "", "");
+        Product product = new Product(TEST_PRODUCT_NAME, TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST1, TEST_PROJECT_SCOPE1, TEST_URL_1, "", "", "", null);
         product.setDevUrl(TEST_URL_2);
         assertEquals("Product did not correctly update the dev URL!", TEST_URL_2, product.getDevUrl());
     }
 
     @Test
     public void testSetPreUrl() {
-        Product product = new Product(TEST_PRODUCT_NAME, TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST1, TEST_PROJECT_SCOPE1, "", TEST_URL_1, "", "");
+        Product product = new Product(TEST_PRODUCT_NAME, TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST1, TEST_PROJECT_SCOPE1, "", TEST_URL_1, "", "", null);
         product.setPreUrl(TEST_URL_2);
         assertEquals("Product did not correctly update the pre URL!", TEST_URL_2, product.getPreUrl());
     }
 
     @Test
     public void testSetProductionUrl() {
-        Product product = new Product(TEST_PRODUCT_NAME, TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST1, TEST_PROJECT_SCOPE1, "", "", TEST_URL_1, "");
+        Product product = new Product(TEST_PRODUCT_NAME, TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST1, TEST_PROJECT_SCOPE1, "", "", TEST_URL_1, "", null);
         product.setProductionUrl(TEST_URL_2);
         assertEquals("Product did not correctly update the production URL!", TEST_URL_2, product.getProductionUrl());
     }
 
     @Test
     public void testSetWikiUrl() {
-        Product product = new Product(TEST_PRODUCT_NAME, TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST1, TEST_PROJECT_SCOPE1, "", "", "", TEST_URL_1);
+        Product product = new Product(TEST_PRODUCT_NAME, TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST1, TEST_PROJECT_SCOPE1, "", "", "", TEST_URL_1, null);
         product.setWikiUrl(TEST_URL_2);
         assertEquals("Product did not correctly update the Wiki URL!", TEST_URL_2, product.getWikiUrl());
     }
 
     @Test
     public void testSetScopeId() {
-        Product product = new Product(TEST_PRODUCT_NAME, TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST1, TEST_PROJECT_SCOPE1, "", "", "", "");
+        Product product = new Product(TEST_PRODUCT_NAME, TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST1, TEST_PROJECT_SCOPE1, "", "", "", "", null);
         product.setScopeId(TEST_PROJECT_SCOPE2);
         assertEquals("Product did not correctly update the scope id!", TEST_PROJECT_SCOPE2, product.getScopeId());
     }
