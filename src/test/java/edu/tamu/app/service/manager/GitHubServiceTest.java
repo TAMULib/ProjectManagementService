@@ -173,14 +173,14 @@ public class GitHubServiceTest extends CacheMockTests {
     @Before
     public void setUp() throws Exception {
         ManagementService managementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB,
-                new HashMap<String, String>() {
-                    private static final long serialVersionUID = 2020874481642498006L;
-                    {
-                        put("url", "https://localhost:9101/TexasAMLibrary");
-                        put("username", "username");
-                        put("password", "password");
-                    }
-                });
+            new HashMap<String, String>() {
+                private static final long serialVersionUID = 2020874481642498006L;
+                {
+                    put("url", "https://localhost:9101/TexasAMLibrary");
+                    put("token", "token");
+                }
+            });
+
 
         CardTypeRepo cardTypeRepo = mock(CardTypeRepo.class);
         StatusRepo statusRepo = mock(StatusRepo.class);
@@ -199,7 +199,6 @@ public class GitHubServiceTest extends CacheMockTests {
         github = mock(GitHub.class);
 
         when(ghBuilder.withEndpoint(any(String.class))).thenReturn(ghBuilder);
-        when(ghBuilder.withPassword(any(String.class), any(String.class))).thenReturn(ghBuilder);
         when(ghBuilder.withOAuthToken(any(String.class))).thenReturn(ghBuilder);
         when(ghBuilder.build()).thenReturn(github);
 
@@ -397,24 +396,45 @@ public class GitHubServiceTest extends CacheMockTests {
     }
 
     @Test
-    public void testGetGitHubInstanceByPassword() throws IOException {
-        GitHub githubInstance = gitHubService.getGitHubInstance();
-        assertNotNull("GitHub object was not created", githubInstance);
+    public void testGetGitHubInstanceWithInvalidServiceEndpoint() throws IOException {
+        ManagementService invalidManagementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB,
+        new HashMap<String, String>() {
+            private static final long serialVersionUID = 2020874481642498006L;
+            {
+                put("token", "token");
+            }
+        });
+
+        setField(gitHubService, "managementService", invalidManagementService);
+
+        try {
+            gitHubService.getGitHubInstance();
+        } catch (RuntimeException e) {
+            assertEquals(e.getMessage(), "GitHub service endpoint was not defined");
+        }
+    }
+
+    @Test
+    public void testGetGitHubInstanceWithInvalidToken() throws IOException {
+        ManagementService invalidManagementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB,
+        new HashMap<String, String>() {
+            private static final long serialVersionUID = 2020874481642498006L;
+            {
+                put("url", "https://localhost:9101/TexasAMLibrary");
+            }
+        });
+
+        setField(gitHubService, "managementService", invalidManagementService);
+
+        try {
+            gitHubService.getGitHubInstance();
+        } catch (RuntimeException e) {
+            assertEquals(e.getMessage(), "GitHub token was not defined");
+        }
     }
 
     @Test
     public void testGetGitHubInstanceByToken() throws IOException {
-        ManagementService tokenManagementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB,
-                new HashMap<String, String>() {
-                    private static final long serialVersionUID = 2020874481642498006L;
-                    {
-                        put("url", "https://localhost:9101/TexasAMLibrary");
-                        put("token", "token");
-                    }
-                });
-
-        setField(gitHubService, "managementService", tokenManagementService);
-
         GitHub gitHubInstance = gitHubService.getGitHubInstance();
         assertNotNull("GitHub object was not created", gitHubInstance);
     }

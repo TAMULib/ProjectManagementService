@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import edu.tamu.app.model.CardType;
+import edu.tamu.app.model.ServiceType;
 import edu.tamu.app.model.repo.CardTypeRepo;
 import edu.tamu.app.model.repo.RemoteProjectManagerRepo;
 import edu.tamu.app.service.registry.ManagementBeanRegistry;
@@ -29,6 +30,22 @@ public class ProjectInitialization implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         remoteProjectManagerRepo.findAll().forEach(versionManagementSoftware -> {
+            if (versionManagementSoftware.getType().equals(ServiceType.GITHUB)) {
+                if (!versionManagementSoftware.getSettingValue("token").isPresent()) {
+                    return;
+                }
+            }
+
+            if (versionManagementSoftware.getType().equals(ServiceType.VERSION_ONE)) {
+                if (!versionManagementSoftware.getSettingValue("url").isPresent()) {
+                    return;
+                }
+
+                if (versionManagementSoftware.getSettingValue("url").get().isEmpty()) {
+                    return;
+                }
+            }
+
             managementBeanRegistry.register(versionManagementSoftware);
         });
         CardType type = cardTypeRepo.findByIdentifier("Feature");

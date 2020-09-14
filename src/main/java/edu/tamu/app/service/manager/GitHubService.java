@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kohsuke.github.GHIssue;
 import org.kohsuke.github.GHIssueState;
@@ -40,7 +39,6 @@ import edu.tamu.app.cache.model.RemoteProject;
 import edu.tamu.app.cache.model.Sprint;
 import edu.tamu.app.model.ManagementService;
 import edu.tamu.app.model.request.FeatureRequest;
-import edu.tamu.app.rest.BasicAuthRestTemplate;
 import edu.tamu.app.rest.TokenAuthRestTemplate;
 
 public class GitHubService extends MappingRemoteProjectManagerBean {
@@ -136,24 +134,18 @@ public class GitHubService extends MappingRemoteProjectManagerBean {
     }
 
     protected GitHub getGitHubInstance() throws IOException {
-        GitHub githubInstance;
         final Optional<String> endpoint = managementService.getSettingValue("url");
         final Optional<String> token = managementService.getSettingValue("token");
         if (!endpoint.isPresent()) {
-            throw new RuntimeException("GitHub service enpoint was not defined");
+            throw new RuntimeException("GitHub service endpoint was not defined");
         }
-        if (token.isPresent()) {
-            githubInstance = ghBuilder
-                .withEndpoint(endpoint.get())
-                .withOAuthToken(token.get())
-                .build();
-        } else {
-            githubInstance = ghBuilder
-                .withEndpoint(endpoint.get())
-                .withPassword(getSettingValue("username"), getSettingValue("password"))
-                .build();
+        if (!token.isPresent()) {
+            throw new RuntimeException("GitHub token was not defined");
         }
-        return githubInstance;
+        return ghBuilder
+            .withEndpoint(endpoint.get())
+            .withOAuthToken(token.get())
+            .build();
     }
 
     private String getSettingValue(final String key) {
@@ -166,8 +158,7 @@ public class GitHubService extends MappingRemoteProjectManagerBean {
     }
 
     private RestTemplate getRestTemplate() {
-        String token = getSettingValue("token");
-        return StringUtils.isNotBlank(token) ? new TokenAuthRestTemplate(token) : new BasicAuthRestTemplate(getSettingValue("username"), getSettingValue("password"));
+        return new TokenAuthRestTemplate(getSettingValue("token"));
     }
 
     private RemoteProject buildRemoteProject(GHRepository repo, List<GHLabel> labels) throws IOException {

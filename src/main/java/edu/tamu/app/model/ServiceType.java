@@ -40,6 +40,9 @@ public enum ServiceType {
         List<Setting> scaffold = new ArrayList<Setting>();
         switch (this) {
         case GITHUB:
+            scaffold.add(new Setting("text", "url", "URL", true));
+            scaffold.add(new Setting("password", "token", "Token", false));
+            break;
         case VERSION_ONE:
             scaffold.add(new Setting("text", "url", "URL", true));
             scaffold.add(new Setting("text", "username", "Username", false));
