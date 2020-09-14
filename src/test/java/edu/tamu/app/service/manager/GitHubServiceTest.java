@@ -443,7 +443,6 @@ public class GitHubServiceTest extends CacheMockTests {
     public void testGetCardsWithNote() throws Exception {
         when(TEST_CARD1.getContent()).thenReturn(null);
         List<Sprint> sprints = gitHubService.getAdditionalActiveSprints();
-        System.out.println("\n\n\nsprints: " + sprints.get(1).getCards().get(0).getId() + "\n\n\n");
         assertEquals("Didn't get expected number of cards", 5, sprints.get(0).getCards().size());
     }
 }
