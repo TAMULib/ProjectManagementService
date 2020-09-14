@@ -2,6 +2,7 @@ package edu.tamu.app;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -9,7 +10,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import edu.tamu.app.model.CardType;
-import edu.tamu.app.model.ServiceType;
 import edu.tamu.app.model.repo.CardTypeRepo;
 import edu.tamu.app.model.repo.RemoteProjectManagerRepo;
 import edu.tamu.app.service.registry.ManagementBeanRegistry;
@@ -30,20 +30,12 @@ public class ProjectInitialization implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         remoteProjectManagerRepo.findAll().forEach(versionManagementSoftware -> {
-            if (versionManagementSoftware.getType().equals(ServiceType.GITHUB)) {
-                if (!versionManagementSoftware.getSettingValue("token").isPresent()) {
-                    return;
-                }
+            if (Optional.ofNullable( versionManagementSoftware.getUrl()).isPresent()) {
+                return;
             }
 
-            if (versionManagementSoftware.getType().equals(ServiceType.VERSION_ONE)) {
-                if (!versionManagementSoftware.getSettingValue("url").isPresent()) {
-                    return;
-                }
-
-                if (versionManagementSoftware.getSettingValue("url").get().isEmpty()) {
-                    return;
-                }
+            if (Optional.ofNullable( versionManagementSoftware.getToken()).isPresent()) {
+                return;
             }
 
             managementBeanRegistry.register(versionManagementSoftware);

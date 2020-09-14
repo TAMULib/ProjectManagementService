@@ -1,20 +1,12 @@
 package edu.tamu.app.model;
 
-import static javax.persistence.FetchType.EAGER;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-
 import javax.persistence.Column;
 import javax.persistence.Convert;
-import javax.persistence.ElementCollection;
 import javax.persistence.Enumerated;
 import javax.persistence.MappedSuperclass;
 
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
-
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import edu.tamu.app.model.converter.CryptoConverter;
@@ -25,34 +17,36 @@ import edu.tamu.weaver.validation.model.ValidatingBaseEntity;
 @MappedSuperclass
 public abstract class ManagementService extends ValidatingBaseEntity {
 
-    @Column
+    @Column(nullable = false)
     @JsonView(ApiView.Partial.class)
+    @JsonInclude(Include.NON_NULL)
     protected String name;
 
     @Enumerated
     @JsonView(ApiView.Partial.class)
+    @JsonInclude(Include.NON_NULL)
     protected ServiceType type;
 
-    @ElementCollection(fetch = EAGER)
-    @Fetch(FetchMode.SELECT)
-    @Convert(attributeName = "value", converter = CryptoConverter.class)
-    protected Map<String, String> settings;
+    @Column
+    @JsonView(ApiView.Partial.class)
+    protected String url;
+
+    @Column
+    @JsonView(ApiView.Partial.class)
+    @Convert(converter = CryptoConverter.class)
+    protected String token;
 
     public ManagementService() {
         super();
         modelValidator = new ManagementServiceValidator();
-        settings = new HashMap<String, String>();
     }
 
-    public ManagementService(String name, ServiceType type) {
+    public ManagementService(String name, ServiceType type, String url, String token) {
         this();
         this.name = name;
         this.type = type;
-    }
-
-    public ManagementService(String name, ServiceType type, Map<String, String> settings) {
-        this(name, type);
-        this.settings = settings;
+        this.url = url;
+        this.token = token;
     }
 
     public String getName() {
@@ -71,23 +65,20 @@ public abstract class ManagementService extends ValidatingBaseEntity {
         this.type = type;
     }
 
-    public Map<String, String> getSettings() {
-        return settings;
+    public String getUrl() {
+        return url;
     }
 
-    public void setSettings(HashMap<String, String> settings) {
-        this.settings = settings;
+    public void setUrl(String url) {
+        this.url = url;
     }
 
-    public Optional<String> getSettingValue(String key) {
-        Optional<String> targetSetting = Optional.empty();
-        for (Map.Entry<String, String> setting : settings.entrySet()) {
-            if (setting.getKey().equals(key)) {
-                targetSetting = Optional.of(setting.getValue());
-                break;
-            }
-        }
-        return targetSetting;
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 
 }

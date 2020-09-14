@@ -134,31 +134,25 @@ public class GitHubService extends MappingRemoteProjectManagerBean {
     }
 
     protected GitHub getGitHubInstance() throws IOException {
-        final Optional<String> endpoint = managementService.getSettingValue("url");
-        final Optional<String> token = managementService.getSettingValue("token");
+        final Optional<String> endpoint = Optional.of(managementService.getUrl());
+        final Optional<String> token = Optional.of(managementService.getToken());
+
         if (!endpoint.isPresent()) {
             throw new RuntimeException("GitHub service endpoint was not defined");
         }
+
         if (!token.isPresent()) {
             throw new RuntimeException("GitHub token was not defined");
         }
+
         return ghBuilder
             .withEndpoint(endpoint.get())
             .withOAuthToken(token.get())
             .build();
     }
 
-    private String getSettingValue(final String key) {
-        final Optional<String> setting = managementService.getSettingValue(key);
-        if (setting.isPresent()) {
-            return setting.get();
-        } else {
-            return null;
-        }
-    }
-
     private RestTemplate getRestTemplate() {
-        return new TokenAuthRestTemplate(getSettingValue("token"));
+        return new TokenAuthRestTemplate(managementService.getToken());
     }
 
     private RemoteProject buildRemoteProject(GHRepository repo, List<GHLabel> labels) throws IOException {

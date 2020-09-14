@@ -3,9 +3,7 @@ package edu.tamu.app.model;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.After;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +30,12 @@ public abstract class ModelTest {
     protected static final String TEST_PROJECT_SCOPE2 = "0011";
     protected static final String TEST_PROJECT_SCOPE3 = "0020";
 
+    protected static final String TEST_PROJECT_URL1 = "http://localhost/1";
+    protected static final String TEST_PROJECT_URL2 = "http://localhost/2";
+
+    protected static final String TEST_PROJECT_TOKEN1 = "0123456789";
+    protected static final String TEST_PROJECT_TOKEN2 = "9876543210";
+
     protected static final String TEST_INTERNAL_REQUEST_TITLE1 = "Test Internal Request Title 1";
     protected static final String TEST_INTERNAL_REQUEST_TITLE2 = "Test Internal Request Title 2";
 
@@ -44,8 +48,8 @@ public abstract class ModelTest {
     protected static final Date TEST_INTERNAL_REQUEST_CREATED_ON1 = new Date();
     protected static final Date TEST_INTERNAL_REQUEST_CREATED_ON2 = new Date(System.currentTimeMillis() + 100);
 
-    protected static final RemoteProjectManager TEST_REMOTE_PROJECT_MANAGER1 = new RemoteProjectManager(TEST_REMOTE_PROJECT_MANAGER1_NAME, ServiceType.VERSION_ONE, getMockSettings());
-    protected static final RemoteProjectManager TEST_REMOTE_PROJECT_MANAGER2 = new RemoteProjectManager(TEST_REMOTE_PROJECT_MANAGER2_NAME, ServiceType.GITHUB, getMockSettings());
+    protected static final RemoteProjectManager TEST_REMOTE_PROJECT_MANAGER1 = new RemoteProjectManager(TEST_REMOTE_PROJECT_MANAGER1_NAME, ServiceType.VERSION_ONE, TEST_PROJECT_URL1, TEST_PROJECT_TOKEN1);
+    protected static final RemoteProjectManager TEST_REMOTE_PROJECT_MANAGER2 = new RemoteProjectManager(TEST_REMOTE_PROJECT_MANAGER2_NAME, ServiceType.GITHUB, TEST_PROJECT_URL2, TEST_PROJECT_TOKEN2);
 
     protected static final RemoteProjectInfo TEST_REMOTE_PROJECT_INFO1 = new RemoteProjectInfo(TEST_PROJECT_SCOPE1, TEST_REMOTE_PROJECT_MANAGER1);
     protected static final RemoteProjectInfo TEST_REMOTE_PROJECT_INFO2 = new RemoteProjectInfo(TEST_PROJECT_SCOPE2, TEST_REMOTE_PROJECT_MANAGER1);
@@ -78,31 +82,6 @@ public abstract class ModelTest {
 
     @Autowired
     protected InternalRequestRepo internalRequestRepo;
-
-    protected static Map<String, String> getMockSettings() {
-        return getMockSettings(false);
-    }
-
-    protected static Map<String, String> getMockSettings(boolean token) {
-        if (token) {
-            return new HashMap<String, String>() {
-                private static final long serialVersionUID = 2020874481642498007L;
-                {
-                    put("url", "https://localhost:9101/TexasAMLibrary");
-                    put("token", "token");
-                }
-            };
-        }
-        
-        return new HashMap<String, String>() {
-            private static final long serialVersionUID = 2020874481642498006L;
-            {
-                put("url", "https://localhost:9101/TexasAMLibrary");
-                put("username", "username");
-                put("password", "password");
-            }
-        };
-    }
 
     @After
     public void cleanup() {

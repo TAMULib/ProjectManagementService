@@ -10,7 +10,6 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
 import org.junit.Before;
@@ -42,8 +41,14 @@ public class ActiveSprintsScheduledCacheServiceTest {
     private static final String TEST_PROJECT_SCOPE1 = "0010";
     private static final String TEST_PROJECT_SCOPE2 = "0020";
 
-    private static final RemoteProjectManager TEST_REMOTE_PROJECT_MANAGER1 = new RemoteProjectManager("Test Remote Project Manager 1", ServiceType.VERSION_ONE, new HashMap<String, String>());
-    private static final RemoteProjectManager TEST_REMOTE_PROJECT_MANAGER2 = new RemoteProjectManager("Test Remote Project Manager 2", ServiceType.GITHUB, new HashMap<String, String>());
+    private static final String TEST_PROJECT_URL1 = "http://localhost/1";
+    private static final String TEST_PROJECT_URL2 = "http://localhost/2";
+
+    private static final String TEST_PROJECT_TOKEN1 = "0123456789";
+    private static final String TEST_PROJECT_TOKEN2 = "9876543210";
+
+    private static final RemoteProjectManager TEST_REMOTE_PROJECT_MANAGER1 = new RemoteProjectManager("Test Remote Project Manager 1", ServiceType.VERSION_ONE, TEST_PROJECT_URL1, TEST_PROJECT_TOKEN1);
+    private static final RemoteProjectManager TEST_REMOTE_PROJECT_MANAGER2 = new RemoteProjectManager("Test Remote Project Manager 2", ServiceType.GITHUB, TEST_PROJECT_URL2, TEST_PROJECT_TOKEN2);
 
     private static final RemoteProjectInfo TEST_REMOTE_PROJECT_INFO1 = new RemoteProjectInfo(TEST_PROJECT_SCOPE1, TEST_REMOTE_PROJECT_MANAGER1);
     private static final RemoteProjectInfo TEST_REMOTE_PROJECT_INFO2 = new RemoteProjectInfo(TEST_PROJECT_SCOPE2, TEST_REMOTE_PROJECT_MANAGER2);

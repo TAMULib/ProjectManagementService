@@ -67,10 +67,14 @@ import edu.tamu.app.model.repo.CardTypeRepo;
 import edu.tamu.app.model.repo.EstimateRepo;
 import edu.tamu.app.model.repo.StatusRepo;
 import edu.tamu.app.model.request.FeatureRequest;
-import edu.tamu.app.rest.BasicAuthRestTemplate;
+import edu.tamu.app.rest.TokenAuthRestTemplate;
 
 @RunWith(SpringRunner.class)
 public class VersionOneServiceTest extends CacheMockTests {
+
+    private static final String TEST_PROJECT_URL1 = "http://localhost/1";
+
+    private static final String TEST_PROJECT_TOKEN1 = "0123456789";
 
     @Value("classpath:images/no_avatar.png")
     private Resource mockImage;
@@ -79,7 +83,7 @@ public class VersionOneServiceTest extends CacheMockTests {
 
     private IServices services;
 
-    private BasicAuthRestTemplate restTemplate;
+    private TokenAuthRestTemplate restTemplate;
 
     private List<RemoteProject> mockRemoteProjects;
 
@@ -88,14 +92,7 @@ public class VersionOneServiceTest extends CacheMockTests {
     @Before
     @SuppressWarnings("unchecked")
     public void setup() throws JsonParseException, JsonMappingException, IOException, V1Exception {
-        ManagementService managementService = new RemoteProjectManager("Version One", ServiceType.VERSION_ONE, new HashMap<String, String>() {
-            private static final long serialVersionUID = 2020874481642498006L;
-            {
-                put("url", "https://localhost:9101/TexasAMLibrary");
-                put("username", "username");
-                put("password", "password");
-            }
-        });
+        ManagementService managementService = new RemoteProjectManager("Version One", ServiceType.VERSION_ONE, TEST_PROJECT_URL1, TEST_PROJECT_TOKEN1);
 
         CardTypeRepo cardTypeRepo = mock(CardTypeRepo.class);
         StatusRepo statusRepo = mock(StatusRepo.class);
@@ -111,7 +108,7 @@ public class VersionOneServiceTest extends CacheMockTests {
 
         services = mock(IServices.class);
 
-        restTemplate = mock(BasicAuthRestTemplate.class);
+        restTemplate = mock(TokenAuthRestTemplate.class);
 
         when(restTemplate.exchange(any(String.class), any(HttpMethod.class), any(HttpEntity.class), any(Class.class), any(Object[].class))).thenAnswer(new Answer<ResponseEntity<byte[]>>() {
             @Override
@@ -192,13 +189,7 @@ public class VersionOneServiceTest extends CacheMockTests {
 
     @Test
     public void testVersionOneTokenAuthConnector() {
-        ManagementService managementService = new RemoteProjectManager("Version One", ServiceType.VERSION_ONE, new HashMap<String, String>() {
-            private static final long serialVersionUID = 2020874481642498006L;
-            {
-                put("url", "https://localhost:9101/TexasAMLibrary");
-                put("token", "token");
-            }
-        });
+        ManagementService managementService = new RemoteProjectManager("Version One", ServiceType.VERSION_ONE, TEST_PROJECT_URL1, TEST_PROJECT_TOKEN1);
         setField(versionOneService, "managementService", managementService);
     }
 

@@ -1,7 +1,5 @@
 package edu.tamu.app.model;
 
-import java.util.Map;
-
 import javax.persistence.Entity;
 
 @Entity
@@ -11,12 +9,8 @@ public class RemoteProjectManager extends ManagementService {
         super();
     }
 
-    public RemoteProjectManager(String name, ServiceType type) {
-        super(name, type);
-    }
-
-    public RemoteProjectManager(String name, ServiceType type, Map<String, String> settings) {
-        super(name, type, settings);
+    public RemoteProjectManager(String name, ServiceType type, String url, String token) {
+        super(name, type, url, token);
     }
 
 }
