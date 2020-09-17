@@ -122,9 +122,10 @@ public class GitHubService extends MappingRemoteProjectManagerBean {
         for (GHProject project : projects) {
             String sprintId = String.valueOf(project.getId());
             Map<String, List<Card>> partitionedCards = getCards(project);
+            String productName = String.format("%s - %s", organization.getName(), project.getName());
             int count = 0;
             for (Entry<String, List<Card>> partition : partitionedCards.entrySet()) {
-                sprints.add(new Sprint(sprintId + "-" + count, partition.getKey(), ORGANIZATION, partition.getValue()));
+                sprints.add(new Sprint(sprintId + "-" + count, partition.getKey(), productName, partition.getValue()));
                 count++;
             }
         }
