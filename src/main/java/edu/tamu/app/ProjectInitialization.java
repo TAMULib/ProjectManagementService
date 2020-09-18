@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Optional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
@@ -30,8 +31,8 @@ public class ProjectInitialization implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         remoteProjectManagerRepo.findAll().forEach(versionManagementSoftware -> {
-            if (Optional.ofNullable(versionManagementSoftware.getUrl()).isPresent()) {
-                if (Optional.ofNullable(versionManagementSoftware.getToken()).isPresent()) {
+            if (StringUtils.isNotEmpty(versionManagementSoftware.getUrl())) {
+                if (StringUtils.isNotEmpty(versionManagementSoftware.getToken())) {
                     managementBeanRegistry.register(versionManagementSoftware);
                 }
             }
