@@ -30,15 +30,11 @@ public class ProjectInitialization implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         remoteProjectManagerRepo.findAll().forEach(versionManagementSoftware -> {
-            if (Optional.ofNullable( versionManagementSoftware.getUrl()).isPresent()) {
-                return;
+            if (Optional.ofNullable(versionManagementSoftware.getUrl()).isPresent()) {
+                if (Optional.ofNullable(versionManagementSoftware.getToken()).isPresent()) {
+                    managementBeanRegistry.register(versionManagementSoftware);
+                }
             }
-
-            if (Optional.ofNullable( versionManagementSoftware.getToken()).isPresent()) {
-                return;
-            }
-
-            managementBeanRegistry.register(versionManagementSoftware);
         });
         CardType type = cardTypeRepo.findByIdentifier("Feature");
         HashSet<String> featureTypes = new HashSet<String>(Arrays.asList(new String[] { "Story", "feature" }));
