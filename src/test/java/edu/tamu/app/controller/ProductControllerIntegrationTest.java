@@ -6,7 +6,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import org.junit.After;
@@ -33,6 +32,10 @@ import edu.tamu.app.model.repo.RemoteProjectManagerRepo;
 public class ProductControllerIntegrationTest {
     private static final String TEST_PRODUCT_SCOPE1 = "0010";
 
+    private static final String TEST_PROJECT_URL1 = "http://localhost/1";
+
+    private static final String TEST_PROJECT_TOKEN1 = "0123456789";
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -45,15 +48,8 @@ public class ProductControllerIntegrationTest {
     @Before
     public void setup() {
         RemoteProjectManager remoteProjectManager = remoteProjectManagerRepo.create(
-            new RemoteProjectManager("VersionTwo", ServiceType.VERSION_ONE, new HashMap<String, String>() {
-                private static final long serialVersionUID = 2020874481642498006L;
-                {
-                    put("url", "https://localhost:9101/TexasAMLibrary");
-                    put("username", "username");
-                    put("password", "password");
-                }
-            }
-        ));
+            new RemoteProjectManager("VersionTwo", ServiceType.VERSION_ONE, TEST_PROJECT_URL1, TEST_PROJECT_TOKEN1)
+        );
 
         RemoteProjectInfo remoteProjectInfo = new RemoteProjectInfo(TEST_PRODUCT_SCOPE1, remoteProjectManager);
 

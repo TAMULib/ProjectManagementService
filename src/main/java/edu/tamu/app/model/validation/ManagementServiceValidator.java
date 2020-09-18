@@ -12,5 +12,11 @@ public class ManagementServiceValidator extends BaseModelValidator {
 
         String typeProperty = "type";
         this.addInputValidator(new InputValidator(InputValidationType.required, "A Management service requires a type", typeProperty, true));
+
+        String urlProperty = "url";
+        this.addInputValidator(new InputValidator(InputValidationType.required, "A Remote Project Manager requires a URL", urlProperty, true));
+
+        String tokenProperty = "token";
+        this.addInputValidator(new InputValidator(InputValidationType.required, "A Remote Project Manager requires a token", tokenProperty, true));
     }
 }

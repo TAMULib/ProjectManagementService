@@ -2,6 +2,7 @@ package edu.tamu.app;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -29,6 +30,14 @@ public class ProjectInitialization implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         remoteProjectManagerRepo.findAll().forEach(versionManagementSoftware -> {
+            if (Optional.ofNullable( versionManagementSoftware.getUrl()).isPresent()) {
+                return;
+            }
+
+            if (Optional.ofNullable( versionManagementSoftware.getToken()).isPresent()) {
+                return;
+            }
+
             managementBeanRegistry.register(versionManagementSoftware);
         });
         CardType type = cardTypeRepo.findByIdentifier("Feature");

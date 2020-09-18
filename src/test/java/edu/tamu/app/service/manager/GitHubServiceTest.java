@@ -81,6 +81,10 @@ public class GitHubServiceTest extends CacheMockTests {
     private static final Long TEST_REPOSITORY1_ID = 1L;
     private static final Long TEST_USER1_ID = 3L;
 
+    private static final String TEST_PROJECT_URL1 = "http://localhost/1";
+
+    private static final String TEST_PROJECT_TOKEN1 = "0123456789";
+
     private static final GHLabel TEST_LABEL1 = mock(GHLabel.class);
     private static final GHLabel TEST_LABEL2 = mock(GHLabel.class);
     private static final GHLabel TEST_LABEL3 = mock(GHLabel.class);
@@ -172,15 +176,8 @@ public class GitHubServiceTest extends CacheMockTests {
 
     @Before
     public void setUp() throws Exception {
-        ManagementService managementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB,
-                new HashMap<String, String>() {
-                    private static final long serialVersionUID = 2020874481642498006L;
-                    {
-                        put("url", "https://localhost:9101/TexasAMLibrary");
-                        put("username", "username");
-                        put("password", "password");
-                    }
-                });
+        ManagementService managementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB, TEST_PROJECT_URL1, TEST_PROJECT_TOKEN1);
+
 
         CardTypeRepo cardTypeRepo = mock(CardTypeRepo.class);
         StatusRepo statusRepo = mock(StatusRepo.class);
@@ -199,7 +196,6 @@ public class GitHubServiceTest extends CacheMockTests {
         github = mock(GitHub.class);
 
         when(ghBuilder.withEndpoint(any(String.class))).thenReturn(ghBuilder);
-        when(ghBuilder.withPassword(any(String.class), any(String.class))).thenReturn(ghBuilder);
         when(ghBuilder.withOAuthToken(any(String.class))).thenReturn(ghBuilder);
         when(ghBuilder.build()).thenReturn(github);
 
@@ -384,8 +380,8 @@ public class GitHubServiceTest extends CacheMockTests {
 
     @Test
     public void testPush() throws Exception {
-        GHIssue issue = (GHIssue) gitHubService.push(TEST_FEATURE_REQUEST);
-        assertEquals("Didn't get expected issue", TEST_ISSUE1, issue);
+        String id = gitHubService.push(TEST_FEATURE_REQUEST);
+        assertNotNull(id);
     }
 
     @Test
@@ -397,24 +393,33 @@ public class GitHubServiceTest extends CacheMockTests {
     }
 
     @Test
-    public void testGetGitHubInstanceByPassword() throws IOException {
-        GitHub githubInstance = gitHubService.getGitHubInstance();
-        assertNotNull("GitHub object was not created", githubInstance);
+    public void testGetGitHubInstanceWithInvalidServiceEndpoint() throws IOException {
+        ManagementService invalidManagementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB, TEST_PROJECT_URL1, TEST_PROJECT_TOKEN1);
+
+        setField(gitHubService, "managementService", invalidManagementService);
+
+        try {
+            gitHubService.getGitHubInstance();
+        } catch (RuntimeException e) {
+            assertEquals(e.getMessage(), "GitHub service endpoint was not defined");
+        }
+    }
+
+    @Test
+    public void testGetGitHubInstanceWithInvalidToken() throws IOException {
+        ManagementService invalidManagementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB, TEST_PROJECT_URL1, TEST_PROJECT_TOKEN1);
+
+        setField(gitHubService, "managementService", invalidManagementService);
+
+        try {
+            gitHubService.getGitHubInstance();
+        } catch (RuntimeException e) {
+            assertEquals(e.getMessage(), "GitHub token was not defined");
+        }
     }
 
     @Test
     public void testGetGitHubInstanceByToken() throws IOException {
-        ManagementService tokenManagementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB,
-                new HashMap<String, String>() {
-                    private static final long serialVersionUID = 2020874481642498006L;
-                    {
-                        put("url", "https://localhost:9101/TexasAMLibrary");
-                        put("token", "token");
-                    }
-                });
-
-        setField(gitHubService, "managementService", tokenManagementService);
-
         GitHub gitHubInstance = gitHubService.getGitHubInstance();
         assertNotNull("GitHub object was not created", gitHubInstance);
     }

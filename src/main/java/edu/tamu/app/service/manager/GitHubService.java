@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kohsuke.github.GHIssue;
 import org.kohsuke.github.GHIssueState;
@@ -40,7 +39,6 @@ import edu.tamu.app.cache.model.RemoteProject;
 import edu.tamu.app.cache.model.Sprint;
 import edu.tamu.app.model.ManagementService;
 import edu.tamu.app.model.request.FeatureRequest;
-import edu.tamu.app.rest.BasicAuthRestTemplate;
 import edu.tamu.app.rest.TokenAuthRestTemplate;
 
 public class GitHubService extends MappingRemoteProjectManagerBean {
@@ -124,48 +122,37 @@ public class GitHubService extends MappingRemoteProjectManagerBean {
     }
 
     @Override
-    public Object push(final FeatureRequest request) throws Exception {
+    public String push(final FeatureRequest request) throws Exception {
         logger.info("Submitting feature request " + request.getTitle() + " to product with scope id " + request.getScopeId());
-        String repoId = String.valueOf(request.getProductId());
+
+        String scopeId = String.valueOf(request.getScopeId());
         String title = request.getTitle();
         String body = request.getDescription();
-        GHRepository repo = github.getRepositoryById(repoId);
-        return repo.createIssue(title).body(body).create();
+        GHRepository repo = github.getRepositoryById(scopeId);
+
+        return Long.toString(repo.createIssue(title).body(body).create().getId());
     }
 
     protected GitHub getGitHubInstance() throws IOException {
-        GitHub githubInstance;
-        final Optional<String> endpoint = managementService.getSettingValue("url");
-        final Optional<String> token = managementService.getSettingValue("token");
-        if (!endpoint.isPresent()) {
-            throw new RuntimeException("GitHub service enpoint was not defined");
-        }
-        if (token.isPresent()) {
-            githubInstance = ghBuilder
-                .withEndpoint(endpoint.get())
-                .withOAuthToken(token.get())
-                .build();
-        } else {
-            githubInstance = ghBuilder
-                .withEndpoint(endpoint.get())
-                .withPassword(getSettingValue("username"), getSettingValue("password"))
-                .build();
-        }
-        return githubInstance;
-    }
+        final Optional<String> endpoint = Optional.of(managementService.getUrl());
+        final Optional<String> token = Optional.of(managementService.getToken());
 
-    private String getSettingValue(final String key) {
-        final Optional<String> setting = managementService.getSettingValue(key);
-        if (setting.isPresent()) {
-            return setting.get();
-        } else {
-            return null;
+        if (!endpoint.isPresent()) {
+            throw new RuntimeException("GitHub service endpoint was not defined");
         }
+
+        if (!token.isPresent()) {
+            throw new RuntimeException("GitHub token was not defined");
+        }
+
+        return ghBuilder
+            .withEndpoint(endpoint.get())
+            .withOAuthToken(token.get())
+            .build();
     }
 
     private RestTemplate getRestTemplate() {
-        String token = getSettingValue("token");
-        return StringUtils.isNotBlank(token) ? new TokenAuthRestTemplate(token) : new BasicAuthRestTemplate(getSettingValue("username"), getSettingValue("password"));
+        return new TokenAuthRestTemplate(managementService.getToken());
     }
 
     private RemoteProject buildRemoteProject(GHRepository repo, List<GHLabel> labels) throws IOException {

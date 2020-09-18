@@ -12,7 +12,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 import org.junit.Before;
@@ -57,6 +56,10 @@ public class ProductControllerTest {
     private static final String TEST_PROJECT1_SCOPE2 = "0011";
     private static final String TEST_INVALID_SCOPE = "XXXX";
 
+    private static final String TEST_PROJECT_URL1 = "http://localhost/1";
+
+    private static final String TEST_PROJECT_TOKEN1 = "0123456789";
+
     private static final String TEST_FEATURE_REQUEST_TITLE = "Test Feature Request Title";
     private static final String TEST_FEATURE_REQUEST_DESCRIPTION = "Test Feature Request Description";
     private static final String TEST_RMP_ONE_NAME = "Test Remote Project Manager 1";
@@ -66,7 +69,7 @@ public class ProductControllerTest {
     private static final String INVALID_RPM_ID_ERROR_MESSAGE = "Error fetching remote projects from " + TEST_RMP_ONE_NAME + "!";
     private static final String MISSING_RPM_ERROR_MESSAGE = "Remote Project Manager with id null not found!";
 
-    private static final RemoteProjectManager TEST_REMOTE_PROJECT_MANAGER = new RemoteProjectManager("Test Remote Project Manager", ServiceType.VERSION_ONE, new HashMap<String, String>());
+    private static final RemoteProjectManager TEST_REMOTE_PROJECT_MANAGER = new RemoteProjectManager("Test Remote Project Manager", ServiceType.VERSION_ONE, TEST_PROJECT_URL1, TEST_PROJECT_TOKEN1);
 
     private static final RemoteProjectInfo TEST_REMOTE_PROJECT_INFO1 = new RemoteProjectInfo(TEST_PROJECT1_SCOPE1, TEST_REMOTE_PROJECT_MANAGER);
     private static final RemoteProjectInfo TEST_REMOTE_PROJECT_INFO2 = new RemoteProjectInfo(TEST_PROJECT1_SCOPE2, TEST_REMOTE_PROJECT_MANAGER);
@@ -80,7 +83,7 @@ public class ProductControllerTest {
     private static Product TEST_PRODUCT2 = new Product(TEST_PRODUCT2_NAME);
     private static Product TEST_MODIFIED_PRODUCT = new Product(TEST_MODIFIED_PRODUCT_NAME);
 
-    private static RemoteProjectManager testRemoteProjectManagerOne = new RemoteProjectManager(TEST_RMP_ONE_NAME, ServiceType.VERSION_ONE);
+    private static RemoteProjectManager testRemoteProjectManagerOne = new RemoteProjectManager(TEST_RMP_ONE_NAME, ServiceType.VERSION_ONE, TEST_PROJECT_URL1, TEST_PROJECT_TOKEN1);
 
     private static final InternalRequest TEST_REQUEST1 = new InternalRequest(TEST_FEATURE_REQUEST_TITLE, TEST_FEATURE_REQUEST_DESCRIPTION, TEST_PRODUCT1, TEST_CREATED_ON1);
 
@@ -203,7 +206,7 @@ public class ProductControllerTest {
 
     @Test
     public void testPushRequest() throws Exception {
-        when(remoteProjectManagementBean.push(TEST_FEATURE_REQUEST)).thenReturn(TEST_FEATURE_REQUEST);
+        when(remoteProjectManagementBean.push(TEST_FEATURE_REQUEST)).thenReturn(TEST_FEATURE_REQUEST.getScopeId());
         when(managementBeanRegistry.getService(any(String.class))).thenReturn(remoteProjectManagementBean);
         when(productRepo.findOne(any(Long.class))).thenReturn(TEST_PRODUCT1);
         apiResponse = productController.pushRequest(TEST_FEATURE_REQUEST);
@@ -212,7 +215,7 @@ public class ProductControllerTest {
 
     @Test
     public void testGetAllRemoteProductsForProduct() throws Exception {
-        when(remoteProjectManagementBean.push(TEST_FEATURE_REQUEST)).thenReturn(TEST_FEATURE_REQUEST);
+        when(remoteProjectManagementBean.push(TEST_FEATURE_REQUEST)).thenReturn(TEST_FEATURE_REQUEST.getScopeId());
         when(managementBeanRegistry.getService(any(String.class))).thenReturn(remoteProjectManagementBean);
         when(productRepo.findOne(any(Long.class))).thenReturn(TEST_PRODUCT1);
         apiResponse = productController.getAllRemoteProjectsForProduct(TEST_PRODUCT1.getId());
@@ -221,7 +224,7 @@ public class ProductControllerTest {
 
     @Test
     public void testGetAllRemoteProductsForProductWithInvalidId() throws Exception {
-        when(remoteProjectManagementBean.push(TEST_FEATURE_REQUEST)).thenReturn(TEST_FEATURE_REQUEST);
+        when(remoteProjectManagementBean.push(TEST_FEATURE_REQUEST)).thenReturn(TEST_FEATURE_REQUEST.getScopeId());
         when(managementBeanRegistry.getService(any(String.class))).thenReturn(remoteProjectManagementBean);
         apiResponse = productController.getAllRemoteProjectsForProduct(null);
         assertEquals("Request with invalid Product id did not result in an error", ERROR, apiResponse.getMeta().getStatus());
@@ -240,7 +243,7 @@ public class ProductControllerTest {
     @Test
     public void testGetAllRemoteProjects() throws Exception {
         when(remoteProjectManagerRepo.findOne(any(Long.class))).thenReturn(testRemoteProjectManagerOne);
-        when(remoteProjectManagementBean.push(TEST_FEATURE_REQUEST)).thenReturn(TEST_FEATURE_REQUEST);
+        when(remoteProjectManagementBean.push(TEST_FEATURE_REQUEST)).thenReturn("1");
         when(managementBeanRegistry.getService(any(String.class))).thenReturn(remoteProjectManagementBean);
         apiResponse = productController.getAllRemoteProjects(testRemoteProjectManagerOne.getId());
         assertEquals("Remote Project Manager controller unable to get all remote projects", SUCCESS, apiResponse.getMeta().getStatus());

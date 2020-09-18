@@ -12,7 +12,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 import org.junit.Before;
@@ -56,7 +55,11 @@ public class InternalRequestControllerTest {
     private static final String TEST_PROJECT1_SCOPE1 = "0010";
     private static final String TEST_PROJECT1_SCOPE2 = "0011";
 
-    private static final RemoteProjectManager TEST_REMOTE_PROJECT_MANAGER = new RemoteProjectManager("Test Remote Project Manager", ServiceType.VERSION_ONE, new HashMap<String, String>());
+    private static final String TEST_PROJECT_URL1 = "http://localhost/1";
+
+    private static final String TEST_PROJECT_TOKEN1 = "0123456789";
+
+    private static final RemoteProjectManager TEST_REMOTE_PROJECT_MANAGER = new RemoteProjectManager("Test Remote Project Manager", ServiceType.VERSION_ONE, TEST_PROJECT_URL1, TEST_PROJECT_TOKEN1);
 
     private static final RemoteProjectInfo TEST_REMOTE_PROJECT_INFO1 = new RemoteProjectInfo(TEST_PROJECT1_SCOPE1, TEST_REMOTE_PROJECT_MANAGER);
     private static final RemoteProjectInfo TEST_REMOTE_PROJECT_INFO2 = new RemoteProjectInfo(TEST_PROJECT1_SCOPE2, TEST_REMOTE_PROJECT_MANAGER);
@@ -123,7 +126,7 @@ public class InternalRequestControllerTest {
         when(internalRequestRepo.countByProductIsNull()).thenReturn(1L);
         when(internalRequestRepo.create(any(InternalRequest.class))).thenReturn(TEST_REQUEST_BELLS);
         when(internalRequestRepo.update(any(InternalRequest.class))).thenReturn(TEST_REQUEST_BELLS);
-        when(remoteProjectManagementBean.push(any(FeatureRequest.class))).thenReturn(TEST_FEATURE_REQUEST);
+        when(remoteProjectManagementBean.push(any(FeatureRequest.class))).thenReturn("1");
         when(managementBeanRegistry.getService(any(String.class))).thenReturn(remoteProjectManagementBean);
 
         doAnswer(new Answer<ApiResponse>() {

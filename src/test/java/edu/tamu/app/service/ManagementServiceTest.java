@@ -4,8 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
 
-import java.util.HashMap;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,13 +20,9 @@ public class ManagementServiceTest {
 
     private static ServiceType TEST_TYPE = ServiceType.VERSION_ONE;
 
-    private static final HashMap<String, String> TEST_SETTINGS;
-    static {
-        TEST_SETTINGS = new HashMap<String, String>();
-        TEST_SETTINGS.put("Test 1", "Test 1");
-        TEST_SETTINGS.put("Test 2", "Test 2");
-        TEST_SETTINGS.put("Test 3", "Test 3");
-    }
+    private static final String TEST_URL1 = "http://localhost/1";
+
+    private static final String TEST_TOKEN1 = "0123456789";
 
     private ManagementService managementService;
 
@@ -52,10 +46,17 @@ public class ManagementServiceTest {
     }
 
     @Test
-    public void testSetSettings() {
-        assertNull("Settings were not empty", managementService.getSettings());
-        managementService.setSettings(TEST_SETTINGS);
-        assertEquals("Settings where not set correctly", TEST_SETTINGS, managementService.getSettings());
+    public void testSetUrl() {
+        assertNull("URL was already set", managementService.getUrl());
+        managementService.setUrl(TEST_URL1);
+        assertEquals("URL was not set correctly", TEST_URL1, managementService.getUrl());
+    }
+
+    @Test
+    public void testSetToken() {
+        assertNull("Token was already set", managementService.getToken());
+        managementService.setToken(TEST_TOKEN1);
+        assertEquals("Token was not set correctly", TEST_TOKEN1, managementService.getToken());
     }
 
 }
