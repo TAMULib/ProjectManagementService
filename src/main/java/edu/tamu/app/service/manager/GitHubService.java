@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kohsuke.github.GHIssue;
 import org.kohsuke.github.GHIssueState;
@@ -273,6 +274,11 @@ public class GitHubService extends MappingRemoteProjectManagerBean {
             member = cachedMember.get();
         } else {
             String name = user.getName();
+
+            if (StringUtils.isEmpty(name)) {
+                name = user.getLogin();
+            }
+
             String avatarUrlString = user.getAvatarUrl();
             String avatarPath = getAvatarPath(avatarUrlString);
             member = new Member(memberId, name, avatarPath);
