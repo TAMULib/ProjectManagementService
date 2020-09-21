@@ -136,10 +136,4 @@ public class RemoteProjectManagerControllerTest {
         assertEquals("Not successful at getting service types", SUCCESS, response.getMeta().getStatus());
     }
 
-    @Test
-    public void testGetScaffolding() {
-        ApiResponse response = remoteProjectManagerController.getTypeScaffolding(ServiceType.VERSION_ONE.toString());
-        assertEquals("Not successful at getting scaffolding", SUCCESS, response.getMeta().getStatus());
-    }
-
 }

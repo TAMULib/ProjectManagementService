@@ -76,11 +76,4 @@ public class RemoteProjectManagerController {
     public ApiResponse getTypes() {
         return new ApiResponse(SUCCESS, ServiceType.map());
     }
-
-    @GetMapping("/scaffolding/{type}")
-    @PreAuthorize("hasRole('USER')")
-    public ApiResponse getTypeScaffolding(@PathVariable String type) {
-        ServiceType serviceType = ServiceType.valueOf(type);
-        return new ApiResponse(SUCCESS, serviceType.getScaffold());
-    }
 }
