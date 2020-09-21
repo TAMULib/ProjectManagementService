@@ -178,7 +178,7 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
 
     private GitHubBuilder ghBuilder;
 
-    private GitHubProjectService gitHubProjectService;
+    private GitHubMilestoneService gitHubMilestoneService;
 
     private GitHub github;
 
@@ -199,7 +199,7 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
 
         ghBuilder = mock(GitHubBuilder.class);
 
-        gitHubProjectService = mock(GitHubProjectService.class, Mockito.CALLS_REAL_METHODS);
+        gitHubMilestoneService = mock(GitHubMilestoneService.class, Mockito.CALLS_REAL_METHODS);
 
         github = mock(GitHub.class);
 
@@ -364,19 +364,19 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
         setField(statusMappingService, "serviceMappingRepo", statusRepo);
         setField(estimateMappingService, "serviceMappingRepo", estimateRepo);
 
-        setField(gitHubProjectService, "ghBuilder", ghBuilder);
-        setField(gitHubProjectService, "managementService", managementService);
-        setField(gitHubProjectService, "cardTypeMappingService", cardTypeMappingService);
-        setField(gitHubProjectService, "statusMappingService", statusMappingService);
-        setField(gitHubProjectService, "estimateMappingService", estimateMappingService);
-        setField(gitHubProjectService, "github", github);
-        setField(gitHubProjectService, "members", new HashMap<String, Member>());
-        setField(gitHubProjectService, "restTemplate", restTemplate);
+        setField(gitHubMilestoneService, "ghBuilder", ghBuilder);
+        setField(gitHubMilestoneService, "managementService", managementService);
+        setField(gitHubMilestoneService, "cardTypeMappingService", cardTypeMappingService);
+        setField(gitHubMilestoneService, "statusMappingService", statusMappingService);
+        setField(gitHubMilestoneService, "estimateMappingService", estimateMappingService);
+        setField(gitHubMilestoneService, "github", github);
+        setField(gitHubMilestoneService, "members", new HashMap<String, Member>());
+        setField(gitHubMilestoneService, "restTemplate", restTemplate);
     }
 
     @Test
     public void testGetRemoteProjects() throws Exception {
-        List<RemoteProject> remoteProjects = gitHubProjectService.getRemoteProject();
+        List<RemoteProject> remoteProjects = gitHubMilestoneService.getRemoteProject();
         assertEquals("Didn't get all the remote projects", 2, remoteProjects.size());
         assertEquals("Number of Requests was incorrect", 1, remoteProjects.get(0).getRequestCount());
         assertEquals("Number of Issues was incorrect", 2, remoteProjects.get(0).getIssueCount());
@@ -386,7 +386,7 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
 
     @Test
     public void testGetRemoteProjectByScopeId() throws Exception {
-        RemoteProject project = gitHubProjectService.getRemoteProjectByScopeId(String.valueOf(TEST_REPOSITORY1_ID));
+        RemoteProject project = gitHubMilestoneService.getRemoteProjectByScopeId(String.valueOf(TEST_REPOSITORY1_ID));
         assertNotNull("Didn't get the remote project", project);
         assertEquals("Did not get the expected project", String.valueOf(TEST_REPOSITORY1_ID), project.getId());
         assertEquals("Number of Requests was incorrect", 1, project.getRequestCount());
@@ -397,25 +397,25 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
 
     @Test
     public void testGetActiveSprintsByProjectId() throws Exception {
-        List<Sprint> activeSprints = gitHubProjectService.getActiveSprintsByScopeId(String.valueOf(TEST_REPOSITORY1_ID));
+        List<Sprint> activeSprints = gitHubMilestoneService.getActiveSprintsByScopeId(String.valueOf(TEST_REPOSITORY1_ID));
         assertEquals("Didn't get all active sprints", 3, activeSprints.size());
     }
 
     @Test
     public void testGetAdditionalActiveSprints() throws Exception {
-        List<Sprint> additionalSprints = gitHubProjectService.getAdditionalActiveSprints();
+        List<Sprint> additionalSprints = gitHubMilestoneService.getAdditionalActiveSprints();
         assertEquals("Didn't get all additional sprints", 3, additionalSprints.size());
     }
 
     @Test
     public void testPush() throws Exception {
-        String id = gitHubProjectService.push(TEST_FEATURE_REQUEST);
+        String id = gitHubMilestoneService.push(TEST_FEATURE_REQUEST);
         assertNotNull(id);
     }
 
     @Test
     public void testGetMember() throws IOException {
-        Member member = gitHubProjectService.getMember(TEST_USER1);
+        Member member = gitHubMilestoneService.getMember(TEST_USER1);
         assertEquals("Member ID is incorrect", String.valueOf(TEST_USER1_ID), member.getId());
         assertEquals("Member Name is incorrect", TEST_USER1_NAME, member.getName());
         assertEquals("Member Avatar URL is incorrect", TEST_USER1_AVATAR_NAME, member.getAvatar());
@@ -425,10 +425,10 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
     public void testGetGitHubInstanceWithInvalidServiceEndpoint() throws IOException {
         ManagementService invalidManagementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB_MILESTONE, TEST_PROJECT_URL1, TEST_PROJECT_TOKEN1);
 
-        setField(gitHubProjectService, "managementService", invalidManagementService);
+        setField(gitHubMilestoneService, "managementService", invalidManagementService);
 
         try {
-            gitHubProjectService.getGitHubInstance();
+            gitHubMilestoneService.getGitHubInstance();
         } catch (RuntimeException e) {
             assertEquals(e.getMessage(), "GitHub service endpoint was not defined");
         }
@@ -438,10 +438,10 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
     public void testGetGitHubInstanceWithInvalidToken() throws IOException {
         ManagementService invalidManagementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB_MILESTONE, TEST_PROJECT_URL1, TEST_PROJECT_TOKEN1);
 
-        setField(gitHubProjectService, "managementService", invalidManagementService);
+        setField(gitHubMilestoneService, "managementService", invalidManagementService);
 
         try {
-            gitHubProjectService.getGitHubInstance();
+            gitHubMilestoneService.getGitHubInstance();
         } catch (RuntimeException e) {
             assertEquals(e.getMessage(), "GitHub token was not defined");
         }
@@ -449,14 +449,14 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
 
     @Test
     public void testGetGitHubInstanceByToken() throws IOException {
-        GitHub gitHubInstance = gitHubProjectService.getGitHubInstance();
+        GitHub gitHubInstance = gitHubMilestoneService.getGitHubInstance();
         assertNotNull("GitHub object was not created", gitHubInstance);
     }
 
     @Test
     public void testGetCardsWithNote() throws Exception {
         when(TEST_CARD1.getContent()).thenReturn(null);
-        List<Sprint> sprints = gitHubProjectService.getAdditionalActiveSprints();
+        List<Sprint> sprints = gitHubMilestoneService.getAdditionalActiveSprints();
         assertEquals("Didn't get expected number of cards", 5, sprints.get(0).getCards().size());
     }
 }
