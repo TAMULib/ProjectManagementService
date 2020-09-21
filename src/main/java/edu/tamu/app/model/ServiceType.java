@@ -19,7 +19,6 @@ public enum ServiceType {
             Map<String, Object> m = new HashMap<String, Object>();
             m.put("value", type.toString());
             m.put("gloss", type.gloss);
-            m.put("scaffold", type.getScaffold());
             list.add(m);
         }
     }
@@ -34,26 +33,6 @@ public enum ServiceType {
 
     public void setGloss(String gloss) {
         this.gloss = gloss;
-    }
-
-    public List<Setting> getScaffold() {
-        List<Setting> scaffold = new ArrayList<Setting>();
-        switch (this) {
-        case GITHUB:
-            scaffold.add(new Setting("text", "url", "URL", true));
-            scaffold.add(new Setting("password", "token", "Token", false));
-            break;
-        case VERSION_ONE:
-            scaffold.add(new Setting("text", "url", "URL", true));
-            scaffold.add(new Setting("text", "username", "Username", false));
-            scaffold.add(new Setting("password", "password", "Password", false));
-            scaffold.add(new Setting("password", "token", "Token", false));
-            break;
-        default:
-            break;
-
-        }
-        return scaffold;
     }
 
     public static List<Map<String, Object>> map() {
