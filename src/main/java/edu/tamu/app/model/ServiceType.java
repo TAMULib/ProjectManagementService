@@ -8,7 +8,8 @@ import java.util.Map;
 public enum ServiceType {
 
     VERSION_ONE("Version One"),
-    GITHUB("GitHub");
+    GITHUB_PROJECT("GitHub Project"),
+    GITHUB_MILESTONE("GitHub Milestone");
 
     private String gloss;
 
@@ -39,7 +40,8 @@ public enum ServiceType {
     public List<Setting> getScaffold() {
         List<Setting> scaffold = new ArrayList<Setting>();
         switch (this) {
-        case GITHUB:
+        case GITHUB_MILESTONE:
+        case GITHUB_PROJECT:
             scaffold.add(new Setting("text", "url", "URL", true));
             scaffold.add(new Setting("password", "token", "Token", false));
             break;

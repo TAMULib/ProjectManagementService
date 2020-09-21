@@ -11,11 +11,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.kohsuke.github.GHIssue;
 import org.kohsuke.github.GHIssueState;
 import org.kohsuke.github.GHLabel;
+import org.kohsuke.github.GHMilestone;
+import org.kohsuke.github.GHMilestoneState;
 import org.kohsuke.github.GHOrganization;
 import org.kohsuke.github.GHProject;
 import org.kohsuke.github.GHProject.ProjectStateFilter;
@@ -41,15 +45,16 @@ import edu.tamu.app.model.ManagementService;
 import edu.tamu.app.model.request.FeatureRequest;
 import edu.tamu.app.rest.TokenAuthRestTemplate;
 
-public class GitHubService extends MappingRemoteProjectManagerBean {
+public class GitHubMilestoneService extends MappingRemoteProjectManagerBean {
 
-    private static final Logger logger = Logger.getLogger(GitHubService.class);
+    private static final Logger logger = Logger.getLogger(GitHubProjectService.class);
 
     protected static final String ORGANIZATION = "TAMULib";
     protected static final String REQUEST_LABEL = "request";
     protected static final String ISSUE_LABEL = "issue";
     protected static final String FEATURE_LABEL = "feature";
     protected static final String DEFECT_LABEL = "bug";
+    protected static final String SPRINT = "SPRINT";
 
     private final ManagementService managementService;
 
@@ -63,7 +68,7 @@ public class GitHubService extends MappingRemoteProjectManagerBean {
 
     private GHLabel label;
 
-    public GitHubService(final ManagementService managementService) throws IOException {
+    public GitHubMilestoneService(final ManagementService managementService) throws IOException {
         this.managementService = managementService;
         ghBuilder = new GitHubBuilder();
         github = getGitHubInstance();
@@ -99,10 +104,11 @@ public class GitHubService extends MappingRemoteProjectManagerBean {
         List<GHProject> projects = repo.listProjects(ProjectStateFilter.OPEN).asList();
         for (GHProject project : projects) {
             String sprintId = String.valueOf(project.getId());
-            String name = project.getName();
             String projectName = repo.getName();
-            List<Card> cards = getCards(project);
-            activeSprints.add(new Sprint(sprintId, name, projectName, cards));
+            Map<String, List<Card>> partitionedCards = getCards(project);
+            for (Entry<String, List<Card>> partition : partitionedCards.entrySet()) {
+                activeSprints.add(new Sprint(sprintId, partition.getKey(), projectName, partition.getValue()));
+            }
         }
         return activeSprints;
     }
@@ -114,9 +120,13 @@ public class GitHubService extends MappingRemoteProjectManagerBean {
         List<Sprint> sprints = new ArrayList<Sprint>();
         for (GHProject project : projects) {
             String sprintId = String.valueOf(project.getId());
-            String name = project.getName();
-            List<Card> cards = getCards(project);
-            sprints.add(new Sprint(sprintId, name, ORGANIZATION, cards));
+            Map<String, List<Card>> partitionedCards = getCards(project);
+            String productName = String.format("%s - %s", organization.getName(), project.getName());
+            int count = 0;
+            for (Entry<String, List<Card>> partition : partitionedCards.entrySet()) {
+                sprints.add(new Sprint(sprintId + "-" + count, partition.getKey(), productName, partition.getValue()));
+                count++;
+            }
         }
         return sprints;
     }
@@ -216,32 +226,51 @@ public class GitHubService extends MappingRemoteProjectManagerBean {
             .isPresent();
     }
 
-    private List<Card> getCards(GHProject project) throws IOException {
-        List<Card> cards = new ArrayList<Card>();
+    private Map<String, List<Card>> getCards(GHProject project) throws IOException {
+        Map<String, List<Card>> cardsByMilestone = new HashMap<>();
         for (GHProjectColumn column : project.listColumns().asList()) {
             List<GHProjectCard> projectCards = column.listCards().asList();
+            Map<Long, GHIssue> cardContents = new HashMap<>();
             for (GHProjectCard card : projectCards) {
-                GHIssue content = card.getContent();
-                // If content is null the card is a note and shouldn't be included
-                if (content == null) {
-                    continue;
+                cardContents.put(card.getId(), card.getContent());
+            }
+            Map<GHMilestone, List<GHProjectCard>> partitionedCards = projectCards.stream()
+                // Card without contents is a note
+                .filter(c -> cardContents.get(c.getId()) != null)
+                // Card without a milestone is not on the sprint
+                .filter(c -> cardContents.get(c.getId()).getMilestone() != null)
+                .collect(Collectors.groupingBy(c -> cardContents.get(c.getId()).getMilestone()));
+
+            for (Entry<GHMilestone, List<GHProjectCard>> partition : partitionedCards.entrySet()) {
+                List<Card> cards = new ArrayList<>();
+                for (GHProjectCard card : partition.getValue()) {
+                    GHIssue content = cardContents.get(card.getId());
+                    String id = String.valueOf(card.getId());
+                    String name = content.getTitle();
+                    String number = String.valueOf(content.getNumber());
+                    String type = getCardType(content);
+                    String description = content.getBody();
+                    String status = card.getColumn().getName();
+                    // TODO: Figure out how we want to handle sizes
+                    String estimate = null;
+                    List<Member> assignees = new ArrayList<Member>();
+                    for (GHUser user : content.getAssignees()) {
+                        assignees.add(getMember(user));
+                    }
+                    cards.add(new Card(id, number, mapCardType(type), name, description, mapStatus(status), mapEstimate(estimate), assignees));
                 }
-                String id = String.valueOf(card.getId());
-                String name = content.getTitle();
-                String number = String.valueOf(content.getNumber());
-                String type = getCardType(content);
-                String description = content.getBody();
-                String status = card.getColumn().getName();
-                // TODO: Figure out how we want to handle sizes
-                String estimate = null;
-                List<Member> assignees = new ArrayList<Member>();
-                for (GHUser user : content.getAssignees()) {
-                    assignees.add(getMember(user));
+                GHMilestone milestone = partition.getKey();
+                if (milestone.getState().equals(GHMilestoneState.OPEN) && milestone.getTitle().toUpperCase().contains(SPRINT)) {
+                    String title = partition.getKey().getTitle();
+                    if (cardsByMilestone.containsKey(title)) {
+                        cardsByMilestone.get(title).addAll(cards);
+                    } else {
+                        cardsByMilestone.put(title, cards);
+                    }
                 }
-                cards.add(new Card(id, number, mapCardType(type), name, description, mapStatus(status), mapEstimate(estimate), assignees));
             }
         }
-        return cards;
+        return cardsByMilestone;
     }
 
     private String getCardType(GHIssue content) throws IOException {
