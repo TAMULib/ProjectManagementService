@@ -273,12 +273,7 @@ public class GitHubService extends MappingRemoteProjectManagerBean {
         if (cachedMember.isPresent()) {
             member = cachedMember.get();
         } else {
-            String name = user.getName();
-
-            if (StringUtils.isEmpty(name)) {
-                name = user.getLogin();
-            }
-
+            String name = StringUtils.isEmpty(user.getName()) ? user.getLogin() : user.getName();
             String avatarUrlString = user.getAvatarUrl();
             String avatarPath = getAvatarPath(avatarUrlString);
             member = new Member(memberId, name, avatarPath);
