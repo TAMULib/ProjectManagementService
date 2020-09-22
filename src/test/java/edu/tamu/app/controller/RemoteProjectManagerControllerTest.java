@@ -1,6 +1,7 @@
 package edu.tamu.app.controller;
 
 import static edu.tamu.weaver.response.ApiStatus.SUCCESS;
+import static edu.tamu.weaver.response.ApiStatus.ERROR;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doNothing;
@@ -128,6 +129,16 @@ public class RemoteProjectManagerControllerTest {
     public void testDelete() {
         ApiResponse response = remoteProjectManagerController.deleteRemoteProjectManager(testRemoteProjectManagerOne);
         assertEquals("Not successful at deleting Remote Project Manager", SUCCESS, response.getMeta().getStatus());
+    }
+
+    @Test
+    public void testDeleteWithAssociatedProducts() {
+        String message = "Cannot delete Remote Project Manager " + testRemoteProjectManagerOne.getName() + " because it has one or more associated Products.";
+        when(productRepo.countByRemoteProjectInfoRemoteProjectManagerId(any(Long.class))).thenReturn(1L);
+
+        ApiResponse response = remoteProjectManagerController.deleteRemoteProjectManager(testRemoteProjectManagerOne);
+        assertEquals("Should not delete when there are associated Products", ERROR, response.getMeta().getStatus());
+        assertEquals("Should not delete with friendly message when there are associated Products", message, response.getMeta().getMessage());
     }
 
     @Test
