@@ -8,6 +8,8 @@ import edu.tamu.weaver.data.model.repo.WeaverRepo;
 
 public interface ProductRepo extends WeaverRepo<Product>, ProductRepoCustom {
 
+    public Long countByRemoteProjectInfoRemoteProjectManagerId(Long remoteProjectInfoRemoteProjectManagerId);
+
     public Optional<Product> findByName(String name);
 
 }
