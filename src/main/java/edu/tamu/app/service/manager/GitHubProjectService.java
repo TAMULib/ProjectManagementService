@@ -1,7 +1,6 @@
 package edu.tamu.app.service.manager;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -38,19 +37,15 @@ public class GitHubProjectService extends AbstractGitHubService {
     @Override
     public List<Sprint> getAdditionalActiveSprints() throws Exception {
         GHOrganization organization = github.getOrganization(ORGANIZATION);
-        List<GHProject> projects = organization.listProjects(ProjectStateFilter.OPEN).asList();
-        List<Sprint> sprints = new ArrayList<Sprint>();
-        for (GHProject project : projects) {
-            // Ignore projects without "Sprint" in the name
-            if (!project.getName().toUpperCase().contains(SPRINT)) {
-                continue;
-            }
-            String sprintId = String.valueOf(project.getId());
-            String productName = String.format("%s - %s", organization.getName(), project.getName());
-            List<Card> cards = getCards(project);
-            sprints.add(new Sprint(sprintId, productName, ORGANIZATION, cards));
-        }
-        return sprints;
+        return organization.listProjects(ProjectStateFilter.OPEN).asList().stream()
+            .filter(p -> p.getName().toUpperCase().contains(SPRINT))
+            .map(p -> new Sprint(
+                String.valueOf(p.getId()),
+                String.format("%s - %s", ORGANIZATION, p.getName()),
+                ORGANIZATION,
+                getCards(p)
+            ))
+            .collect(Collectors.toList());
     }
 
     private List<Card> getCards(GHProject project) {
