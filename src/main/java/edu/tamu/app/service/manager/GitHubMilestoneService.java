@@ -78,6 +78,10 @@ public class GitHubMilestoneService extends AbstractGitHubService {
                 .filter(c -> cardContents.get(c.getId()) != null)
                 // Card without a milestone is not on the sprint
                 .filter(c -> cardContents.get(c.getId()).getMilestone() != null)
+                // Remove cards with a closed milestone
+                .filter(c -> cardContents.get(c.getId()).getMilestone().getState().equals(GHMilestoneState.OPEN))
+                // Remove cards that don't have "sprint" in the milestone title
+                .filter(c -> cardContents.get(c.getId()).getMilestone().getTitle().toUpperCase().contains(SPRINT))
                 .collect(Collectors.groupingBy(c -> cardContents.get(c.getId()).getMilestone()));
 
             for (Entry<GHMilestone, List<GHProjectCard>> partition : partitionedCards.entrySet()) {
@@ -98,14 +102,11 @@ public class GitHubMilestoneService extends AbstractGitHubService {
                     }
                     cards.add(new Card(id, number, mapCardType(type), name, description, mapStatus(status), mapEstimate(estimate), assignees));
                 }
-                GHMilestone milestone = partition.getKey();
-                if (milestone.getState().equals(GHMilestoneState.OPEN) && milestone.getTitle().toUpperCase().contains(SPRINT)) {
-                    String title = partition.getKey().getTitle();
-                    if (cardsByMilestone.containsKey(title)) {
-                        cardsByMilestone.get(title).addAll(cards);
-                    } else {
-                        cardsByMilestone.put(title, cards);
-                    }
+                String title = partition.getKey().getTitle();
+                if (cardsByMilestone.containsKey(title)) {
+                    cardsByMilestone.get(title).addAll(cards);
+                } else {
+                    cardsByMilestone.put(title, cards);
                 }
             }
         }

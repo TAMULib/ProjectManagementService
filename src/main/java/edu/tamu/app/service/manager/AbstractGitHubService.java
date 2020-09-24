@@ -247,4 +247,17 @@ public abstract class AbstractGitHubService extends MappingRemoteProjectManagerB
     protected void cacheMember(final String id, final Member member) {
         members.put(id, member);
     }
+
+    @FunctionalInterface
+    public interface ExceptionHandler<T, R, E extends Exception> {
+        R apply(T t) throws E;
+    }
+
+    static <T, R> R exceptionHandlerWrapper(T t, ExceptionHandler<T, R, Exception> f) {
+        try {
+            return f.apply(t);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
