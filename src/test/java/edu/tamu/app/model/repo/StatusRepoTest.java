@@ -1,4 +1,4 @@
-package edu.tamu.app.model;
+package edu.tamu.app.model.repo;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -8,18 +8,68 @@ import static org.junit.Assert.assertTrue;
 import java.util.Arrays;
 import java.util.HashSet;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.kohsuke.github.GitHub;
+import org.kohsuke.github.GitHubBuilder;
+import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import edu.tamu.app.ProductApplication;
+import edu.tamu.app.cache.service.ActiveSprintsScheduledCacheService;
+import edu.tamu.app.cache.service.ProductsStatsScheduledCacheService;
+import edu.tamu.app.cache.service.RemoteProjectsScheduledCacheService;
+import edu.tamu.app.model.Status;
+import edu.tamu.app.service.manager.GitHubService;
+import edu.tamu.app.service.manager.VersionOneService;
+import edu.tamu.app.service.ticketing.SugarService;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = { ProductApplication.class }, webEnvironment = WebEnvironment.DEFINED_PORT)
-public class StatusTest extends ModelTest {
+@SpringBootTest(classes = { ProductApplication.class }, webEnvironment = WebEnvironment.RANDOM_PORT)
+public class StatusRepoTest extends RepoTest {
+
+    @MockBean
+    private SugarService sugarService;
+
+    @MockBean
+    private GitHubService gitHubService;
+
+    @MockBean
+    private VersionOneService versionOneService;
+
+    @MockBean
+    private ActiveSprintsScheduledCacheService activeSprintsScheduledCacheService;
+
+    @MockBean
+    private ProductsStatsScheduledCacheService productsStatsScheduledCacheService;
+
+    @MockBean
+    private RemoteProjectsScheduledCacheService remoteProjectsScheduledCacheService;
+
+    @MockBean
+    private GitHubBuilder ghBuilder;
+
+    @MockBean
+    private GitHub github;
+
+    // @After and @Before cannot be safely specified inside a parent class.
+    @Before
+    public void setup() {
+        MockitoAnnotations.initMocks(this);
+
+        mockSugarService(sugarService);
+        mockGitHubService(gitHubService, ghBuilder);
+        mockVersionOneService(versionOneService);
+        mockActiveSprintsScheduledCacheService(activeSprintsScheduledCacheService);
+        mockProductsStatsScheduledCacheService(productsStatsScheduledCacheService);
+        mockRemoteProjectsScheduledCacheService(remoteProjectsScheduledCacheService);
+    }
 
     @Test
     public void testCreate() {
@@ -62,4 +112,9 @@ public class StatusTest extends ModelTest {
         statusRepo.create(new Status("None", new HashSet<String>(Arrays.asList(new String[] { "None", "Future" }))));
     }
 
+    // @After and @Before cannot be safely specified inside a parent class.
+    @After
+    public void cleanup() {
+        cleanupRepos();
+    }
 }

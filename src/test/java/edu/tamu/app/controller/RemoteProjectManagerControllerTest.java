@@ -48,7 +48,6 @@ public class RemoteProjectManagerControllerTest {
     private static final String TEST_RMP_TWO_NAME = "Test Remote Project Manager 2";
     private static final String TEST_MODIFIED_RMP_NAME = "Modified Remote Project Manager";
 
-
     private static RemoteProjectManager testRemoteProjectManagerOne = new RemoteProjectManager(TEST_RMP_ONE_NAME, ServiceType.VERSION_ONE, TEST_PROJECT_URL1, TEST_PROJECT_TOKEN1);
     private static RemoteProjectManager testRemoteProjectManagerTwo = new RemoteProjectManager(TEST_RMP_TWO_NAME, ServiceType.VERSION_ONE, TEST_PROJECT_URL2, TEST_PROJECT_TOKEN2);
     private static RemoteProjectManager testModifiedProjectManager = new RemoteProjectManager(TEST_MODIFIED_RMP_NAME, ServiceType.VERSION_ONE, TEST_PROJECT_URL1, TEST_PROJECT_TOKEN1);

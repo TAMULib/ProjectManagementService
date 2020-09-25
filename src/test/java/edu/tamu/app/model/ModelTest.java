@@ -1,30 +1,49 @@
 package edu.tamu.app.model;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import static org.mockito.Answers.RETURNS_DEEP_STUBS;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.util.Date;
-import java.util.List;
 
-import org.junit.After;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.kohsuke.github.GHOrganization;
+import org.kohsuke.github.GHRepository;
+import org.kohsuke.github.GitHub;
+import org.kohsuke.github.GitHubBuilder;
 
-import edu.tamu.app.model.repo.CardTypeRepo;
-import edu.tamu.app.model.repo.EstimateRepo;
-import edu.tamu.app.model.repo.InternalRequestRepo;
-import edu.tamu.app.model.repo.ProductRepo;
-import edu.tamu.app.model.repo.RemoteProjectManagerRepo;
-import edu.tamu.app.model.repo.StatusRepo;
+import edu.tamu.app.cache.service.ActiveSprintsScheduledCacheService;
+import edu.tamu.app.cache.service.ProductsStatsScheduledCacheService;
+import edu.tamu.app.cache.service.RemoteProjectsScheduledCacheService;
+import edu.tamu.app.model.request.FeatureRequest;
+import edu.tamu.app.model.request.TicketRequest;
+import edu.tamu.app.service.manager.GitHubService;
+import edu.tamu.app.service.manager.VersionOneService;
+import edu.tamu.app.service.ticketing.SugarService;
 
 public abstract class ModelTest {
 
-    protected static final String TEST_PRODUCT_NAME = "Test Product Name";
+    protected static final float TEST_ESTIMATE_IDENTIFIER1 = 1.0f;
+    protected static final float TEST_ESTIMATE_IDENTIFIER2 = 2.2f;
 
-    protected static final String TEST_ALTERNATE_PRODUCT_NAME = "Alternate Product Name";
+    protected static final String TEST_CARD_TYPE_IDENTIFIER1 = "Test Card Type Identifier 1";
+    protected static final String TEST_CARD_TYPE_IDENTIFIER2 = "Test Card Type Identifier 2";
 
-    protected static final String TEST_REMOTE_PROJECT_MANAGER1_NAME = "Test Remote Project Manager 1";
-    protected static final String TEST_REMOTE_PROJECT_MANAGER2_NAME = "Test Remote Project Manager 2";
+    protected static final String TEST_CARD_TYPE_MATCH1 = "Test Card Type Match 1";
+    protected static final String TEST_CARD_TYPE_MATCH2 = "Test Card Type Match 2";
 
-    protected static final String TEST_ALTERNATE_REMOTE_PROJECT_MANAGER_NAME = "Alternate Remote Project Manager";
+    protected static final String TEST_ESTIMATE_MATCH1 = "Test Estimate Match 1";
+    protected static final String TEST_ESTIMATE_MATCH2 = "Test Estimate Match 2";
+
+    protected static final String TEST_PRODUCT_NAME1 = "Test Product Name";
+
+    protected static final String TEST_PRODUCT_NAME_ALTERNATE1 = "Alternate Product Name";
+
+    protected static final String TEST_REMOTE_PROJECT_MANAGER_NAME1 = "Test Remote Project Manager 1";
+    protected static final String TEST_REMOTE_PROJECT_MANAGER_NAME2 = "Test Remote Project Manager 2";
+
+    protected static final String TEST_REMOTE_PROJECT_MANAGER_NAME_ALTERNATE1 = "Alternate Remote Project Manager";
 
     protected static final String TEST_PROJECT_SCOPE1 = "0010";
     protected static final String TEST_PROJECT_SCOPE2 = "0011";
@@ -42,55 +61,77 @@ public abstract class ModelTest {
     protected static final String TEST_INTERNAL_REQUEST_DESCRIPTION1 = "Test Internal Request Description 1";
     protected static final String TEST_INTERNAL_REQUEST_DESCRIPTION2 = "Test Internal Request Description 2";
 
-    protected static final String TEST_OTHER_URL_1 = "Test Other URL 1";
-    protected static final String TEST_OTHER_URL_2 = "Test Other URL 2";
+    protected static final String TEST_DEV_URL1 = "http://localhost/dev1/";
+    protected static final String TEST_DEV_URL2 = "http://localhost/dev2/";
+
+    protected static final String TEST_PRE_URL1 = "http://localhost/pre1/";
+    protected static final String TEST_PRE_URL2 = "http://localhost/pre2/";
+
+    protected static final String TEST_PROD_URL1 = "http://localhost/production1/";
+    protected static final String TEST_PROD_URL2 = "http://localhost/production2/";
+
+    protected static final String TEST_WIKI_URL1 = "http://localhost/wiki1/";
+    protected static final String TEST_WIKI_URL2 = "http://localhost/wiki2/";
+
+    protected static final String TEST_OTHER_URL1 = "http://localhost/other1/";
+    protected static final String TEST_OTHER_URL2 = "http://localhost/other2/";
 
     protected static final Date TEST_INTERNAL_REQUEST_CREATED_ON1 = new Date();
     protected static final Date TEST_INTERNAL_REQUEST_CREATED_ON2 = new Date(System.currentTimeMillis() + 100);
 
-    protected static final RemoteProjectManager TEST_REMOTE_PROJECT_MANAGER1 = new RemoteProjectManager(TEST_REMOTE_PROJECT_MANAGER1_NAME, ServiceType.VERSION_ONE, TEST_PROJECT_URL1, TEST_PROJECT_TOKEN1);
-    protected static final RemoteProjectManager TEST_REMOTE_PROJECT_MANAGER2 = new RemoteProjectManager(TEST_REMOTE_PROJECT_MANAGER2_NAME, ServiceType.GITHUB, TEST_PROJECT_URL2, TEST_PROJECT_TOKEN2);
+    protected static final GHRepository TEST_GITHUB_REPOSITORY1 = mock(GHRepository.class, RETURNS_DEEP_STUBS.get());
+    protected static final GHRepository TEST_GITHUB_REPOSITORY2 = mock(GHRepository.class, RETURNS_DEEP_STUBS.get());
 
-    protected static final RemoteProjectInfo TEST_REMOTE_PROJECT_INFO1 = new RemoteProjectInfo(TEST_PROJECT_SCOPE1, TEST_REMOTE_PROJECT_MANAGER1);
-    protected static final RemoteProjectInfo TEST_REMOTE_PROJECT_INFO2 = new RemoteProjectInfo(TEST_PROJECT_SCOPE2, TEST_REMOTE_PROJECT_MANAGER1);
-    protected static final RemoteProjectInfo TEST_REMOTE_PROJECT_INFO3 = new RemoteProjectInfo(TEST_PROJECT_SCOPE3, TEST_REMOTE_PROJECT_MANAGER2);
+    protected static final GHOrganization TEST_GITHUB_ORGANIZATION1 = mock(GHOrganization.class, RETURNS_DEEP_STUBS.get());
 
-    protected static final List<RemoteProjectInfo> TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST1 = new ArrayList<RemoteProjectInfo>(Arrays.asList(TEST_REMOTE_PROJECT_INFO1, TEST_REMOTE_PROJECT_INFO2));
-    protected static final List<RemoteProjectInfo> TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST2 = new ArrayList<RemoteProjectInfo>(Arrays.asList(TEST_REMOTE_PROJECT_INFO3));
+    protected void mockSugarService(SugarService sugarService) {
+        when(sugarService.submit(any(TicketRequest.class))).thenReturn("Successfully submitted issue for test service!");
+    }
 
-    protected static final List<String> TEST_OTHER_URLS = new ArrayList<String>(Arrays.asList(TEST_OTHER_URL_1, TEST_OTHER_URL_2));
+    protected void mockGitHubService(GitHubService gitHubService, GitHubBuilder gitHubBuilder) {
+        GitHub gitHub = mock(GitHub.class);
 
-    protected static final Product TEST_PRODUCT = new Product(TEST_PRODUCT_NAME, TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST1, TEST_PROJECT_SCOPE1, "", "", "", "", TEST_OTHER_URLS);
+        try {
+            when(gitHubBuilder.withEndpoint(any(String.class))).thenReturn(gitHubBuilder);
+            when(gitHubBuilder.withOAuthToken(any(String.class))).thenReturn(gitHubBuilder);
+            when(gitHubBuilder.build()).thenReturn(gitHub);
+            when(gitHubService.push(any(FeatureRequest.class))).thenReturn("1L");
 
-    protected static final InternalRequest TEST_INTERNAL_REQUEST1 = new InternalRequest(TEST_INTERNAL_REQUEST_TITLE1, TEST_INTERNAL_REQUEST_DESCRIPTION1, TEST_PRODUCT, TEST_INTERNAL_REQUEST_CREATED_ON1);
-    protected static final InternalRequest TEST_INTERNAL_REQUEST2 = new InternalRequest(TEST_INTERNAL_REQUEST_TITLE2, TEST_INTERNAL_REQUEST_DESCRIPTION2, null, TEST_INTERNAL_REQUEST_CREATED_ON2);
+            when(gitHub.getOrganization(any(String.class))).thenReturn(TEST_GITHUB_ORGANIZATION1);
+            when(gitHub.getRepositoryById(any(String.class))).thenReturn(TEST_GITHUB_REPOSITORY1);
+            when(gitHubService.push(any(FeatureRequest.class))).thenReturn("1L");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-    @Autowired
-    protected StatusRepo statusRepo;
+    protected void mockVersionOneService(VersionOneService versionOneService) {
+        try {
+            when(versionOneService.push(any(FeatureRequest.class))).thenReturn("token");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-    @Autowired
-    protected CardTypeRepo cardTypeRepo;
+    protected void mockActiveSprintsScheduledCacheService(ActiveSprintsScheduledCacheService activeSprintsScheduledCacheService) {
+        doNothing().when(activeSprintsScheduledCacheService).addProduct(any(Product.class));
+        doNothing().when(activeSprintsScheduledCacheService).updateProduct(any(Product.class));
+        doNothing().when(activeSprintsScheduledCacheService).removeProduct(any(Product.class));
+        doNothing().when(activeSprintsScheduledCacheService).update();
+        doNothing().when(activeSprintsScheduledCacheService).broadcast();
+    }
 
-    @Autowired
-    protected EstimateRepo estimateRepo;
+    protected void mockProductsStatsScheduledCacheService(ProductsStatsScheduledCacheService productsStatsScheduledCacheService) {
+        doNothing().when(productsStatsScheduledCacheService).addProduct(any(Product.class));
+        doNothing().when(productsStatsScheduledCacheService).updateProduct(any(Product.class));
+        doNothing().when(productsStatsScheduledCacheService).removeProduct(any(Product.class));
+        doNothing().when(productsStatsScheduledCacheService).update();
+        doNothing().when(productsStatsScheduledCacheService).broadcast();
+    }
 
-    @Autowired
-    protected ProductRepo productRepo;
-
-    @Autowired
-    protected RemoteProjectManagerRepo remoteProjectManagerRepo;
-
-    @Autowired
-    protected InternalRequestRepo internalRequestRepo;
-
-    @After
-    public void cleanup() {
-        statusRepo.deleteAll();
-        cardTypeRepo.deleteAll();
-        estimateRepo.deleteAll();
-        internalRequestRepo.deleteAll();
-        productRepo.deleteAll();
-        remoteProjectManagerRepo.deleteAll();
+    protected void mockRemoteProjectsScheduledCacheService(RemoteProjectsScheduledCacheService remoteProjectsScheduledCacheService) {
+        doNothing().when(remoteProjectsScheduledCacheService).update();
+        doNothing().when(remoteProjectsScheduledCacheService).broadcast();
     }
 
 }

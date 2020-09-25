@@ -1,0 +1,28 @@
+== Active Sprints API
+A Collection of API endpoints used for interacting with Product Management Service's Active Sprints resource.
+
+=== Get Active Sprints
+
+A `GET` to the `/sprints/active` endpoint which will return a list all Active Sprints in Product Management Service.
+
+==== Sample Request
+include::../../../target/generated-snippets/sprints/active/http-request.adoc[]
+
+==== Sample Response
+include::../../../target/generated-snippets/sprints/active/http-response.adoc[]
+
+==== Example Curl Request
+include::../../../target/generated-snippets/sprints/active/curl-request.adoc[]
+
+=== Update Active Sprints Cache
+
+A `GET` to the `/sprints/active/update` endpoint which will cause the Active Sprints cache in Product Management Service to be rebuilt.
+
+==== Sample Request
+include::../../../target/generated-snippets/sprints/active/update/http-request.adoc[]
+
+==== Sample Response
+include::../../../target/generated-snippets/sprints/active/update/http-response.adoc[]
+
+==== Example Curl Request
+include::../../../target/generated-snippets/sprints/active/update/curl-request.adoc[]

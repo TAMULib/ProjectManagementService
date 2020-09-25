@@ -1,0 +1,67 @@
+== Status API
+A Collection of CRUD API endpoints used for interacting with Product Management Service's Status resource.
+
+=== Get All Statuses
+
+A `GET` to the `/status` endpoint which will return a list all Status in Product Management Service.
+
+==== Sample Request
+include::../../../target/generated-snippets/status/get-all/http-request.adoc[]
+
+==== Sample Response
+include::../../../target/generated-snippets/status/get-all/http-response.adoc[]
+
+==== Example Curl Request
+include::../../../target/generated-snippets/status/get-all/curl-request.adoc[]
+
+=== Get Status
+
+A `GET` to the `/status/{id}` endpoint which will return a single Status with the given ID in Product Management Service.
+
+==== Sample Request
+include::../../../target/generated-snippets/status/get/http-request.adoc[]
+
+==== Sample Response
+include::../../../target/generated-snippets/status/get/http-response.adoc[]
+
+==== Example Curl Request
+include::../../../target/generated-snippets/status/get/curl-request.adoc[]
+
+=== Create Status
+
+A `POST` to the `/status` endpoint which will result in the creation of a new Status in Product Management Service.
+
+==== Sample Request
+include::../../../target/generated-snippets/status/create/http-request.adoc[]
+
+==== Sample Response
+include::../../../target/generated-snippets/status/create/http-response.adoc[]
+
+==== Example Curl Request
+include::../../../target/generated-snippets/status/create/curl-request.adoc[]
+
+=== Update Status
+
+A `PUT` request to the `/status` endpoint which will result in the updating of the specified Status resource in Product Management Service.
+
+==== Sample Request
+include::../../../target/generated-snippets/status/update/http-request.adoc[]
+
+==== Sample Response
+include::../../../target/generated-snippets/status/update/http-response.adoc[]
+
+==== Example Curl Request
+include::../../../target/generated-snippets/status/update/curl-request.adoc[]
+
+=== Delete Status
+
+A `DELETE` request to the `/status` endpoint which will result in the deletion of the specified Status resource in Product Management Service.
+
+==== Sample Request
+include::../../../target/generated-snippets/status/delete/http-request.adoc[]
+
+==== Sample Response
+include::../../../target/generated-snippets/status/delete/http-response.adoc[]
+
+==== Example Curl Request
+include::../../../target/generated-snippets/status/delete/curl-request.adoc[]
