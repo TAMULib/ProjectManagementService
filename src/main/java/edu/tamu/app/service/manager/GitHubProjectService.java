@@ -40,6 +40,15 @@ public class GitHubProjectService extends AbstractGitHubService {
             .collect(Collectors.toList());
     }
 
+    private Sprint toSprint(GHProject project, String productName) {
+        return new Sprint(
+            String.valueOf(project.getId()),
+            toProductName(project),
+            productName,
+            getCards(project)
+        );
+    }
+
     private List<Card> getCards(GHProject project) {
         return exceptionHandlerWrapper(project, i -> i.listColumns().asList().stream())
             .flatMap(c -> exceptionHandlerWrapper(c, i -> i.listCards().asList().stream()))
@@ -48,15 +57,6 @@ public class GitHubProjectService extends AbstractGitHubService {
             .filter(e -> Objects.nonNull(e.getValue()))
             .map(e -> exceptionHandlerWrapper(e, i -> toCard(i.getKey(), i.getValue())))
             .collect(Collectors.toList());
-    }
-
-    private Sprint toSprint(GHProject project, String productName) {
-        return new Sprint(
-            String.valueOf(project.getId()),
-            toProductName(project),
-            productName,
-            getCards(project)
-        );
     }
 
 }
