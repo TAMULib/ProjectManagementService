@@ -435,6 +435,6 @@ public class GitHubProjectServiceTest extends CacheMockTests {
     public void testGetCardsWithNote() throws Exception {
         when(TEST_CARD1.getContent()).thenReturn(null);
         List<Sprint> sprints = gitHubProjectService.getAdditionalActiveSprints();
-        assertEquals("Didn't get expected number of cards", 4, sprints.get(0).getCards().size());
+        assertEquals("Didn't get expected number of cards", 5, sprints.get(0).getCards().size());
     }
 }

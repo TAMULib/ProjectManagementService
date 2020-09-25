@@ -17,6 +17,8 @@ import org.kohsuke.github.GHIssue;
 import org.kohsuke.github.GHIssueState;
 import org.kohsuke.github.GHLabel;
 import org.kohsuke.github.GHOrganization;
+import org.kohsuke.github.GHProject;
+import org.kohsuke.github.GHProjectCard;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GHUser;
 import org.kohsuke.github.GitHub;
@@ -29,6 +31,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
+import edu.tamu.app.cache.model.Card;
 import edu.tamu.app.cache.model.Member;
 import edu.tamu.app.cache.model.RemoteProject;
 import edu.tamu.app.model.ManagementService;
@@ -246,6 +249,26 @@ public abstract class AbstractGitHubService extends MappingRemoteProjectManagerB
 
     protected void cacheMember(final String id, final Member member) {
         members.put(id, member);
+    }
+
+    protected String getProductName(GHProject project) {
+        return String.format("%s/%s", ORGANIZATION, project.getName());
+    }
+
+    Card toCard(GHProjectCard card, GHIssue issue) throws IOException {
+        String id = String.valueOf(card.getId());
+        String name = issue.getTitle();
+        String number = String.valueOf(issue.getNumber());
+        String type = getCardType(issue);
+        String description = issue.getBody();
+        String status = card.getColumn().getName();
+        // TODO: Figure out how we want to handle sizes
+        String estimate = null;
+        List<Member> assignees = new ArrayList<Member>();
+        for (GHUser user : issue.getAssignees()) {
+            assignees.add(getMember(user));
+        }
+        return new Card(id, number, mapCardType(type), name, description, mapStatus(status), mapEstimate(estimate), assignees);
     }
 
     @FunctionalInterface
