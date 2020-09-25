@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -71,13 +70,10 @@ public abstract class AbstractGitHubService extends MappingRemoteProjectManagerB
     @Override
     public List<RemoteProject> getRemoteProject() throws Exception {
         logger.info("Fetching remote projects");
-        final List<RemoteProject> remoteProjects = new ArrayList<RemoteProject>();
         final GHOrganization org = github.getOrganization(ORGANIZATION);
-        for (final GHRepository repo : org.getRepositories().values()) {
-            final List<GHLabel> labels = repo.listLabels().asList();
-            remoteProjects.add(buildRemoteProject(repo, labels));
-        }
-        return remoteProjects;
+        return org.getRepositories().values().stream()
+            .map(repo -> exceptionHandlerWrapper(repo, r-> buildRemoteProject(r, r.listLabels().asList())))
+            .collect(Collectors.toList());
     }
 
     @Override
@@ -158,7 +154,7 @@ public abstract class AbstractGitHubService extends MappingRemoteProjectManagerB
                 return true;
             }
             return hasLabelByName(labels, label.getName());
-            } catch (IOException e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
