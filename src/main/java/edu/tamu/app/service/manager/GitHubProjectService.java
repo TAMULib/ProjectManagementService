@@ -27,12 +27,8 @@ public class GitHubProjectService extends AbstractGitHubService {
         String productName = repo.getName();
         return repo.listProjects(ProjectStateFilter.OPEN).asList().stream()
             .filter(p -> p.getName().toUpperCase().contains(SPRINT))
-            .map(p -> new Sprint(
-                String.valueOf(p.getId()),
-                p.getName(),
-                productName,
-                getCards(p)
-            )).collect(Collectors.toList());
+            .map(p -> toSprint(p, productName))
+            .collect(Collectors.toList());
     }
 
     @Override
@@ -40,12 +36,8 @@ public class GitHubProjectService extends AbstractGitHubService {
         return github.getOrganization(ORGANIZATION)
             .listProjects(ProjectStateFilter.OPEN).asList().stream()
             .filter(p -> p.getName().toUpperCase().contains(SPRINT))
-            .map(p -> new Sprint(
-                String.valueOf(p.getId()),
-                getProductName(p),
-                ORGANIZATION,
-                getCards(p)
-            )).collect(Collectors.toList());
+            .map(p -> toSprint(p, ORGANIZATION))
+            .collect(Collectors.toList());
     }
 
     private List<Card> getCards(GHProject project) {
@@ -56,6 +48,15 @@ public class GitHubProjectService extends AbstractGitHubService {
             .filter(e -> Objects.nonNull(e.getValue()))
             .map(e -> exceptionHandlerWrapper(e, i -> toCard(i.getKey(), i.getValue())))
             .collect(Collectors.toList());
+    }
+
+    private Sprint toSprint(GHProject project, String productName) {
+        return new Sprint(
+            String.valueOf(project.getId()),
+            toProductName(project),
+            productName,
+            getCards(project)
+        );
     }
 
 }

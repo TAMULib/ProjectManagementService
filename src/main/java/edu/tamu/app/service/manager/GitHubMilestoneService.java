@@ -42,7 +42,7 @@ public class GitHubMilestoneService extends AbstractGitHubService {
         GHOrganization organization = github.getOrganization(ORGANIZATION);
         AtomicInteger count = new AtomicInteger(1);
         return organization.listProjects(ProjectStateFilter.OPEN).asList().stream()
-            .flatMap(project -> getActiveSprintsForProject(project, getProductName(project), count.getAndIncrement()))
+            .flatMap(project -> getActiveSprintsForProject(project, toProductName(project), count.getAndIncrement()))
             .collect(Collectors.toList());
     }
 

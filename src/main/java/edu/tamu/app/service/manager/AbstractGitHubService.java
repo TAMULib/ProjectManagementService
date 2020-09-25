@@ -251,7 +251,7 @@ public abstract class AbstractGitHubService extends MappingRemoteProjectManagerB
         members.put(id, member);
     }
 
-    protected String getProductName(GHProject project) {
+    String toProductName(GHProject project) {
         return String.format("%s/%s", ORGANIZATION, project.getName());
     }
 
