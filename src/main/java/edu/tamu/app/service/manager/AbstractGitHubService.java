@@ -60,8 +60,6 @@ public abstract class AbstractGitHubService extends MappingRemoteProjectManagerB
 
     protected final RestTemplate restTemplate;
 
-    protected GHLabel label;
-
     protected AbstractGitHubService(final ManagementService managementService) throws IOException {
         this.managementService = managementService;
         ghBuilder = new GitHubBuilder();
@@ -127,6 +125,7 @@ public abstract class AbstractGitHubService extends MappingRemoteProjectManagerB
     protected RemoteProject buildRemoteProject(final GHRepository repo, final List<GHLabel> labels) throws IOException {
         final String scopeId = String.valueOf(repo.getId());
         final String name = repo.getName();
+
         final long requestCount = getPrimaryWorkItemCount(REQUEST_LABEL, repo, labels);
         final long issueCount = getPrimaryWorkItemCount(ISSUE_LABEL, repo, labels);
         final long featureCount = getPrimaryWorkItemCount(FEATURE_LABEL, repo, labels);
@@ -137,29 +136,22 @@ public abstract class AbstractGitHubService extends MappingRemoteProjectManagerB
 
     protected long getPrimaryWorkItemCount(final String type, final GHRepository repo, final List<GHLabel> labels)
             throws IOException {
-        label = getLabelByName(labels, type);
-        if (label == null) {
+        final Optional<GHLabel> label = getLabelByName(labels, type);
+        if (!label.isPresent()) {
             return 0;
         }
-        return repo.listIssues(GHIssueState.OPEN)
-            .asList()
-            .stream()
-            .filter(this::cardIsLabelType)
+        return repo.listIssues(GHIssueState.OPEN).asList().stream()
+            .filter(card -> cardIsLabelType(card, label.get()))
             .count();
     }
 
-    protected GHLabel getLabelByName(final List<GHLabel> labels, final String name) {
-        GHLabel returnValue = null;
-        final Optional<GHLabel> match = labels.stream()
+    protected Optional<GHLabel> getLabelByName(final List<GHLabel> labels, final String name) {
+        return labels.stream()
             .filter(label -> label.getName().equals(name))
             .findFirst();
-        if (match.isPresent()) {
-            returnValue = match.get();
-        }
-        return returnValue;
     }
 
-    protected boolean cardIsLabelType(GHIssue card) {
+    protected boolean cardIsLabelType(GHIssue card, GHLabel label) {
         try {
             Collection<GHLabel> labels = card.getLabels();
             if (label.getName().equals(ISSUE_LABEL) && isAnIssue(card)) {
@@ -187,23 +179,13 @@ public abstract class AbstractGitHubService extends MappingRemoteProjectManagerB
 
     protected String getCardType(final GHIssue content) throws IOException {
         final List<GHLabel> labels = (List<GHLabel>) content.getLabels();
-        final GHLabel label = labels.stream()
-            .filter(label1 -> label1.getName().equals(DEFECT_LABEL))
-            .findFirst()
-            .orElseGet(() -> labels.stream()
-                .filter(label2 -> label2.getName().equals(FEATURE_LABEL))
-                .findFirst()
-                .orElseGet(() -> labels.stream()
-                    .filter(label3 -> label3.getName().equals(ISSUE_LABEL))
-                    .findFirst()
-                    .orElseGet(() -> labels.stream()
-                        .filter(label4 -> label4.getName().equals(REQUEST_LABEL))
-                        .findFirst()
-                        .orElse(null)
-                    )
-                )
-            );
-        return label == null ? null : label.getName();
+        final Optional<GHLabel> label = labels.stream()
+            .filter(l -> l.getName().equals(DEFECT_LABEL) ||
+                         l.getName().equals(FEATURE_LABEL) ||
+                         l.getName().equals(ISSUE_LABEL) ||
+                         l.getName().equals(REQUEST_LABEL)
+            ).findFirst();
+        return label.isPresent() ? label.get().getName() : null;
     }
 
     protected Member getMember(final GHUser user) throws IOException {
