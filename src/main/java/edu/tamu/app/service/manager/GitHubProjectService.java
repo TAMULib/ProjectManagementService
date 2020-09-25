@@ -26,7 +26,7 @@ public class GitHubProjectService extends AbstractGitHubService {
         GHRepository repo = github.getRepositoryById(scopeId);
         String productName = repo.getName();
         return repo.listProjects(ProjectStateFilter.OPEN).asList().stream()
-            .filter(p -> p.getName().toUpperCase().contains(SPRINT))
+            .filter(this::isSprintProject)
             .map(p -> toSprint(p, productName))
             .collect(Collectors.toList());
     }
@@ -35,9 +35,13 @@ public class GitHubProjectService extends AbstractGitHubService {
     public List<Sprint> getAdditionalActiveSprints() throws Exception {
         return github.getOrganization(ORGANIZATION)
             .listProjects(ProjectStateFilter.OPEN).asList().stream()
-            .filter(p -> p.getName().toUpperCase().contains(SPRINT))
+            .filter(this::isSprintProject)
             .map(p -> toSprint(p, ORGANIZATION))
             .collect(Collectors.toList());
+    }
+
+    private boolean isSprintProject(GHProject project) {
+        return project.getName().toUpperCase().contains(SPRINT);
     }
 
     private Sprint toSprint(GHProject project, String productName) {
