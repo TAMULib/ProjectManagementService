@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.kohsuke.github.GHIssue;
@@ -256,19 +257,26 @@ public abstract class AbstractGitHubService extends MappingRemoteProjectManagerB
     }
 
     Card toCard(GHProjectCard card, GHIssue issue) throws IOException {
-        String id = String.valueOf(card.getId());
-        String name = issue.getTitle();
-        String number = String.valueOf(issue.getNumber());
         String type = getCardType(issue);
-        String description = issue.getBody();
         String status = card.getColumn().getName();
         // TODO: Figure out how we want to handle sizes
         String estimate = null;
-        List<Member> assignees = new ArrayList<Member>();
-        for (GHUser user : issue.getAssignees()) {
-            assignees.add(getMember(user));
-        }
-        return new Card(id, number, mapCardType(type), name, description, mapStatus(status), mapEstimate(estimate), assignees);
+        return new Card(
+            String.valueOf(card.getId()),
+            String.valueOf(issue.getNumber()),
+            mapCardType(type),
+            issue.getTitle(),
+            issue.getBody(),
+            mapStatus(status),
+            mapEstimate(estimate),
+            getAssignees(issue)
+        );
+    }
+
+    private List<Member> getAssignees(GHIssue issue) {
+        return issue.getAssignees().stream()
+            .map(user -> exceptionHandlerWrapper(user, u -> getMember(u)))
+            .collect(Collectors.toList());
     }
 
     @FunctionalInterface
