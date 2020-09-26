@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -14,7 +15,6 @@ import org.kohsuke.github.GHOrganization;
 import org.kohsuke.github.GHProject;
 import org.kohsuke.github.GHProject.ProjectStateFilter;
 import org.kohsuke.github.GHRepository;
-import org.springframework.beans.BeanUtils;
 
 import edu.tamu.app.cache.model.Card;
 import edu.tamu.app.cache.model.Sprint;
@@ -64,20 +64,8 @@ public class GitHubMilestoneService extends AbstractGitHubService {
             .filter(p -> p.getValue().getMilestone().getState().equals(GHMilestoneState.OPEN))
             // Remove cards that don't have "sprint" in the milestone title
             .filter(p -> p.getValue().getMilestone().getTitle().toUpperCase().contains(SPRINT))
-            .map(p -> new SprintCard(p.getValue().getMilestone().getTitle(), exceptionHandlerWrapper(p, i -> toCard(i.getKey(), i.getValue()))))
-            .collect(Collectors.groupingBy(c -> c.getSprint(), Collectors.toList()));
-    }
-
-    private class SprintCard extends Card {
-        private static final long serialVersionUID = 1632772205053913423L;
-        private final String sprint;
-        public SprintCard(String sprint, Card card) {
-            this.sprint = sprint;
-            BeanUtils.copyProperties(card, this);
-        }
-        public String getSprint() {
-            return sprint;
-        }
+            .map(p -> Pair.of(p.getValue().getMilestone().getTitle(), exceptionHandlerWrapper(p, i -> toCard(i.getKey(), i.getValue()))))
+            .collect(Collectors.groupingBy(c -> c.getKey(), TreeMap::new, Collectors.mapping(Pair::getValue, Collectors.toList())));
     }
 
 }
