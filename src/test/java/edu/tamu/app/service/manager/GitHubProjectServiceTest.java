@@ -104,7 +104,7 @@ public class GitHubProjectServiceTest extends CacheMockTests {
     private static final GHUser TEST_USER2 = mock(GHUser.class);
     private static final GHUser TEST_USER3 = mock(GHUser.class);
 
-    private static final GHProjectCard TEST_CARD1 = mock(GHProjectCard.class);
+    private static final GHProjectCard TEST_CARD1 = mock(GHProjectCard.class, RETURNS_DEEP_STUBS.get());
     private static final GHProjectCard TEST_CARD2 = mock(GHProjectCard.class, RETURNS_DEEP_STUBS.get());
     private static final GHProjectCard TEST_CARD3 = mock(GHProjectCard.class, RETURNS_DEEP_STUBS.get());
     private static final GHProjectCard TEST_CARD4 = mock(GHProjectCard.class, RETURNS_DEEP_STUBS.get());
@@ -230,7 +230,17 @@ public class GitHubProjectServiceTest extends CacheMockTests {
         when(TEST_COLUMN2.listCards().asList()).thenReturn(TEST_COLUMN2_CARDS);
         when(TEST_COLUMN3.listCards().asList()).thenReturn(TEST_COLUMN3_CARDS);
 
+        when(TEST_CARD1.getId()).thenReturn(1L);
+        when(TEST_CARD2.getId()).thenReturn(2L);
+        when(TEST_CARD3.getId()).thenReturn(3L);
+        when(TEST_CARD4.getId()).thenReturn(4L);
+        when(TEST_CARD5.getId()).thenReturn(5L);
+
         when(TEST_CARD1.getContent()).thenReturn(TEST_ISSUE1);
+        when(TEST_CARD2.getContent()).thenReturn(TEST_ISSUE2);
+        when(TEST_CARD3.getContent()).thenReturn(TEST_ISSUE3);
+        when(TEST_CARD4.getContent()).thenReturn(TEST_ISSUE4);
+        when(TEST_CARD5.getContent()).thenReturn(TEST_ISSUE5);
         when(TEST_CARD1.getColumn()).thenReturn(TEST_COLUMN1);
 
         when(TEST_ISSUE1.getLabels()).thenReturn(TEST_CARD1_LABELS);
