@@ -1,7 +1,7 @@
-[![Build Status](https://travis-ci.org/TAMULib/ProductManagementService.svg?branch=master)](https://travis-ci.org/TAMULib/ProductManagementService) [![Coverage Status](https://coveralls.io/repos/github/TAMULib/ProductManagementService/badge.svg?branch=master)](https://coveralls.io/github/TAMULib/ProductManagementService?branch=master)
+[![Build Status](https://travis-ci.org/TAMULib/ProjectManagementService.svg?branch=master)](https://travis-ci.org/TAMULib/ProjectManagementService) [![Coverage Status](https://coveralls.io/repos/github/TAMULib/ProjectManagementService/badge.svg?branch=master)](https://coveralls.io/github/TAMULib/ProjectManagementService?branch=master)
 
 # Product Management Service
-The Product Management Service is designed to connect our Library Webservice Status Application to our Version Managagement Software.
+The Product Management Service is designed to connect our Library Webservice Status Application to our Version Management Software.
 
 ## Building Product Management Service
 
