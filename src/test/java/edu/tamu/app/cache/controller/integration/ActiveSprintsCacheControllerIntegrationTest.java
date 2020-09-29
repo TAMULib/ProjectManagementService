@@ -35,13 +35,13 @@ import edu.tamu.app.cache.model.Sprint;
 import edu.tamu.app.cache.service.ActiveSprintsScheduledCacheService;
 import edu.tamu.app.cache.service.ProductsStatsScheduledCacheService;
 import edu.tamu.app.cache.service.RemoteProjectsScheduledCacheService;
-import edu.tamu.app.controller.integration.IntegrationTest;
+import edu.tamu.app.model.repo.RepoTest;
 
 @SpringBootTest(classes = { ProductApplication.class }, webEnvironment=WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @AutoConfigureRestDocs(outputDir = "target/generated-snippets")
 @RunWith(SpringRunner.class)
-public class ActiveSprintsCacheControllerIntegrationTest extends IntegrationTest {
+public class ActiveSprintsCacheControllerIntegrationTest extends RepoTest {
 
     private static final String TEST_MEMBER_ID = "Test Member ID";
     private static final String TEST_MEMBER_NAME = "Test Member Name";

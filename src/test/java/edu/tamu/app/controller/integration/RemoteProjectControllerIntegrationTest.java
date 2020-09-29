@@ -41,6 +41,7 @@ import edu.tamu.app.cache.service.ActiveSprintsScheduledCacheService;
 import edu.tamu.app.cache.service.ProductsStatsScheduledCacheService;
 import edu.tamu.app.cache.service.RemoteProjectsScheduledCacheService;
 import edu.tamu.app.model.repo.RemoteProjectManagerRepo;
+import edu.tamu.app.model.repo.RepoTest;
 import edu.tamu.app.service.manager.GitHubService;
 import edu.tamu.app.service.manager.RemoteProjectManagerBean;
 import edu.tamu.app.service.manager.VersionOneService;
@@ -50,7 +51,7 @@ import edu.tamu.app.service.registry.ManagementBeanRegistry;
 @AutoConfigureMockMvc
 @AutoConfigureRestDocs(outputDir = "target/generated-snippets")
 @RunWith(SpringRunner.class)
-public class RemoteProjectControllerIntegrationTest extends IntegrationTest {
+public class RemoteProjectControllerIntegrationTest extends RepoTest {
 
     private static final String TEST_REMOTE_PROJECT_SCOPE = "0010";
     private static final String TEST_REMOTE_PROJECT_NAME = "Product Name";
