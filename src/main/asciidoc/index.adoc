@@ -9,15 +9,17 @@
 :linkattrs:
 :source-highlighter: highlightjs
 
+include::./activeSprintsAPI.adoc[]
+
+include::./productsStatsAPI.adoc[]
+
+include::./remoteProjectsStatsAPI.adoc[]
+
 include::./internalRequestAPI.adoc[]
 
-include::./productAPI.adoc[]
-
-include::./remoteProjectAPI.adoc[]
+include::./productsAPI.adoc[]
 
 include::./remoteProjectManagerAPI.adoc[]
 
 include::./statusAPI.adoc[]
-
-include::./activeSprintsAPI.adoc[]
 

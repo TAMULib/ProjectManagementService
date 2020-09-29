@@ -103,7 +103,7 @@ public class RemoteProjectManagerControllerIntegrationTest extends RepoTest {
 
         // @formatter:off
         mockMvc.perform(
-            get("/status")
+            get("/remote-project-manager")
                 .accept(MediaType.APPLICATION_JSON_UTF8)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
             )
@@ -318,8 +318,7 @@ public class RemoteProjectManagerControllerIntegrationTest extends RepoTest {
         RemoteProjectManager rpm = new RemoteProjectManager(TEST_REMOTE_PROJECT_MANAGER_NAME, TEST_REMOTE_PROJECT_MANAGER_SERVICE_TYPE, TEST_REMOTE_PROJECT_MANAGER_URL, TEST_REMOTE_PROJECT_MANAGER_TOKEN);
         rpm.setId(++currentId);
 
-        // FIXME: why does this fail?
-        //ApiResponse expectedResponse = new ApiResponse(ApiStatus.SUCCESS, rpm);
+        ApiResponse expectedResponse = new ApiResponse(ApiStatus.SUCCESS, rpm);
 
         // @formatter:off
         return mockMvc.perform(
@@ -328,9 +327,9 @@ public class RemoteProjectManagerControllerIntegrationTest extends RepoTest {
                 .content(objectMapper.writeValueAsString(rpm))
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
             )
-            .andExpect(status().isOk());
-            //.andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
-            //.andExpect(content().json(objectMapper.writeValueAsString(expectedResponse)));
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+            .andExpect(content().json(objectMapper.writeValueAsString(expectedResponse)));
         // @formatter:on
     }
 
