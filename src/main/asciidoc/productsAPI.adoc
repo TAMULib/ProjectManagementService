@@ -1,5 +1,6 @@
-== Product API
+== Products API
 A Collection of CRUD API endpoints used for interacting with Product Management Service's Product resource.
+These are managed Products for this service and not Projects from a Remote Project Manager.
 
 === Get All Products
 
