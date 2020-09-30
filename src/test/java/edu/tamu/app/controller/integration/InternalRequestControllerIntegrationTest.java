@@ -57,7 +57,7 @@ import edu.tamu.app.model.ServiceType;
 import edu.tamu.app.model.repo.InternalRequestRepo;
 import edu.tamu.app.model.repo.ProductRepo;
 import edu.tamu.app.model.repo.RemoteProjectManagerRepo;
-import edu.tamu.app.model.repo.RepoTest;
+import edu.tamu.app.model.repo.AbstractRepoTest;
 import edu.tamu.app.service.manager.GitHubService;
 import edu.tamu.app.service.manager.RemoteProjectManagerBean;
 import edu.tamu.app.service.manager.VersionOneService;
@@ -68,7 +68,7 @@ import edu.tamu.weaver.response.ApiStatus;
 @AutoConfigureMockMvc
 @AutoConfigureRestDocs(outputDir = "target/generated-snippets")
 @RunWith(SpringRunner.class)
-public class InternalRequestControllerIntegrationTest extends RepoTest {
+public class InternalRequestControllerIntegrationTest extends AbstractRepoTest {
 
     private static long currentId = 0L;
 

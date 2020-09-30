@@ -4,9 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.tamu.app.model.ModelTest;
+import edu.tamu.app.model.AbstractModelTest;
 
-public abstract class RepoTest extends ModelTest {
+public abstract class AbstractRepoTest extends AbstractModelTest {
 
     @Autowired
     protected ObjectMapper objectMapper;

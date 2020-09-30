@@ -58,7 +58,7 @@ import edu.tamu.app.model.RemoteProjectManager;
 import edu.tamu.app.model.ServiceType;
 import edu.tamu.app.model.repo.ProductRepo;
 import edu.tamu.app.model.repo.RemoteProjectManagerRepo;
-import edu.tamu.app.model.repo.RepoTest;
+import edu.tamu.app.model.repo.AbstractRepoTest;
 import edu.tamu.app.model.request.FeatureRequest;
 import edu.tamu.app.model.request.TicketRequest;
 import edu.tamu.app.service.manager.GitHubService;
@@ -74,7 +74,7 @@ import edu.tamu.weaver.response.ApiStatus;
 @AutoConfigureMockMvc
 @AutoConfigureRestDocs(outputDir = "target/generated-snippets")
 @RunWith(SpringRunner.class)
-public class ProductControllerIntegrationTest extends RepoTest {
+public class ProductControllerIntegrationTest extends AbstractRepoTest {
 
     @Value("classpath:mock/credentials/aggiejack.json")
     private Resource aggiejack;

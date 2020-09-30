@@ -22,7 +22,7 @@ import edu.tamu.app.service.manager.GitHubService;
 import edu.tamu.app.service.manager.VersionOneService;
 import edu.tamu.app.service.ticketing.SugarService;
 
-public abstract class ModelTest {
+public abstract class AbstractModelTest {
 
     protected static final float TEST_ESTIMATE_IDENTIFIER1 = 1.0f;
     protected static final float TEST_ESTIMATE_IDENTIFIER2 = 2.2f;

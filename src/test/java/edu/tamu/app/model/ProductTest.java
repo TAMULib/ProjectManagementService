@@ -27,7 +27,7 @@ import edu.tamu.app.service.ticketing.SugarService;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = { ProductApplication.class }, webEnvironment = WebEnvironment.RANDOM_PORT)
-public class ProductTest extends ModelTest {
+public class ProductTest extends AbstractModelTest {
 
     private static final RemoteProjectManager TEST_REMOTE_PROJECT_MANAGER1 = new RemoteProjectManager(TEST_REMOTE_PROJECT_MANAGER_NAME1, ServiceType.VERSION_ONE, TEST_PROJECT_URL1, TEST_PROJECT_TOKEN1);
     private static final RemoteProjectManager TEST_REMOTE_PROJECT_MANAGER2 = new RemoteProjectManager(TEST_REMOTE_PROJECT_MANAGER_NAME2, ServiceType.GITHUB, TEST_PROJECT_URL2, TEST_PROJECT_TOKEN2);

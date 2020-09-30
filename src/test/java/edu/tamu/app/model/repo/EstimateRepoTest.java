@@ -32,7 +32,7 @@ import edu.tamu.app.service.ticketing.SugarService;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = { ProductApplication.class }, webEnvironment = WebEnvironment.RANDOM_PORT)
-public class EstimateRepoTest extends RepoTest {
+public class EstimateRepoTest extends AbstractRepoTest {
 
     @MockBean
     private SugarService sugarService;
