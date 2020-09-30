@@ -18,4 +18,4 @@ deploy:
   github_token: "$GITHUB_TOKEN"
   local_dir: "./target/generated-docs"
   on:
-    branch: sprint7-91-tests
+    branch: master
