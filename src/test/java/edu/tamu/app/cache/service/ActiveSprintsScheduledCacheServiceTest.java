@@ -138,7 +138,7 @@ public class ActiveSprintsScheduledCacheServiceTest {
     private Sprint getMockSprint() {
         List<Member> assignees = Arrays.asList(new Member[] { new Member("1", "Bob Boring", "http://gravatar.com/bborring") });
         List<Card> cards = Arrays.asList(new Card[] { new Card("3000", "B-00001", "Feature", "Do the thing", "Do it with these requirements", "In Progress", 1.0f, assignees) });
-        return new Sprint("2000", "Sprint 1", "Test Product", cards);
+        return new Sprint("2000", "Sprint 1", "Test Product", ServiceType.GITHUB_MILESTONE.toString(), cards);
     }
 
     private void assertSprints(List<Sprint> sprints) {
@@ -147,6 +147,7 @@ public class ActiveSprintsScheduledCacheServiceTest {
         assertEquals("2000", sprints.get(0).getId());
         assertEquals("Sprint 1", sprints.get(0).getName());
         assertEquals("Test Product", sprints.get(0).getProduct());
+        assertEquals(ServiceType.GITHUB_MILESTONE.toString(), sprints.get(0).getType());
         assertFalse(sprints.get(0).getCards().isEmpty());
         assertEquals(1, sprints.get(0).getCards().size());
         assertEquals("3000", sprints.get(0).getCards().get(0).getId());

@@ -3,6 +3,7 @@
     "id": "0001",
     "name": "Sprint 1",
     "product": "Test Product 1",
+    "type": "GITHUB_MILESTONE",
     "cards": [
       {
         "id": "0001",
@@ -67,6 +68,7 @@
     "id": "0002",
     "name": "Sprint 2",
     "product": "Test Product 2",
+    "type": "GITHUB_MILESTONE",
     "cards": [
       {
         "id": "0003",

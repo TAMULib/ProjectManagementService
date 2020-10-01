@@ -408,6 +408,24 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
     }
 
     @Test
+    public void testGetActiveSprintsByProjectIdType() throws Exception {
+        List<Sprint> sprints = gitHubMilestoneService.getActiveSprintsByScopeId(String.valueOf(TEST_REPOSITORY1_ID));
+
+        sprints.forEach(sprint -> {
+            assertEquals("Didn't get the correct Service Type for the Sprint", ServiceType.GITHUB_MILESTONE.toString(), sprint.getType());
+        });
+    }
+
+    @Test
+    public void testGetAdditionalActiveSprintsType() throws Exception {
+        List<Sprint> sprints = gitHubMilestoneService.getAdditionalActiveSprints();
+
+        sprints.forEach(sprint -> {
+            assertEquals("Didn't get the correct Service Type for the Sprint", ServiceType.GITHUB_MILESTONE.toString(), sprint.getType());
+        });
+    }
+
+    @Test
     public void testPush() throws Exception {
         String id = gitHubMilestoneService.push(TEST_FEATURE_REQUEST);
         assertNotNull(id);

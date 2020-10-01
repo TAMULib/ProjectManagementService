@@ -13,6 +13,7 @@ import org.kohsuke.github.GHRepository;
 import edu.tamu.app.cache.model.Card;
 import edu.tamu.app.cache.model.Sprint;
 import edu.tamu.app.model.ManagementService;
+import edu.tamu.app.model.ServiceType;
 
 public class GitHubProjectService extends AbstractGitHubService {
 
@@ -49,6 +50,7 @@ public class GitHubProjectService extends AbstractGitHubService {
             String.valueOf(project.getId()),
             toProductName(project),
             productName,
+            ServiceType.GITHUB_PROJECT.toString(),
             getCards(project)
         );
     }

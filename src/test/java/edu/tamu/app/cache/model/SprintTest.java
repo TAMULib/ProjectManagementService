@@ -10,6 +10,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import edu.tamu.app.model.ServiceType;
+
 @RunWith(SpringRunner.class)
 public class SprintTest {
 
@@ -17,10 +19,11 @@ public class SprintTest {
     public void testNewSprint() {
         List<Member> assignees = Arrays.asList(new Member[] { new Member("1", "Bob Boring", "http://gravatar.com/bborring") });
         List<Card> cards = Arrays.asList(new Card[] { new Card("1", "B-00001", "Feature", "Do the thing", "Do it with these requirements", "In Progress", 1.0f, assignees) });
-        Sprint sprint = new Sprint("1", "Sprint 1", "Application", cards);
+        Sprint sprint = new Sprint("1", "Sprint 1", "Application", ServiceType.GITHUB_MILESTONE.toString(), cards);
         assertEquals("1", sprint.getId());
         assertEquals("Sprint 1", sprint.getName());
         assertEquals("Application", sprint.getProduct());
+        assertEquals(ServiceType.GITHUB_MILESTONE.toString(), sprint.getType());
         assertFalse(sprint.getCards().isEmpty());
         assertEquals(1, sprint.getCards().size());
         assertEquals("1", sprint.getCards().get(0).getId());
