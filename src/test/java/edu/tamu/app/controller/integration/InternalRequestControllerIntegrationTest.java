@@ -58,7 +58,7 @@ import edu.tamu.app.model.repo.InternalRequestRepo;
 import edu.tamu.app.model.repo.ProductRepo;
 import edu.tamu.app.model.repo.RemoteProjectManagerRepo;
 import edu.tamu.app.model.repo.AbstractRepoTest;
-import edu.tamu.app.service.manager.GitHubService;
+import edu.tamu.app.service.manager.GitHubProjectService;
 import edu.tamu.app.service.manager.RemoteProjectManagerBean;
 import edu.tamu.app.service.manager.VersionOneService;
 import edu.tamu.weaver.response.ApiResponse;
@@ -84,7 +84,7 @@ public class InternalRequestControllerIntegrationTest extends AbstractRepoTest {
 
     private static final long TEST_REMOTE_PROJECT_MANAGER_ID = 1L;
 
-    private static final RemoteProjectManager TEST_REMOTE_PROJECT_MANAGER = new RemoteProjectManager("Test Remote Project Manager", ServiceType.GITHUB, TEST_PROJECT_URL, TEST_PROJECT_TOKEN);
+    private static final RemoteProjectManager TEST_REMOTE_PROJECT_MANAGER = new RemoteProjectManager("Test Remote Project Manager", ServiceType.GITHUB_PROJECT, TEST_PROJECT_URL, TEST_PROJECT_TOKEN);
 
     private static final List<RemoteProjectManager> TEST_REMOTE_PROJECT_MANAGER_LIST = new ArrayList<RemoteProjectManager>(Arrays.asList(TEST_REMOTE_PROJECT_MANAGER));
 
@@ -114,7 +114,7 @@ public class InternalRequestControllerIntegrationTest extends AbstractRepoTest {
     private RemoteProjectManagerBean remoteProjectManagerBean;
 
     @MockBean
-    protected GitHubService gitHubService;
+    protected GitHubProjectService gitHubService;
 
     @MockBean
     protected VersionOneService versionOneService;

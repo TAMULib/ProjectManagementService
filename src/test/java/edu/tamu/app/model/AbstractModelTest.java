@@ -18,7 +18,7 @@ import edu.tamu.app.cache.service.ProductsStatsScheduledCacheService;
 import edu.tamu.app.cache.service.RemoteProjectsScheduledCacheService;
 import edu.tamu.app.model.request.FeatureRequest;
 import edu.tamu.app.model.request.TicketRequest;
-import edu.tamu.app.service.manager.GitHubService;
+import edu.tamu.app.service.manager.GitHubProjectService;
 import edu.tamu.app.service.manager.VersionOneService;
 import edu.tamu.app.service.ticketing.SugarService;
 
@@ -88,7 +88,7 @@ public abstract class AbstractModelTest {
         when(sugarService.submit(any(TicketRequest.class))).thenReturn("Successfully submitted issue for test service!");
     }
 
-    protected void mockGitHubService(GitHubService gitHubService, GitHubBuilder gitHubBuilder) {
+    protected void mockGitHubService(GitHubProjectService gitHubService, GitHubBuilder gitHubBuilder) {
         GitHub gitHub = mock(GitHub.class);
 
         try {

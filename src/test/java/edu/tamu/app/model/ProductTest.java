@@ -21,7 +21,7 @@ import edu.tamu.app.ProductApplication;
 import edu.tamu.app.cache.service.ActiveSprintsScheduledCacheService;
 import edu.tamu.app.cache.service.ProductsStatsScheduledCacheService;
 import edu.tamu.app.cache.service.RemoteProjectsScheduledCacheService;
-import edu.tamu.app.service.manager.GitHubService;
+import edu.tamu.app.service.manager.GitHubProjectService;
 import edu.tamu.app.service.manager.VersionOneService;
 import edu.tamu.app.service.ticketing.SugarService;
 
@@ -30,7 +30,7 @@ import edu.tamu.app.service.ticketing.SugarService;
 public class ProductTest extends AbstractModelTest {
 
     private static final RemoteProjectManager TEST_REMOTE_PROJECT_MANAGER1 = new RemoteProjectManager(TEST_REMOTE_PROJECT_MANAGER_NAME1, ServiceType.VERSION_ONE, TEST_PROJECT_URL1, TEST_PROJECT_TOKEN1);
-    private static final RemoteProjectManager TEST_REMOTE_PROJECT_MANAGER2 = new RemoteProjectManager(TEST_REMOTE_PROJECT_MANAGER_NAME2, ServiceType.GITHUB, TEST_PROJECT_URL2, TEST_PROJECT_TOKEN2);
+    private static final RemoteProjectManager TEST_REMOTE_PROJECT_MANAGER2 = new RemoteProjectManager(TEST_REMOTE_PROJECT_MANAGER_NAME2, ServiceType.GITHUB_PROJECT, TEST_PROJECT_URL2, TEST_PROJECT_TOKEN2);
 
     private static final RemoteProjectInfo TEST_REMOTE_PROJECT_INFO1 = new RemoteProjectInfo(TEST_PROJECT_SCOPE1, TEST_REMOTE_PROJECT_MANAGER1);
     private static final RemoteProjectInfo TEST_REMOTE_PROJECT_INFO2 = new RemoteProjectInfo(TEST_PROJECT_SCOPE2, TEST_REMOTE_PROJECT_MANAGER1);
@@ -48,7 +48,7 @@ public class ProductTest extends AbstractModelTest {
     private SugarService sugarService;
 
     @MockBean
-    private GitHubService gitHubService;
+    private GitHubProjectService gitHubService;
 
     @MockBean
     private VersionOneService versionOneService;

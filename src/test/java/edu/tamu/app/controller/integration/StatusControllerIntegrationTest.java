@@ -53,7 +53,7 @@ import edu.tamu.app.model.repo.ProductRepo;
 import edu.tamu.app.model.repo.RemoteProjectManagerRepo;
 import edu.tamu.app.model.repo.AbstractRepoTest;
 import edu.tamu.app.model.repo.StatusRepo;
-import edu.tamu.app.service.manager.GitHubService;
+import edu.tamu.app.service.manager.GitHubProjectService;
 import edu.tamu.app.service.manager.VersionOneService;
 import edu.tamu.app.service.ticketing.SugarService;
 import edu.tamu.weaver.response.ApiResponse;
@@ -100,7 +100,7 @@ public class StatusControllerIntegrationTest extends AbstractRepoTest {
     protected SugarService sugarService;
 
     @MockBean
-    protected GitHubService gitHubService;
+    protected GitHubProjectService gitHubService;
 
     @MockBean
     protected VersionOneService versionOneService;

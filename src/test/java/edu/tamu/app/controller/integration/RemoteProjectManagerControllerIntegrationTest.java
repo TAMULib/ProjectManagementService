@@ -41,7 +41,7 @@ import edu.tamu.app.model.RemoteProjectManager;
 import edu.tamu.app.model.ServiceType;
 import edu.tamu.app.model.repo.RemoteProjectManagerRepo;
 import edu.tamu.app.model.repo.AbstractRepoTest;
-import edu.tamu.app.service.manager.GitHubService;
+import edu.tamu.app.service.manager.GitHubProjectService;
 import edu.tamu.app.service.manager.VersionOneService;
 import edu.tamu.weaver.response.ApiResponse;
 import edu.tamu.weaver.response.ApiStatus;
@@ -58,7 +58,7 @@ public class RemoteProjectManagerControllerIntegrationTest extends AbstractRepoT
     private static final String TEST_REMOTE_PROJECT_MANAGER_URL = "http://localhost/";
     private static final String TEST_REMOTE_PROJECT_MANAGER_TOKEN = "0987654321";
 
-    private static final ServiceType TEST_REMOTE_PROJECT_MANAGER_SERVICE_TYPE = ServiceType.GITHUB;
+    private static final ServiceType TEST_REMOTE_PROJECT_MANAGER_SERVICE_TYPE = ServiceType.GITHUB_PROJECT;
 
     @Autowired
     private MockMvc mockMvc;
@@ -67,7 +67,7 @@ public class RemoteProjectManagerControllerIntegrationTest extends AbstractRepoT
     private RemoteProjectManagerRepo remoteProjectManagerRepo;
 
     @MockBean
-    protected GitHubService gitHubService;
+    protected GitHubProjectService gitHubService;
 
     @MockBean
     protected VersionOneService versionOneService;

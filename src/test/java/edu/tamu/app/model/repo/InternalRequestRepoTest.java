@@ -28,7 +28,7 @@ import edu.tamu.app.model.Product;
 import edu.tamu.app.model.RemoteProjectInfo;
 import edu.tamu.app.model.RemoteProjectManager;
 import edu.tamu.app.model.ServiceType;
-import edu.tamu.app.service.manager.GitHubService;
+import edu.tamu.app.service.manager.GitHubProjectService;
 import edu.tamu.app.service.manager.VersionOneService;
 import edu.tamu.app.service.ticketing.SugarService;
 
@@ -53,7 +53,7 @@ public class InternalRequestRepoTest extends AbstractRepoTest {
     private SugarService sugarService;
 
     @MockBean
-    private GitHubService gitHubService;
+    private GitHubProjectService gitHubService;
 
     @MockBean
     private VersionOneService versionOneService;

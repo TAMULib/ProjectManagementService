@@ -61,7 +61,7 @@ import edu.tamu.app.model.repo.RemoteProjectManagerRepo;
 import edu.tamu.app.model.repo.AbstractRepoTest;
 import edu.tamu.app.model.request.FeatureRequest;
 import edu.tamu.app.model.request.TicketRequest;
-import edu.tamu.app.service.manager.GitHubService;
+import edu.tamu.app.service.manager.GitHubProjectService;
 import edu.tamu.app.service.manager.RemoteProjectManagerBean;
 import edu.tamu.app.service.manager.VersionOneService;
 import edu.tamu.app.service.registry.ManagementBeanRegistry;
@@ -133,7 +133,7 @@ public class ProductControllerIntegrationTest extends AbstractRepoTest {
     protected SugarService sugarService;
 
     @MockBean
-    protected GitHubService gitHubService;
+    protected GitHubProjectService gitHubService;
 
     @MockBean
     protected VersionOneService versionOneService;

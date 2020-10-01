@@ -26,7 +26,7 @@ import edu.tamu.app.cache.service.ActiveSprintsScheduledCacheService;
 import edu.tamu.app.cache.service.ProductsStatsScheduledCacheService;
 import edu.tamu.app.cache.service.RemoteProjectsScheduledCacheService;
 import edu.tamu.app.model.Estimate;
-import edu.tamu.app.service.manager.GitHubService;
+import edu.tamu.app.service.manager.GitHubProjectService;
 import edu.tamu.app.service.manager.VersionOneService;
 import edu.tamu.app.service.ticketing.SugarService;
 
@@ -38,7 +38,7 @@ public class EstimateRepoTest extends AbstractRepoTest {
     private SugarService sugarService;
 
     @MockBean
-    private GitHubService gitHubService;
+    private GitHubProjectService gitHubService;
 
     @MockBean
     private VersionOneService versionOneService;
