@@ -115,6 +115,11 @@ public class ProductController {
     @WeaverValidation(business = { @WeaverValidation.Business(value = DELETE) })
     public ApiResponse deleteProduct(@WeaverValidatedModel Product product) {
         logger.info("Deleting Product: " + product.getName());
+
+        if (internalRequestRepo.countByProductId(product.getId()) > 0) {
+            return new ApiResponse(ERROR, "Cannot delete Product " + product.getName() + " because it has one or more associated Internal Requests.");
+        }
+
         reifyProductRemoteProjectManager(product);
         productRepo.delete(product);
         for (ProductScheduledCache<?, ?> productSceduledCache : productSceduledCaches) {

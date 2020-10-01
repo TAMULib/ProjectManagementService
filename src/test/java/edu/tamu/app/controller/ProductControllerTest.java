@@ -199,6 +199,16 @@ public class ProductControllerTest {
     }
 
     @Test
+    public void testDeleteWithAssociatedInternalRequests() {
+        String message = "Cannot delete Product " + TEST_PRODUCT1.getName() + " because it has one or more associated Internal Requests.";
+        when(internalRequestRepo.countByProductId(any(Long.class))).thenReturn(1L);
+
+        apiResponse = productController.deleteProduct(TEST_PRODUCT1);
+        assertEquals("Should not delete when there are associated Internal Requests", ERROR, apiResponse.getMeta().getStatus());
+        assertEquals("Should not delete with friendly message when there are associated Internal Requests", message, apiResponse.getMeta().getMessage());
+    }
+
+    @Test
     public void testSubmitIssueRequest() {
         apiResponse = productController.submitIssueRequest(TEST_TICKET_REQUEST);
         assertEquals("Not successful at submitting issue request", SUCCESS, apiResponse.getMeta().getStatus());
