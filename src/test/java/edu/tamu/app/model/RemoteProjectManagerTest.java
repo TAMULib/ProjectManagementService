@@ -22,14 +22,14 @@ public class RemoteProjectManagerTest extends ModelTest {
     @Test
     public void testCreate() {
         RemoteProjectManager remoteProjectManager1 = remoteProjectManagerRepo.create(new RemoteProjectManager(TEST_REMOTE_PROJECT_MANAGER1_NAME, ServiceType.VERSION_ONE, TEST_PROJECT_URL1, TEST_PROJECT_TOKEN1));
-        RemoteProjectManager remoteProjectManager2 = remoteProjectManagerRepo.create(new RemoteProjectManager(TEST_REMOTE_PROJECT_MANAGER2_NAME, ServiceType.GITHUB, TEST_PROJECT_URL2, TEST_PROJECT_TOKEN2));
+        RemoteProjectManager remoteProjectManager2 = remoteProjectManagerRepo.create(new RemoteProjectManager(TEST_REMOTE_PROJECT_MANAGER2_NAME, ServiceType.GITHUB_PROJECT, TEST_PROJECT_URL2, TEST_PROJECT_TOKEN2));
         assertEquals("Remote project manager repo had incorrect number of remote project managers!", 2, remoteProjectManagerRepo.count());
         assertEquals("Remote project manager had incorrect name!", TEST_REMOTE_PROJECT_MANAGER1_NAME, remoteProjectManager1.getName());
         assertEquals("Remote project manager had incorrect service type!", ServiceType.VERSION_ONE, remoteProjectManager1.getType());
         assertEquals("Remote project manager had incorrect url!", TEST_PROJECT_URL1, remoteProjectManager1.getUrl());
         assertEquals("Remote project manager had incorrect token!", TEST_PROJECT_TOKEN1, remoteProjectManager1.getToken());
         assertEquals("Remote project manager had incorrect name!", TEST_REMOTE_PROJECT_MANAGER2_NAME, remoteProjectManager2.getName());
-        assertEquals("Remote project manager had incorrect service type!", ServiceType.GITHUB, remoteProjectManager2.getType());
+        assertEquals("Remote project manager had incorrect service type!", ServiceType.GITHUB_PROJECT, remoteProjectManager2.getType());
         assertEquals("Remote project manager had incorrect url!", TEST_PROJECT_URL2, remoteProjectManager2.getUrl());
         assertEquals("Remote project manager had incorrect token!", TEST_PROJECT_TOKEN2, remoteProjectManager2.getToken());
     }
