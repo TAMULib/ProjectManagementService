@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kohsuke.github.GHIssue;
 import org.kohsuke.github.GHIssueState;
@@ -191,7 +192,7 @@ public abstract class AbstractGitHubService extends MappingRemoteProjectManagerB
         if (cachedMember.isPresent()) {
             member = cachedMember.get();
         } else {
-            final String name = user.getName();
+            final String name = StringUtils.isEmpty(user.getName()) ? user.getLogin() : user.getName();
             final String avatarUrlString = user.getAvatarUrl();
             final String avatarPath = getAvatarPath(avatarUrlString);
             member = new Member(memberId, name, avatarPath);
