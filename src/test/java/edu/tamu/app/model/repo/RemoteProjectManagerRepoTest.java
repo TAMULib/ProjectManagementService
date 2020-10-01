@@ -27,7 +27,7 @@ import edu.tamu.app.model.Product;
 import edu.tamu.app.model.RemoteProjectInfo;
 import edu.tamu.app.model.RemoteProjectManager;
 import edu.tamu.app.model.ServiceType;
-import edu.tamu.app.service.manager.GitHubService;
+import edu.tamu.app.service.manager.GitHubProjectService;
 import edu.tamu.app.service.manager.VersionOneService;
 import edu.tamu.app.service.ticketing.SugarService;
 
@@ -39,7 +39,7 @@ public class RemoteProjectManagerRepoTest extends AbstractRepoTest {
     private SugarService sugarService;
 
     @MockBean
-    private GitHubService gitHubService;
+    private GitHubProjectService gitHubService;
 
     @MockBean
     private VersionOneService versionOneService;
@@ -75,14 +75,14 @@ public class RemoteProjectManagerRepoTest extends AbstractRepoTest {
     @Test
     public void testCreate() {
         RemoteProjectManager remoteProjectManager1 = remoteProjectManagerRepo.create(new RemoteProjectManager(TEST_REMOTE_PROJECT_MANAGER_NAME1, ServiceType.VERSION_ONE, TEST_PROJECT_URL1, TEST_PROJECT_TOKEN1));
-        RemoteProjectManager remoteProjectManager2 = remoteProjectManagerRepo.create(new RemoteProjectManager(TEST_REMOTE_PROJECT_MANAGER_NAME2, ServiceType.GITHUB, TEST_PROJECT_URL2, TEST_PROJECT_TOKEN2));
+        RemoteProjectManager remoteProjectManager2 = remoteProjectManagerRepo.create(new RemoteProjectManager(TEST_REMOTE_PROJECT_MANAGER_NAME2, ServiceType.GITHUB_PROJECT, TEST_PROJECT_URL2, TEST_PROJECT_TOKEN2));
         assertEquals("Remote project manager repo had incorrect number of remote project managers!", 2, remoteProjectManagerRepo.count());
         assertEquals("Remote project manager had incorrect name!", TEST_REMOTE_PROJECT_MANAGER_NAME1, remoteProjectManager1.getName());
         assertEquals("Remote project manager had incorrect service type!", ServiceType.VERSION_ONE, remoteProjectManager1.getType());
         assertEquals("Remote project manager had incorrect url!", TEST_PROJECT_URL1, remoteProjectManager1.getUrl());
         assertEquals("Remote project manager had incorrect token!", TEST_PROJECT_TOKEN1, remoteProjectManager1.getToken());
         assertEquals("Remote project manager had incorrect name!", TEST_REMOTE_PROJECT_MANAGER_NAME2, remoteProjectManager2.getName());
-        assertEquals("Remote project manager had incorrect service type!", ServiceType.GITHUB, remoteProjectManager2.getType());
+        assertEquals("Remote project manager had incorrect service type!", ServiceType.GITHUB_PROJECT, remoteProjectManager2.getType());
         assertEquals("Remote project manager had incorrect url!", TEST_PROJECT_URL2, remoteProjectManager2.getUrl());
         assertEquals("Remote project manager had incorrect token!", TEST_PROJECT_TOKEN2, remoteProjectManager2.getToken());
     }

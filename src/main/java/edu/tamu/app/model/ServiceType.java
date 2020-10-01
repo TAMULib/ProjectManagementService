@@ -8,7 +8,8 @@ import java.util.Map;
 public enum ServiceType {
 
     VERSION_ONE("Version One"),
-    GITHUB("GitHub");
+    GITHUB_PROJECT("GitHub Project"),
+    GITHUB_MILESTONE("GitHub Milestone");
 
     private String gloss;
 
