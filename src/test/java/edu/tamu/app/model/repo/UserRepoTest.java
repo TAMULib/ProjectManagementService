@@ -1,4 +1,4 @@
-package edu.tamu.app.model;
+package edu.tamu.app.model.repo;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -24,20 +24,22 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 
 import edu.tamu.app.ProductApplication;
 import edu.tamu.app.auth.AuthMockTests;
-import edu.tamu.app.model.repo.UserRepo;
+import edu.tamu.app.model.Role;
+import edu.tamu.app.model.User;
 import edu.tamu.weaver.auth.model.Credentials;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = { ProductApplication.class }, webEnvironment = WebEnvironment.DEFINED_PORT)
-public class UserTest extends AuthMockTests {
+@SpringBootTest(classes = { ProductApplication.class }, webEnvironment = WebEnvironment.RANDOM_PORT)
+public class UserRepoTest extends AuthMockTests {
 
     @Autowired
     private UserRepo userRepo;
 
     private Credentials mockCredentials;
 
+    // @After and @Before cannot be safely specified inside a parent class.
     @Before
-    public void setUp() throws JsonParseException, JsonMappingException, IOException {
+    public void setup() throws JsonParseException, JsonMappingException, IOException {
         mockCredentials = getMockAggieJackCredentials();
     }
 
@@ -108,8 +110,9 @@ public class UserTest extends AuthMockTests {
         assertNull("Password was not null!", user.getPassword());
     }
 
+    // @After and @Before cannot be safely specified inside a parent class.
     @After
-    public void cleanUp() {
+    public void cleanup() {
         userRepo.deleteAll();
     }
 

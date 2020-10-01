@@ -6,7 +6,7 @@ server:
 logging:
   level:
     edu.tamu: INFO
-    org.springframework: INFO
+    org.springframework: WARN
   file: logs/product-management-service.log
 
 ---

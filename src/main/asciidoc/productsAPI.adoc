@@ -1,0 +1,68 @@
+== Products API
+A Collection of CRUD API endpoints used for interacting with Product Management Service's Product resource.
+These are managed Products for this service and not Projects from a Remote Project Manager.
+
+=== Get All Products
+
+A `GET` to the `/products` endpoint which will return a list all Product in Product Management Service.
+
+==== Sample Request
+include::../../../target/generated-snippets/products/get-all/http-request.adoc[]
+
+==== Sample Response
+include::../../../target/generated-snippets/products/get-all/http-response.adoc[]
+
+==== Example Curl Request
+include::../../../target/generated-snippets/products/get-all/curl-request.adoc[]
+
+=== Get Product
+
+A `GET` to the `/products/{id}` endpoint which will return a single Product with the given ID in Product Management Service.
+
+==== Sample Request
+include::../../../target/generated-snippets/products/get/http-request.adoc[]
+
+==== Sample Response
+include::../../../target/generated-snippets/products/get/http-response.adoc[]
+
+==== Example Curl Request
+include::../../../target/generated-snippets/products/get/curl-request.adoc[]
+
+=== Create Product
+
+A `POST` to the `/products` endpoint which will result in the creation of a new Product in Product Management Service.
+
+==== Sample Request
+include::../../../target/generated-snippets/products/create/http-request.adoc[]
+
+==== Sample Response
+include::../../../target/generated-snippets/products/create/http-response.adoc[]
+
+==== Example Curl Request
+include::../../../target/generated-snippets/products/create/curl-request.adoc[]
+
+=== Update Product
+
+A `PUT` request to the `/products` endpoint which will result in the updating of the specified Product resource in Product Management Service.
+
+==== Sample Request
+include::../../../target/generated-snippets/products/update/http-request.adoc[]
+
+==== Sample Response
+include::../../../target/generated-snippets/products/update/http-response.adoc[]
+
+==== Example Curl Request
+include::../../../target/generated-snippets/products/update/curl-request.adoc[]
+
+=== Delete Product
+
+A `DELETE` request to the `/products` endpoint which will result in the deletion of the specified Product resource in Product Management Service.
+
+==== Sample Request
+include::../../../target/generated-snippets/products/delete/http-request.adoc[]
+
+==== Sample Response
+include::../../../target/generated-snippets/products/delete/http-response.adoc[]
+
+==== Example Curl Request
+include::../../../target/generated-snippets/products/delete/curl-request.adoc[]

@@ -1,0 +1,25 @@
+
+= Product Management APIs
+{project-version}
+:doctype: book
+:toc: left
+:toclevels: 2
+:sectanchors:
+:sectlinks:
+:linkattrs:
+:source-highlighter: highlightjs
+
+include::./activeSprintsAPI.adoc[]
+
+include::./productsStatsAPI.adoc[]
+
+include::./remoteProjectsStatsAPI.adoc[]
+
+include::./internalRequestAPI.adoc[]
+
+include::./productsAPI.adoc[]
+
+include::./remoteProjectManagerAPI.adoc[]
+
+include::./statusAPI.adoc[]
+

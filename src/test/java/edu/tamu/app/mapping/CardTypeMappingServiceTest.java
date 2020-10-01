@@ -19,7 +19,7 @@ import edu.tamu.app.model.CardType;
 import edu.tamu.app.model.repo.CardTypeRepo;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = { ProductApplication.class }, webEnvironment = WebEnvironment.DEFINED_PORT)
+@SpringBootTest(classes = { ProductApplication.class }, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class CardTypeMappingServiceTest {
 
     @Autowired

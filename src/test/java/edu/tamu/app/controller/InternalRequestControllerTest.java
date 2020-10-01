@@ -70,8 +70,6 @@ public class InternalRequestControllerTest {
     private static Product TEST_PRODUCT1 = new Product(TEST_PRODUCT1_NAME, TEST_PRODUCT1_REMOTE_PROJECT_INFO_LIST);
     private static Product TEST_PRODUCT2 = new Product(TEST_PRODUCT2_NAME);
 
-    private static FeatureRequest TEST_FEATURE_REQUEST = new FeatureRequest(TEST_REQUEST_TITLE_BELLS, TEST_REQUEST_DESCRIPTION_BELLS, TEST_PRODUCT1.getId(), TEST_PROJECT1_SCOPE1);
-
     private static Date TEST_REQUEST_CREATED_ON_BELLS = Date.from(Instant.now().minusSeconds(30L));
     private static Date TEST_REQUEST_CREATED_ON_WHISTLES = Date.from(Instant.now());
 
