@@ -23,6 +23,7 @@ import edu.tamu.app.cache.model.Card;
 import edu.tamu.app.cache.model.Member;
 import edu.tamu.app.cache.model.Sprint;
 import edu.tamu.app.cache.service.ActiveSprintsScheduledCacheService;
+import edu.tamu.app.model.ServiceType;
 import edu.tamu.weaver.response.ApiResponse;
 import edu.tamu.weaver.response.ApiStatus;
 
@@ -64,7 +65,7 @@ public class ActiveSprintsCacheControllerTest {
     private Sprint getMockSprint() {
         List<Member> assignees = Arrays.asList(new Member[] { new Member("1", "Bob Boring", "http://gravatar.com/bborring") });
         List<Card> cards = Arrays.asList(new Card[] { new Card("1", "B-00001", "Feature", "Do the thing", "Do it with these requirements", "In Progress", 1.0f, assignees) });
-        return new Sprint("1", "Sprint 1", "Application", cards);
+        return new Sprint("1", "Sprint 1", "Application", ServiceType.GITHUB_MILESTONE.toString(), cards);
     }
 
     private void assertSprints(List<Sprint> sprints) {
@@ -73,6 +74,7 @@ public class ActiveSprintsCacheControllerTest {
         assertEquals("1", sprints.get(0).getId());
         assertEquals("Sprint 1", sprints.get(0).getName());
         assertEquals("Application", sprints.get(0).getProduct());
+        assertEquals(ServiceType.GITHUB_MILESTONE.toString(), sprints.get(0).getType());
         assertFalse(sprints.get(0).getCards().isEmpty());
         assertEquals(1, sprints.get(0).getCards().size());
         assertEquals("1", sprints.get(0).getCards().get(0).getId());

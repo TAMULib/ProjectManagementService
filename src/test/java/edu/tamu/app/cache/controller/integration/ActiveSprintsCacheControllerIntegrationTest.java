@@ -35,6 +35,7 @@ import edu.tamu.app.cache.model.Sprint;
 import edu.tamu.app.cache.service.ActiveSprintsScheduledCacheService;
 import edu.tamu.app.cache.service.ProductsStatsScheduledCacheService;
 import edu.tamu.app.cache.service.RemoteProjectsScheduledCacheService;
+import edu.tamu.app.model.ServiceType;
 import edu.tamu.app.model.repo.AbstractRepoTest;
 
 @SpringBootTest(classes = { ProductApplication.class }, webEnvironment=WebEnvironment.RANDOM_PORT)
@@ -66,8 +67,9 @@ public class ActiveSprintsCacheControllerIntegrationTest extends AbstractRepoTes
     private static final String TEST_SPRINT_ID = "Test Stat ID";
     private static final String TEST_SPRINT_NAME = "Test Stat Name";
     private static final String TEST_SPRINT_PRODUCT = "Test Sprint Product";
+    private static final String TEST_SPRINT_TYPE = ServiceType.GITHUB_MILESTONE.toString();
 
-    private static final Sprint TEST_SPRINT = new Sprint(TEST_SPRINT_ID, TEST_SPRINT_NAME, TEST_SPRINT_PRODUCT, TEST_CARD_LIST);
+    private static final Sprint TEST_SPRINT = new Sprint(TEST_SPRINT_ID, TEST_SPRINT_NAME, TEST_SPRINT_PRODUCT, TEST_SPRINT_TYPE, TEST_CARD_LIST);
 
     private static final List<Sprint> TEST_SPRINT_LIST = new ArrayList<Sprint>(Arrays.asList(TEST_SPRINT));
 
@@ -119,6 +121,7 @@ public class ActiveSprintsCacheControllerIntegrationTest extends AbstractRepoTes
                         fieldWithPath("payload['ArrayList<Sprint>'][0].id").description("The Sprint ID."),
                         fieldWithPath("payload['ArrayList<Sprint>'][0].name").description("The Sprint Name."),
                         fieldWithPath("payload['ArrayList<Sprint>'][0].product").description("The Sprint Product."),
+                        fieldWithPath("payload['ArrayList<Sprint>'][0].type").description("The Sprint Product's Remote Project Type."),
                         fieldWithPath("payload['ArrayList<Sprint>'][0].cards").description("An array of Sprint Cards."),
                         fieldWithPath("payload['ArrayList<Sprint>'][0].cards[0].id").description("The Sprint Card ID."),
                         fieldWithPath("payload['ArrayList<Sprint>'][0].cards[0].number").description("The Sprint Card Number."),

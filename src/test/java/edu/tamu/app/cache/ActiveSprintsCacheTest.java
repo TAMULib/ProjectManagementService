@@ -15,6 +15,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import edu.tamu.app.cache.model.Card;
 import edu.tamu.app.cache.model.Member;
 import edu.tamu.app.cache.model.Sprint;
+import edu.tamu.app.model.ServiceType;
 
 @RunWith(SpringRunner.class)
 public class ActiveSprintsCacheTest {
@@ -62,7 +63,7 @@ public class ActiveSprintsCacheTest {
     private Sprint getMockSprint() {
         List<Member> assignees = Arrays.asList(new Member[] { new Member("1", "Bob Boring", "http://gravatar.com/bborring") });
         List<Card> cards = Arrays.asList(new Card[] { new Card("1", "B-00001", "Feature", "Do the thing", "Do it with these requirements", "In Progress", 1.0f, assignees) });
-        return new Sprint("1", "Sprint 1", "Application", cards);
+        return new Sprint("1", "Sprint 1", "Application", ServiceType.GITHUB_MILESTONE.toString(), cards);
     }
 
 }

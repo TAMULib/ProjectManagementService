@@ -396,6 +396,24 @@ public class GitHubProjectServiceTest extends CacheMockTests {
     }
 
     @Test
+    public void testGetActiveSprintsByProjectIdType() throws Exception {
+        List<Sprint> sprints = gitHubProjectService.getActiveSprintsByScopeId(String.valueOf(TEST_REPOSITORY1_ID));
+
+        sprints.forEach(sprint -> {
+            assertEquals("Didn't get the correct Service Type for the Sprint", ServiceType.GITHUB_PROJECT.toString(), sprint.getType());
+        });
+    }
+
+    @Test
+    public void testGetAdditionalActiveSprintType() throws Exception {
+        List<Sprint> sprints = gitHubProjectService.getAdditionalActiveSprints();
+
+        sprints.forEach(sprint -> {
+            assertEquals("Didn't get the correct Service Type for the Sprint", ServiceType.GITHUB_PROJECT.toString(), sprint.getType());
+        });
+    }
+
+    @Test
     public void testPush() throws Exception {
         String id = gitHubProjectService.push(TEST_FEATURE_REQUEST);
         assertNotNull(id);

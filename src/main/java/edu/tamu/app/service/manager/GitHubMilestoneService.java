@@ -19,6 +19,7 @@ import org.kohsuke.github.GHRepository;
 import edu.tamu.app.cache.model.Card;
 import edu.tamu.app.cache.model.Sprint;
 import edu.tamu.app.model.ManagementService;
+import edu.tamu.app.model.ServiceType;
 
 public class GitHubMilestoneService extends AbstractGitHubService {
 
@@ -49,7 +50,8 @@ public class GitHubMilestoneService extends AbstractGitHubService {
     private Stream<Sprint> getActiveSprintsForProject(GHProject project, String product, int count) {
         String sprintId = String.format("%s-%s", project.getId(), count);
         return exceptionHandlerWrapper(project, p -> getCards(p).entrySet()).stream()
-            .map(e -> new Sprint(sprintId, e.getKey(), product, e.getValue()));
+            .map(e -> new Sprint(sprintId, e.getKey(), product,
+                ServiceType.GITHUB_MILESTONE.toString(), e.getValue()));
     }
 
     private Map<String, List<Card>> getCards(GHProject project) throws IOException {

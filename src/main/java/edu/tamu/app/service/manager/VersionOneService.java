@@ -45,6 +45,7 @@ import edu.tamu.app.cache.model.Member;
 import edu.tamu.app.cache.model.RemoteProject;
 import edu.tamu.app.cache.model.Sprint;
 import edu.tamu.app.model.ManagementService;
+import edu.tamu.app.model.ServiceType;
 import edu.tamu.app.model.request.FeatureRequest;
 import edu.tamu.app.rest.TokenAuthRestTemplate;
 
@@ -170,7 +171,7 @@ public class VersionOneService extends MappingRemoteProjectManagerBean {
             }
 
             List<Card> cards = getActiveSprintsCards(id);
-            activeSprints.add(new Sprint(id, name, productName, cards));
+            activeSprints.add(new Sprint(id, name, productName, ServiceType.VERSION_ONE.toString(), cards));
         }
         return activeSprints;
     }
