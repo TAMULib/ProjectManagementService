@@ -32,25 +32,23 @@ public class GitHubMilestoneService extends AbstractGitHubService {
         logger.info("Fetching active sprints for remote project with scope id " + scopeId);
         GHRepository repo = github.getRepositoryById(scopeId);
         String productName = repo.getName();
-        AtomicInteger count = new AtomicInteger(1);
         return repo.listProjects(ProjectStateFilter.OPEN).asList().stream()
-            .flatMap(project -> getActiveSprintsForProject(project, productName, count.getAndIncrement()))
+            .flatMap(project -> getActiveSprintsForProject(project, productName))
             .collect(Collectors.toList());
     }
 
     @Override
     public List<Sprint> getAdditionalActiveSprints() throws Exception {
         GHOrganization organization = github.getOrganization(ORGANIZATION);
-        AtomicInteger count = new AtomicInteger(1);
         return organization.listProjects(ProjectStateFilter.OPEN).asList().stream()
-            .flatMap(project -> getActiveSprintsForProject(project, toProductName(project), count.getAndIncrement()))
+            .flatMap(project -> getActiveSprintsForProject(project, toProductName(project)))
             .collect(Collectors.toList());
     }
 
-    private Stream<Sprint> getActiveSprintsForProject(GHProject project, String product, int count) {
-        String sprintId = String.format("%s-%s", project.getId(), count);
+    private Stream<Sprint> getActiveSprintsForProject(GHProject project, String product) {
+        AtomicInteger count = new AtomicInteger();
         return exceptionHandlerWrapper(project, p -> getCards(p).entrySet()).stream()
-            .map(e -> new Sprint(sprintId, e.getKey(), product,
+            .map(e -> new Sprint(String.format("%s-%s", project.getId(), count.incrementAndGet()), e.getKey(), product,
                 ServiceType.GITHUB_MILESTONE.toString(), e.getValue()));
     }
 
