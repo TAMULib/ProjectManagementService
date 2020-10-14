@@ -48,7 +48,7 @@ public class ActiveSprintsScheduledCacheServiceTest {
     private static final String TEST_PROJECT_TOKEN2 = "9876543210";
 
     private static final RemoteProjectManager TEST_REMOTE_PROJECT_MANAGER1 = new RemoteProjectManager("Test Remote Project Manager 1", ServiceType.VERSION_ONE, TEST_PROJECT_URL1, TEST_PROJECT_TOKEN1);
-    private static final RemoteProjectManager TEST_REMOTE_PROJECT_MANAGER2 = new RemoteProjectManager("Test Remote Project Manager 2", ServiceType.GITHUB, TEST_PROJECT_URL2, TEST_PROJECT_TOKEN2);
+    private static final RemoteProjectManager TEST_REMOTE_PROJECT_MANAGER2 = new RemoteProjectManager("Test Remote Project Manager 2", ServiceType.GITHUB_PROJECT, TEST_PROJECT_URL2, TEST_PROJECT_TOKEN2);
 
     private static final RemoteProjectInfo TEST_REMOTE_PROJECT_INFO1 = new RemoteProjectInfo(TEST_PROJECT_SCOPE1, TEST_REMOTE_PROJECT_MANAGER1);
     private static final RemoteProjectInfo TEST_REMOTE_PROJECT_INFO2 = new RemoteProjectInfo(TEST_PROJECT_SCOPE2, TEST_REMOTE_PROJECT_MANAGER2);
@@ -138,7 +138,7 @@ public class ActiveSprintsScheduledCacheServiceTest {
     private Sprint getMockSprint() {
         List<Member> assignees = Arrays.asList(new Member[] { new Member("1", "Bob Boring", "http://gravatar.com/bborring") });
         List<Card> cards = Arrays.asList(new Card[] { new Card("3000", "B-00001", "Feature", "Do the thing", "Do it with these requirements", "In Progress", 1.0f, assignees) });
-        return new Sprint("2000", "Sprint 1", "Test Product", cards);
+        return new Sprint("2000", "Sprint 1", "Test Product", ServiceType.GITHUB_MILESTONE.toString(), cards);
     }
 
     private void assertSprints(List<Sprint> sprints) {
@@ -147,6 +147,7 @@ public class ActiveSprintsScheduledCacheServiceTest {
         assertEquals("2000", sprints.get(0).getId());
         assertEquals("Sprint 1", sprints.get(0).getName());
         assertEquals("Test Product", sprints.get(0).getProduct());
+        assertEquals(ServiceType.GITHUB_MILESTONE.toString(), sprints.get(0).getType());
         assertFalse(sprints.get(0).getCards().isEmpty());
         assertEquals(1, sprints.get(0).getCards().size());
         assertEquals("3000", sprints.get(0).getCards().get(0).getId());

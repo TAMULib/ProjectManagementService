@@ -1,9 +1,9 @@
 package edu.tamu.app.service.manager;
 
-import static edu.tamu.app.service.manager.GitHubService.DEFECT_LABEL;
-import static edu.tamu.app.service.manager.GitHubService.FEATURE_LABEL;
-import static edu.tamu.app.service.manager.GitHubService.ISSUE_LABEL;
-import static edu.tamu.app.service.manager.GitHubService.REQUEST_LABEL;
+import static edu.tamu.app.service.manager.GitHubMilestoneService.DEFECT_LABEL;
+import static edu.tamu.app.service.manager.GitHubMilestoneService.FEATURE_LABEL;
+import static edu.tamu.app.service.manager.GitHubMilestoneService.ISSUE_LABEL;
+import static edu.tamu.app.service.manager.GitHubMilestoneService.REQUEST_LABEL;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
@@ -29,6 +29,8 @@ import org.junit.runner.RunWith;
 import org.kohsuke.github.GHIssue;
 import org.kohsuke.github.GHIssueState;
 import org.kohsuke.github.GHLabel;
+import org.kohsuke.github.GHMilestone;
+import org.kohsuke.github.GHMilestoneState;
 import org.kohsuke.github.GHOrganization;
 import org.kohsuke.github.GHProject;
 import org.kohsuke.github.GHProject.ProjectStateFilter;
@@ -66,7 +68,7 @@ import edu.tamu.app.model.repo.StatusRepo;
 import edu.tamu.app.model.request.FeatureRequest;
 
 @RunWith(SpringRunner.class)
-public class GitHubServiceTest extends CacheMockTests {
+public class GitHubMilestoneServiceTest extends CacheMockTests {
     private static final String TEST_REPOSITORY1_NAME = "Test repository 1 name";
     private static final String TEST_REPOSITORY2_NAME = "Test repository 2 name";
     private static final String TEST_UNUSED_LABEL_NAME = "unused";
@@ -78,6 +80,10 @@ public class GitHubServiceTest extends CacheMockTests {
     private static final String TEST_USER3_AVATAR_PATH = "https://avatars2.githubusercontent.com/u/3333333?v=4";
     private static final String TEST_USER1_AVATAR_NAME = "1234567";
     private static final String TEST_COLUMN1_NAME = "Test Column 1";
+    private static final String TEST_PROJECT1_NAME = "Test Project 1 Name";
+    private static final String TEST_PROJECT2_NAME = "Test Project 2 Name";
+    private static final String TEST_PROJECT3_NAME = "Test Project 3 Name";
+    private static final String TEST_MILESTONE_TITLE = "Test Milestone Sprint Title";
     private static final Long TEST_REPOSITORY1_ID = 1L;
     private static final Long TEST_USER1_ID = 3L;
 
@@ -101,7 +107,9 @@ public class GitHubServiceTest extends CacheMockTests {
     private static final GHUser TEST_USER2 = mock(GHUser.class);
     private static final GHUser TEST_USER3 = mock(GHUser.class);
 
-    private static final GHProjectCard TEST_CARD1 = mock(GHProjectCard.class);
+    private static final GHMilestone TEST_MILESTONE = mock(GHMilestone.class);
+
+    private static final GHProjectCard TEST_CARD1 = mock(GHProjectCard.class, RETURNS_DEEP_STUBS.get());
     private static final GHProjectCard TEST_CARD2 = mock(GHProjectCard.class, RETURNS_DEEP_STUBS.get());
     private static final GHProjectCard TEST_CARD3 = mock(GHProjectCard.class, RETURNS_DEEP_STUBS.get());
     private static final GHProjectCard TEST_CARD4 = mock(GHProjectCard.class, RETURNS_DEEP_STUBS.get());
@@ -170,13 +178,13 @@ public class GitHubServiceTest extends CacheMockTests {
 
     private GitHubBuilder ghBuilder;
 
-    private GitHubService gitHubService;
+    private GitHubMilestoneService gitHubMilestoneService;
 
     private GitHub github;
 
     @Before
     public void setUp() throws Exception {
-        ManagementService managementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB, TEST_PROJECT_URL1, TEST_PROJECT_TOKEN1);
+        ManagementService managementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB_MILESTONE, TEST_PROJECT_URL1, TEST_PROJECT_TOKEN1);
 
 
         CardTypeRepo cardTypeRepo = mock(CardTypeRepo.class);
@@ -191,7 +199,7 @@ public class GitHubServiceTest extends CacheMockTests {
 
         ghBuilder = mock(GitHubBuilder.class);
 
-        gitHubService = mock(GitHubService.class, Mockito.CALLS_REAL_METHODS);
+        gitHubMilestoneService = mock(GitHubMilestoneService.class, Mockito.CALLS_REAL_METHODS);
 
         github = mock(GitHub.class);
 
@@ -219,11 +227,28 @@ public class GitHubServiceTest extends CacheMockTests {
         when(TEST_PROJECT2.listColumns().asList()).thenReturn(TEST_PROJECT_COLUMNS);
         when(TEST_PROJECT3.listColumns().asList()).thenReturn(TEST_PROJECT_COLUMNS);
 
+        when(TEST_PROJECT1.getName()).thenReturn(TEST_PROJECT1_NAME);
+        when(TEST_PROJECT2.getName()).thenReturn(TEST_PROJECT2_NAME);
+        when(TEST_PROJECT3.getName()).thenReturn(TEST_PROJECT3_NAME);
+
         when(TEST_COLUMN1.listCards().asList()).thenReturn(TEST_COLUMN1_CARDS);
         when(TEST_COLUMN2.listCards().asList()).thenReturn(TEST_COLUMN2_CARDS);
         when(TEST_COLUMN3.listCards().asList()).thenReturn(TEST_COLUMN3_CARDS);
 
+        when(TEST_MILESTONE.getState()).thenReturn(GHMilestoneState.OPEN);
+        when(TEST_MILESTONE.getTitle()).thenReturn(TEST_MILESTONE_TITLE);
+
+        when(TEST_CARD1.getId()).thenReturn(1L);
+        when(TEST_CARD2.getId()).thenReturn(2L);
+        when(TEST_CARD3.getId()).thenReturn(3L);
+        when(TEST_CARD4.getId()).thenReturn(4L);
+        when(TEST_CARD5.getId()).thenReturn(5L);
+
         when(TEST_CARD1.getContent()).thenReturn(TEST_ISSUE1);
+        when(TEST_CARD2.getContent()).thenReturn(TEST_ISSUE2);
+        when(TEST_CARD3.getContent()).thenReturn(TEST_ISSUE3);
+        when(TEST_CARD4.getContent()).thenReturn(TEST_ISSUE4);
+        when(TEST_CARD5.getContent()).thenReturn(TEST_ISSUE5);
         when(TEST_CARD1.getColumn()).thenReturn(TEST_COLUMN1);
 
         when(TEST_ISSUE1.getLabels()).thenReturn(TEST_CARD1_LABELS);
@@ -232,7 +257,11 @@ public class GitHubServiceTest extends CacheMockTests {
         when(TEST_ISSUE4.getLabels()).thenReturn(TEST_CARD4_LABELS);
         when(TEST_ISSUE5.getLabels()).thenReturn(TEST_CARD5_LABELS);
         when(TEST_ISSUE1.getAssignees()).thenReturn(TEST_USERS1);
-        
+        when(TEST_ISSUE1.getMilestone()).thenReturn(TEST_MILESTONE);
+        when(TEST_ISSUE2.getMilestone()).thenReturn(TEST_MILESTONE);
+        when(TEST_ISSUE3.getMilestone()).thenReturn(TEST_MILESTONE);
+        when(TEST_ISSUE4.getMilestone()).thenReturn(TEST_MILESTONE);
+        when(TEST_ISSUE5.getMilestone()).thenReturn(TEST_MILESTONE);
 
         when(TEST_COLUMN1.getName()).thenReturn(TEST_COLUMN1_NAME);
 
@@ -335,19 +364,19 @@ public class GitHubServiceTest extends CacheMockTests {
         setField(statusMappingService, "serviceMappingRepo", statusRepo);
         setField(estimateMappingService, "serviceMappingRepo", estimateRepo);
 
-        setField(gitHubService, "ghBuilder", ghBuilder);
-        setField(gitHubService, "managementService", managementService);
-        setField(gitHubService, "cardTypeMappingService", cardTypeMappingService);
-        setField(gitHubService, "statusMappingService", statusMappingService);
-        setField(gitHubService, "estimateMappingService", estimateMappingService);
-        setField(gitHubService, "github", github);
-        setField(gitHubService, "members", new HashMap<String, Member>());
-        setField(gitHubService, "restTemplate", restTemplate);
+        setField(gitHubMilestoneService, "ghBuilder", ghBuilder);
+        setField(gitHubMilestoneService, "managementService", managementService);
+        setField(gitHubMilestoneService, "cardTypeMappingService", cardTypeMappingService);
+        setField(gitHubMilestoneService, "statusMappingService", statusMappingService);
+        setField(gitHubMilestoneService, "estimateMappingService", estimateMappingService);
+        setField(gitHubMilestoneService, "github", github);
+        setField(gitHubMilestoneService, "members", new HashMap<String, Member>());
+        setField(gitHubMilestoneService, "restTemplate", restTemplate);
     }
 
     @Test
     public void testGetRemoteProjects() throws Exception {
-        List<RemoteProject> remoteProjects = gitHubService.getRemoteProject();
+        List<RemoteProject> remoteProjects = gitHubMilestoneService.getRemoteProject();
         assertEquals("Didn't get all the remote projects", 2, remoteProjects.size());
         assertEquals("Number of Requests was incorrect", 1, remoteProjects.get(0).getRequestCount());
         assertEquals("Number of Issues was incorrect", 2, remoteProjects.get(0).getIssueCount());
@@ -357,7 +386,7 @@ public class GitHubServiceTest extends CacheMockTests {
 
     @Test
     public void testGetRemoteProjectByScopeId() throws Exception {
-        RemoteProject project = gitHubService.getRemoteProjectByScopeId(String.valueOf(TEST_REPOSITORY1_ID));
+        RemoteProject project = gitHubMilestoneService.getRemoteProjectByScopeId(String.valueOf(TEST_REPOSITORY1_ID));
         assertNotNull("Didn't get the remote project", project);
         assertEquals("Did not get the expected project", String.valueOf(TEST_REPOSITORY1_ID), project.getId());
         assertEquals("Number of Requests was incorrect", 1, project.getRequestCount());
@@ -368,25 +397,43 @@ public class GitHubServiceTest extends CacheMockTests {
 
     @Test
     public void testGetActiveSprintsByProjectId() throws Exception {
-        List<Sprint> activeSprints = gitHubService.getActiveSprintsByScopeId(String.valueOf(TEST_REPOSITORY1_ID));
+        List<Sprint> activeSprints = gitHubMilestoneService.getActiveSprintsByScopeId(String.valueOf(TEST_REPOSITORY1_ID));
         assertEquals("Didn't get all active sprints", 3, activeSprints.size());
     }
 
     @Test
     public void testGetAdditionalActiveSprints() throws Exception {
-        List<Sprint> additionalSprints = gitHubService.getAdditionalActiveSprints();
+        List<Sprint> additionalSprints = gitHubMilestoneService.getAdditionalActiveSprints();
         assertEquals("Didn't get all additional sprints", 3, additionalSprints.size());
     }
 
     @Test
+    public void testGetActiveSprintsByProjectIdType() throws Exception {
+        List<Sprint> sprints = gitHubMilestoneService.getActiveSprintsByScopeId(String.valueOf(TEST_REPOSITORY1_ID));
+
+        sprints.forEach(sprint -> {
+            assertEquals("Didn't get the correct Service Type for the Sprint", ServiceType.GITHUB_MILESTONE.toString(), sprint.getType());
+        });
+    }
+
+    @Test
+    public void testGetAdditionalActiveSprintsType() throws Exception {
+        List<Sprint> sprints = gitHubMilestoneService.getAdditionalActiveSprints();
+
+        sprints.forEach(sprint -> {
+            assertEquals("Didn't get the correct Service Type for the Sprint", ServiceType.GITHUB_MILESTONE.toString(), sprint.getType());
+        });
+    }
+
+    @Test
     public void testPush() throws Exception {
-        String id = gitHubService.push(TEST_FEATURE_REQUEST);
+        String id = gitHubMilestoneService.push(TEST_FEATURE_REQUEST);
         assertNotNull(id);
     }
 
     @Test
     public void testGetMember() throws IOException {
-        Member member = gitHubService.getMember(TEST_USER1);
+        Member member = gitHubMilestoneService.getMember(TEST_USER1);
         assertEquals("Member ID is incorrect", String.valueOf(TEST_USER1_ID), member.getId());
         assertEquals("Member Name is incorrect", TEST_USER1_NAME, member.getName());
         assertEquals("Member Avatar URL is incorrect", TEST_USER1_AVATAR_NAME, member.getAvatar());
@@ -394,12 +441,12 @@ public class GitHubServiceTest extends CacheMockTests {
 
     @Test
     public void testGetGitHubInstanceWithInvalidServiceEndpoint() throws IOException {
-        ManagementService invalidManagementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB, TEST_PROJECT_URL1, TEST_PROJECT_TOKEN1);
+        ManagementService invalidManagementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB_MILESTONE, TEST_PROJECT_URL1, TEST_PROJECT_TOKEN1);
 
-        setField(gitHubService, "managementService", invalidManagementService);
+        setField(gitHubMilestoneService, "managementService", invalidManagementService);
 
         try {
-            gitHubService.getGitHubInstance();
+            gitHubMilestoneService.getGitHubInstance();
         } catch (RuntimeException e) {
             assertEquals(e.getMessage(), "GitHub service endpoint was not defined");
         }
@@ -407,12 +454,12 @@ public class GitHubServiceTest extends CacheMockTests {
 
     @Test
     public void testGetGitHubInstanceWithInvalidToken() throws IOException {
-        ManagementService invalidManagementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB, TEST_PROJECT_URL1, TEST_PROJECT_TOKEN1);
+        ManagementService invalidManagementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB_MILESTONE, TEST_PROJECT_URL1, TEST_PROJECT_TOKEN1);
 
-        setField(gitHubService, "managementService", invalidManagementService);
+        setField(gitHubMilestoneService, "managementService", invalidManagementService);
 
         try {
-            gitHubService.getGitHubInstance();
+            gitHubMilestoneService.getGitHubInstance();
         } catch (RuntimeException e) {
             assertEquals(e.getMessage(), "GitHub token was not defined");
         }
@@ -420,14 +467,14 @@ public class GitHubServiceTest extends CacheMockTests {
 
     @Test
     public void testGetGitHubInstanceByToken() throws IOException {
-        GitHub gitHubInstance = gitHubService.getGitHubInstance();
+        GitHub gitHubInstance = gitHubMilestoneService.getGitHubInstance();
         assertNotNull("GitHub object was not created", gitHubInstance);
     }
 
     @Test
     public void testGetCardsWithNote() throws Exception {
         when(TEST_CARD1.getContent()).thenReturn(null);
-        List<Sprint> sprints = gitHubService.getAdditionalActiveSprints();
+        List<Sprint> sprints = gitHubMilestoneService.getAdditionalActiveSprints();
         assertEquals("Didn't get expected number of cards", 5, sprints.get(0).getCards().size());
     }
 }

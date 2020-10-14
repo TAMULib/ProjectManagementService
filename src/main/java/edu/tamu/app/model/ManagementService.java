@@ -5,6 +5,7 @@ import javax.persistence.Convert;
 import javax.persistence.Enumerated;
 import javax.persistence.MappedSuperclass;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -28,10 +29,12 @@ public abstract class ManagementService extends ValidatingBaseEntity {
     protected ServiceType type;
 
     @Column
+    @JsonIgnore
     @JsonView(ApiView.Partial.class)
     protected String url;
 
     @Column
+    @JsonIgnore
     @JsonView(ApiView.Partial.class)
     @Convert(converter = CryptoConverter.class)
     protected String token;

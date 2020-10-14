@@ -1,5 +1,6 @@
 package edu.tamu.app.controller;
 
+import static edu.tamu.weaver.response.ApiStatus.ERROR;
 import static edu.tamu.weaver.response.ApiStatus.SUCCESS;
 import static edu.tamu.weaver.validation.model.BusinessValidationType.CREATE;
 import static edu.tamu.weaver.validation.model.BusinessValidationType.DELETE;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import edu.tamu.app.model.RemoteProjectManager;
 import edu.tamu.app.model.ServiceType;
+import edu.tamu.app.model.repo.ProductRepo;
 import edu.tamu.app.model.repo.RemoteProjectManagerRepo;
 import edu.tamu.weaver.response.ApiResponse;
 import edu.tamu.weaver.validation.aspect.annotation.WeaverValidatedModel;
@@ -30,6 +32,9 @@ public class RemoteProjectManagerController {
 
     @Autowired
     private RemoteProjectManagerRepo remoteProjectManagerRepo;
+
+    @Autowired
+    private ProductRepo productRepo;
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -67,6 +72,11 @@ public class RemoteProjectManagerController {
     @WeaverValidation(business = { @WeaverValidation.Business(value = DELETE) })
     public ApiResponse deleteRemoteProjectManager(@WeaverValidatedModel RemoteProjectManager remoteProjectManager) {
         logger.info("Deleting Remote Project Manager: " + remoteProjectManager.getName());
+
+        if (productRepo.countByRemoteProjectInfoRemoteProjectManagerId(remoteProjectManager.getId()) > 0) {
+            return new ApiResponse(ERROR, "Cannot delete Remote Project Manager " + remoteProjectManager.getName() + " because it has one or more associated Products.");
+        }
+
         remoteProjectManagerRepo.delete(remoteProjectManager);
         return new ApiResponse(SUCCESS);
     }
@@ -75,12 +85,5 @@ public class RemoteProjectManagerController {
     @PreAuthorize("hasRole('USER')")
     public ApiResponse getTypes() {
         return new ApiResponse(SUCCESS, ServiceType.map());
-    }
-
-    @GetMapping("/scaffolding/{type}")
-    @PreAuthorize("hasRole('USER')")
-    public ApiResponse getTypeScaffolding(@PathVariable String type) {
-        ServiceType serviceType = ServiceType.valueOf(type);
-        return new ApiResponse(SUCCESS, serviceType.getScaffold());
     }
 }

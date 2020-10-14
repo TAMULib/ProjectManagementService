@@ -19,7 +19,7 @@ import edu.tamu.app.model.Estimate;
 import edu.tamu.app.model.repo.EstimateRepo;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = { ProductApplication.class }, webEnvironment = WebEnvironment.DEFINED_PORT)
+@SpringBootTest(classes = { ProductApplication.class }, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class EstimateMappingServiceTest {
 
     @Autowired

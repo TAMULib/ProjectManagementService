@@ -1,0 +1,67 @@
+== Internal Request API
+A Collection of CRUD API endpoints used for interacting with Product Management Service's Internal Request resource.
+
+=== Get All Internal Requests
+
+A `GET` to the `/internal/request` endpoint which will return a list all Internal Request in Product Management Service.
+
+==== Sample Request
+include::../../../target/generated-snippets/internal/request/get-all/http-request.adoc[]
+
+==== Sample Response
+include::../../../target/generated-snippets/internal/request/get-all/http-response.adoc[]
+
+==== Example Curl Request
+include::../../../target/generated-snippets/internal/request/get-all/curl-request.adoc[]
+
+=== Get Internal Request
+
+A `GET` to the `/internal/request/{id}` endpoint which will return a single Internal Request with the given ID in Product Management Service.
+
+==== Sample Request
+include::../../../target/generated-snippets/internal/request/get/http-request.adoc[]
+
+==== Sample Response
+include::../../../target/generated-snippets/internal/request/get/http-response.adoc[]
+
+==== Example Curl Request
+include::../../../target/generated-snippets/internal/request/get/curl-request.adoc[]
+
+=== Create Internal Request
+
+A `POST` to the `/internal/request` endpoint which will result in the creation of a new Internal Request in Product Management Service.
+
+==== Sample Request
+include::../../../target/generated-snippets/internal/request/create/http-request.adoc[]
+
+==== Sample Response
+include::../../../target/generated-snippets/internal/request/create/http-response.adoc[]
+
+==== Example Curl Request
+include::../../../target/generated-snippets/internal/request/create/curl-request.adoc[]
+
+=== Update Internal Request
+
+A `PUT` request to the `/internal/request` endpoint which will result in the updating of the specified Internal Request resource in Product Management Service.
+
+==== Sample Request
+include::../../../target/generated-snippets/internal/request/update/http-request.adoc[]
+
+==== Sample Response
+include::../../../target/generated-snippets/internal/request/update/http-response.adoc[]
+
+==== Example Curl Request
+include::../../../target/generated-snippets/internal/request/update/curl-request.adoc[]
+
+=== Delete Internal Request
+
+A `DELETE` request to the `/internal/request` endpoint which will result in the deletion of the specified Internal Request resource in Product Management Service.
+
+==== Sample Request
+include::../../../target/generated-snippets/internal/request/delete/http-request.adoc[]
+
+==== Sample Response
+include::../../../target/generated-snippets/internal/request/delete/http-response.adoc[]
+
+==== Example Curl Request
+include::../../../target/generated-snippets/internal/request/delete/curl-request.adoc[]

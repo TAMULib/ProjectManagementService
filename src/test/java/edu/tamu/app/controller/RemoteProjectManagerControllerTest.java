@@ -1,6 +1,7 @@
 package edu.tamu.app.controller;
 
 import static edu.tamu.weaver.response.ApiStatus.SUCCESS;
+import static edu.tamu.weaver.response.ApiStatus.ERROR;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doNothing;
@@ -46,7 +47,6 @@ public class RemoteProjectManagerControllerTest {
     private static final String TEST_RMP_ONE_NAME = "Test Remote Project Manager 1";
     private static final String TEST_RMP_TWO_NAME = "Test Remote Project Manager 2";
     private static final String TEST_MODIFIED_RMP_NAME = "Modified Remote Project Manager";
-
 
     private static RemoteProjectManager testRemoteProjectManagerOne = new RemoteProjectManager(TEST_RMP_ONE_NAME, ServiceType.VERSION_ONE, TEST_PROJECT_URL1, TEST_PROJECT_TOKEN1);
     private static RemoteProjectManager testRemoteProjectManagerTwo = new RemoteProjectManager(TEST_RMP_TWO_NAME, ServiceType.VERSION_ONE, TEST_PROJECT_URL2, TEST_PROJECT_TOKEN2);
@@ -131,15 +131,19 @@ public class RemoteProjectManagerControllerTest {
     }
 
     @Test
-    public void testGetTypes() {
-        ApiResponse response = remoteProjectManagerController.getTypes();
-        assertEquals("Not successful at getting service types", SUCCESS, response.getMeta().getStatus());
+    public void testDeleteWithAssociatedProducts() {
+        String message = "Cannot delete Remote Project Manager " + testRemoteProjectManagerOne.getName() + " because it has one or more associated Products.";
+        when(productRepo.countByRemoteProjectInfoRemoteProjectManagerId(any(Long.class))).thenReturn(1L);
+
+        ApiResponse response = remoteProjectManagerController.deleteRemoteProjectManager(testRemoteProjectManagerOne);
+        assertEquals("Should not delete when there are associated Products", ERROR, response.getMeta().getStatus());
+        assertEquals("Should not delete with friendly message when there are associated Products", message, response.getMeta().getMessage());
     }
 
     @Test
-    public void testGetScaffolding() {
-        ApiResponse response = remoteProjectManagerController.getTypeScaffolding(ServiceType.VERSION_ONE.toString());
-        assertEquals("Not successful at getting scaffolding", SUCCESS, response.getMeta().getStatus());
+    public void testGetTypes() {
+        ApiResponse response = remoteProjectManagerController.getTypes();
+        assertEquals("Not successful at getting service types", SUCCESS, response.getMeta().getStatus());
     }
 
 }

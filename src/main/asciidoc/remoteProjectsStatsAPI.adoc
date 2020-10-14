@@ -1,0 +1,28 @@
+== Remote Projects Statistics API
+A Collection of API endpoints used for interacting with Product Management Service's Remote Project Statistics resource.
+
+=== Get Remote Projects Statistics
+
+A `GET` to the `/projects/remote` endpoint which will return a list of Remote Projects Statistics in Product Management Service.
+
+==== Sample Request
+include::../../../target/generated-snippets/projects/remote/http-request.adoc[]
+
+==== Sample Response
+include::../../../target/generated-snippets/projects/remote/http-response.adoc[]
+
+==== Example Curl Request
+include::../../../target/generated-snippets/projects/remote/curl-request.adoc[]
+
+=== Update Remote Projects Statistics Cache
+
+A `GET` to the `/projects/remote/update` endpoint which will cause the Remote Project Statistics cache in Product Management Service to be rebuilt.
+
+==== Sample Request
+include::../../../target/generated-snippets/projects/remote/update/http-request.adoc[]
+
+==== Sample Response
+include::../../../target/generated-snippets/projects/remote/update/http-response.adoc[]
+
+==== Example Curl Request
+include::../../../target/generated-snippets/projects/remote/update/curl-request.adoc[]
