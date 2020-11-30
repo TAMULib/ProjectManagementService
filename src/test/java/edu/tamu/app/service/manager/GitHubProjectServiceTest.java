@@ -212,8 +212,8 @@ public class GitHubProjectServiceTest extends CacheMockTests {
         when(TEST_REPOSITORY1.createIssue(any(String.class)).body(any(String.class)).create()).thenReturn(TEST_ISSUE1);
         when(TEST_REPOSITORY1.listProjects(any(ProjectStateFilter.class)).asList()).thenReturn(TEST_PROJECTS);
         when(TEST_REPOSITORY1.listProjects().asList()).thenReturn(TEST_PROJECTS);
-        when(TEST_REPOSITORY1.listIssues(any(GHIssueState.class)).asList()).thenReturn(TEST_ISSUE_LIST);
-        when(TEST_REPOSITORY2.listIssues(any(GHIssueState.class)).asList()).thenReturn(TEST_ISSUE_LIST);
+        when(TEST_REPOSITORY1.getIssues(any(GHIssueState.class))).thenReturn(TEST_ISSUE_LIST);
+        when(TEST_REPOSITORY2.getIssues(any(GHIssueState.class))).thenReturn(TEST_ISSUE_LIST);
         when(TEST_REPOSITORY2.listProjects().asList()).thenReturn(TEST_PROJECTS);
         when(TEST_REPOSITORY1.listLabels().asList()).thenReturn(ALL_TEST_LABELS);
         when(TEST_REPOSITORY2.listLabels().asList()).thenReturn(ALL_TEST_LABELS);
