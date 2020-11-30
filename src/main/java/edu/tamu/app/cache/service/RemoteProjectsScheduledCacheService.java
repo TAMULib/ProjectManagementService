@@ -50,7 +50,7 @@ public class RemoteProjectsScheduledCacheService extends AbstractScheduledCacheS
         if (remoteProjectManagers.isPresent()){
             for (RemoteProjectManager remoteProjectManager : remoteProjectManagers.get()) {
                 RemoteProjectManagerBean remoteProjectManagerBean = (RemoteProjectManagerBean) managementBeanRegistry
-                        .getService(remoteProjectManager.getName());
+                    .getService(remoteProjectManager.getName());
                 try {
                     remoteProjects.put(remoteProjectManager.getId(), remoteProjectManagerBean.getRemoteProject());
                 } catch (Exception e) {
