@@ -85,7 +85,7 @@ app:
     # edu.tamu.weaver.auth.service.CryptoService
     secret: verysecretsecret
     # edu.tamu.weaver.filter.CorsFilter
-    allow-access: http://localhost,http://localhost:8080,http://machuff.tamu.edu,http://janus.evans.tamu.edu,http://savell.evans.tamu.edu,http://jmicah.tamu.edu
+    allow-access: "*"
   # edu.tamu.weaver.email.config.WeaverEmailConfig
   email:
     host: relay.tamu.edu
