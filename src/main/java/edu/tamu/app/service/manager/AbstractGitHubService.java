@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,29 +42,36 @@ public abstract class AbstractGitHubService extends MappingRemoteProjectManagerB
 
     protected static final Logger logger = Logger.getLogger(GitHubProjectService.class);
 
-    protected static final String ORGANIZATION = "TAMULib";
-    protected static final String REQUEST_LABEL = "request";
-    protected static final String ISSUE_LABEL = "issue";
-    protected static final String FEATURE_LABEL = "feature";
-    protected static final String DEFECT_LABEL = "bug";
-    protected static final String SPRINT = "SPRINT";
+    static final String ORGANIZATION = "TAMULib";
+    static final String SPRINT = "SPRINT";
 
-    protected final ManagementService managementService;
+    static final String ISSUE_LABEL = "issue";
+    static final String REQUEST_LABEL = "request";
+    static final String FEATURE_LABEL = "feature";
+    static final String DEFECT_LABEL = "bug";
 
-    protected final GitHubBuilder ghBuilder;
+    private static final List<String> MATCHING_LABELS = Arrays.asList(
+        REQUEST_LABEL,
+        FEATURE_LABEL,
+        DEFECT_LABEL
+    );
 
     protected final GitHub github;
 
-    protected final Map<String, Member> members;
+    private final ManagementService managementService;
 
-    protected final RestTemplate restTemplate;
+    private final RestTemplate restTemplate;
+
+    private final GitHubBuilder ghBuilder;
+
+    private final Map<String, Member> members;
 
     protected AbstractGitHubService(final ManagementService managementService) throws IOException {
         this.managementService = managementService;
-        ghBuilder = new GitHubBuilder();
-        github = getGitHubInstance();
-        restTemplate = getRestTemplate();
-        members = new HashMap<String, Member>();
+        this.restTemplate = getRestTemplate();
+        this.ghBuilder = new GitHubBuilder();
+        this.members = new HashMap<String, Member>();
+        this.github = getGitHubInstance();
     }
 
     @Override
@@ -73,7 +79,7 @@ public abstract class AbstractGitHubService extends MappingRemoteProjectManagerB
         logger.info("Fetching remote projects");
         final GHOrganization org = github.getOrganization(ORGANIZATION);
         return org.getRepositories().values().stream()
-            .map(repo -> exceptionHandlerWrapper(repo, r-> buildRemoteProject(r, r.listLabels().asList())))
+            .map(repo -> exceptionHandlerWrapper(repo, this::buildRemoteProject))
             .collect(Collectors.toList());
     }
 
@@ -81,8 +87,7 @@ public abstract class AbstractGitHubService extends MappingRemoteProjectManagerB
     public RemoteProject getRemoteProjectByScopeId(final String scopeId) throws Exception {
         logger.info("Fetching remote project by scope id " + scopeId);
         final GHRepository repo = github.getRepositoryById(scopeId);
-        final List<GHLabel> labels = repo.listLabels().asList();
-        return buildRemoteProject(repo, labels);
+        return buildRemoteProject(repo);
     }
 
     @Override
@@ -97,7 +102,7 @@ public abstract class AbstractGitHubService extends MappingRemoteProjectManagerB
         return Long.toString(repo.createIssue(title).body(body).create().getId());
     }
 
-    protected GitHub getGitHubInstance() throws IOException {
+    GitHub getGitHubInstance() throws IOException {
         final Optional<String> endpoint = Optional.of(managementService.getUrl());
         final Optional<String> token = Optional.of(managementService.getToken());
 
@@ -115,77 +120,7 @@ public abstract class AbstractGitHubService extends MappingRemoteProjectManagerB
             .build();
     }
 
-    protected RestTemplate getRestTemplate() {
-        return new TokenAuthRestTemplate(managementService.getToken());
-    }
-
-    protected RemoteProject buildRemoteProject(final GHRepository repo, final List<GHLabel> labels) throws IOException {
-        final String scopeId = String.valueOf(repo.getId());
-        final String name = repo.getName();
-
-        final long requestCount = getPrimaryWorkItemCount(REQUEST_LABEL, repo, labels);
-        final long issueCount = getPrimaryWorkItemCount(ISSUE_LABEL, repo, labels);
-        final long featureCount = getPrimaryWorkItemCount(FEATURE_LABEL, repo, labels);
-        final long defectCount = getPrimaryWorkItemCount(DEFECT_LABEL, repo, labels);
-
-        return new RemoteProject(scopeId, name, requestCount, issueCount, featureCount, defectCount, 0L);
-    }
-
-    protected long getPrimaryWorkItemCount(final String type, final GHRepository repo, final List<GHLabel> labels)
-            throws IOException {
-        final Optional<GHLabel> label = getLabelByName(labels, type);
-        if (!label.isPresent()) {
-            return 0;
-        }
-        return repo.listIssues(GHIssueState.OPEN).asList().stream()
-            .filter(card -> cardIsLabelType(card, label.get()))
-            .count();
-    }
-
-    protected Optional<GHLabel> getLabelByName(final List<GHLabel> labels, final String name) {
-        return labels.stream()
-            .filter(label -> label.getName().equals(name))
-            .findFirst();
-    }
-
-    protected boolean cardIsLabelType(GHIssue card, GHLabel label) {
-        try {
-            Collection<GHLabel> labels = card.getLabels();
-            if (label.getName().equals(ISSUE_LABEL) && isAnIssue(card)) {
-                return true;
-            }
-            return hasLabelByName(labels, label.getName());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    protected boolean isAnIssue(final GHIssue card) throws IOException {
-        final Collection<GHLabel> labels = card.getLabels();
-        return !hasLabelByName(labels, REQUEST_LABEL)
-            && !hasLabelByName(labels, DEFECT_LABEL)
-            && !hasLabelByName(labels, FEATURE_LABEL);
-    }
-
-    protected boolean hasLabelByName(final Collection<GHLabel> labels, final String name) {
-        return labels.parallelStream()
-            .filter(cardLabel -> cardLabel.getName().equals(name))
-            .findAny()
-            .isPresent();
-    }
-
-    protected String getCardType(final GHIssue content) throws IOException {
-        final List<GHLabel> labels = (List<GHLabel>) content.getLabels();
-        final Optional<GHLabel> label = labels.stream()
-            .filter(l -> l.getName().equals(DEFECT_LABEL) ||
-                         l.getName().equals(FEATURE_LABEL) ||
-                         l.getName().equals(ISSUE_LABEL) ||
-                         l.getName().equals(REQUEST_LABEL)
-            ).findFirst();
-        return label.isPresent() ? label.get().getName() : null;
-    }
-
-    protected Member getMember(final GHUser user) throws IOException {
+    Member getMember(final GHUser user) throws IOException {
         Member member;
         final String memberId = String.valueOf(user.getId());
         final Optional<Member> cachedMember = getCachedMember(memberId);
@@ -205,30 +140,6 @@ public abstract class AbstractGitHubService extends MappingRemoteProjectManagerB
             cacheMember(memberId, member);
         }
         return member;
-    }
-
-    protected Optional<Member> getCachedMember(final String id) {
-        return Optional.ofNullable(members.get(id));
-    }
-
-    protected String getAvatarPath(final String url) {
-        return url.substring(url.indexOf("/u/") + 3, url.indexOf("?"));
-    }
-
-    protected void storeAvatar(final String avatarUrl) throws IOException {
-        final URL imagesPath = getClass().getResource("/images/");
-        final HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(Arrays.asList(MediaType.APPLICATION_OCTET_STREAM));
-        final HttpEntity<String> entity = new HttpEntity<String>(headers);
-        final ResponseEntity<byte[]> response = restTemplate.exchange(avatarUrl, HttpMethod.GET, entity, byte[].class, "1");
-        if (response.getStatusCode().equals(HttpStatus.OK)) {
-            final File file = new File(imagesPath.getFile() + getAvatarPath(avatarUrl));
-            Files.write(file.toPath(), response.getBody());
-        }
-    }
-
-    protected void cacheMember(final String id, final Member member) {
-        members.put(id, member);
     }
 
     String toProductName(GHProject project) {
@@ -252,6 +163,76 @@ public abstract class AbstractGitHubService extends MappingRemoteProjectManagerB
         );
     }
 
+    private RestTemplate getRestTemplate() {
+        return new TokenAuthRestTemplate(managementService.getToken());
+    }
+
+    private RemoteProject buildRemoteProject(final GHRepository repo) throws IOException {
+        final String scopeId = String.valueOf(repo.getId());
+        final String name = repo.getName();
+
+        final List<GHIssue> issues = repo.getIssues(GHIssueState.OPEN);
+
+        long featureCount = 0;
+        long defectCount = 0;
+        long requestCount = 0;
+        long issueCount = 0;
+
+        for (GHIssue issue : issues) {
+            if (issue.isPullRequest()) {
+                continue;
+            }
+            Optional<String> label = issue.getLabels().stream()
+                .filter(l -> MATCHING_LABELS.contains(l.getName()))
+                .map(GHLabel::getName)
+                .findFirst();
+            if (label.isPresent()) {
+                switch (label.get()) {
+                    case FEATURE_LABEL: featureCount++; break;
+                    case DEFECT_LABEL: defectCount++; break;
+                    case REQUEST_LABEL: requestCount++; break;
+                }
+            } else {
+                issueCount++;
+            }
+        }
+
+        return new RemoteProject(scopeId, name, requestCount, issueCount, featureCount, defectCount, 0L);
+    }
+
+    private Optional<Member> getCachedMember(final String id) {
+        return Optional.ofNullable(members.get(id));
+    }
+
+    private String getAvatarPath(final String url) {
+        return url.substring(url.indexOf("/u/") + 3, url.indexOf("?"));
+    }
+
+    private void storeAvatar(final String avatarUrl) throws IOException {
+        final URL imagesPath = getClass().getResource("/images/");
+        final HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Arrays.asList(MediaType.APPLICATION_OCTET_STREAM));
+        final HttpEntity<String> entity = new HttpEntity<String>(headers);
+        final ResponseEntity<byte[]> response = restTemplate.exchange(avatarUrl, HttpMethod.GET, entity, byte[].class, "1");
+        if (response.getStatusCode().equals(HttpStatus.OK)) {
+            final File file = new File(imagesPath.getFile() + getAvatarPath(avatarUrl));
+            Files.write(file.toPath(), response.getBody());
+        }
+    }
+
+    private void cacheMember(final String id, final Member member) {
+        members.put(id, member);
+    }
+
+    private String getCardType(final GHIssue issue) throws IOException {
+        final List<GHLabel> labels = (List<GHLabel>) issue.getLabels();
+        final Optional<String> label = labels.stream()
+            .filter(l -> MATCHING_LABELS.contains(l.getName()))
+            .map(GHLabel::getName)
+            .findFirst();
+        return label.isPresent() ? label.get() : ISSUE_LABEL;
+    }
+
     private List<Member> getAssignees(GHIssue issue) {
         return issue.getAssignees().stream()
             .map(user -> exceptionHandlerWrapper(user, u -> getMember(u)))
@@ -270,4 +251,5 @@ public abstract class AbstractGitHubService extends MappingRemoteProjectManagerB
             throw new RuntimeException(e);
         }
     }
+
 }
