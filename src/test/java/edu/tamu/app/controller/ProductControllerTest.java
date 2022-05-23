@@ -2,8 +2,8 @@ package edu.tamu.app.controller;
 
 import static edu.tamu.weaver.response.ApiStatus.ERROR;
 import static edu.tamu.weaver.response.ApiStatus.SUCCESS;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -13,15 +13,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import edu.tamu.app.cache.model.RemoteProject;
@@ -44,7 +45,7 @@ import edu.tamu.app.service.registry.ManagementBeanRegistry;
 import edu.tamu.app.service.ticketing.SugarService;
 import edu.tamu.weaver.response.ApiResponse;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class ProductControllerTest {
 
     private static final String TEST_PRODUCT1_NAME = "Test Product 1 Name";
@@ -122,14 +123,14 @@ public class ProductControllerTest {
     @InjectMocks
     private ProductController productController = new ProductController();
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
         when(productRepo.findAll()).thenReturn(mockProductList);
         when(productRepo.create(any(Product.class))).thenReturn(TEST_PRODUCT1);
-        when(productRepo.findOne(any(Long.class))).thenReturn(null);
+        when(productRepo.findById(any(Long.class))).thenReturn(null);
         when(productRepo.update(any(Product.class))).thenReturn(TEST_MODIFIED_PRODUCT);
-        when(remoteProjectManagerRepo.findOne(any(Long.class))).thenReturn(TEST_REMOTE_PROJECT_MANAGER);
+        when(remoteProjectManagerRepo.findById(any(Long.class))).thenReturn(Optional.of(TEST_REMOTE_PROJECT_MANAGER));
         doNothing().when(productRepo).delete(any(Product.class));
         when(sugarService.submit(any(TicketRequest.class))).thenReturn("Successfully submitted issue for test service!");
         when(internalRequestRepo.create(any(InternalRequest.class))).thenReturn(TEST_REQUEST1);
@@ -164,38 +165,38 @@ public class ProductControllerTest {
     @SuppressWarnings("unchecked")
     public void testGetAllProducts() {
         apiResponse = productController.getAll();
-        assertEquals("Not successful at getting requested Product", SUCCESS, apiResponse.getMeta().getStatus());
+        assertEquals(SUCCESS, apiResponse.getMeta().getStatus(), "Not successful at getting requested Product");
         List<Product> products = (List<Product>) apiResponse.getPayload().get("ArrayList<Product>");
-        assertEquals("Did not get the expected Products", mockProductList, products);
+        assertEquals(mockProductList, products, "Did not get the expected Products");
     }
 
     @Test
     public void testGetProductById() {
-        when(productRepo.findOne(any(Long.class))).thenReturn(TEST_PRODUCT1);
+        when(productRepo.findById(any(Long.class))).thenReturn(Optional.of(TEST_PRODUCT1));
         apiResponse = productController.getOne(TEST_PRODUCT1.getId());
-        assertEquals("Not successful at getting requested Product", SUCCESS, apiResponse.getMeta().getStatus());
+        assertEquals(SUCCESS, apiResponse.getMeta().getStatus(), "Not successful at getting requested Product");
         Product product = (Product) apiResponse.getPayload().get("Product");
-        assertEquals("Did not get the expected Product", TEST_PRODUCT1, product);
+        assertEquals(TEST_PRODUCT1, product, "Did not get the expected Product");
     }
 
     @Test
     public void testCreate() {
         apiResponse = productController.createProduct(TEST_PRODUCT1);
-        assertEquals("Not successful at creating Product", SUCCESS, apiResponse.getMeta().getStatus());
+        assertEquals(SUCCESS, apiResponse.getMeta().getStatus(), "Not successful at creating Product");
     }
 
     @Test
     public void testUpdate() {
         apiResponse = productController.updateProduct(TEST_MODIFIED_PRODUCT);
-        assertEquals("Not successful at updating Product", SUCCESS, apiResponse.getMeta().getStatus());
+        assertEquals(SUCCESS, apiResponse.getMeta().getStatus(), "Not successful at updating Product");
         Product product = (Product) apiResponse.getPayload().get("Product");
-        assertEquals("Product title was not properly updated", TEST_MODIFIED_PRODUCT.getName(), product.getName());
+        assertEquals(TEST_MODIFIED_PRODUCT.getName(), product.getName(), "Product title was not properly updated");
     }
 
     @Test
     public void testDelete() {
         apiResponse = productController.deleteProduct(TEST_PRODUCT1);
-        assertEquals("Not successful at deleting Product", SUCCESS, apiResponse.getMeta().getStatus());
+        assertEquals(SUCCESS, apiResponse.getMeta().getStatus(), "Not successful at deleting Product");
     }
 
     @Test
@@ -204,32 +205,32 @@ public class ProductControllerTest {
         when(internalRequestRepo.countByProductId(any(Long.class))).thenReturn(1L);
 
         apiResponse = productController.deleteProduct(TEST_PRODUCT1);
-        assertEquals("Should not delete when there are associated Internal Requests", ERROR, apiResponse.getMeta().getStatus());
-        assertEquals("Should not delete with friendly message when there are associated Internal Requests", message, apiResponse.getMeta().getMessage());
+        assertEquals(ERROR, apiResponse.getMeta().getStatus(), "Should not delete when there are associated Internal Requests");
+        assertEquals(message, apiResponse.getMeta().getMessage(), "Should not delete with friendly message when there are associated Internal Requests");
     }
 
     @Test
     public void testSubmitIssueRequest() {
         apiResponse = productController.submitIssueRequest(TEST_TICKET_REQUEST);
-        assertEquals("Not successful at submitting issue request", SUCCESS, apiResponse.getMeta().getStatus());
+        assertEquals(SUCCESS, apiResponse.getMeta().getStatus(), "Not successful at submitting issue request");
     }
 
     @Test
     public void testPushRequest() throws Exception {
         when(remoteProjectManagementBean.push(TEST_FEATURE_REQUEST)).thenReturn(TEST_FEATURE_REQUEST.getScopeId());
         when(managementBeanRegistry.getService(any(String.class))).thenReturn(remoteProjectManagementBean);
-        when(productRepo.findOne(any(Long.class))).thenReturn(TEST_PRODUCT1);
+        when(productRepo.findById(any(Long.class))).thenReturn(Optional.of(TEST_PRODUCT1));
         apiResponse = productController.pushRequest(TEST_FEATURE_REQUEST);
-        assertEquals("Product controller did not push request", SUCCESS, apiResponse.getMeta().getStatus());
+        assertEquals(SUCCESS, apiResponse.getMeta().getStatus(), "Product controller did not push request");
     }
 
     @Test
     public void testGetAllRemoteProductsForProduct() throws Exception {
         when(remoteProjectManagementBean.push(TEST_FEATURE_REQUEST)).thenReturn(TEST_FEATURE_REQUEST.getScopeId());
         when(managementBeanRegistry.getService(any(String.class))).thenReturn(remoteProjectManagementBean);
-        when(productRepo.findOne(any(Long.class))).thenReturn(TEST_PRODUCT1);
+        when(productRepo.findById(any(Long.class))).thenReturn(Optional.of(TEST_PRODUCT1));
         apiResponse = productController.getAllRemoteProjectsForProduct(TEST_PRODUCT1.getId());
-        assertEquals("Remote Project controller unable to get all remote products for the specified product", SUCCESS, apiResponse.getMeta().getStatus());
+        assertEquals(SUCCESS, apiResponse.getMeta().getStatus(), "Remote Project controller unable to get all remote products for the specified product");
     }
 
     @Test
@@ -237,67 +238,67 @@ public class ProductControllerTest {
         when(remoteProjectManagementBean.push(TEST_FEATURE_REQUEST)).thenReturn(TEST_FEATURE_REQUEST.getScopeId());
         when(managementBeanRegistry.getService(any(String.class))).thenReturn(remoteProjectManagementBean);
         apiResponse = productController.getAllRemoteProjectsForProduct(null);
-        assertEquals("Request with invalid Product id did not result in an error", ERROR, apiResponse.getMeta().getStatus());
-        assertEquals("Invalid Product id did not result in the expected error message", INVALID_PRODUCT_ID_ERROR_MESSAGE, apiResponse.getMeta().getMessage());
+        assertEquals(ERROR, apiResponse.getMeta().getStatus(), "Request with invalid Product id did not result in an error");
+        assertEquals(INVALID_PRODUCT_ID_ERROR_MESSAGE, apiResponse.getMeta().getMessage(), "Invalid Product id did not result in the expected error message");
     }
 
     @Test
     public void testGetAllRemoteProductsForProductWithNoRemoteProductManager() {
-        when(remoteProjectManagerRepo.findOne(any(Long.class))).thenReturn(null);
-        when(productRepo.findOne(any(Long.class))).thenReturn(TEST_PRODUCT1);
+        when(remoteProjectManagerRepo.findById(any(Long.class))).thenReturn(null);
+        when(productRepo.findById(any(Long.class))).thenReturn(Optional.of(TEST_PRODUCT1));
         apiResponse = productController.getAllRemoteProjectsForProduct(TEST_PRODUCT1.getId());
-        assertEquals("Request without Remote Project Manager did not result in an error", ERROR, apiResponse.getMeta().getStatus());
-        assertEquals("Missing Remote Project Manager did not result in the expected error message", "Error fetching remote projects associated with product " + TEST_PRODUCT1.getName() + "!", apiResponse.getMeta().getMessage());
+        assertEquals(ERROR, apiResponse.getMeta().getStatus(), "Request without Remote Project Manager did not result in an error");
+        assertEquals("Error fetching remote projects associated with product " + TEST_PRODUCT1.getName() + "!", apiResponse.getMeta().getMessage(), "Missing Remote Project Manager did not result in the expected error message");
     }
 
     @Test
     public void testGetAllRemoteProjects() throws Exception {
-        when(remoteProjectManagerRepo.findOne(any(Long.class))).thenReturn(testRemoteProjectManagerOne);
+        when(remoteProjectManagerRepo.findById(any(Long.class))).thenReturn(Optional.of(testRemoteProjectManagerOne));
         when(remoteProjectManagementBean.push(TEST_FEATURE_REQUEST)).thenReturn("1");
         when(managementBeanRegistry.getService(any(String.class))).thenReturn(remoteProjectManagementBean);
         apiResponse = productController.getAllRemoteProjects(testRemoteProjectManagerOne.getId());
-        assertEquals("Remote Project Manager controller unable to get all remote projects", SUCCESS, apiResponse.getMeta().getStatus());
+        assertEquals(SUCCESS, apiResponse.getMeta().getStatus(), "Remote Project Manager controller unable to get all remote projects");
     }
 
     @Test
     public void testGetAllRemoteProjectsWithInvalidRemoteProjectManager() {
-        when(remoteProjectManagerRepo.findOne(any(Long.class))).thenReturn(testRemoteProjectManagerOne);
+        when(remoteProjectManagerRepo.findById(any(Long.class))).thenReturn(Optional.of(testRemoteProjectManagerOne));
         apiResponse = productController.getAllRemoteProjects(testRemoteProjectManagerOne.getId());
-        assertEquals("Request with invalid Remote Project Manager id did not result in an error", ERROR, apiResponse.getMeta().getStatus());
-        assertEquals("Invalid Remote Project Manager id did not result in the expected error message", INVALID_RPM_ID_ERROR_MESSAGE, apiResponse.getMeta().getMessage());
+        assertEquals(ERROR, apiResponse.getMeta().getStatus(), "Request with invalid Remote Project Manager id did not result in an error");
+        assertEquals(INVALID_RPM_ID_ERROR_MESSAGE, apiResponse.getMeta().getMessage(), "Invalid Remote Project Manager id did not result in the expected error message");
     }
 
     @Test
     public void testGetAllRemoteProjectsWithNoRemoteProjectManager() {
-        when(remoteProjectManagerRepo.findOne(any(Long.class))).thenReturn(null);
+        when(remoteProjectManagerRepo.findById(any(Long.class))).thenReturn(null);
         apiResponse = productController.getAllRemoteProjects(testRemoteProjectManagerOne.getId());
-        assertEquals("Request without Remote Project Manager did not result in an error", ERROR, apiResponse.getMeta().getStatus());
-        assertEquals("Missing Remote Project Manager did not result in the expected error message", MISSING_RPM_ERROR_MESSAGE, apiResponse.getMeta().getMessage());
+        assertEquals(ERROR, apiResponse.getMeta().getStatus(), "Request without Remote Project Manager did not result in an error");
+        assertEquals(MISSING_RPM_ERROR_MESSAGE, apiResponse.getMeta().getMessage(), "Missing Remote Project Manager did not result in the expected error message");
     }
 
     @Test
     public void testGetRemoteProjectByScopeId() throws Exception {
-        when(remoteProjectManagerRepo.findOne(any(Long.class))).thenReturn(testRemoteProjectManagerOne);
+        when(remoteProjectManagerRepo.findById(any(Long.class))).thenReturn(Optional.of(testRemoteProjectManagerOne));
         when(remoteProjectManagementBean.getRemoteProjectByScopeId(TEST_PROJECT1_SCOPE1)).thenReturn(new RemoteProject());
         when(managementBeanRegistry.getService(any(String.class))).thenReturn(remoteProjectManagementBean);
         apiResponse = productController.getRemoteProjectByScopeId(testRemoteProjectManagerOne.getId(), TEST_PROJECT1_SCOPE1);
-        assertEquals("Product controller unable to get remote project by scope id", SUCCESS, apiResponse.getMeta().getStatus());
+        assertEquals(SUCCESS, apiResponse.getMeta().getStatus(), "Product controller unable to get remote project by scope id");
     }
 
     @Test
     public void testGetRemoteProjectByScopeIdWithInvalidScope() {
-        when(remoteProjectManagerRepo.findOne(any(Long.class))).thenReturn(testRemoteProjectManagerOne);
+        when(remoteProjectManagerRepo.findById(any(Long.class))).thenReturn(Optional.of(testRemoteProjectManagerOne));
         apiResponse = productController.getRemoteProjectByScopeId(testRemoteProjectManagerOne.getId(), TEST_INVALID_SCOPE);
-        assertEquals("Request with invalid Remote Project Manager id did not result in an error", ERROR, apiResponse.getMeta().getStatus());
-        assertEquals("Invalid Remote Project Manager id did not result in the expected error message", INVALID_RPM_ID_ERROR_MESSAGE_FIND_BY_ID, apiResponse.getMeta().getMessage());
+        assertEquals(ERROR, apiResponse.getMeta().getStatus(), "Request with invalid Remote Project Manager id did not result in an error");
+        assertEquals(INVALID_RPM_ID_ERROR_MESSAGE_FIND_BY_ID, apiResponse.getMeta().getMessage(), "Invalid Remote Project Manager id did not result in the expected error message");
     }
 
     @Test
     public void testGetRemoteProjectByScopeIdWithMissingRemoteProjectManager() {
-        when(remoteProjectManagerRepo.findOne(any(Long.class))).thenReturn(null);
+        when(remoteProjectManagerRepo.findById(any(Long.class))).thenReturn(null);
         apiResponse = productController.getRemoteProjectByScopeId(testRemoteProjectManagerOne.getId(), TEST_PROJECT1_SCOPE1);
-        assertEquals("Request with no Remote Project Manager did not result in an error", ERROR, apiResponse.getMeta().getStatus());
-        assertEquals("Missing Remote Project Manager did not result in the expected error message", MISSING_RPM_ERROR_MESSAGE, apiResponse.getMeta().getMessage());
+        assertEquals(ERROR, apiResponse.getMeta().getStatus(), "Request with no Remote Project Manager did not result in an error");
+        assertEquals(MISSING_RPM_ERROR_MESSAGE, apiResponse.getMeta().getMessage(), "Missing Remote Project Manager did not result in the expected error message");
     }
 
 }

@@ -81,7 +81,7 @@ public class ProductController {
     @JsonView(ApiView.Partial.class)
     @PreAuthorize("hasRole('ANONYMOUS')")
     public ApiResponse getOne(@PathVariable Long id) {
-        return new ApiResponse(SUCCESS, productRepo.findOne(id));
+        return new ApiResponse(SUCCESS, productRepo.findById(id));
     }
 
     @PostMapping
@@ -137,7 +137,7 @@ public class ProductController {
     @PostMapping("/feature")
     @PreAuthorize("hasRole('MANAGER') or @whitelist.isAllowed()")
     public ApiResponse pushRequest(@RequestBody FeatureRequest request) {
-        Optional<Product> product = Optional.ofNullable(productRepo.findOne(request.getProductId()));
+        Optional<Product> product = productRepo.findById(request.getProductId());
         ApiResponse response;
 
         if (product.isPresent()) {
@@ -153,7 +153,7 @@ public class ProductController {
     @GetMapping("/remote-projects/{productId}")
     @PreAuthorize("hasRole('MANAGER')")
     public ApiResponse getAllRemoteProjectsForProduct(@PathVariable Long productId) {
-        Optional<Product> product = Optional.ofNullable(productRepo.findOne(productId));
+        Optional<Product> product = productRepo.findById(productId);
         ApiResponse response;
 
         if (product.isPresent()) {
@@ -194,7 +194,7 @@ public class ProductController {
     @GetMapping("/{remoteProjectManagerId}/remote-projects")
     @PreAuthorize("hasRole('MANAGER')")
     public ApiResponse getAllRemoteProjects(@PathVariable Long remoteProjectManagerId) {
-        Optional<RemoteProjectManager> remoteProjectManager = Optional.ofNullable(remoteProjectManagerRepo.findOne(remoteProjectManagerId));
+        Optional<RemoteProjectManager> remoteProjectManager = remoteProjectManagerRepo.findById(remoteProjectManagerId);
         ApiResponse response;
         if (remoteProjectManager.isPresent()) {
             RemoteProjectManagerBean remoteProjectManagerBean = (RemoteProjectManagerBean) managementBeanRegistry.getService(remoteProjectManager.get().getName());
@@ -212,7 +212,7 @@ public class ProductController {
     @GetMapping("/{remoteProjectManagerId}/remote-projects/{scopeId}")
     @PreAuthorize("hasRole('MANAGER')")
     public ApiResponse getRemoteProjectByScopeId(@PathVariable Long remoteProjectManagerId, @PathVariable String scopeId) {
-        Optional<RemoteProjectManager> remoteProjectManager = Optional.ofNullable(remoteProjectManagerRepo.findOne(remoteProjectManagerId));
+        Optional<RemoteProjectManager> remoteProjectManager = remoteProjectManagerRepo.findById(remoteProjectManagerId);
         ApiResponse response;
         if (remoteProjectManager.isPresent()) {
             RemoteProjectManagerBean remoteProjectManagerBean = (RemoteProjectManagerBean) managementBeanRegistry.getService(remoteProjectManager.get().getName());
@@ -235,7 +235,7 @@ public class ProductController {
                 Optional<RemoteProjectManager> remoteProjectManager = Optional.ofNullable(remoteProjectInfo.get().get(i).getRemoteProjectManager());
                 if (remoteProjectManager.isPresent()) {
                     Long remoteProductManagerId = remoteProjectManager.get().getId();
-                    RemoteProjectInfo rpi = new RemoteProjectInfo(remoteProjectInfo.get().get(i).getScopeId(), remoteProjectManagerRepo.findOne(remoteProductManagerId));
+                    RemoteProjectInfo rpi = new RemoteProjectInfo(remoteProjectInfo.get().get(i).getScopeId(), remoteProjectManagerRepo.getById(remoteProductManagerId));
                     remoteProjectInfo.get().set(i, rpi);
                 }
             }

@@ -12,7 +12,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.kohsuke.github.GHIssue;
 import org.kohsuke.github.GHIssueState;
 import org.kohsuke.github.GHLabel;
@@ -40,7 +41,7 @@ import edu.tamu.app.rest.TokenAuthRestTemplate;
 
 public abstract class AbstractGitHubService extends MappingRemoteProjectManagerBean {
 
-    protected static final Logger logger = Logger.getLogger(GitHubProjectService.class);
+    protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
     static final String ORGANIZATION = "TAMULib";
     static final String SPRINT = "SPRINT";
@@ -66,7 +67,7 @@ public abstract class AbstractGitHubService extends MappingRemoteProjectManagerB
 
     private final Map<String, Member> members;
 
-    protected AbstractGitHubService(final ManagementService managementService) throws IOException {
+    protected AbstractGitHubService(final ManagementService managementService) {
         this.managementService = managementService;
         this.restTemplate = getRestTemplate();
         this.ghBuilder = new GitHubBuilder();
@@ -102,7 +103,7 @@ public abstract class AbstractGitHubService extends MappingRemoteProjectManagerB
         return Long.toString(repo.createIssue(title).body(body).create().getId());
     }
 
-    GitHub getGitHubInstance() throws IOException {
+    GitHub getGitHubInstance() {
         final Optional<String> endpoint = Optional.of(managementService.getUrl());
         final Optional<String> token = Optional.of(managementService.getToken());
 
@@ -114,10 +115,17 @@ public abstract class AbstractGitHubService extends MappingRemoteProjectManagerB
             throw new RuntimeException("GitHub token was not defined");
         }
 
-        return ghBuilder
-            .withEndpoint(endpoint.get())
-            .withOAuthToken(token.get())
-            .build();
+        GitHub github;
+        try {
+            github = ghBuilder
+                .withEndpoint(endpoint.get())
+                .withOAuthToken(token.get())
+                .build();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        return github;
     }
 
     Member getMember(final GHUser user) throws IOException {
@@ -248,6 +256,7 @@ public abstract class AbstractGitHubService extends MappingRemoteProjectManagerB
         try {
             return f.apply(t);
         } catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }

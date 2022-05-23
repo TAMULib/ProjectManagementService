@@ -1,8 +1,8 @@
 package edu.tamu.app.cache.controller;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -10,20 +10,20 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import edu.tamu.app.cache.model.ProductStats;
 import edu.tamu.app.cache.service.ProductsStatsScheduledCacheService;
 import edu.tamu.weaver.response.ApiResponse;
 import edu.tamu.weaver.response.ApiStatus;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class ProductsStatsCacheControllerTest {
 
     @Mock
@@ -32,9 +32,9 @@ public class ProductsStatsCacheControllerTest {
     @InjectMocks
     private ProductsStatsCacheController productsStatsCacheController;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
         when(productsStatsScheduledCacheService.get()).thenReturn(getMockProductsStatsCache());
     }
 
@@ -42,10 +42,10 @@ public class ProductsStatsCacheControllerTest {
     @SuppressWarnings("unchecked")
     public void testGet() {
         ApiResponse response = productsStatsCacheController.get();
-        assertNotNull("Reponse was null!", response);
-        assertEquals("Reponse was not successfull!", ApiStatus.SUCCESS, response.getMeta().getStatus());
+        assertNotNull(response, "Response was null!");
+        assertEquals(ApiStatus.SUCCESS, response.getMeta().getStatus(), "Response was not successful!");
 
-        assertNotNull("Reponse payload did not have expected property!", response.getPayload().get("ArrayList<ProductStats>"));
+        assertNotNull(response.getPayload().get("ArrayList<ProductStats>"), "Response payload did not have expected property!");
         assertProductsStats((List<ProductStats>) response.getPayload().get("ArrayList<ProductStats>"));
     }
 

@@ -1,51 +1,51 @@
 package edu.tamu.app.model.request;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class FeatureRequetTest {
 
     @Test
     public void testNewFeatureRequest() {
         FeatureRequest request = newFeatureRequest();
-        assertNotNull("Could not instantiate feature request!", request);
-        assertEquals("Feature request had incorrect title!", "New Feature", request.getTitle());
-        assertEquals("Feature request had incorrect description!", "I would like to turn off service through API.", request.getDescription());
-        assertEquals("Feature request had incorrect product id!", 1L, request.getProductId(), 0);
-        assertEquals("Feature request had incorrect scope id!", "0001", request.getScopeId());
+        assertNotNull(request, "Could not instantiate feature request!");
+        assertEquals("New Feature", request.getTitle(), "Feature request had incorrect title!");
+        assertEquals("I would like to turn off service through API.", request.getDescription(), "Feature request had incorrect description!");
+        assertEquals(1L, request.getProductId(), 0, "Feature request had incorrect product id!");
+        assertEquals("0001", request.getScopeId(), "Feature request had incorrect scope id!");
     }
 
     @Test
     public void testSetTitle() {
         FeatureRequest request = newFeatureRequest();
         request.setTitle("Fix It");
-        assertEquals("Feature request did not set title!", "Fix It", request.getTitle());
+        assertEquals("Fix It", request.getTitle(), "Feature request did not set title!");
     }
 
     @Test
     public void testSetDescription() {
         FeatureRequest request = newFeatureRequest();
         request.setDescription("It just doesn't work!");
-        assertEquals("Feature request did not set description!", "It just doesn't work!", request.getDescription());
+        assertEquals("It just doesn't work!", request.getDescription(), "Feature request did not set description!");
     }
 
     @Test
     public void testSetProductId() {
         FeatureRequest request = newFeatureRequest();
         request.setProductId(2L);
-        assertEquals("Feature request did not set product id!", 2L, request.getProductId(), 0);
+        assertEquals(2L, request.getProductId(), 0, "Feature request did not set product id!");
     }
 
     @Test
     public void testSetScopeId() {
         FeatureRequest request = newFeatureRequest();
         request.setScopeId("0002");
-        assertEquals("Feature request did not set scope id!", "0002", request.getScopeId());
+        assertEquals("0002", request.getScopeId(), "Feature request did not set scope id!");
     }
 
     private FeatureRequest newFeatureRequest() {

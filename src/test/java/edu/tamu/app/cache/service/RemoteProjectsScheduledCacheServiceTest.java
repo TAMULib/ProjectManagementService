@@ -1,9 +1,9 @@
 package edu.tamu.app.cache.service;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -15,14 +15,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.versionone.apiclient.exceptions.APIException;
 import com.versionone.apiclient.exceptions.ConnectionException;
@@ -36,7 +36,7 @@ import edu.tamu.app.model.repo.RemoteProjectManagerRepo;
 import edu.tamu.app.service.manager.VersionOneService;
 import edu.tamu.app.service.registry.ManagementBeanRegistry;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class RemoteProjectsScheduledCacheServiceTest {
 
     private static final String TEST_PROJECT_URL1 = "http://localhost/1";
@@ -58,9 +58,9 @@ public class RemoteProjectsScheduledCacheServiceTest {
     @InjectMocks
     private RemoteProjectsScheduledCacheService remoteProjectsScheduledCacheService;
 
-    @Before
+    @BeforeEach
     public void setup() throws ConnectionException, APIException, OidException, IOException {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
         VersionOneService versionOneService = mock(VersionOneService.class);
         when(remoteProjectManagerRepo.findAll()).thenReturn(Arrays.asList(new RemoteProjectManager[] { getMockRemoteProductManager() }));
         when(managementBeanRegistry.getService(any(String.class))).thenReturn(versionOneService);
@@ -102,7 +102,7 @@ public class RemoteProjectsScheduledCacheServiceTest {
     public void testGetRemoteProduct() {
         remoteProjectsScheduledCacheService.set(getMockRemoteProductsCache());
         Optional<RemoteProject> remoteProject = remoteProjectsScheduledCacheService.getRemoteProject(1L, "0001");
-        assertTrue("Coult not find remote project!", remoteProject.isPresent());
+        assertTrue(remoteProject.isPresent(), "Could not find remote project!");
         assertRemoteProduct(remoteProject.get());
     }
 

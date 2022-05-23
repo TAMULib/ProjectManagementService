@@ -12,10 +12,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
@@ -25,7 +25,7 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
 import edu.tamu.app.ProductApplication;
@@ -38,7 +38,7 @@ import edu.tamu.app.model.repo.AbstractRepoTest;
 @SpringBootTest(classes = { ProductApplication.class }, webEnvironment=WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @AutoConfigureRestDocs(outputDir = "target/generated-snippets")
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class ProductsStatsCacheControllerIntegrationTest extends AbstractRepoTest {
     
     private static final String TEST_PRODUCT_STATS_ID = "0010";
@@ -66,9 +66,9 @@ public class ProductsStatsCacheControllerIntegrationTest extends AbstractRepoTes
     @MockBean
     private RemoteProjectsScheduledCacheService remoteProjectsScheduledCacheService;
 
-    @Before
+    @BeforeEach
     public void setup() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
 
         mockActiveSprintsScheduledCacheService(activeSprintsScheduledCacheService);
         mockProductsStatsScheduledCacheService(productsStatsScheduledCacheService);
@@ -83,11 +83,11 @@ public class ProductsStatsCacheControllerIntegrationTest extends AbstractRepoTes
         // @formatter:off
         mockMvc.perform(
             get("/products/stats")
-                .accept(MediaType.APPLICATION_JSON_UTF8)
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andDo(
                 document(
                     "products/stats",
@@ -118,11 +118,11 @@ public class ProductsStatsCacheControllerIntegrationTest extends AbstractRepoTes
         // @formatter:off
         mockMvc.perform(
             get("/products/stats/update")
-                .accept(MediaType.APPLICATION_JSON_UTF8)
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andDo(
                 document(
                     "products/stats/update",
@@ -139,7 +139,7 @@ public class ProductsStatsCacheControllerIntegrationTest extends AbstractRepoTes
         // @formatter:on
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
     }
 

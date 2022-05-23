@@ -58,7 +58,7 @@ public class InternalRequestController {
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('MANAGER')")
     public ApiResponse read(@PathVariable Long id) {
-        return new ApiResponse(SUCCESS, internalRequestRepo.findOne(id));
+        return new ApiResponse(SUCCESS, internalRequestRepo.findById(id).get());
     }
 
     @PostMapping
@@ -86,9 +86,9 @@ public class InternalRequestController {
     @PutMapping("/push/{requestId}/{productId}/{rpmId}")
     @PreAuthorize("hasRole('MANAGER')")
     public ApiResponse push(@PathVariable Long requestId, @PathVariable Long productId, @PathVariable Long rpmId, @RequestBody String scopeId) {
-        Optional<InternalRequest> internalRequest = Optional.ofNullable(internalRequestRepo.findOne(requestId));
-        Optional<Product> product = Optional.ofNullable(productRepo.findOne(productId));
-        Optional<RemoteProjectManager> remoteProjectManager = Optional.ofNullable(remoteProjectManagerRepo.findOne(rpmId));
+        Optional<InternalRequest> internalRequest = internalRequestRepo.findById(requestId);
+        Optional<Product> product = productRepo.findById(productId);
+        Optional<RemoteProjectManager> remoteProjectManager = remoteProjectManagerRepo.findById(rpmId);
         ApiResponse response;
 
         if (internalRequest.isPresent() && product.isPresent() && remoteProjectManager.isPresent() && !scopeId.isEmpty()) {

@@ -1,24 +1,24 @@
 package edu.tamu.app.mapping;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Arrays;
 import java.util.HashSet;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import edu.tamu.app.ProductApplication;
 import edu.tamu.app.model.CardType;
 import edu.tamu.app.model.repo.CardTypeRepo;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = { ProductApplication.class }, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class CardTypeMappingServiceTest {
 
@@ -28,22 +28,22 @@ public class CardTypeMappingServiceTest {
     @Autowired
     private CardTypeMappingService cardTypeMappingService;
 
-    @Before
+    @BeforeEach
     public void setup() {
         cardTypeRepo.create(new CardType("Feature", new HashSet<String>(Arrays.asList(new String[] { "Story", "Feature" }))));
     }
 
     @Test
     public void testMap() {
-        assertEquals("Feature", cardTypeMappingService.map("Story"));
+        assertEquals(cardTypeMappingService.map("Story"), "Feature");
     }
 
     @Test
     public void testHandleUnmapped() {
-        assertEquals("Handled unmapped incorrectly!", "Defect", cardTypeMappingService.handleUnmapped("Defect"));
+        assertEquals("Defect", cardTypeMappingService.handleUnmapped("Defect"), "Handled unmapped incorrectly!");
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         cardTypeRepo.deleteAll();
     }

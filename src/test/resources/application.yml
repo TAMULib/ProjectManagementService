@@ -1,12 +1,12 @@
 server:
-  port: 9001
+  port: 9101
   contextPath:
 
 ---
 logging:
   level:
     edu.tamu: INFO
-    org.springframework: INFO
+    org.springframework: WARN
   file: logs/product-management-service.log
 
 ---
@@ -14,16 +14,15 @@ security.basic.enabled: false
 
 ---
 spring:
-  # profiles: production, development, test
-  profiles.active: production
+  main:
+    allow-circular-references: true
+    allow-bean-definition-overriding: true
+  profiles.active: test
 
   datasource:
     platform: h2
     driverClassName: org.h2.Driver
     url: jdbc:h2:mem:AZ;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    # platform: postgres
-    # driverClassName: org.postgresql.Driver
-    # url: jdbc:postgresql://localhost:5432/product_management_service
 
     username: spring
     password: spring
@@ -40,7 +39,6 @@ spring:
 
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
-    # database-platform: org.hibernate.dialect.PostgreSQLDialect
 
     show-sql: false
     hibernate.ddl-auto: create-drop
@@ -49,30 +47,31 @@ spring:
 app:
   cache:
     default:
-      # default delay before first cache update, 5 seconds in milliseconds
-      delay: 5000
+      # default delay before first cache update, 15 minutes in milliseconds
+      delay: 900000
       # default interval between cache updates, 1 minute in milliseconds
       interval: 60000
     active-sprints:
-      # 2 seconds in milliseconds
-      delay: 2000
+      # 15 minutes in milliseconds
+      delay: 900000
       # 15 minutes in milliseconds
       interval: 900000
     remote-projects:
-      # 2 seconds in milliseconds
-      delay: 2000
+      # 15 minutes in milliseconds
+      delay: 900000
       # 1 hour in milliseconds
       interval: 3600000
     products-stats:
-      # 2 minutes in milliseconds
+      # 30 minutes in milliseconds
       # the products stats cache is create from the remote products cache
       # this delay should be greater than the remote products delay 
       # and an estimate on how long the remote products cache takes to populate
-      delay: 120000
+      delay: 1800000
       # 1 hour in milliseconds
       interval: 3600000
 
-  sugar.email: helpdesk@library.tamu.edu
+  sugar:
+    email: helpdesk@library.tamu.edu
 
   whitelist: 127.0.0.1
 
@@ -80,12 +79,12 @@ app:
   # Framework app properties #
   ############################
   # edu.tamu.weaver.auth.service.UserCredentialsService
-  authority.admins: 402001311,613001223,102001721,222004429,709005486,523008230,724001395,123456789,512004707,427008012
+  authority.admins: 402001311,613001223,102001721,222004429,709005486,523008230,724001395,123456789
   security:
     # edu.tamu.weaver.auth.service.CryptoService
     secret: verysecretsecret
     # edu.tamu.weaver.filter.CorsFilter
-    allow-access: "*"
+    allow-access: http://localhost,http://localhost:8080,http://machuff.tamu.edu,http://janus.evans.tamu.edu,http://savell.evans.tamu.edu,http://jmicah.tamu.edu
   # edu.tamu.weaver.email.config.WeaverEmailConfig
   email:
     host: relay.tamu.edu
@@ -125,11 +124,3 @@ shib:
   lastName: tdl-sn
   firstName: tdl-givenname
   email: tdl-mail
-
-# spring-boot actuator endpoint: health set to true
-management:
-  endpoints:
-    enabled-by-default: false
-    health:
-      enabled: true
-

@@ -4,10 +4,10 @@ import static edu.tamu.app.service.manager.GitHubMilestoneService.DEFECT_LABEL;
 import static edu.tamu.app.service.manager.GitHubMilestoneService.FEATURE_LABEL;
 import static edu.tamu.app.service.manager.GitHubMilestoneService.ISSUE_LABEL;
 import static edu.tamu.app.service.manager.GitHubMilestoneService.REQUEST_LABEL;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
@@ -23,9 +23,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.kohsuke.github.GHIssue;
 import org.kohsuke.github.GHIssueState;
 import org.kohsuke.github.GHLabel;
@@ -41,13 +41,14 @@ import org.kohsuke.github.GHUser;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.client.RestTemplate;
 
 import edu.tamu.app.cache.model.Member;
@@ -67,7 +68,7 @@ import edu.tamu.app.model.repo.EstimateRepo;
 import edu.tamu.app.model.repo.StatusRepo;
 import edu.tamu.app.model.request.FeatureRequest;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class GitHubMilestoneServiceTest extends CacheMockTests {
     private static final String TEST_REPOSITORY1_NAME = "Test repository 1 name";
     private static final String TEST_REPOSITORY2_NAME = "Test repository 2 name";
@@ -97,11 +98,11 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
     private static final GHLabel TEST_LABEL4 = mock(GHLabel.class);
     private static final GHLabel TEST_LABEL5 = mock(GHLabel.class);
 
-    private static final GHIssue TEST_ISSUE1 = mock(GHIssue.class, RETURNS_DEEP_STUBS.get());
-    private static final GHIssue TEST_ISSUE2 = mock(GHIssue.class, RETURNS_DEEP_STUBS.get());
-    private static final GHIssue TEST_ISSUE3 = mock(GHIssue.class, RETURNS_DEEP_STUBS.get());
-    private static final GHIssue TEST_ISSUE4 = mock(GHIssue.class, RETURNS_DEEP_STUBS.get());
-    private static final GHIssue TEST_ISSUE5 = mock(GHIssue.class, RETURNS_DEEP_STUBS.get());
+    private static final GHIssue TEST_ISSUE1 = mock(GHIssue.class, RETURNS_DEEP_STUBS);
+    private static final GHIssue TEST_ISSUE2 = mock(GHIssue.class, RETURNS_DEEP_STUBS);
+    private static final GHIssue TEST_ISSUE3 = mock(GHIssue.class, RETURNS_DEEP_STUBS);
+    private static final GHIssue TEST_ISSUE4 = mock(GHIssue.class, RETURNS_DEEP_STUBS);
+    private static final GHIssue TEST_ISSUE5 = mock(GHIssue.class, RETURNS_DEEP_STUBS);
 
     private static final GHUser TEST_USER1 = mock(GHUser.class);
     private static final GHUser TEST_USER2 = mock(GHUser.class);
@@ -109,24 +110,24 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
 
     private static final GHMilestone TEST_MILESTONE = mock(GHMilestone.class);
 
-    private static final GHProjectCard TEST_CARD1 = mock(GHProjectCard.class, RETURNS_DEEP_STUBS.get());
-    private static final GHProjectCard TEST_CARD2 = mock(GHProjectCard.class, RETURNS_DEEP_STUBS.get());
-    private static final GHProjectCard TEST_CARD3 = mock(GHProjectCard.class, RETURNS_DEEP_STUBS.get());
-    private static final GHProjectCard TEST_CARD4 = mock(GHProjectCard.class, RETURNS_DEEP_STUBS.get());
-    private static final GHProjectCard TEST_CARD5 = mock(GHProjectCard.class, RETURNS_DEEP_STUBS.get());
+    private static final GHProjectCard TEST_CARD1 = mock(GHProjectCard.class, RETURNS_DEEP_STUBS);
+    private static final GHProjectCard TEST_CARD2 = mock(GHProjectCard.class, RETURNS_DEEP_STUBS);
+    private static final GHProjectCard TEST_CARD3 = mock(GHProjectCard.class, RETURNS_DEEP_STUBS);
+    private static final GHProjectCard TEST_CARD4 = mock(GHProjectCard.class, RETURNS_DEEP_STUBS);
+    private static final GHProjectCard TEST_CARD5 = mock(GHProjectCard.class, RETURNS_DEEP_STUBS);
 
-    private static final GHProjectColumn TEST_COLUMN1 = mock(GHProjectColumn.class, RETURNS_DEEP_STUBS.get());
-    private static final GHProjectColumn TEST_COLUMN2 = mock(GHProjectColumn.class, RETURNS_DEEP_STUBS.get());
-    private static final GHProjectColumn TEST_COLUMN3 = mock(GHProjectColumn.class, RETURNS_DEEP_STUBS.get());
+    private static final GHProjectColumn TEST_COLUMN1 = mock(GHProjectColumn.class, RETURNS_DEEP_STUBS);
+    private static final GHProjectColumn TEST_COLUMN2 = mock(GHProjectColumn.class, RETURNS_DEEP_STUBS);
+    private static final GHProjectColumn TEST_COLUMN3 = mock(GHProjectColumn.class, RETURNS_DEEP_STUBS);
 
-    private static final GHProject TEST_PROJECT1 = mock(GHProject.class, RETURNS_DEEP_STUBS.get());
-    private static final GHProject TEST_PROJECT2 = mock(GHProject.class, RETURNS_DEEP_STUBS.get());
-    private static final GHProject TEST_PROJECT3 = mock(GHProject.class, RETURNS_DEEP_STUBS.get());
+    private static final GHProject TEST_PROJECT1 = mock(GHProject.class, RETURNS_DEEP_STUBS);
+    private static final GHProject TEST_PROJECT2 = mock(GHProject.class, RETURNS_DEEP_STUBS);
+    private static final GHProject TEST_PROJECT3 = mock(GHProject.class, RETURNS_DEEP_STUBS);
 
-    private static final GHRepository TEST_REPOSITORY1 = mock(GHRepository.class, RETURNS_DEEP_STUBS.get());
-    private static final GHRepository TEST_REPOSITORY2 = mock(GHRepository.class, RETURNS_DEEP_STUBS.get());
+    private static final GHRepository TEST_REPOSITORY1 = mock(GHRepository.class, RETURNS_DEEP_STUBS);
+    private static final GHRepository TEST_REPOSITORY2 = mock(GHRepository.class, RETURNS_DEEP_STUBS);
 
-    private static final GHOrganization TEST_ORGANIZATION = mock(GHOrganization.class, RETURNS_DEEP_STUBS.get());
+    private static final GHOrganization TEST_ORGANIZATION = mock(GHOrganization.class, RETURNS_DEEP_STUBS);
 
     private static final FeatureRequest TEST_FEATURE_REQUEST = mock(FeatureRequest.class);
 
@@ -182,8 +183,9 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
 
     private GitHub github;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
+        MockitoAnnotations.openMocks(this);
         ManagementService managementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB_MILESTONE, TEST_PROJECT_URL1, TEST_PROJECT_TOKEN1);
 
 
@@ -218,6 +220,7 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
         when(TEST_REPOSITORY1.listProjects(any(ProjectStateFilter.class)).asList()).thenReturn(TEST_PROJECTS);
         when(TEST_REPOSITORY1.listProjects().asList()).thenReturn(TEST_PROJECTS);
         when(TEST_REPOSITORY1.getIssues(any(GHIssueState.class))).thenReturn(TEST_ISSUE_LIST);
+        when(TEST_REPOSITORY1.getName()).thenReturn(TEST_REPOSITORY1_NAME);
         when(TEST_REPOSITORY2.getIssues(any(GHIssueState.class))).thenReturn(TEST_ISSUE_LIST);
         when(TEST_REPOSITORY2.listProjects().asList()).thenReturn(TEST_PROJECTS);
         when(TEST_REPOSITORY1.listLabels().asList()).thenReturn(ALL_TEST_LABELS);
@@ -295,7 +298,7 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
             any(HttpMethod.class),
             Mockito.<HttpEntity<String>>any(),
             Mockito.<Class<byte[]>>any(),
-            Mockito.<Object>anyVararg()))
+            Mockito.<Object>anyCollection()))
                 .thenReturn(response);
 
         when(response.getStatusCode()).thenReturn(HttpStatus.NOT_FOUND);
@@ -377,34 +380,34 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
     @Test
     public void testGetRemoteProjects() throws Exception {
         List<RemoteProject> remoteProjects = gitHubMilestoneService.getRemoteProject();
-        assertEquals("Didn't get all the remote projects", 2, remoteProjects.size());
-        assertEquals("Number of Requests was incorrect", 1, remoteProjects.get(0).getRequestCount());
-        assertEquals("Number of Issues was incorrect", 2, remoteProjects.get(0).getIssueCount());
-        assertEquals("Number of Features was incorrect", 1, remoteProjects.get(0).getFeatureCount());
-        assertEquals("Number of Defects was incorrect", 1, remoteProjects.get(0).getDefectCount());
+        assertEquals(2, remoteProjects.size(), "Didn't get all the remote projects");
+        assertEquals(1, remoteProjects.get(0).getRequestCount(), "Number of Requests was incorrect");
+        assertEquals(2, remoteProjects.get(0).getIssueCount(), "Number of Issues was incorrect");
+        assertEquals(1, remoteProjects.get(0).getFeatureCount(), "Number of Features was incorrect");
+        assertEquals(1, remoteProjects.get(0).getDefectCount(), "Number of Defects was incorrect");
     }
 
     @Test
     public void testGetRemoteProjectByScopeId() throws Exception {
         RemoteProject project = gitHubMilestoneService.getRemoteProjectByScopeId(String.valueOf(TEST_REPOSITORY1_ID));
-        assertNotNull("Didn't get the remote project", project);
-        assertEquals("Did not get the expected project", String.valueOf(TEST_REPOSITORY1_ID), project.getId());
-        assertEquals("Number of Requests was incorrect", 1, project.getRequestCount());
-        assertEquals("Number of Issues was incorrect", 2, project.getIssueCount());
-        assertEquals("Number of Features was incorrect", 1, project.getFeatureCount());
-        assertEquals("Number of Defects was incorrect", 1, project.getDefectCount());
+        assertNotNull(project, "Didn't get the remote project");
+        assertEquals(String.valueOf(TEST_REPOSITORY1_ID), project.getId(), "Did not get the expected project");
+        assertEquals(1, project.getRequestCount(), "Number of Requests was incorrect");
+        assertEquals(2, project.getIssueCount(), "Number of Issues was incorrect");
+        assertEquals(1, project.getFeatureCount(), "Number of Features was incorrect");
+        assertEquals(1, project.getDefectCount(), "Number of Defects was incorrect");
     }
 
     @Test
     public void testGetActiveSprintsByProjectId() throws Exception {
         List<Sprint> activeSprints = gitHubMilestoneService.getActiveSprintsByScopeId(String.valueOf(TEST_REPOSITORY1_ID));
-        assertEquals("Didn't get all active sprints", 3, activeSprints.size());
+        assertEquals(3, activeSprints.size(), "Didn't get all active sprints");
     }
 
     @Test
     public void testGetAdditionalActiveSprints() throws Exception {
         List<Sprint> additionalSprints = gitHubMilestoneService.getAdditionalActiveSprints();
-        assertEquals("Didn't get all additional sprints", 3, additionalSprints.size());
+        assertEquals(3, additionalSprints.size(), "Didn't get all additional sprints");
     }
 
     @Test
@@ -412,7 +415,7 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
         List<Sprint> sprints = gitHubMilestoneService.getActiveSprintsByScopeId(String.valueOf(TEST_REPOSITORY1_ID));
 
         sprints.forEach(sprint -> {
-            assertEquals("Didn't get the correct Service Type for the Sprint", ServiceType.GITHUB_MILESTONE.toString(), sprint.getType());
+            assertEquals(ServiceType.GITHUB_MILESTONE.toString(), sprint.getType(), "Didn't get the correct Service Type for the Sprint");
         });
     }
 
@@ -421,7 +424,7 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
         List<Sprint> sprints = gitHubMilestoneService.getAdditionalActiveSprints();
 
         sprints.forEach(sprint -> {
-            assertEquals("Didn't get the correct Service Type for the Sprint", ServiceType.GITHUB_MILESTONE.toString(), sprint.getType());
+            assertEquals(ServiceType.GITHUB_MILESTONE.toString(), sprint.getType(), "Didn't get the correct Service Type for the Sprint");
         });
     }
 
@@ -434,9 +437,9 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
     @Test
     public void testGetMember() throws IOException {
         Member member = gitHubMilestoneService.getMember(TEST_USER1);
-        assertEquals("Member ID is incorrect", String.valueOf(TEST_USER1_ID), member.getId());
-        assertEquals("Member Name is incorrect", TEST_USER1_NAME, member.getName());
-        assertEquals("Member Avatar URL is incorrect", TEST_USER1_AVATAR_NAME, member.getAvatar());
+        assertEquals(String.valueOf(TEST_USER1_ID), member.getId(), "Member ID is incorrect");
+        assertEquals(TEST_USER1_NAME, member.getName(), "Member Name is incorrect");
+        assertEquals(TEST_USER1_AVATAR_NAME, member.getAvatar(), "Member Avatar URL is incorrect");
     }
 
     @Test
@@ -468,13 +471,13 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
     @Test
     public void testGetGitHubInstanceByToken() throws IOException {
         GitHub gitHubInstance = gitHubMilestoneService.getGitHubInstance();
-        assertNotNull("GitHub object was not created", gitHubInstance);
+        assertNotNull(gitHubInstance, "GitHub object was not created");
     }
 
     @Test
     public void testGetCardsWithNote() throws Exception {
         when(TEST_CARD1.getContent()).thenReturn(null);
         List<Sprint> sprints = gitHubMilestoneService.getAdditionalActiveSprints();
-        assertEquals("Didn't get expected number of cards", 5, sprints.get(0).getCards().size());
+        assertEquals(5, sprints.get(0).getCards().size(), "Didn't get expected number of cards");
     }
 }

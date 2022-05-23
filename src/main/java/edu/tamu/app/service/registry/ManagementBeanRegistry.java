@@ -5,7 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.stereotype.Service;
@@ -20,7 +21,7 @@ import edu.tamu.app.service.manager.VersionOneService;
 @Service
 public class ManagementBeanRegistry {
 
-    private static final Logger logger = Logger.getLogger(ManagementBeanRegistry.class);
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private static final Map<String, ManagementBean> services = new HashMap<String, ManagementBean>();
 

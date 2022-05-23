@@ -1,17 +1,18 @@
 package edu.tamu.app.model.repo;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
 import org.mockito.Mock;
@@ -21,7 +22,7 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import edu.tamu.app.ProductApplication;
 import edu.tamu.app.cache.service.ActiveSprintsScheduledCacheService;
@@ -36,7 +37,7 @@ import edu.tamu.app.service.manager.VersionOneService;
 import edu.tamu.app.service.registry.ManagementBeanRegistry;
 import edu.tamu.app.service.ticketing.SugarService;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = { ProductApplication.class }, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class ProductRepoTest extends AbstractRepoTest {
     
@@ -82,9 +83,9 @@ public class ProductRepoTest extends AbstractRepoTest {
     private GitHub github;
 
     // @After and @Before cannot be safely specified inside a parent class.
-    @Before
+    @BeforeEach
     public void setup() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
 
         mockSugarService(sugarService);
         mockGitHubService(gitHubService, ghBuilder);
@@ -99,15 +100,15 @@ public class ProductRepoTest extends AbstractRepoTest {
     @Test
     public void testCreate() {
         productRepo.create(TEST_PRODUCT1);
-        assertEquals("Product repo had incorrect number of products!", 1, productRepo.count());
+        assertEquals(1, productRepo.count(), "Product repo had incorrect number of products!");
     }
 
     @Test
     public void testRead() {
         productRepo.create(TEST_PRODUCT1);
         Optional<Product> product = productRepo.findByName(TEST_PRODUCT_NAME1);
-        assertTrue("Could not read product!", product.isPresent());
-        assertEquals("Product read did not have the correct name!", TEST_PRODUCT_NAME1, product.get().getName());
+        assertTrue(product.isPresent(), "Could not read product!");
+        assertEquals(TEST_PRODUCT_NAME1, product.get().getName(), "Product read did not have the correct name!");
     }
 
     @Test
@@ -122,54 +123,58 @@ public class ProductRepoTest extends AbstractRepoTest {
         product.setRemoteProductInfo(newRemoteProjectInfoList);
         product = productRepo.update(product);
 
-        assertEquals("Product name was not updated!", TEST_PRODUCT_NAME_ALTERNATE1, product.getName());
-        assertEquals("Product remote project info was not updated!", newScope, product.getRemoteProjectInfo().get(0).getScopeId());
+        assertEquals(TEST_PRODUCT_NAME_ALTERNATE1, product.getName(), "Product name was not updated!");
+        assertEquals(newScope, product.getRemoteProjectInfo().get(0).getScopeId(), "Product remote project info was not updated!");
     }
 
     @Test
     public void testDelete() {
         Product createdProduct = productRepo.create(TEST_PRODUCT1);
-        assertEquals("Product not created!", 1, productRepo.count());
-        productRepo.delete(createdProduct.getId());
-        assertEquals("Product was not deleted!", 0, productRepo.count());
+        assertEquals(1, productRepo.count(), "Product not created!");
+        productRepo.deleteById(createdProduct.getId());
+        assertEquals(0, productRepo.count(), "Product was not deleted!");
     }
 
-    @Test(expected = DataIntegrityViolationException.class)
+    @Test
     public void testDuplicate() {
-        productRepo.create(new Product(TEST_PRODUCT_NAME1));
-        productRepo.create(new Product(TEST_PRODUCT_NAME1));
+        assertThrows(DataIntegrityViolationException.class, () -> {
+            productRepo.create(new Product(TEST_PRODUCT_NAME1));
+            productRepo.create(new Product(TEST_PRODUCT_NAME1));
+        });
     }
 
-    @Test(expected = DataIntegrityViolationException.class)
+    @Test
     public void testNameNotNull() {
-        productRepo.create(new Product(null));
+        assertThrows(DataIntegrityViolationException.class, () -> {
+            productRepo.create(new Product(null));
+        });
     }
 
     @Test
     public void testSetRemoteProductInfo() {
         Product createdProduct = productRepo.create(TEST_PRODUCT1);
 
-        assertEquals("Product has the incorrect name!", TEST_PRODUCT_NAME1, createdProduct.getName());
-        assertEquals("Product has the incorrect Remote Project Info!", TEST_PRODUCT1.getRemoteProjectInfo().size(), createdProduct.getRemoteProjectInfo().size());
+        assertEquals(TEST_PRODUCT_NAME1, createdProduct.getName(), "Product has the incorrect name!");
+        assertEquals(TEST_PRODUCT1.getRemoteProjectInfo().size(), createdProduct.getRemoteProjectInfo().size(), "Product has the incorrect Remote Project Info!");
 
         productRepo.delete(createdProduct);
 
-        assertEquals("Product repo had incorrect number of products!", 0, productRepo.count());
+        assertEquals(0, productRepo.count(), "Product repo had incorrect number of products!");
     }
 
     @Test
     public void testOtherUrlsCanBeSet() {
         productRepo.create(TEST_PRODUCT1);
         Optional<Product> product = productRepo.findByName(TEST_PRODUCT_NAME1);
-        assertTrue("Could not read product!", product.isPresent());
-        assertEquals("Product read did not have the correct name!", TEST_PRODUCT_NAME1, product.get().getName());
-        assertEquals("Product did not have the expected other URLs", 2, product.get().getOtherUrls().size());
-        assertEquals("First other URL does not match", TEST_OTHER_URL1, product.get().getOtherUrls().get(0));
-        assertEquals("Second other URL does not match", TEST_OTHER_URL2, product.get().getOtherUrls().get(1));
+        assertTrue(product.isPresent(), "Could not read product!");
+        assertEquals(TEST_PRODUCT_NAME1, product.get().getName(), "Product read did not have the correct name!");
+        assertEquals(2, product.get().getOtherUrls().size(), "Product did not have the expected other URLs");
+        assertEquals(TEST_OTHER_URL1, product.get().getOtherUrls().get(0), "First other URL does not match");
+        assertEquals(TEST_OTHER_URL2, product.get().getOtherUrls().get(1), "Second other URL does not match");
     }
 
     // @After and @Before cannot be safely specified inside a parent class.
-    @After
+    @AfterEach
     public void cleanup() {
         cleanupRepos();
     }

@@ -1,9 +1,9 @@
 package edu.tamu.app.service.manager;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.matches;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.matches;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -20,11 +20,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -32,7 +34,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -69,7 +71,7 @@ import edu.tamu.app.model.repo.StatusRepo;
 import edu.tamu.app.model.request.FeatureRequest;
 import edu.tamu.app.rest.TokenAuthRestTemplate;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class VersionOneServiceTest extends CacheMockTests {
 
     private static final String TEST_PROJECT_URL1 = "http://localhost/1";
@@ -89,9 +91,11 @@ public class VersionOneServiceTest extends CacheMockTests {
 
     private List<Sprint> mockActiveSprints;
 
-    @Before
+    @BeforeEach
     @SuppressWarnings("unchecked")
     public void setup() throws JsonParseException, JsonMappingException, IOException, V1Exception {
+        MockitoAnnotations.openMocks(this);
+        
         ManagementService managementService = new RemoteProjectManager("Version One", ServiceType.VERSION_ONE, TEST_PROJECT_URL1, TEST_PROJECT_TOKEN1);
 
         CardTypeRepo cardTypeRepo = mock(CardTypeRepo.class);
@@ -265,8 +269,8 @@ public class VersionOneServiceTest extends CacheMockTests {
 
         RemoteProject remoteProject = versionOneService.getRemoteProjectByScopeId("1934");
 
-        assertEquals("Remote project has incorrect scope id!", mockRemoteProjects.get(0).getId(), remoteProject.getId());
-        assertEquals("Remote project had incorrect name!", mockRemoteProjects.get(0).getName(), remoteProject.getName());
+        assertEquals(mockRemoteProjects.get(0).getId(), remoteProject.getId(), "Remote project has incorrect scope id!");
+        assertEquals(mockRemoteProjects.get(0).getName(), remoteProject.getName(), "Remote project had incorrect name!");
     }
 
     @Test
@@ -310,7 +314,7 @@ public class VersionOneServiceTest extends CacheMockTests {
         when(services.getMeta()).thenReturn(metaModel);
         when(services.retrieve(any(Query.class))).thenReturn(result);
 
-        assertEquals("Incorrect number of " + type, 0, versionOneService.getPrimaryWorkItemCount(type, "1934"));
+        assertEquals(0, versionOneService.getPrimaryWorkItemCount(type, "1934"), "Incorrect number of " + type);
     }
 
     @Test
@@ -530,9 +534,9 @@ public class VersionOneServiceTest extends CacheMockTests {
 
         Member member = versionOneService.getMember("0001");
 
-        assertEquals("Member had incorrect id!", mockMember.getId(), member.getId());
-        assertEquals("Member had incorrect name!", mockMember.getName(), member.getName());
-        assertEquals("Member had incorrect avatar!", mockMember.getAvatar(), member.getAvatar());
+        assertEquals(mockMember.getId(), member.getId(), "Member had incorrect id!");
+        assertEquals(mockMember.getName(), member.getName(), "Member had incorrect name!");
+        assertEquals(mockMember.getAvatar(), member.getAvatar(), "Member had incorrect avatar!");
     }
 
     @Test
@@ -577,9 +581,9 @@ public class VersionOneServiceTest extends CacheMockTests {
 
         Member member = versionOneService.getMember("0003");
 
-        assertEquals("Member had incorrect id!", mockMember.getId(), member.getId());
-        assertEquals("Member had incorrect name!", mockMember.getName(), member.getName());
-        assertEquals("Member had incorrect avatar!", mockMember.getAvatar(), member.getAvatar());
+        assertEquals(mockMember.getId(), member.getId(), "Member had incorrect id!");
+        assertEquals(mockMember.getName(), member.getName(), "Member had incorrect name!");
+        assertEquals(mockMember.getAvatar(), member.getAvatar(), "Member had incorrect avatar!");
     }
 
     @Test
@@ -955,37 +959,37 @@ public class VersionOneServiceTest extends CacheMockTests {
     }
 
     private void assertRemoteProducts(List<RemoteProject> remoteProjects) {
-        assertEquals("Incorrect number of remote projects!", mockRemoteProjects.size(), remoteProjects.size());
+        assertEquals(mockRemoteProjects.size(), remoteProjects.size(), "Incorrect number of remote projects!");
         for (int i = 0; i < mockRemoteProjects.size(); i++) {
             RemoteProject remoteProject = remoteProjects.get(i);
             RemoteProject mockRemoteProduct = mockRemoteProjects.get(i);
-            assertEquals("Remote project has incorrect scope id!", mockRemoteProduct.getId(), remoteProject.getId());
-            assertEquals("Remote project had incorrect name!", mockRemoteProduct.getName(), remoteProject.getName());
+            assertEquals(mockRemoteProduct.getId(), remoteProject.getId(), "Remote project has incorrect scope id!");
+            assertEquals(mockRemoteProduct.getName(), remoteProject.getName(), "Remote project had incorrect name!");
         }
     }
 
     private void assertActiveSprints(List<Sprint> activeSprints) {
-        assertEquals("Incorrect number of active sprints!", mockActiveSprints.size(), activeSprints.size());
+        assertEquals(mockActiveSprints.size(), activeSprints.size(), "Incorrect number of active sprints!");
         for (int i = 0; i < mockActiveSprints.size(); i++) {
             Sprint activeSprint = activeSprints.get(i);
             Sprint mockActiveSprint = mockActiveSprints.get(i);
-            assertEquals("Active sprint has incorrect id!", mockActiveSprint.getId(), activeSprint.getId());
-            assertEquals("Active sprint had incorrect name!", mockActiveSprint.getName(), activeSprint.getName());
-            assertEquals("Active sprint had incorrect product!", mockActiveSprint.getProduct(), activeSprint.getProduct());
+            assertEquals(mockActiveSprint.getId(), activeSprint.getId(), "Active sprint has incorrect id!");
+            assertEquals(mockActiveSprint.getName(), activeSprint.getName(), "Active sprint had incorrect name!");
+            assertEquals(mockActiveSprint.getProduct(), activeSprint.getProduct(), "Active sprint had incorrect product!");
         }
     }
 
     private void assertActiveSprintCards(List<Card> mockActiveSprintCards, List<Card> activeSprintCards) {
-        assertEquals("Incorrect number of cards on active sprint!", mockActiveSprintCards.size(), activeSprintCards.size());
+        assertEquals(mockActiveSprintCards.size(), activeSprintCards.size(), "Incorrect number of cards on active sprint!");
         activeSprintCards.forEach(activeSprintCard -> {
             for (Card mockActiveSprintCard : mockActiveSprintCards) {
                 if (activeSprintCard.getId().equals(mockActiveSprintCard.getId())) {
-                    assertEquals("Active sprint card has incorrect id!", mockActiveSprintCard.getId(), activeSprintCard.getId());
-                    assertEquals("Active sprint card had incorrect name!", mockActiveSprintCard.getName(), activeSprintCard.getName());
-                    assertEquals("Active sprint card had incorrect description!", mockActiveSprintCard.getDescription(), activeSprintCard.getDescription());
-                    assertEquals("Active sprint card had incorrect status!", mockActiveSprintCard.getStatus(), activeSprintCard.getStatus());
-                    assertEquals("Active sprint card had incorrect estimate!", mockActiveSprintCard.getEstimate(), activeSprintCard.getEstimate());
-                    assertEquals("Active sprint card had incorrect number of assignees!", mockActiveSprintCard.getAssignees().size(), activeSprintCard.getAssignees().size());
+                    assertEquals(mockActiveSprintCard.getId(), activeSprintCard.getId(), "Active sprint card has incorrect id!");
+                    assertEquals(mockActiveSprintCard.getName(), activeSprintCard.getName(), "Active sprint card had incorrect name!");
+                    assertEquals(mockActiveSprintCard.getDescription(), activeSprintCard.getDescription(), "Active sprint card had incorrect description!");
+                    assertEquals(mockActiveSprintCard.getStatus(), activeSprintCard.getStatus(), "Active sprint card had incorrect status!");
+                    assertEquals(mockActiveSprintCard.getEstimate(), activeSprintCard.getEstimate(), "Active sprint card had incorrect estimate!");
+                    assertEquals(mockActiveSprintCard.getAssignees().size(), activeSprintCard.getAssignees().size(), "Active sprint card had incorrect number of assignees!");
                     break;
                 }
             }

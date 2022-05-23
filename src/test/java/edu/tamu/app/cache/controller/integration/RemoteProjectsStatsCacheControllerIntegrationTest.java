@@ -14,10 +14,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
@@ -27,7 +27,7 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
 import edu.tamu.app.ProductApplication;
@@ -40,7 +40,7 @@ import edu.tamu.app.model.repo.AbstractRepoTest;
 @SpringBootTest(classes = { ProductApplication.class }, webEnvironment=WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @AutoConfigureRestDocs(outputDir = "target/generated-snippets")
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class RemoteProjectsStatsCacheControllerIntegrationTest extends AbstractRepoTest {
     
     private static final String TEST_REMOTE_PROJECTS_ID = "0010";
@@ -70,9 +70,9 @@ public class RemoteProjectsStatsCacheControllerIntegrationTest extends AbstractR
     @MockBean
     private RemoteProjectsScheduledCacheService remoteProjectsScheduledCacheService;
 
-    @Before
+    @BeforeEach
     public void setup() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
 
         mockActiveSprintsScheduledCacheService(activeSprintsScheduledCacheService);
         mockProductsStatsScheduledCacheService(productsStatsScheduledCacheService);
@@ -89,11 +89,11 @@ public class RemoteProjectsStatsCacheControllerIntegrationTest extends AbstractR
         // @formatter:off
         mockMvc.perform(
             get("/projects/remote")
-                .accept(MediaType.APPLICATION_JSON_UTF8)
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andDo(
                 document(
                     "projects/remote",
@@ -124,11 +124,11 @@ public class RemoteProjectsStatsCacheControllerIntegrationTest extends AbstractR
         // @formatter:off
         mockMvc.perform(
             get("/projects/remote/update")
-                .accept(MediaType.APPLICATION_JSON_UTF8)
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andDo(
                 document(
                     "projects/remote/update",
@@ -145,7 +145,7 @@ public class RemoteProjectsStatsCacheControllerIntegrationTest extends AbstractR
         // @formatter:on
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
     }
 

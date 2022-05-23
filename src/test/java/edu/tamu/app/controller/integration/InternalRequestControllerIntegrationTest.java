@@ -2,7 +2,7 @@ package edu.tamu.app.controller.integration;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
@@ -12,6 +12,7 @@ import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuild
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.payload.PayloadDocumentation.subsectionWithPath;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -24,11 +25,15 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.kohsuke.github.GitHubBuilder;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,12 +44,9 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 
 import edu.tamu.app.ProductApplication;
 import edu.tamu.app.cache.service.ActiveSprintsScheduledCacheService;
@@ -54,10 +56,10 @@ import edu.tamu.app.model.Product;
 import edu.tamu.app.model.RemoteProjectInfo;
 import edu.tamu.app.model.RemoteProjectManager;
 import edu.tamu.app.model.ServiceType;
+import edu.tamu.app.model.repo.AbstractRepoTest;
 import edu.tamu.app.model.repo.InternalRequestRepo;
 import edu.tamu.app.model.repo.ProductRepo;
 import edu.tamu.app.model.repo.RemoteProjectManagerRepo;
-import edu.tamu.app.model.repo.AbstractRepoTest;
 import edu.tamu.app.service.manager.GitHubProjectService;
 import edu.tamu.app.service.manager.RemoteProjectManagerBean;
 import edu.tamu.app.service.manager.VersionOneService;
@@ -67,7 +69,7 @@ import edu.tamu.weaver.response.ApiStatus;
 @SpringBootTest(classes = { ProductApplication.class }, webEnvironment=WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @AutoConfigureRestDocs(outputDir = "target/generated-snippets")
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class InternalRequestControllerIntegrationTest extends AbstractRepoTest {
 
     private static long currentId = 0L;
@@ -129,9 +131,9 @@ public class InternalRequestControllerIntegrationTest extends AbstractRepoTest {
     private ProductsStatsScheduledCacheService productsStatsScheduledCacheService;
 
     // @After and @Before cannot be safely specified inside a parent class.
-    @Before
+    @BeforeEach
     public void setup() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
 
         mockGitHubService(gitHubService, ghBuilder);
         mockVersionOneService(versionOneService);
@@ -141,11 +143,11 @@ public class InternalRequestControllerIntegrationTest extends AbstractRepoTest {
         TEST_REMOTE_PROJECT_MANAGER.setId(TEST_REMOTE_PROJECT_MANAGER_ID);
         TEST_PRODUCT.setId(TEST_PROJECT_ID);
 
-        when(remoteProjectManagerRepo.findOne(any(Long.class))).thenReturn(TEST_REMOTE_PROJECT_MANAGER);
+        when(remoteProjectManagerRepo.findById(any(Long.class))).thenReturn(Optional.of(TEST_REMOTE_PROJECT_MANAGER));
         when(remoteProjectManagerRepo.findAll()).thenReturn(TEST_REMOTE_PROJECT_MANAGER_LIST);
 
         when(productRepo.findAll()).thenReturn(TEST_PRODUCT_LIST);
-        when(productRepo.findOne(any(Long.class))).thenReturn(TEST_PRODUCT);
+        when(productRepo.findById(any(Long.class))).thenReturn(Optional.of(TEST_PRODUCT));
         when(productRepo.create(any(Product.class))).thenReturn(TEST_PRODUCT);
         when(productRepo.update(any(Product.class))).thenReturn(TEST_PRODUCT);
     }
@@ -158,11 +160,11 @@ public class InternalRequestControllerIntegrationTest extends AbstractRepoTest {
         // @formatter:off
         mockMvc.perform(
             get("/internal/request")
-                .accept(MediaType.APPLICATION_JSON_UTF8)
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("payload.ArrayList<InternalRequest>[0].id", equalTo((int) currentId)))
             .andExpect(jsonPath("payload.ArrayList<InternalRequest>[0].title", equalTo(TEST_INTERNAL_REQUEST_NAME)))
             .andExpect(jsonPath("payload.ArrayList<InternalRequest>[0].description", equalTo(TEST_INTERNAL_REQUEST_DESCRIPTION)))
@@ -184,7 +186,7 @@ public class InternalRequestControllerIntegrationTest extends AbstractRepoTest {
                         fieldWithPath("meta.action").description("Action of the request."),
                         fieldWithPath("meta.message").description("Message of the response."),
                         fieldWithPath("meta.status").description("Status of the response."),
-                        fieldWithPath("payload").description("API response payload containing the List of Internal Requests.")
+                        subsectionWithPath("payload").description("API response payload containing the List of Internal Requests.")
                     )
                 )
             );
@@ -199,11 +201,11 @@ public class InternalRequestControllerIntegrationTest extends AbstractRepoTest {
         // @formatter:off
         mockMvc.perform(
             get("/internal/request/{id}", currentId)
-                .accept(MediaType.APPLICATION_JSON_UTF8)
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("payload.InternalRequest.id", equalTo((int) currentId)))
             .andExpect(jsonPath("payload.InternalRequest.title", equalTo(TEST_INTERNAL_REQUEST_NAME)))
             .andExpect(jsonPath("payload.InternalRequest.description", equalTo(TEST_INTERNAL_REQUEST_DESCRIPTION)))
@@ -233,7 +235,7 @@ public class InternalRequestControllerIntegrationTest extends AbstractRepoTest {
                         fieldWithPath("payload.InternalRequest.title").description("The Internal Request name."),
                         fieldWithPath("payload.InternalRequest.createdOn").description("The date and time the Internal Request was created."),
                         fieldWithPath("payload.InternalRequest.description").description("The description of the Internal Request."),
-                        fieldWithPath("payload.InternalRequest.product").description("The Product assocaited with the Internal Request.")
+                        subsectionWithPath("payload.InternalRequest.product").description("The Product associated with the Internal Request.")
                     )
                 )
             );
@@ -253,7 +255,7 @@ public class InternalRequestControllerIntegrationTest extends AbstractRepoTest {
                         fieldWithPath("title").description("The Internal Request name."),
                         fieldWithPath("createdOn").description("The date and time the Internal Request was created."),
                         fieldWithPath("description").description("The description of the Internal Request."),
-                        fieldWithPath("product").description("The Product assocaited with the Internal Request.")
+                        subsectionWithPath("product").description("The Product associated with the Internal Request.")
                     ),
                     responseFields(
                         fieldWithPath("meta").description("API response meta."),
@@ -266,7 +268,7 @@ public class InternalRequestControllerIntegrationTest extends AbstractRepoTest {
                         fieldWithPath("payload.InternalRequest.title").description("The Internal Request name."),
                         fieldWithPath("payload.InternalRequest.createdOn").description("The date and time the Internal Request was created."),
                         fieldWithPath("payload.InternalRequest.description").description("The description of the Internal Request."),
-                        fieldWithPath("payload.InternalRequest.product").description("The Product assocaited with the Internal Request.")
+                        subsectionWithPath("payload.InternalRequest.product").description("The Product associated with the Internal Request.")
                     )
                 )
             );
@@ -278,7 +280,7 @@ public class InternalRequestControllerIntegrationTest extends AbstractRepoTest {
     public void testUpdateInternalRequest() throws JsonProcessingException, Exception {
         performCreateInternalRequest();
 
-        InternalRequest internalRequest = internalRequestRepo.findOne(currentId);
+        InternalRequest internalRequest = internalRequestRepo.findById(currentId).get();
 
         internalRequest.setTitle("Updated " + internalRequest.getTitle());
         internalRequest.setCreatedOn(TEST_DATE);
@@ -288,12 +290,12 @@ public class InternalRequestControllerIntegrationTest extends AbstractRepoTest {
         // @formatter:off
         mockMvc.perform(
             put("/internal/request")
-                .accept(MediaType.APPLICATION_JSON_UTF8)
+                .accept(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(internalRequest))
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(content().json(objectMapper.writeValueAsString(expectedResponse)))
             .andDo(
                 document(
@@ -303,7 +305,7 @@ public class InternalRequestControllerIntegrationTest extends AbstractRepoTest {
                         fieldWithPath("title").description("The Internal Request name."),
                         fieldWithPath("createdOn").description("The date and time the Internal Request was created."),
                         fieldWithPath("description").description("The description of the Internal Request."),
-                        fieldWithPath("product").description("The Product assocaited with the Internal Request.")
+                        subsectionWithPath("product").description("The Product associated with the Internal Request.")
                     ),
                     responseFields(
                         fieldWithPath("meta").description("API response meta."),
@@ -316,7 +318,7 @@ public class InternalRequestControllerIntegrationTest extends AbstractRepoTest {
                         fieldWithPath("payload.InternalRequest.title").description("The Internal Request name."),
                         fieldWithPath("payload.InternalRequest.createdOn").description("The date and time the Internal Request was created."),
                         fieldWithPath("payload.InternalRequest.description").description("The description of the Internal Request."),
-                        fieldWithPath("payload.InternalRequest.product").description("The Product assocaited with the Internal Request.")
+                        subsectionWithPath("payload.InternalRequest.product").description("The Product associated with the Internal Request.")
                     )
                 )
             );
@@ -328,17 +330,17 @@ public class InternalRequestControllerIntegrationTest extends AbstractRepoTest {
     public void testDeleteInternalRequest() throws JsonProcessingException, Exception {
         performCreateInternalRequest();
 
-        InternalRequest internalRequest = internalRequestRepo.findOne(currentId);
+        InternalRequest internalRequest = internalRequestRepo.findById(currentId).get();
 
         // @formatter:off
         mockMvc.perform(
             delete("/internal/request")
-                .accept(MediaType.APPLICATION_JSON_UTF8)
+                .accept(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(internalRequest))
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andDo(
                 document(
                     "internal/request/delete",
@@ -347,7 +349,7 @@ public class InternalRequestControllerIntegrationTest extends AbstractRepoTest {
                         fieldWithPath("title").description("The Internal Request name."),
                         fieldWithPath("createdOn").description("The date and time the Internal Request was created."),
                         fieldWithPath("description").description("The description of the Internal Request."),
-                        fieldWithPath("product").description("The Product assocaited with the Internal Request.")
+                        subsectionWithPath("product").description("The Product associated with the Internal Request.")
                     ),
                     responseFields(
                         fieldWithPath("meta").description("API response meta."),
@@ -367,7 +369,7 @@ public class InternalRequestControllerIntegrationTest extends AbstractRepoTest {
     public void testInternalRequestPush() throws Exception {
         performCreateInternalRequest();
 
-        InternalRequest internalRequest = internalRequestRepo.findOne(currentId);
+        InternalRequest internalRequest = internalRequestRepo.findById(currentId).get();
         long requestId = internalRequest.getId();
         long productId = internalRequest.getProduct().getId();
 
@@ -379,12 +381,12 @@ public class InternalRequestControllerIntegrationTest extends AbstractRepoTest {
         // @formatter:off
         mockMvc.perform(
             put("/internal/request/push/{requestId}/{productId}/{rpmId}", requestId, productId, rpmId)
-                .accept(MediaType.APPLICATION_JSON_UTF8)
+                .accept(MediaType.APPLICATION_JSON)
                 .content(scopeId)
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andDo(
                 document(
                     "internal/request/push",
@@ -414,11 +416,11 @@ public class InternalRequestControllerIntegrationTest extends AbstractRepoTest {
         // @formatter:off
         mockMvc.perform(
             get("/internal/request/stats")
-                .accept(MediaType.APPLICATION_JSON_UTF8)
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andDo(
                 document(
                     "internal/request/stats",
@@ -439,7 +441,7 @@ public class InternalRequestControllerIntegrationTest extends AbstractRepoTest {
     }
 
     // @After and @Before cannot be safely specified inside a parent class.
-    @After
+    @AfterEach
     public void cleanup() {
         cleanupRepos();
     }
@@ -453,12 +455,12 @@ public class InternalRequestControllerIntegrationTest extends AbstractRepoTest {
         // @formatter:off
         return mockMvc.perform(
             post("/internal/request")
-                .accept(MediaType.APPLICATION_JSON_UTF8)
+                .accept(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(ir))
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andDo((result) -> {
                 // @CreationTimestamp may result in a different timestamp by nature, so effectively ignore the createdOn field.
                 JsonNode node = objectMapper.readTree(result.getResponse().getContentAsByteArray());

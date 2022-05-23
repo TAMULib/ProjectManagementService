@@ -1,17 +1,18 @@
 package edu.tamu.app.model.repo;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.HashSet;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
 import org.mockito.MockitoAnnotations;
@@ -19,7 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import edu.tamu.app.ProductApplication;
 import edu.tamu.app.cache.service.ActiveSprintsScheduledCacheService;
@@ -30,7 +31,7 @@ import edu.tamu.app.service.manager.GitHubProjectService;
 import edu.tamu.app.service.manager.VersionOneService;
 import edu.tamu.app.service.ticketing.SugarService;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = { ProductApplication.class }, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class EstimateRepoTest extends AbstractRepoTest {
 
@@ -59,9 +60,9 @@ public class EstimateRepoTest extends AbstractRepoTest {
     private GitHub github;
 
     // @After and @Before cannot be safely specified inside a parent class.
-    @Before
+    @BeforeEach
     public void setup() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
 
         mockSugarService(sugarService);
         mockGitHubService(gitHubService, ghBuilder);
@@ -74,18 +75,18 @@ public class EstimateRepoTest extends AbstractRepoTest {
     @Test
     public void testCreate() {
         Estimate estimate = estimateRepo.create(new Estimate(1.0f, new HashSet<String>(Arrays.asList(new String[] { "Small", "small" }))));
-        assertNotNull("Unable to create estimate!", estimate);
-        assertEquals("Estimate repo had incorrect number of estimates!", 1, estimateRepo.count());
-        assertEquals("Estimate had incorrect identifier!", 1.0f, estimate.getIdentifier(), 0);
-        assertEquals("Estimate had incorrect number of mappings!", 2, estimate.getMapping().size());
+        assertNotNull(estimate, "Unable to create estimate!");
+        assertEquals(1, estimateRepo.count(), "Estimate repo had incorrect number of estimates!");
+        assertEquals(1.0f, estimate.getIdentifier(), 0, "Estimate had incorrect identifier!");
+        assertEquals(2, estimate.getMapping().size(), "Estimate had incorrect number of mappings!");
     }
 
     @Test
     public void testRead() {
         estimateRepo.create(new Estimate(1.0f, new HashSet<String>(Arrays.asList(new String[] { "Small", "small" }))));
-        assertNotNull("Unable to find estimate by identifier!", estimateRepo.findByIdentifier(1.0f));
-        assertTrue("Unable to find estimate by mapping!", estimateRepo.findByMapping("Small").isPresent());
-        assertTrue("Unable to find estimate by mapping!", estimateRepo.findByMapping("small").isPresent());
+        assertNotNull(estimateRepo.findByIdentifier(1.0f), "Unable to find estimate by identifier!");
+        assertTrue(estimateRepo.findByMapping("Small").isPresent(), "Unable to find estimate by mapping!");
+        assertTrue(estimateRepo.findByMapping("small").isPresent(), "Unable to find estimate by mapping!");
     }
 
     @Test
@@ -94,26 +95,28 @@ public class EstimateRepoTest extends AbstractRepoTest {
         estimate.setIdentifier(5.0f);
         estimate.setMapping(new HashSet<String>(Arrays.asList(new String[] { "Large", "large", "lg" })));
         estimate = estimateRepo.update(estimate);
-        assertEquals("Estimate had incorrect identifier!", 5.0f, estimate.getIdentifier(), 0);
-        assertEquals("Estimate had incorrect number of mappings!", 3, estimate.getMapping().size());
+        assertEquals(5.0f, estimate.getIdentifier(), 0, "Estimate had incorrect identifier!");
+        assertEquals(3, estimate.getMapping().size(), "Estimate had incorrect number of mappings!");
     }
 
     @Test
     public void testDelete() {
         Estimate estimate = estimateRepo.create(new Estimate(1.0f, new HashSet<String>(Arrays.asList(new String[] { "Small", "small" }))));
         estimateRepo.delete(estimate);
-        assertNull("Unable to delete estimate!", estimateRepo.findByIdentifier(1.0f));
-        assertEquals("Estimate repo had incorrect number of estimates!", 0, estimateRepo.count());
+        assertNull(estimateRepo.findByIdentifier(1.0f), "Unable to delete estimate!");
+        assertEquals(0, estimateRepo.count(), "Estimate repo had incorrect number of estimates!");
     }
 
-    @Test(expected = DataIntegrityViolationException.class)
+    @Test
     public void testDuplicate() {
-        estimateRepo.create(new Estimate(1.0f, new HashSet<String>(Arrays.asList(new String[] { "Small", "small" }))));
-        estimateRepo.create(new Estimate(1.0f, new HashSet<String>(Arrays.asList(new String[] { "Small" }))));
+        assertThrows(DataIntegrityViolationException.class, () -> {
+            estimateRepo.create(new Estimate(1.0f, new HashSet<String>(Arrays.asList(new String[] { "Small", "small" }))));
+            estimateRepo.create(new Estimate(1.0f, new HashSet<String>(Arrays.asList(new String[] { "Small" }))));
+        });
     }
 
     // @After and @Before cannot be safely specified inside a parent class.
-    @After
+    @AfterEach
     public void cleanup() {
         cleanupRepos();
     }

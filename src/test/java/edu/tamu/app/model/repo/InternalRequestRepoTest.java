@@ -1,23 +1,22 @@
 package edu.tamu.app.model.repo;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
-import org.mockito.InjectMocks;
 import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import edu.tamu.app.ProductApplication;
 import edu.tamu.app.cache.service.ActiveSprintsScheduledCacheService;
@@ -32,7 +31,7 @@ import edu.tamu.app.service.manager.GitHubProjectService;
 import edu.tamu.app.service.manager.VersionOneService;
 import edu.tamu.app.service.ticketing.SugarService;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = { ProductApplication.class }, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class InternalRequestRepoTest extends AbstractRepoTest {
 
@@ -74,9 +73,9 @@ public class InternalRequestRepoTest extends AbstractRepoTest {
     private GitHub github;
 
     // @After and @Before cannot be safely specified inside a parent class.
-    @Before
+    @BeforeEach
     public void setup() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
 
         mockSugarService(sugarService);
         mockGitHubService(gitHubService, ghBuilder);
@@ -94,7 +93,7 @@ public class InternalRequestRepoTest extends AbstractRepoTest {
         Product product = productRepo.findAll().get(0);
         InternalRequest internalRequest = new InternalRequest(TEST_INTERNAL_REQUEST1.getTitle(), TEST_INTERNAL_REQUEST1.getDescription(), product, TEST_INTERNAL_REQUEST1.getCreatedOn());
         InternalRequest createdInternalRequest = internalRequestRepo.create(internalRequest);
-        assertEquals("Internal request had incorrect title!", TEST_INTERNAL_REQUEST_TITLE1, createdInternalRequest.getTitle());
+        assertEquals(TEST_INTERNAL_REQUEST_TITLE1, createdInternalRequest.getTitle(), "Internal request had incorrect title!");
     }
 
     @Test
@@ -103,7 +102,7 @@ public class InternalRequestRepoTest extends AbstractRepoTest {
         InternalRequest internalRequest = new InternalRequest(TEST_INTERNAL_REQUEST1.getTitle(), TEST_INTERNAL_REQUEST1.getDescription(), product, TEST_INTERNAL_REQUEST1.getCreatedOn());
 
         internalRequestRepo.create(internalRequest);
-        assertEquals("Could not read all internal requests!", 1, internalRequestRepo.findAll().size());
+        assertEquals(1, internalRequestRepo.findAll().size(), "Could not read all internal requests!");
     }
 
     @Test
@@ -114,7 +113,7 @@ public class InternalRequestRepoTest extends AbstractRepoTest {
 
         createdInternalRequest.setTitle(TEST_INTERNAL_REQUEST_TITLE2);
         createdInternalRequest = internalRequestRepo.update(internalRequest);
-        assertEquals("Internal request did not update title!", TEST_INTERNAL_REQUEST_TITLE2, createdInternalRequest.getTitle());
+        assertEquals(TEST_INTERNAL_REQUEST_TITLE2, createdInternalRequest.getTitle(), "Internal request did not update title!");
     }
 
     @Test
@@ -124,11 +123,11 @@ public class InternalRequestRepoTest extends AbstractRepoTest {
         InternalRequest createdInternalRequest = internalRequestRepo.create(internalRequest);
 
         internalRequestRepo.delete(createdInternalRequest);
-        assertEquals("Internal request was not deleted!", 0, internalRequestRepo.count());
+        assertEquals(0, internalRequestRepo.count(), "Internal request was not deleted!");
     }
 
     // @After and @Before cannot be safely specified inside a parent class.
-    @After
+    @AfterEach
     public void cleanup() {
         cleanupRepos();
     }

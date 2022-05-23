@@ -1,7 +1,7 @@
 package edu.tamu.app.controller.integration;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
@@ -22,11 +22,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.kohsuke.github.GitHubBuilder;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +40,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -73,7 +74,7 @@ import edu.tamu.weaver.response.ApiStatus;
 @SpringBootTest(classes = { ProductApplication.class }, webEnvironment=WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @AutoConfigureRestDocs(outputDir = "target/generated-snippets")
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class ProductControllerIntegrationTest extends AbstractRepoTest {
 
     @Value("classpath:mock/credentials/aggiejack.json")
@@ -151,9 +152,9 @@ public class ProductControllerIntegrationTest extends AbstractRepoTest {
     private RemoteProjectsScheduledCacheService remoteProjectsScheduledCacheService;
 
     // @After and @Before cannot be safely specified inside a parent class.
-    @Before
+    @BeforeEach
     public void setup() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
 
         mockSugarService(sugarService);
         mockGitHubService(gitHubService, ghBuilder);
@@ -165,7 +166,7 @@ public class ProductControllerIntegrationTest extends AbstractRepoTest {
         TEST_REMOTE_PROJECT_MANAGER.setId(TEST_REMOTE_PROJECT_MANAGER_ID);
 
         when(remoteProjectManagerRepo.findAll()).thenReturn(TEST_REMOTE_PROJECT_MANAGER_LIST);
-        when(remoteProjectManagerRepo.findOne(any(Long.class))).thenReturn(TEST_REMOTE_PROJECT_MANAGER);
+        when(remoteProjectManagerRepo.findById(any(Long.class))).thenReturn(Optional.of(TEST_REMOTE_PROJECT_MANAGER));
 
         doNothing().when(remoteProjectManagerRepo).delete(any(RemoteProjectManager.class));
 
@@ -187,7 +188,7 @@ public class ProductControllerIntegrationTest extends AbstractRepoTest {
         // @formatter:off
         mockMvc.perform(
             get("/products")
-                .accept(MediaType.APPLICATION_JSON_UTF8)
+                .accept(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
             .andExpect(jsonPath("meta.status", equalTo("SUCCESS")))
@@ -230,8 +231,8 @@ public class ProductControllerIntegrationTest extends AbstractRepoTest {
         // @formatter:off
         mockMvc.perform(
             get("/products/{id}", currentId)
-                .accept(MediaType.APPLICATION_JSON_UTF8)
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
             .andExpect(jsonPath("meta.status", equalTo("SUCCESS")))
@@ -340,7 +341,7 @@ public class ProductControllerIntegrationTest extends AbstractRepoTest {
     public void testUpdateProduct() throws Exception {
         performCreateProduct();
 
-        Product product = productRepo.findOne(currentId);
+        Product product = productRepo.findById(currentId).get();
 
         product.setName("Updated " + product.getName());
 
@@ -349,11 +350,11 @@ public class ProductControllerIntegrationTest extends AbstractRepoTest {
         // @formatter:off
         mockMvc.perform(
             put("/products")
-                .accept(MediaType.APPLICATION_JSON_UTF8)
+                .accept(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(product))
-                .contentType(MediaType.APPLICATION_JSON_UTF8))
+                .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                     .andExpect(content().json(objectMapper.writeValueAsString(expectedResponse))
             ).andDo(
                 document(
@@ -410,17 +411,17 @@ public class ProductControllerIntegrationTest extends AbstractRepoTest {
     public void testDeleteProduct() throws Exception {
         performCreateProduct();
 
-        Product product = productRepo.findOne(currentId);
+        Product product = productRepo.findById(currentId).get();
 
         // @formatter:off
         mockMvc.perform(
             delete("/products")
-                .accept(MediaType.APPLICATION_JSON_UTF8)
+                .accept(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(product))
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andDo(
                 document(
                     "products/delete",
@@ -463,12 +464,12 @@ public class ProductControllerIntegrationTest extends AbstractRepoTest {
         // @formatter:off
         mockMvc.perform(
             post("/products/issue")
-                .accept(MediaType.APPLICATION_JSON_UTF8)
+                .accept(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(ticket))
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andDo(
                 document(
                     "products/issue",
@@ -505,19 +506,19 @@ public class ProductControllerIntegrationTest extends AbstractRepoTest {
     public void testProductFeature() throws Exception {
         performCreateProduct();
 
-        Product product = productRepo.findOne(currentId);
+        Product product = productRepo.findById(currentId).get();
 
         FeatureRequest feature = new FeatureRequest("Feature Title", "Feature Description", currentId, product.getScopeId());
 
         // @formatter:off
         mockMvc.perform(
             post("/products/feature")
-                .accept(MediaType.APPLICATION_JSON_UTF8)
+                .accept(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(feature))
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andDo(
                 document(
                     "products/feature",
@@ -548,11 +549,11 @@ public class ProductControllerIntegrationTest extends AbstractRepoTest {
         // @formatter:off
         mockMvc.perform(
             get("/products/remote-projects/{productId}", currentId)
-                .accept(MediaType.APPLICATION_JSON_UTF8)
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andDo(
                 document(
                     "products/remote-projects",
@@ -585,7 +586,7 @@ public class ProductControllerIntegrationTest extends AbstractRepoTest {
     public void testProductRemoteProjectsByRemoteProjectManagerId() throws Exception {
         performCreateProduct();
 
-        Product product = productRepo.findOne(currentId);
+        Product product = productRepo.findById(currentId).get();
 
         RemoteProjectInfo rpi = product.getRemoteProjectInfo().get(0);
         RemoteProjectManager rpm = rpi.getRemoteProjectManager();
@@ -594,11 +595,11 @@ public class ProductControllerIntegrationTest extends AbstractRepoTest {
         // @formatter:off
         mockMvc.perform(
             get("/products/{remoteProjectManagerId}/remote-projects", rpmId)
-                .accept(MediaType.APPLICATION_JSON_UTF8)
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andDo(
                 document(
                     "products/{remoteProjectManagerId}/remote-projects",
@@ -632,7 +633,7 @@ public class ProductControllerIntegrationTest extends AbstractRepoTest {
     public void testProductRemoteProjectsByScopeId() throws Exception {
         performCreateProduct();
 
-        Product product = productRepo.findOne(currentId);
+        Product product = productRepo.findById(currentId).get();
 
         RemoteProjectInfo rpi = product.getRemoteProjectInfo().get(0);
         RemoteProjectManager rpm = rpi.getRemoteProjectManager();
@@ -642,11 +643,11 @@ public class ProductControllerIntegrationTest extends AbstractRepoTest {
         // @formatter:off
         mockMvc.perform(
             get("/products/{remoteProjectManagerId}/remote-projects/{scopeId}", rpmId, scopeId)
-                .accept(MediaType.APPLICATION_JSON_UTF8)
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andDo(
                 document(
                     "products/{remoteProjectManagerId}/remote-projects/{scopeId}",
@@ -676,7 +677,7 @@ public class ProductControllerIntegrationTest extends AbstractRepoTest {
     }
 
     // @After and @Before cannot be safely specified inside a parent class.
-    @After
+    @AfterEach
     public void cleanup() {
         cleanupRepos();
     }
@@ -691,12 +692,12 @@ public class ProductControllerIntegrationTest extends AbstractRepoTest {
         // @formatter:off
         return mockMvc.perform(
             post("/products")
-                .accept(MediaType.APPLICATION_JSON_UTF8)
+                .accept(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(product))
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(content().json(objectMapper.writeValueAsString(expectedResponse)));
         // @formatter:on
     }

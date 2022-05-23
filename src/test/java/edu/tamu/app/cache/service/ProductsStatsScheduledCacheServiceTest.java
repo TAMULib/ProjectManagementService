@@ -1,9 +1,9 @@
 package edu.tamu.app.cache.service;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -12,14 +12,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.versionone.apiclient.exceptions.APIException;
 import com.versionone.apiclient.exceptions.ConnectionException;
@@ -34,7 +34,7 @@ import edu.tamu.app.model.ServiceType;
 import edu.tamu.app.model.repo.InternalRequestRepo;
 import edu.tamu.app.model.repo.ProductRepo;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class ProductsStatsScheduledCacheServiceTest {
     private static final String TEST_PRODUCT_NAME = "Test Product";
 
@@ -65,9 +65,9 @@ public class ProductsStatsScheduledCacheServiceTest {
     @InjectMocks
     private ProductsStatsScheduledCacheService productsStatsScheduledCacheService;
 
-    @Before
+    @BeforeEach
     public void setup() throws ConnectionException, APIException, OidException, IOException {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
         when(productRepo.findAll()).thenReturn(Arrays.asList(new Product[] { getMockProduct() }));
         when(remoteProjectsScheduledCacheService.getRemoteProject(any(Long.class), any(String.class))).thenReturn(Optional.of(getMockRemoteProduct()));
         when(internalRequestRepo.countByProductId(any(Long.class))).thenReturn(1L);

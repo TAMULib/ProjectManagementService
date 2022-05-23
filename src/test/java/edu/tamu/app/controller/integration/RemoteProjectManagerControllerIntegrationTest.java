@@ -8,15 +8,16 @@ import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuild
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.payload.PayloadDocumentation.subsectionWithPath;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.kohsuke.github.GitHubBuilder;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,7 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -49,7 +50,7 @@ import edu.tamu.weaver.response.ApiStatus;
 @SpringBootTest(classes = { ProductApplication.class }, webEnvironment=WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @AutoConfigureRestDocs(outputDir = "target/generated-snippets")
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class RemoteProjectManagerControllerIntegrationTest extends AbstractRepoTest {
 
     private static long currentId = 0L;
@@ -85,9 +86,9 @@ public class RemoteProjectManagerControllerIntegrationTest extends AbstractRepoT
     private RemoteProjectsScheduledCacheService remoteProjectsScheduledCacheService;
 
     // @After and @Before cannot be safely specified inside a parent class.
-    @Before
+    @BeforeEach
     public void setup() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
 
         mockGitHubService(gitHubService, ghBuilder);
         mockVersionOneService(versionOneService);
@@ -104,11 +105,11 @@ public class RemoteProjectManagerControllerIntegrationTest extends AbstractRepoT
         // @formatter:off
         mockMvc.perform(
             get("/remote-project-manager")
-                .accept(MediaType.APPLICATION_JSON_UTF8)
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andDo(
                 document(
                     "remote-project-manager/get-all",
@@ -118,7 +119,7 @@ public class RemoteProjectManagerControllerIntegrationTest extends AbstractRepoT
                         fieldWithPath("meta.action").description("Action of the request."),
                         fieldWithPath("meta.message").description("Message of the response."),
                         fieldWithPath("meta.status").description("Status of the response."),
-                        fieldWithPath("payload").description("API response payload containing the List of RemoteProjectManager.")
+                        subsectionWithPath("payload").description("API response payload containing the List of RemoteProjectManager.")
                     )
                 )
             );
@@ -133,11 +134,11 @@ public class RemoteProjectManagerControllerIntegrationTest extends AbstractRepoT
         // @formatter:off
         mockMvc.perform(
             get("/remote-project-manager/{id}", currentId)
-                .accept(MediaType.APPLICATION_JSON_UTF8)
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andDo(
                 document(
                     "remote-project-manager/get",
@@ -201,7 +202,7 @@ public class RemoteProjectManagerControllerIntegrationTest extends AbstractRepoT
     public void testUpdateRemoteProjectManager() throws JsonProcessingException, Exception {
         performCreateRemoteProjectManager();
 
-        RemoteProjectManager rpm = remoteProjectManagerRepo.findOne(currentId);
+        RemoteProjectManager rpm = remoteProjectManagerRepo.findById(currentId).get();
         rpm.setName("Updated Name");
 
         ApiResponse expectedResponse = new ApiResponse(ApiStatus.SUCCESS, rpm);
@@ -209,11 +210,11 @@ public class RemoteProjectManagerControllerIntegrationTest extends AbstractRepoT
         // @formatter:off
         mockMvc.perform(
             put("/remote-project-manager")
-                .accept(MediaType.APPLICATION_JSON_UTF8)
+                .accept(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(rpm))
-                .contentType(MediaType.APPLICATION_JSON_UTF8))
+                .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                     .andExpect(content().json(objectMapper.writeValueAsString(expectedResponse))
             ).andDo(
                 document(
@@ -248,16 +249,16 @@ public class RemoteProjectManagerControllerIntegrationTest extends AbstractRepoT
     public void testDeleteRemoteProjectManager() throws JsonProcessingException, Exception {
         performCreateRemoteProjectManager();
 
-        RemoteProjectManager rpm = remoteProjectManagerRepo.findOne(currentId);
+        RemoteProjectManager rpm = remoteProjectManagerRepo.findById(currentId).get();
 
         // @formatter:off
         mockMvc.perform(
             delete("/remote-project-manager")
-                .accept(MediaType.APPLICATION_JSON_UTF8)
+                .accept(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(rpm))
-                .contentType(MediaType.APPLICATION_JSON_UTF8))
+                .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andDo(
                 document(
                     "remote-project-manager/delete",
@@ -287,10 +288,10 @@ public class RemoteProjectManagerControllerIntegrationTest extends AbstractRepoT
         // @formatter:off
         mockMvc.perform(
             get("/remote-project-manager/types")
-                .accept(MediaType.APPLICATION_JSON_UTF8)
-                .contentType(MediaType.APPLICATION_JSON_UTF8))
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andDo(
                 document(
                     "remote-project-manager/types",
@@ -301,7 +302,7 @@ public class RemoteProjectManagerControllerIntegrationTest extends AbstractRepoT
                         fieldWithPath("meta.message").description("Message of the response."),
                         fieldWithPath("meta.status").description("Status of the response."),
                         fieldWithPath("payload").description("API response payload containing the array of Service Types."),
-                        fieldWithPath("payload['ArrayList<HashMap>']").description("The array of Service Types.")
+                        subsectionWithPath("payload['ArrayList<HashMap>']").description("The array of Service Types.")
                     )
                 )
             );
@@ -309,7 +310,7 @@ public class RemoteProjectManagerControllerIntegrationTest extends AbstractRepoT
     }
 
     // @After and @Before cannot be safely specified inside a parent class.
-    @After
+    @AfterEach
     public void cleanup() {
         cleanupRepos();
     }
@@ -323,12 +324,12 @@ public class RemoteProjectManagerControllerIntegrationTest extends AbstractRepoT
         // @formatter:off
         return mockMvc.perform(
             post("/remote-project-manager")
-                .accept(MediaType.APPLICATION_JSON_UTF8)
+                .accept(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(rpm))
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(content().json(objectMapper.writeValueAsString(expectedResponse)));
         // @formatter:on
     }

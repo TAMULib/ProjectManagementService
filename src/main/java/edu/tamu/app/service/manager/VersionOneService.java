@@ -12,7 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -51,7 +52,7 @@ import edu.tamu.app.rest.TokenAuthRestTemplate;
 
 public class VersionOneService extends MappingRemoteProjectManagerBean {
 
-    private static final Logger logger = Logger.getLogger(VersionOneService.class);
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final ManagementService managementService;
 

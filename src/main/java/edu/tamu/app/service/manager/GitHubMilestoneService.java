@@ -23,7 +23,7 @@ import edu.tamu.app.model.ServiceType;
 
 public class GitHubMilestoneService extends AbstractGitHubService {
 
-    public GitHubMilestoneService(final ManagementService managementService) throws IOException {
+    public GitHubMilestoneService(final ManagementService managementService) {
         super(managementService);
     }
 
@@ -46,6 +46,7 @@ public class GitHubMilestoneService extends AbstractGitHubService {
     }
 
     private Stream<Sprint> getActiveSprintsForProject(GHProject project, String product) {
+        System.err.println("\n\n\nget: " + project + product + "\n\n\n");
         AtomicInteger count = new AtomicInteger();
         return exceptionHandlerWrapper(project, p -> getCards(p).entrySet()).stream()
             .map(e -> new Sprint(String.format("%s-%s", project.getId(), count.incrementAndGet()), e.getKey(), product,

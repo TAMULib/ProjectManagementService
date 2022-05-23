@@ -1,7 +1,7 @@
 package edu.tamu.app.model;
 
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -79,10 +79,10 @@ public abstract class AbstractModelTest {
     protected static final Date TEST_INTERNAL_REQUEST_CREATED_ON1 = new Date();
     protected static final Date TEST_INTERNAL_REQUEST_CREATED_ON2 = new Date(System.currentTimeMillis() + 100);
 
-    protected static final GHRepository TEST_GITHUB_REPOSITORY1 = mock(GHRepository.class, RETURNS_DEEP_STUBS.get());
-    protected static final GHRepository TEST_GITHUB_REPOSITORY2 = mock(GHRepository.class, RETURNS_DEEP_STUBS.get());
+    protected static final GHRepository TEST_GITHUB_REPOSITORY1 = mock(GHRepository.class, RETURNS_DEEP_STUBS);
+    protected static final GHRepository TEST_GITHUB_REPOSITORY2 = mock(GHRepository.class, RETURNS_DEEP_STUBS);
 
-    protected static final GHOrganization TEST_GITHUB_ORGANIZATION1 = mock(GHOrganization.class, RETURNS_DEEP_STUBS.get());
+    protected static final GHOrganization TEST_GITHUB_ORGANIZATION1 = mock(GHOrganization.class, RETURNS_DEEP_STUBS);
 
     protected void mockSugarService(SugarService sugarService) {
         when(sugarService.submit(any(TicketRequest.class))).thenReturn("Successfully submitted issue for test service!");

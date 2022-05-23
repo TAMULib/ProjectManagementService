@@ -1,41 +1,41 @@
 package edu.tamu.app.cache;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import edu.tamu.app.cache.model.RemoteProject;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class RemoteProjectsCacheTest {
 
     @Test
     public void testNewRemoteProductsCache() {
         RemoteProjectsCache cache = new RemoteProjectsCache();
-        assertNotNull("New remote projects cache was not created!", cache);
-        assertNotNull("New remote projects cache remote projects were not created!", cache.get());
+        assertNotNull(cache, "New remote projects cache was not created!");
+        assertNotNull(cache.get(), "New remote projects cache remote projects were not created!");
     }
 
     @Test
     public void testSetCache() {
         RemoteProjectsCache cache = new RemoteProjectsCache();
-        assertTrue("Cached remote projects was not empty!", cache.get().isEmpty());
+        assertTrue(cache.get().isEmpty(), "Cached remote projects was not empty!");
         Map<Long, List<RemoteProject>> remoteProductMap = new HashMap<Long, List<RemoteProject>>();
         List<RemoteProject> remoteProjects = new ArrayList<RemoteProject>();
         remoteProjects.add(getMockRemoteProduct());
         remoteProductMap.put(1L, remoteProjects);
         cache.set(remoteProductMap);
-        assertFalse("Cached remote projects was empty!", cache.get().isEmpty());
+        assertFalse(cache.get().isEmpty(), "Cached remote projects was empty!");
     }
 
     @Test
@@ -47,18 +47,18 @@ public class RemoteProjectsCacheTest {
         remoteProductMap.put(1L, remoteProjects);
         cache.set(remoteProductMap);
         Map<Long, List<RemoteProject>> remoteProductsCache = cache.get();
-        assertFalse("Cached remote projects was empty!", remoteProductsCache.isEmpty());
-        assertEquals("Cached remote projects had incorrect number of remote projects!", 1, remoteProductsCache.size());
-        assertEquals("Cached remote projects did not have expected remote projects for a given remote project manager!", 1, remoteProductsCache.get(1L).size());
+        assertFalse(remoteProductsCache.isEmpty(), "Cached remote projects was empty!");
+        assertEquals(1, remoteProductsCache.size(), "Cached remote projects had incorrect number of remote projects!");
+        assertEquals(1, remoteProductsCache.get(1L).size(), "Cached remote projects did not have expected remote projects for a given remote project manager!");
 
-        assertEquals("Cached remote project had incorrect id!", "0001", remoteProductsCache.get(1L).get(0).getId());
-        assertEquals("Cached remote project had incorrect name!", "Sprint 1", remoteProductsCache.get(1L).get(0).getName());
-        assertEquals("Cached remote project had incorrect number of requests!", 2, remoteProductsCache.get(1L).get(0).getRequestCount());
-        assertEquals("Cached remote project had incorrect number of issues!", 3, remoteProductsCache.get(1L).get(0).getIssueCount());
-        assertEquals("Cached remote project had incorrect number of features!", 10, remoteProductsCache.get(1L).get(0).getFeatureCount());
-        assertEquals("Cached remote project had incorrect number of defects!", 3, remoteProductsCache.get(1L).get(0).getDefectCount());
-        assertEquals("Cached remote project had incorrect number of internals!", 1, remoteProductsCache.get(1L).get(0).getInternalCount());
-        assertEquals("Cached remote project had incorrect total backlog items!", 13, remoteProductsCache.get(1L).get(0).getBacklogItemCount());
+        assertEquals(remoteProductsCache.get(1L).get(0).getId(), "Cached remote project had incorrect id!", "0001");
+        assertEquals("Sprint 1", remoteProductsCache.get(1L).get(0).getName(), "Cached remote project had incorrect name!");
+        assertEquals(2, remoteProductsCache.get(1L).get(0).getRequestCount(), "Cached remote project had incorrect number of requests!");
+        assertEquals(3, remoteProductsCache.get(1L).get(0).getIssueCount(), "Cached remote project had incorrect number of issues!");
+        assertEquals(10, remoteProductsCache.get(1L).get(0).getFeatureCount(), "Cached remote project had incorrect number of features!");
+        assertEquals(3, remoteProductsCache.get(1L).get(0).getDefectCount(), "Cached remote project had incorrect number of defects!");
+        assertEquals(1, remoteProductsCache.get(1L).get(0).getInternalCount(), "Cached remote project had incorrect number of internals!");
+        assertEquals(13, remoteProductsCache.get(1L).get(0).getBacklogItemCount(), "Cached remote project had incorrect total backlog items!");
     }
 
     private RemoteProject getMockRemoteProduct() {

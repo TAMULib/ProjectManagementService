@@ -3,7 +3,8 @@ package edu.tamu.app.model.repo.impl;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.tamu.app.cache.service.ScheduledCache;
@@ -15,7 +16,7 @@ import edu.tamu.weaver.data.model.repo.impl.AbstractWeaverRepoImpl;
 
 public class RemoteProjectManagerRepoImpl extends AbstractWeaverRepoImpl<RemoteProjectManager, RemoteProjectManagerRepo> implements RemoteProjectManagerRepoCustom {
 
-    private static final Logger logger = Logger.getLogger(RemoteProjectManagerRepoImpl.class);
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private RemoteProjectManagerRepo remoteProjectManagerRepo;
@@ -36,7 +37,7 @@ public class RemoteProjectManagerRepoImpl extends AbstractWeaverRepoImpl<RemoteP
 
     @Override
     public RemoteProjectManager update(RemoteProjectManager remoteProjectManager) {
-        RemoteProjectManager existingRemoteProductManager = remoteProjectManagerRepo.findOne(remoteProjectManager.getId());
+        RemoteProjectManager existingRemoteProductManager = remoteProjectManagerRepo.getById(remoteProjectManager.getId());
         managementBeanRegistry.unregister(existingRemoteProductManager);
         remoteProjectManager = super.update(remoteProjectManager);
         managementBeanRegistry.register(remoteProjectManager);

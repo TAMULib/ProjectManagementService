@@ -1,15 +1,16 @@
 package edu.tamu.app.model.request;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@RunWith(SpringRunner.class)
+
+@ExtendWith(SpringExtension.class)
 public class AbstractRequetTest {
 
     private static final String TEST_TITLE = "Test Title";
@@ -17,23 +18,23 @@ public class AbstractRequetTest {
 
     private AbstractRequest request;
 
-    @Before
+    @BeforeEach
     public void setup() {
         request = Mockito.mock(AbstractRequest.class, Mockito.CALLS_REAL_METHODS);
     }
 
     @Test
     public void testTitle() {
-        assertNull("Title was already set", request.getTitle());
+        assertNull(request.getTitle(), "Title was already set");
         request.setTitle(TEST_TITLE);
-        assertEquals("Title was not set correctly", TEST_TITLE, request.getTitle());
+        assertEquals(TEST_TITLE, request.getTitle(), "Title was not set correctly");
     }
 
     @Test
     public void testDescription() {
-        assertNull("Description was already set", request.getDescription());
+        assertNull(request.getDescription(), "Description was already set");
         request.setDescription(TEST_DESCRIPTION);
-        assertEquals("Description was not set correctly", TEST_DESCRIPTION, request.getDescription());
+        assertEquals(TEST_DESCRIPTION, request.getDescription(), "Description was not set correctly");
     }
 
 }

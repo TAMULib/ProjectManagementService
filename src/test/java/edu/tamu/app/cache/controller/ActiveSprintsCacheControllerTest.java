@@ -1,8 +1,8 @@
 package edu.tamu.app.cache.controller;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -11,13 +11,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import edu.tamu.app.cache.model.Card;
 import edu.tamu.app.cache.model.Member;
@@ -27,7 +27,7 @@ import edu.tamu.app.model.ServiceType;
 import edu.tamu.weaver.response.ApiResponse;
 import edu.tamu.weaver.response.ApiStatus;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class ActiveSprintsCacheControllerTest {
 
     @Mock
@@ -36,9 +36,9 @@ public class ActiveSprintsCacheControllerTest {
     @InjectMocks
     private ActiveSprintsCacheController activeSprintsCacheController;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
         when(activeSprintsScheduledCacheService.get()).thenReturn(new ArrayList<Sprint>(Arrays.asList(new Sprint[] { getMockSprint() })));
     }
 
@@ -46,10 +46,10 @@ public class ActiveSprintsCacheControllerTest {
     @SuppressWarnings("unchecked")
     public void testGet() {
         ApiResponse response = activeSprintsCacheController.get();
-        assertNotNull("Reponse was null!", response);
-        assertEquals("Reponse was not successfull!", ApiStatus.SUCCESS, response.getMeta().getStatus());
+        assertNotNull(response, "Response was null!");
+        assertEquals(ApiStatus.SUCCESS, response.getMeta().getStatus(), "Response was not successful!");
 
-        assertNotNull("Reponse payload did not have expected property!", response.getPayload().get("ArrayList<Sprint>"));
+        assertNotNull(response.getPayload().get("ArrayList<Sprint>"), "Response payload did not have expected property!");
         assertSprints((List<Sprint>) response.getPayload().get("ArrayList<Sprint>"));
     }
 
