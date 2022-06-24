@@ -81,7 +81,7 @@ public class ProductController {
     @JsonView(ApiView.Partial.class)
     @PreAuthorize("hasRole('ANONYMOUS')")
     public ApiResponse getOne(@PathVariable Long id) {
-        return new ApiResponse(SUCCESS, productRepo.findById(id));
+        return new ApiResponse(SUCCESS, productRepo.findById(id).get());
     }
 
     @PostMapping
