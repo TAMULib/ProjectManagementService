@@ -4,9 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.lenient;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -17,13 +16,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-
-import com.versionone.apiclient.exceptions.APIException;
-import com.versionone.apiclient.exceptions.ConnectionException;
-import com.versionone.apiclient.exceptions.OidException;
 
 import edu.tamu.app.cache.model.ProductStats;
 import edu.tamu.app.cache.model.RemoteProject;
@@ -34,7 +28,7 @@ import edu.tamu.app.model.ServiceType;
 import edu.tamu.app.model.repo.InternalRequestRepo;
 import edu.tamu.app.model.repo.ProductRepo;
 
-@ExtendWith(SpringExtension.class)
+@ExtendWith(MockitoExtension.class)
 public class ProductsStatsScheduledCacheServiceTest {
     private static final String TEST_PRODUCT_NAME = "Test Product";
 
@@ -45,6 +39,10 @@ public class ProductsStatsScheduledCacheServiceTest {
     private static final String TEST_PROJECT_TOKEN1 = "0123456789";
 
     private static final RemoteProjectManager TEST_REMOTE_PROJECT_MANAGER = new RemoteProjectManager("Test Remote Project Manager", ServiceType.VERSION_ONE, TEST_PROJECT_URL1, TEST_PROJECT_TOKEN1);
+
+    static {
+        TEST_REMOTE_PROJECT_MANAGER.setId(1L);
+    }
 
     private static final RemoteProjectInfo TEST_REMOTE_PROJECT_INFO = new RemoteProjectInfo(TEST_PROJECT_SCOPE, TEST_REMOTE_PROJECT_MANAGER);
 
@@ -66,11 +64,10 @@ public class ProductsStatsScheduledCacheServiceTest {
     private ProductsStatsScheduledCacheService productsStatsScheduledCacheService;
 
     @BeforeEach
-    public void setup() throws ConnectionException, APIException, OidException, IOException {
-        MockitoAnnotations.openMocks(this);
-        when(productRepo.findAll()).thenReturn(Arrays.asList(new Product[] { getMockProduct() }));
-        when(remoteProjectsScheduledCacheService.getRemoteProject(any(Long.class), any(String.class))).thenReturn(Optional.of(getMockRemoteProduct()));
-        when(internalRequestRepo.countByProductId(any(Long.class))).thenReturn(1L);
+    public void setup() {
+        lenient().when(productRepo.findAll()).thenReturn(Arrays.asList(new Product[] { getMockProduct() }));
+        lenient().when(remoteProjectsScheduledCacheService.getRemoteProject(any(Long.class), any(String.class))).thenReturn(Optional.of(getMockRemoteProduct()));
+        lenient().when(internalRequestRepo.countByProductId(any(Long.class))).thenReturn(1L);
     }
 
     @Test
