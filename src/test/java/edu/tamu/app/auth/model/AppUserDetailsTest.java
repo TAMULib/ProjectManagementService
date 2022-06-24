@@ -12,7 +12,6 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
 import edu.tamu.app.auth.AuthMockTests;
-import edu.tamu.app.model.Role;
 import edu.tamu.app.model.User;
 import edu.tamu.weaver.auth.model.Credentials;
 
@@ -28,7 +27,7 @@ public class AppUserDetailsTest extends AuthMockTests {
         assertEquals(credentials.getFirstName(), appUserDetails.getFirstName(), "App user details had the incorrect first name!");
         assertEquals(credentials.getUin(), appUserDetails.getUsername(), "App user details had the incorrect username!");
         assertEquals(credentials.getEmail(), appUserDetails.getEmail(), "App user details had the incorrect email!");
-        assertEquals(Role.valueOf(credentials.getRole()), appUserDetails.getRole().toString(), "App user details had the incorrect role!");
+        assertEquals(credentials.getRole(), appUserDetails.getRole().toString(), "App user details had the incorrect role!");
     }
 
 }
