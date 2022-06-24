@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
@@ -20,11 +21,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import edu.tamu.app.cache.service.RemoteProjectsScheduledCacheService;
 import edu.tamu.app.model.InternalRequest;
@@ -41,7 +41,7 @@ import edu.tamu.app.service.manager.RemoteProjectManagerBean;
 import edu.tamu.app.service.registry.ManagementBeanRegistry;
 import edu.tamu.weaver.response.ApiResponse;
 
-@ExtendWith(SpringExtension.class)
+@ExtendWith(MockitoExtension.class)
 public class InternalRequestControllerTest {
 
     private static final String TEST_REQUEST_TITLE_BELLS = "Test Feature Request Title Bells";
@@ -61,6 +61,10 @@ public class InternalRequestControllerTest {
     private static final String TEST_PROJECT_TOKEN1 = "0123456789";
 
     private static final RemoteProjectManager TEST_REMOTE_PROJECT_MANAGER = new RemoteProjectManager("Test Remote Project Manager", ServiceType.VERSION_ONE, TEST_PROJECT_URL1, TEST_PROJECT_TOKEN1);
+
+    static {
+        TEST_REMOTE_PROJECT_MANAGER.setId(1L);
+    }
 
     private static final RemoteProjectInfo TEST_REMOTE_PROJECT_INFO1 = new RemoteProjectInfo(TEST_PROJECT1_SCOPE1, TEST_REMOTE_PROJECT_MANAGER);
     private static final RemoteProjectInfo TEST_REMOTE_PROJECT_INFO2 = new RemoteProjectInfo(TEST_PROJECT1_SCOPE2, TEST_REMOTE_PROJECT_MANAGER);
@@ -109,8 +113,6 @@ public class InternalRequestControllerTest {
 
     @BeforeEach
     public void setup() throws Exception {
-        MockitoAnnotations.openMocks(this);
-
         TEST_PRODUCT1.setId(1L);
         TEST_PRODUCT2.setId(2L);
 
@@ -119,16 +121,16 @@ public class InternalRequestControllerTest {
 
         mockRequestsRepo = new ArrayList<InternalRequest>(Arrays.asList(new InternalRequest[] { TEST_REQUEST_BELLS, TEST_REQUEST_WHISTLES }));
 
-        when(internalRequestRepo.findAll()).thenReturn(mockRequestsRepo);
-        when(internalRequestRepo.count()).thenReturn(2L);
-        when(internalRequestRepo.countByProductId(any(Long.class))).thenReturn(1L);
-        when(internalRequestRepo.countByProductIsNull()).thenReturn(1L);
-        when(internalRequestRepo.create(any(InternalRequest.class))).thenReturn(TEST_REQUEST_BELLS);
-        when(internalRequestRepo.update(any(InternalRequest.class))).thenReturn(TEST_REQUEST_BELLS);
-        when(remoteProjectManagementBean.push(any(FeatureRequest.class))).thenReturn("1");
-        when(managementBeanRegistry.getService(any(String.class))).thenReturn(remoteProjectManagementBean);
+        lenient().when(internalRequestRepo.findAll()).thenReturn(mockRequestsRepo);
+        lenient().when(internalRequestRepo.count()).thenReturn(2L);
+        lenient().when(internalRequestRepo.countByProductId(any(Long.class))).thenReturn(1L);
+        lenient().when(internalRequestRepo.countByProductIsNull()).thenReturn(1L);
+        lenient().when(internalRequestRepo.create(any(InternalRequest.class))).thenReturn(TEST_REQUEST_BELLS);
+        lenient().when(internalRequestRepo.update(any(InternalRequest.class))).thenReturn(TEST_REQUEST_BELLS);
+        lenient().when(remoteProjectManagementBean.push(any(FeatureRequest.class))).thenReturn("1");
+        lenient().when(managementBeanRegistry.getService(any(String.class))).thenReturn(remoteProjectManagementBean);
 
-        doAnswer(new Answer<ApiResponse>() {
+        lenient().doAnswer(new Answer<ApiResponse>() {
             @Override
             public ApiResponse answer(InvocationOnMock invocation) throws Throwable {
                 Object[] args = invocation.getArguments();
@@ -146,9 +148,9 @@ public class InternalRequestControllerTest {
             }
         }).when(internalRequestRepo).delete(any(InternalRequest.class));
 
-        when(productRepo.findAll()).thenReturn(mockProductList);
+        lenient().when(productRepo.findAll()).thenReturn(mockProductList);
 
-        when(remoteProjectManagerRepo.findById(any(Long.class))).thenReturn(Optional.of(TEST_REMOTE_PROJECT_MANAGER));
+        lenient().when(remoteProjectManagerRepo.findById(any(Long.class))).thenReturn(Optional.of(TEST_REMOTE_PROJECT_MANAGER));
     }
 
     @Test
@@ -162,7 +164,7 @@ public class InternalRequestControllerTest {
 
     @Test
     public void testReadById() {
-        when(internalRequestRepo.findById(TEST_REQUEST_BELLS.getId())).thenReturn(Optional.of(TEST_REQUEST_BELLS));
+        lenient().when(internalRequestRepo.findById(TEST_REQUEST_BELLS.getId())).thenReturn(Optional.of(TEST_REQUEST_BELLS));
 
         ApiResponse apiResponse = internalRequestController.read(TEST_REQUEST_BELLS.getId());
 
@@ -195,10 +197,10 @@ public class InternalRequestControllerTest {
     public void testPush() {
         int initialCount = mockRequestsRepo.size();
 
-        when(internalRequestRepo.findById((any(Long.class)))).thenReturn(Optional.of(TEST_REQUEST_BELLS));
-        when(productRepo.findById(any(Long.class))).thenReturn(Optional.of(TEST_PRODUCT1));
-        when(remoteProjectManagerRepo.findById(any(Long.class))).thenReturn(Optional.of(TEST_REMOTE_PROJECT_MANAGER));
-        doNothing().when(internalRequestRepo).deleteById(any(Long.class));
+        lenient().when(internalRequestRepo.findById((any(Long.class)))).thenReturn(Optional.of(TEST_REQUEST_BELLS));
+        lenient().when(productRepo.findById(any(Long.class))).thenReturn(Optional.of(TEST_PRODUCT1));
+        lenient().when(remoteProjectManagerRepo.findById(any(Long.class))).thenReturn(Optional.of(TEST_REMOTE_PROJECT_MANAGER));
+        lenient().doNothing().when(internalRequestRepo).deleteById(any(Long.class));
 
         apiResponse = internalRequestController.push(TEST_REQUEST_BELLS.getId(), TEST_PRODUCT1.getId(), TEST_REMOTE_PROJECT_MANAGER.getId(), TEST_REMOTE_PROJECT_INFO1.getScopeId());
 
@@ -208,9 +210,9 @@ public class InternalRequestControllerTest {
 
     @Test
     public void testPushToInvalidRemoteProductManager() {
-        when(internalRequestRepo.findById(any(Long.class))).thenReturn(Optional.of(TEST_REQUEST_BELLS));
-        when(productRepo.findById(any(Long.class))).thenReturn(Optional.of(TEST_PRODUCT1));
-        when(remoteProjectManagerRepo.findById(any(Long.class))).thenReturn(null);
+        lenient().when(internalRequestRepo.findById(any(Long.class))).thenReturn(Optional.of(TEST_REQUEST_BELLS));
+        lenient().when(productRepo.findById(any(Long.class))).thenReturn(Optional.of(TEST_PRODUCT1));
+        lenient().when(remoteProjectManagerRepo.findById(any(Long.class))).thenReturn(null);
 
         apiResponse = internalRequestController.push(TEST_REQUEST_BELLS.getId(), TEST_PRODUCT1.getId(), null, TEST_REMOTE_PROJECT_INFO1.getScopeId());
 
@@ -223,9 +225,9 @@ public class InternalRequestControllerTest {
 
     @Test
     public void testPushInvalidScope() {
-        when(internalRequestRepo.findById(any(Long.class))).thenReturn(Optional.of(TEST_REQUEST_BELLS));
-        when(productRepo.findById(any(Long.class))).thenReturn(Optional.of(TEST_PRODUCT1));
-        when(remoteProjectManagerRepo.findById(any(Long.class))).thenReturn(Optional.of(TEST_REMOTE_PROJECT_MANAGER));
+        lenient().when(internalRequestRepo.findById(any(Long.class))).thenReturn(Optional.of(TEST_REQUEST_BELLS));
+        lenient().when(productRepo.findById(any(Long.class))).thenReturn(Optional.of(TEST_PRODUCT1));
+        lenient().when(remoteProjectManagerRepo.findById(any(Long.class))).thenReturn(Optional.of(TEST_REMOTE_PROJECT_MANAGER));
 
         apiResponse = internalRequestController.push(TEST_REQUEST_BELLS.getId(), TEST_PRODUCT1.getId(), TEST_REMOTE_PROJECT_MANAGER.getId(), "");
 
@@ -238,9 +240,9 @@ public class InternalRequestControllerTest {
 
     @Test
     public void testPushInvalidProduct() {
-        when(internalRequestRepo.findById(any(Long.class))).thenReturn(Optional.of(TEST_REQUEST_BELLS));
-        when(productRepo.findById(any(Long.class))).thenReturn(null);
-        when(remoteProjectManagerRepo.findById(any(Long.class))).thenReturn(Optional.of(TEST_REMOTE_PROJECT_MANAGER));
+        lenient().when(internalRequestRepo.findById(any(Long.class))).thenReturn(Optional.of(TEST_REQUEST_BELLS));
+        lenient().when(productRepo.findById(any(Long.class))).thenReturn(null);
+        lenient().when(remoteProjectManagerRepo.findById(any(Long.class))).thenReturn(Optional.of(TEST_REMOTE_PROJECT_MANAGER));
 
         apiResponse = internalRequestController.push(TEST_REQUEST_BELLS.getId(), null, TEST_REMOTE_PROJECT_MANAGER.getId(), TEST_REMOTE_PROJECT_INFO1.getScopeId());
 
@@ -253,9 +255,9 @@ public class InternalRequestControllerTest {
 
     @Test
     public void testPushInvalidInternalRequest() {
-        when(internalRequestRepo.findById(any(Long.class))).thenReturn(null);
-        when(productRepo.findById(any(Long.class))).thenReturn(Optional.of(TEST_PRODUCT1));
-        when(remoteProjectManagerRepo.findById(any(Long.class))).thenReturn(Optional.of(TEST_REMOTE_PROJECT_MANAGER));
+        lenient().when(internalRequestRepo.findById(any(Long.class))).thenReturn(null);
+        lenient().when(productRepo.findById(any(Long.class))).thenReturn(Optional.of(TEST_PRODUCT1));
+        lenient().when(remoteProjectManagerRepo.findById(any(Long.class))).thenReturn(Optional.of(TEST_REMOTE_PROJECT_MANAGER));
 
         apiResponse = internalRequestController.push(null, TEST_PRODUCT1.getId(), TEST_REMOTE_PROJECT_MANAGER.getId(), TEST_REMOTE_PROJECT_INFO1.getScopeId());
 
@@ -268,11 +270,11 @@ public class InternalRequestControllerTest {
 
     @Test
     public void testPushWhenRemoteProductManagerBeanFails() throws Exception {
-        when(remoteProjectManagementBean.push(any(FeatureRequest.class))).thenThrow(new RuntimeException("fail"));
-        when(internalRequestRepo.findById(any(Long.class))).thenReturn(Optional.of(TEST_REQUEST_BELLS));
-        when(productRepo.findById(any(Long.class))).thenReturn(Optional.of(TEST_PRODUCT1));
-        when(remoteProjectManagerRepo.findById(any(Long.class))).thenReturn(Optional.of(TEST_REMOTE_PROJECT_MANAGER));
-        doNothing().when(internalRequestRepo).deleteById(any(Long.class));
+        lenient().when(remoteProjectManagementBean.push(any(FeatureRequest.class))).thenThrow(new RuntimeException("fail"));
+        lenient().when(internalRequestRepo.findById(any(Long.class))).thenReturn(Optional.of(TEST_REQUEST_BELLS));
+        lenient().when(productRepo.findById(any(Long.class))).thenReturn(Optional.of(TEST_PRODUCT1));
+        lenient().when(remoteProjectManagerRepo.findById(any(Long.class))).thenReturn(Optional.of(TEST_REMOTE_PROJECT_MANAGER));
+        lenient().doNothing().when(internalRequestRepo).deleteById(any(Long.class));
 
         apiResponse = internalRequestController.push(TEST_REQUEST_BELLS.getId(), TEST_PRODUCT1.getId(), TEST_REMOTE_PROJECT_MANAGER.getId(), TEST_REMOTE_PROJECT_INFO1.getScopeId());
 
