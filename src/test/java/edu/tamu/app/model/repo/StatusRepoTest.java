@@ -77,7 +77,7 @@ public class StatusRepoTest extends AbstractRepoTest {
         Status status = statusRepo.create(new Status("None", new HashSet<String>(Arrays.asList(new String[] { "None", "Future" }))));
         assertNotNull(status, "Unable to create status!");
         assertEquals(1, statusRepo.count(), "Status repo had incorrect number of statuses!");
-        assertEquals("None", status.getIdentifier(), "Status had incorrect identifier!");
+        assertEquals(status.getIdentifier(), "Status had incorrect identifier!", "None");
         assertEquals(2, status.getMapping().size(), "Status had incorrect number of mappings!");
     }
 
@@ -95,7 +95,7 @@ public class StatusRepoTest extends AbstractRepoTest {
         status.setIdentifier("None");
         status.setMapping(new HashSet<String>(Arrays.asList(new String[] { "None", "Future", "NA" })));
         status = statusRepo.update(status);
-        assertEquals("None", status.getIdentifier(), "Status had incorrect identifier!");
+        assertEquals(status.getIdentifier(), "Status had incorrect identifier!", "None");
         assertEquals(3, status.getMapping().size(), "Status had incorrect number of mappings!");
     }
 

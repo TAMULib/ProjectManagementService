@@ -276,7 +276,7 @@ public class InternalRequestControllerTest {
         apiResponse = internalRequestController.push(TEST_REQUEST_BELLS.getId(), TEST_PRODUCT1.getId(), TEST_REMOTE_PROJECT_MANAGER.getId(), TEST_REMOTE_PROJECT_INFO1.getScopeId());
 
         assertEquals(ERROR, apiResponse.getMeta().getStatus(), "Pushing Internal Request when Remote Project Management Bean push fails did not result in an error");
-        assertEquals("Error pushing Internal Request to " + TEST_REMOTE_PROJECT_MANAGER.getName() + " for Product " + TEST_PRODUCT1_NAME + "!", apiResponse.getMeta().getMessage(), "Pushing Internal Request did not result in the expected error message");
+        assertEquals(apiResponse.getMeta().getMessage(), "Pushing Internal Request did not result in the expected error message", "Error pushing Internal Request to " + TEST_REMOTE_PROJECT_MANAGER.getName() + " for Product " + TEST_PRODUCT1_NAME + "!");
     }
 
     @Test

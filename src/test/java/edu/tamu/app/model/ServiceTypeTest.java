@@ -22,7 +22,7 @@ public class ServiceTypeTest {
 
     @Test
     public void testGetGloss() {
-        assertEquals("Version One", type.getGloss(), "Gloss did not start out as 'Version One'");
+        assertEquals(type.getGloss(), "Gloss did not start out as 'Version One'", "Version One");
     }
 
     @Test

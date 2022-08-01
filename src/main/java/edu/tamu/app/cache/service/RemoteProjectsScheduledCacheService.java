@@ -24,7 +24,7 @@ import edu.tamu.weaver.response.ApiResponse;
 @Service
 public class RemoteProjectsScheduledCacheService extends AbstractScheduledCacheService<Map<Long, List<RemoteProject>>, RemoteProjectsCache> {
 
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private static final Logger logger = LoggerFactory.getLogger(RemoteProjectsScheduledCacheService.class);
 
     @Autowired
     private RemoteProjectManagerRepo remoteProjectManagerRepo;

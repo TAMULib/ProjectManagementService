@@ -30,13 +30,13 @@ import edu.tamu.weaver.validation.aspect.annotation.WeaverValidation;
 @RequestMapping("/remote-project-manager")
 public class RemoteProjectManagerController {
 
+    private static final Logger logger = LoggerFactory.getLogger(RemoteProjectManagerController.class);
+
     @Autowired
     private RemoteProjectManagerRepo remoteProjectManagerRepo;
 
     @Autowired
     private ProductRepo productRepo;
-
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @GetMapping
     @PreAuthorize("hasRole('USER')")

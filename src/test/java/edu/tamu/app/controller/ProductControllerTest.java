@@ -248,7 +248,7 @@ public class ProductControllerTest {
         when(productRepo.findById(any(Long.class))).thenReturn(Optional.of(TEST_PRODUCT1));
         apiResponse = productController.getAllRemoteProjectsForProduct(TEST_PRODUCT1.getId());
         assertEquals(ERROR, apiResponse.getMeta().getStatus(), "Request without Remote Project Manager did not result in an error");
-        assertEquals("Error fetching remote projects associated with product " + TEST_PRODUCT1.getName() + "!", apiResponse.getMeta().getMessage(), "Missing Remote Project Manager did not result in the expected error message");
+        assertEquals(apiResponse.getMeta().getMessage(), "Missing Remote Project Manager did not result in the expected error message", "Error fetching remote projects associated with product " + TEST_PRODUCT1.getName() + "!");
     }
 
     @Test

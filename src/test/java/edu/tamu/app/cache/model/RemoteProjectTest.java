@@ -12,8 +12,8 @@ public class RemoteProjectTest {
     @Test
     public void testNewRemoteProduct() {
         RemoteProject remoteProject = new RemoteProject("0001", "Sprint 1", 2, 3, 10, 3, 1);
-        assertEquals("0001", remoteProject.getId());
-        assertEquals("Sprint 1", remoteProject.getName());
+        assertEquals(remoteProject.getId(), "0001");
+        assertEquals(remoteProject.getName(), "Sprint 1");
         assertEquals(2, remoteProject.getRequestCount());
         assertEquals(3, remoteProject.getIssueCount());
         assertEquals(10, remoteProject.getFeatureCount());

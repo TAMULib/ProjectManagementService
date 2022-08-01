@@ -52,7 +52,7 @@ import edu.tamu.app.rest.TokenAuthRestTemplate;
 
 public class VersionOneService extends MappingRemoteProjectManagerBean {
 
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private static final Logger logger = LoggerFactory.getLogger(VersionOneService.class);
 
     private final ManagementService managementService;
 

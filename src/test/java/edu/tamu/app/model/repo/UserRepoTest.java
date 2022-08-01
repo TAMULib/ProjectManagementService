@@ -68,10 +68,10 @@ public class UserRepoTest extends AuthMockTests {
 
         user = userRepo.update(user);
 
-        assertEquals("123456781", user.getUsername(), "User had incorrect username!");
-        assertEquals("jaggie@tamu.edu", user.getEmail(), "User had incorrect email!");
-        assertEquals("John", user.getFirstName(), "User had incorrect first name!");
-        assertEquals("Agriculture", user.getLastName(), "User had incorrect last name!");
+        assertEquals(user.getUsername(), "User had incorrect username!", "123456781");
+        assertEquals(user.getEmail(), "User had incorrect email!", "jaggie@tamu.edu");
+        assertEquals(user.getFirstName(), "User had incorrect first name!", "John");
+        assertEquals(user.getLastName(), "User had incorrect last name!", "Agriculture");
         assertEquals(Role.valueOf("ROLE_MANAGER"), user.getRole(), "User had incorrect role!");
     }
 
@@ -107,7 +107,7 @@ public class UserRepoTest extends AuthMockTests {
         assertFalse(user.isAccountNonLocked(), "Account non locked was not false!");
         assertFalse(user.isCredentialsNonExpired(), "Credentials non expired was not false!");
         assertTrue(user.isEnabled(), "Enabled was not true!");
-        assertNull("Password was not null!", user.getPassword());
+        assertNull(user.getPassword(), "Password was not null!");
     }
 
     // @After and @Before cannot be safely specified inside a parent class.

@@ -21,7 +21,7 @@ import edu.tamu.app.service.manager.VersionOneService;
 @Service
 public class ManagementBeanRegistry {
 
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private static final Logger logger = LoggerFactory.getLogger(ManagementBeanRegistry.class);
 
     private static final Map<String, ManagementBean> services = new HashMap<String, ManagementBean>();
 

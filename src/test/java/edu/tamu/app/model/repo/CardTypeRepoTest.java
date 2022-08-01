@@ -77,7 +77,7 @@ public class CardTypeRepoTest extends AbstractRepoTest {
         CardType cardType = cardTypeRepo.create(newCardType("Feature", "Story", "Feature"));
         assertNotNull(cardType, "Unable to create card type!");
         assertEquals(1, cardTypeRepo.count(), "Card type repo had incorrect number of card types!");
-        assertEquals("Feature", cardType.getIdentifier(), "Card type had incorrect identifier!");
+        assertEquals(cardType.getIdentifier(), "Card type had incorrect identifier!", "Feature");
         assertEquals(2, cardType.getMapping().size(), "Card type had incorrect number of mappings!");
     }
 
@@ -95,7 +95,7 @@ public class CardTypeRepoTest extends AbstractRepoTest {
         cardType.setIdentifier("Feature");
         cardType.setMapping(new HashSet<String>(Arrays.asList(new String[] { "Feature", "Story", "Task" })));
         cardType = cardTypeRepo.update(cardType);
-        assertEquals("Feature", cardType.getIdentifier(), "Card type had incorrect identifier!");
+        assertEquals(cardType.getIdentifier(), "Card type had incorrect identifier!", "Feature");
         assertEquals(3, cardType.getMapping().size(), "Card type had incorrect number of mappings!");
     }
 

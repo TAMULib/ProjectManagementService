@@ -144,18 +144,18 @@ public class ActiveSprintsScheduledCacheServiceTest {
     private void assertSprints(List<Sprint> sprints) {
         assertFalse(sprints.isEmpty());
         assertEquals(1, sprints.size());
-        assertEquals("2000", sprints.get(0).getId());
-        assertEquals("Sprint 1", sprints.get(0).getName());
-        assertEquals("Test Product", sprints.get(0).getProduct());
+        assertEquals(sprints.get(0).getId(), "2000");
+        assertEquals(sprints.get(0).getName(), "Sprint 1");
+        assertEquals(sprints.get(0).getProduct(), "Test Product");
         assertEquals(ServiceType.GITHUB_MILESTONE.toString(), sprints.get(0).getType());
         assertFalse(sprints.get(0).getCards().isEmpty());
         assertEquals(1, sprints.get(0).getCards().size());
-        assertEquals("3000", sprints.get(0).getCards().get(0).getId());
-        assertEquals("B-00001", sprints.get(0).getCards().get(0).getNumber());
-        assertEquals("Feature", sprints.get(0).getCards().get(0).getType());
-        assertEquals("Do the thing", sprints.get(0).getCards().get(0).getName());
-        assertEquals("Do it with these requirements", sprints.get(0).getCards().get(0).getDescription());
-        assertEquals("In Progress", sprints.get(0).getCards().get(0).getStatus());
+        assertEquals(sprints.get(0).getCards().get(0).getId(), "3000");
+        assertEquals(sprints.get(0).getCards().get(0).getNumber(), "B-00001");
+        assertEquals(sprints.get(0).getCards().get(0).getType(), "Feature");
+        assertEquals(sprints.get(0).getCards().get(0).getName(), "Do the thing");
+        assertEquals(sprints.get(0).getCards().get(0).getDescription(), "Do it with these requirements");
+        assertEquals(sprints.get(0).getCards().get(0).getStatus(), "In Progress");
         assertEquals(1.0, sprints.get(0).getCards().get(0).getEstimate(), 0);
         assertFalse(sprints.get(0).getCards().get(0).getAssignees().isEmpty());
         assertEquals(1, sprints.get(0).getCards().get(0).getAssignees().size());

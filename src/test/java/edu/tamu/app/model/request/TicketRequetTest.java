@@ -30,9 +30,9 @@ public class TicketRequetTest extends AuthMockTests {
     public void testNewTicketRequest() throws JsonParseException, JsonMappingException, IOException {
         TicketRequest request = createTicketRequest();
         assertNotNull(request, "Could not instantiate ticket request!");
-        assertEquals("Is This Right", request.getTitle(), "Ticket request had incorrect title!");
-        assertEquals("Does this work as expected!", request.getDescription(), "Ticket request had incorrect description!");
-        assertEquals("Test Service 1", request.getService(), "Ticket request had incorrect service!");
+        assertEquals(request.getTitle(), "Ticket request had incorrect title!", "Is This Right");
+        assertEquals(request.getDescription(), "Ticket request had incorrect description!", "Does this work as expected!");
+        assertEquals(request.getService(), "Ticket request had incorrect service!", "Test Service 1");
         assertEquals(aggieJackCredenitals, request.getCredentials(), "Ticket request had incorrect credentials!");
     }
 
@@ -40,21 +40,21 @@ public class TicketRequetTest extends AuthMockTests {
     public void testSetTitle() throws JsonParseException, JsonMappingException, IOException {
         TicketRequest request = createTicketRequest();
         request.setTitle("Is It Good");
-        assertEquals("Is It Good", request.getTitle(), "Ticket request did not set title!");
+        assertEquals(request.getTitle(), "Ticket request did not set title!", "Is It Good");
     }
 
     @Test
     public void testSetDescription() throws JsonParseException, JsonMappingException, IOException {
         TicketRequest request = createTicketRequest();
         request.setDescription("It could be better.");
-        assertEquals("It could be better.", request.getDescription(), "Ticket request did not set description!");
+        assertEquals(request.getDescription(), "Ticket request did not set description!", "It could be better.");
     }
 
     @Test
     public void testSetService() throws JsonParseException, JsonMappingException, IOException {
         TicketRequest request = createTicketRequest();
         request.setService("Test Service 2");
-        assertEquals("Test Service 2", request.getService(), "Ticket request did not set service!");
+        assertEquals(request.getService(), "Ticket request did not set service!", "Test Service 2");
     }
 
     @Test

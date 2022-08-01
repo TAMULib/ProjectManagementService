@@ -25,7 +25,7 @@ import edu.tamu.weaver.response.ApiResponse;
 @Service
 public class ActiveSprintsScheduledCacheService extends AbstractProductScheduledCacheService<List<Sprint>, ActiveSprintsCache> {
 
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private static final Logger logger = LoggerFactory.getLogger(ActiveSprintsScheduledCacheService.class);
 
     @Autowired
     private ProductRepo productRepo;

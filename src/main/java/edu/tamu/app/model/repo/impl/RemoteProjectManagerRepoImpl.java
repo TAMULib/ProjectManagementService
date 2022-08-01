@@ -16,7 +16,7 @@ import edu.tamu.weaver.data.model.repo.impl.AbstractWeaverRepoImpl;
 
 public class RemoteProjectManagerRepoImpl extends AbstractWeaverRepoImpl<RemoteProjectManager, RemoteProjectManagerRepo> implements RemoteProjectManagerRepoCustom {
 
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private static final Logger logger = LoggerFactory.getLogger(RemoteProjectManagerRepoImpl.class);
 
     @Autowired
     private RemoteProjectManagerRepo remoteProjectManagerRepo;

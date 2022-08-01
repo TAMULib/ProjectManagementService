@@ -62,7 +62,7 @@ public class StatusControllerTest {
     public void testReadById() {
         ApiResponse apiResponse = statusController.read(noneStatus.getId());
         assertEquals(SUCCESS, apiResponse.getMeta().getStatus(), "Request for status was unsuccessful");
-        assertEquals("None", ((Status) apiResponse.getPayload().get("Status")).getIdentifier(), "Status read was incorrect");
+        assertEquals(((Status) apiResponse.getPayload().get("Status")).getIdentifier(), "Status read was incorrect", "None");
     }
 
     @Test

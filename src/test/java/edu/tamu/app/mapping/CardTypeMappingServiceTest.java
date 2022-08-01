@@ -40,7 +40,7 @@ public class CardTypeMappingServiceTest {
 
     @Test
     public void testHandleUnmapped() {
-        assertEquals("Defect", cardTypeMappingService.handleUnmapped("Defect"), "Handled unmapped incorrectly!");
+        assertEquals(cardTypeMappingService.handleUnmapped("Defect"), "Handled unmapped incorrectly!", "Defect");
     }
 
     @AfterEach

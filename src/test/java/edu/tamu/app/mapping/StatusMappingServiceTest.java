@@ -40,7 +40,7 @@ public class StatusMappingServiceTest {
 
     @Test
     public void testHandleUnmapped() {
-        assertEquals("In Progress", statusMappingService.handleUnmapped("In Progress"), "Handled unmapped incorrectly!");
+        assertEquals(statusMappingService.handleUnmapped("In Progress"), "Handled unmapped incorrectly!", "In Progress");
     }
 
     @AfterEach
