@@ -51,8 +51,8 @@ public class RemoteProjectsCacheTest {
         assertEquals(1, remoteProductsCache.size(), "Cached remote projects had incorrect number of remote projects!");
         assertEquals(1, remoteProductsCache.get(1L).size(), "Cached remote projects did not have expected remote projects for a given remote project manager!");
 
-        assertEquals(remoteProductsCache.get(1L).get(0).getId(), "0001", "Cached remote project had incorrect id!");
-        assertEquals(remoteProductsCache.get(1L).get(0).getName(), "Cached remote project had incorrect name!", "Sprint 1");
+        assertEquals("0001", remoteProductsCache.get(1L).get(0).getId(), "Cached remote project had incorrect id!");
+        assertEquals("Sprint 1", remoteProductsCache.get(1L).get(0).getName(), "Cached remote project had incorrect name!");
         assertEquals(2, remoteProductsCache.get(1L).get(0).getRequestCount(), "Cached remote project had incorrect number of requests!");
         assertEquals(3, remoteProductsCache.get(1L).get(0).getIssueCount(), "Cached remote project had incorrect number of issues!");
         assertEquals(10, remoteProductsCache.get(1L).get(0).getFeatureCount(), "Cached remote project had incorrect number of features!");
