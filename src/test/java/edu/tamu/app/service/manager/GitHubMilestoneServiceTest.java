@@ -237,10 +237,6 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
     @Mock
     private GitHub github;
 
-    @BeforeAll
-    public static void beforeAll() {
-    }
-
     @BeforeEach
     public void setUp() throws Exception {
 
