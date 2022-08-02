@@ -72,7 +72,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.client.RestTemplate;
 
-@ExtendWith(SpringExtension.class)
+//@ExtendWith(SpringExtension.class)
 @ExtendWith(MockitoExtension.class)
 public class GitHubMilestoneServiceTest extends CacheMockTests {
 
