@@ -27,7 +27,6 @@ import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.kohsuke.github.GitHubBuilder;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +39,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -57,9 +55,9 @@ import edu.tamu.app.model.Product;
 import edu.tamu.app.model.RemoteProjectInfo;
 import edu.tamu.app.model.RemoteProjectManager;
 import edu.tamu.app.model.ServiceType;
+import edu.tamu.app.model.repo.AbstractRepoTest;
 import edu.tamu.app.model.repo.ProductRepo;
 import edu.tamu.app.model.repo.RemoteProjectManagerRepo;
-import edu.tamu.app.model.repo.AbstractRepoTest;
 import edu.tamu.app.model.request.FeatureRequest;
 import edu.tamu.app.model.request.TicketRequest;
 import edu.tamu.app.service.manager.GitHubProjectService;
@@ -74,7 +72,6 @@ import edu.tamu.weaver.response.ApiStatus;
 @SpringBootTest(classes = { ProductApplication.class }, webEnvironment=WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @AutoConfigureRestDocs(outputDir = "target/generated-snippets")
-@ExtendWith(SpringExtension.class)
 public class ProductControllerIntegrationTest extends AbstractRepoTest {
 
     @Value("classpath:mock/credentials/aggiejack.json")
@@ -167,6 +164,7 @@ public class ProductControllerIntegrationTest extends AbstractRepoTest {
 
         when(remoteProjectManagerRepo.findAll()).thenReturn(TEST_REMOTE_PROJECT_MANAGER_LIST);
         when(remoteProjectManagerRepo.findById(any(Long.class))).thenReturn(Optional.of(TEST_REMOTE_PROJECT_MANAGER));
+        when(remoteProjectManagerRepo.getById(any(Long.class))).thenReturn(TEST_REMOTE_PROJECT_MANAGER);
 
         doNothing().when(remoteProjectManagerRepo).delete(any(RemoteProjectManager.class));
 
@@ -205,8 +203,8 @@ public class ProductControllerIntegrationTest extends AbstractRepoTest {
             .andExpect(jsonPath("payload.ArrayList<Product>[0].remoteProjectInfo[0].remoteProjectManager.id", equalTo((int) TEST_REMOTE_PROJECT_MANAGER_ID)))
             .andExpect(jsonPath("payload.ArrayList<Product>[0].remoteProjectInfo[0].remoteProjectManager.name", equalTo(TEST_REMOTE_PROJECT_MANAGER.getName())))
             .andExpect(jsonPath("payload.ArrayList<Product>[0].remoteProjectInfo[0].remoteProjectManager.type", equalTo(TEST_REMOTE_PROJECT_MANAGER.getType().toString())))
-            .andExpect(jsonPath("payload.ArrayList<Product>[0].remoteProjectInfo[0].remoteProjectManager.url").doesNotExist())
-            .andExpect(jsonPath("payload.ArrayList<Product>[0].remoteProjectInfo[0].remoteProjectManager.token").doesNotExist())
+            .andExpect(jsonPath("payload.ArrayList<Product>[0].remoteProjectInfo[0].remoteProjectManager.url", equalTo(TEST_PROJECT_URL)))
+            .andExpect(jsonPath("payload.ArrayList<Product>[0].remoteProjectInfo[0].remoteProjectManager.token", equalTo(TEST_PROJECT_TOKEN)))
             .andDo(
                 document(
                     "products/get-all",
@@ -216,7 +214,23 @@ public class ProductControllerIntegrationTest extends AbstractRepoTest {
                         fieldWithPath("meta.action").description("Action of the request."),
                         fieldWithPath("meta.message").description("Message of the response."),
                         fieldWithPath("meta.status").description("Status of the response."),
-                        fieldWithPath("payload").description("API response payload containing the List of Products.")
+                        fieldWithPath("payload").description("API response payload containing the List of Products."),
+                        fieldWithPath("payload.ArrayList<Product>[0]").description("The List of Products."),
+                        fieldWithPath("payload.ArrayList<Product>[0].id").description("ID of the Product."),
+                        fieldWithPath("payload.ArrayList<Product>[0].name").description("Name of the Product."),
+                        fieldWithPath("payload.ArrayList<Product>[0].scopeId").description("Scope ID of the Product."),
+                        fieldWithPath("payload.ArrayList<Product>[0].devUrl").description("Dev URL of the Product."),
+                        fieldWithPath("payload.ArrayList<Product>[0].preUrl").description("Pre URL of the Product."),
+                        fieldWithPath("payload.ArrayList<Product>[0].productionUrl").description("Production URL of the Product."),
+                        fieldWithPath("payload.ArrayList<Product>[0].wikiUrl").description( "Wiki URL of the Product."),
+                        fieldWithPath("payload.ArrayList<Product>[0].otherUrls[0]").description("Other URL of the Product."),
+                        fieldWithPath("payload.ArrayList<Product>[0].otherUrls[1]").description("Other URL of the Product."),
+                        fieldWithPath("payload.ArrayList<Product>[0].remoteProjectInfo[0].scopeId").description("Scope ID of the Remote Project."),
+                        fieldWithPath("payload.ArrayList<Product>[0].remoteProjectInfo[0].remoteProjectManager.id").description("ID of the Remote Project Manager."),
+                        fieldWithPath("payload.ArrayList<Product>[0].remoteProjectInfo[0].remoteProjectManager.name").description("Name of the Remote Project Manager."),
+                        fieldWithPath("payload.ArrayList<Product>[0].remoteProjectInfo[0].remoteProjectManager.type").description("Type of the Remote Project Manager."),
+                        fieldWithPath("payload.ArrayList<Product>[0].remoteProjectInfo[0].remoteProjectManager.url").description("URL of the Remote Project Manager."),
+                        fieldWithPath("payload.ArrayList<Product>[0].remoteProjectInfo[0].remoteProjectManager.token").description("Token of the Remote Project Manager.")
                     )
                 )
             );
@@ -249,8 +263,8 @@ public class ProductControllerIntegrationTest extends AbstractRepoTest {
             .andExpect(jsonPath("payload.Product.remoteProjectInfo[0].remoteProjectManager.id", equalTo((int) TEST_REMOTE_PROJECT_MANAGER_ID)))
             .andExpect(jsonPath("payload.Product.remoteProjectInfo[0].remoteProjectManager.name", equalTo(TEST_REMOTE_PROJECT_MANAGER.getName())))
             .andExpect(jsonPath("payload.Product.remoteProjectInfo[0].remoteProjectManager.type", equalTo(TEST_REMOTE_PROJECT_MANAGER.getType().toString())))
-            .andExpect(jsonPath("payload.Product.remoteProjectInfo[0].remoteProjectManager.url").doesNotExist())
-            .andExpect(jsonPath("payload.Product.remoteProjectInfo[0].remoteProjectManager.token").doesNotExist())
+            .andExpect(jsonPath("payload.Product.remoteProjectInfo[0].remoteProjectManager.url", equalTo(TEST_PROJECT_URL)))
+            .andExpect(jsonPath("payload.Product.remoteProjectInfo[0].remoteProjectManager.token", equalTo(TEST_PROJECT_TOKEN)))
             .andDo(
                 document(
                     "products/get",
@@ -274,7 +288,9 @@ public class ProductControllerIntegrationTest extends AbstractRepoTest {
                         fieldWithPath("payload.Product.remoteProjectInfo[0].remoteProjectManager").description("The Remote Project Manager."),
                         fieldWithPath("payload.Product.remoteProjectInfo[0].remoteProjectManager.id").description("The Remote Project Manager ID."),
                         fieldWithPath("payload.Product.remoteProjectInfo[0].remoteProjectManager.name").description("The Remote Project Manager name."),
-                        fieldWithPath("payload.Product.remoteProjectInfo[0].remoteProjectManager.type").description("The Remote Project Manager type.")
+                        fieldWithPath("payload.Product.remoteProjectInfo[0].remoteProjectManager.type").description("The Remote Project Manager type."),
+                        fieldWithPath("payload.Product.remoteProjectInfo[0].remoteProjectManager.url").description("URL of the Remote Project Manager."),
+                        fieldWithPath("payload.Product.remoteProjectInfo[0].remoteProjectManager.token").description("Token of the Remote Project Manager.")
                     )
                 )
             );
@@ -486,7 +502,17 @@ public class ProductControllerIntegrationTest extends AbstractRepoTest {
                         fieldWithPath("credentials.email").description("The Issue Creator's E-mail."),
                         fieldWithPath("credentials.role").description("The Issue Creator's role."),
                         fieldWithPath("credentials.affiliation").description("The Issue Creator's affiliation."),
-                        fieldWithPath("credentials.allCredentials").description("A map of additional credential information.")
+                        fieldWithPath("credentials.allCredentials").description("A map of additional credential information."),
+                        fieldWithPath("credentials.allCredentials.lastName").description("The Issue Creator's Last Name."),
+                        fieldWithPath("credentials.allCredentials.firstName").description("The Issue Creator's First Name."),
+                        fieldWithPath("credentials.allCredentials.sub").description("The Issue Creator's Sub."),
+                        fieldWithPath("credentials.allCredentials.netid").description("The Issue Creator's Net ID."),
+                        fieldWithPath("credentials.allCredentials.affiliation").description("The Issue Creator's affiliation."),
+                        fieldWithPath("credentials.allCredentials.iss").description("The Issue Creator's Iss."),
+                        fieldWithPath("credentials.allCredentials.uin").description("The Issue Creator's UIN."),
+                        fieldWithPath("credentials.allCredentials.exp").description("The Issue Creator's expiration."),
+                        fieldWithPath("credentials.allCredentials.iat").description("The Issue Creator's Iat."),
+                        fieldWithPath("credentials.allCredentials.email").description("The Issue Creator's E-mail.")
                     ),
                     responseFields(
                         fieldWithPath("meta").description("API response meta."),
@@ -534,7 +560,12 @@ public class ProductControllerIntegrationTest extends AbstractRepoTest {
                         fieldWithPath("meta.action").description("Action of the request."),
                         fieldWithPath("meta.message").description("Message of the response."),
                         fieldWithPath("meta.status").description("Status of the response."),
-                        fieldWithPath("payload").description("API response payload containing the response message from the Feature service.")
+                        fieldWithPath("payload").description("API response payload containing the response message from the Feature service."),
+                        fieldWithPath("payload.FeatureRequest").description("The FeatureRequest object."),
+                        fieldWithPath("payload.FeatureRequest.title").description("The Feature Title."),
+                        fieldWithPath("payload.FeatureRequest.description").description("The Feature Description."),
+                        fieldWithPath("payload.FeatureRequest.productId").description("The Product ID associated with this Feature."),
+                        fieldWithPath("payload.FeatureRequest.scopeId").description("The Product Scope ID associated with this Feature.")
                     )
                 )
             );
@@ -570,6 +601,7 @@ public class ProductControllerIntegrationTest extends AbstractRepoTest {
                         fieldWithPath("payload.HashMap").description("An array of Remote Projects associated with the Product."),
                         fieldWithPath("payload.HashMap['" + TEST_PROJECT_SCOPE + "'].id").description("The Remote Project Scope ID."),
                         fieldWithPath("payload.HashMap['" + TEST_PROJECT_SCOPE + "'].name").description("The Remote Project Name."),
+                        fieldWithPath("payload.HashMap['" + TEST_PROJECT_SCOPE + "'].backlogItemCount").description("The total number of Backlog Items in the Remote Project."),
                         fieldWithPath("payload.HashMap['" + TEST_PROJECT_SCOPE + "'].requestCount").description("The total number of Requests in the Remote Project."),
                         fieldWithPath("payload.HashMap['" + TEST_PROJECT_SCOPE + "'].issueCount").description("The total number of Issues in the Remote Project."),
                         fieldWithPath("payload.HashMap['" + TEST_PROJECT_SCOPE + "'].featureCount").description("The total number of Features in the Remote Project."),
@@ -617,6 +649,7 @@ public class ProductControllerIntegrationTest extends AbstractRepoTest {
                         fieldWithPath("payload['ArrayList<RemoteProject>'][0]").description("An array of Remote Projects associated with the Remote Project Manager."),
                         fieldWithPath("payload['ArrayList<RemoteProject>'][0].id").description("The Remote Project Scope ID."),
                         fieldWithPath("payload['ArrayList<RemoteProject>'][0].name").description("The Remote Project Name."),
+                        fieldWithPath("payload['ArrayList<RemoteProject>'][0].backlogItemCount").description("The total number of Backlog Items in the Remote Project."),
                         fieldWithPath("payload['ArrayList<RemoteProject>'][0].requestCount").description("The total number of Requests in the Remote Project."),
                         fieldWithPath("payload['ArrayList<RemoteProject>'][0].issueCount").description("The total number of Issues in the Remote Project."),
                         fieldWithPath("payload['ArrayList<RemoteProject>'][0].featureCount").description("The total number of Features in the Remote Project."),
@@ -665,6 +698,7 @@ public class ProductControllerIntegrationTest extends AbstractRepoTest {
                         fieldWithPath("payload.RemoteProject").description("The Remote Project associated with the Remote Project Manager with the given Project Scope ID."),
                         fieldWithPath("payload.RemoteProject.id").description("The Remote Project Scope ID."),
                         fieldWithPath("payload.RemoteProject.name").description("The Remote Project Name."),
+                        fieldWithPath("payload.RemoteProject.backlogItemCount").description("The total number of Backlog Items in the Remote Project."),
                         fieldWithPath("payload.RemoteProject.requestCount").description("The total number of Requests in the Remote Project."),
                         fieldWithPath("payload.RemoteProject.issueCount").description("The total number of Issues in the Remote Project."),
                         fieldWithPath("payload.RemoteProject.featureCount").description("The total number of Features in the Remote Project."),
