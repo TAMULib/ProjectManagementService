@@ -1,25 +1,22 @@
 package edu.tamu.app.service.ticketing;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 
+import edu.tamu.app.model.request.TicketRequest;
+import edu.tamu.weaver.auth.model.Credentials;
+import edu.tamu.weaver.email.service.EmailSender;
 import javax.mail.MessagingException;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.util.ReflectionTestUtils;
-
-import edu.tamu.app.model.request.TicketRequest;
-import edu.tamu.weaver.auth.model.Credentials;
-import edu.tamu.weaver.email.service.EmailSender;
 
 @TestPropertySource
 @ExtendWith(MockitoExtension.class)
@@ -51,20 +48,21 @@ public class SugarServiceTest {
 
     @BeforeEach
     public void setup() {
-        MockitoAnnotations.openMocks(this);
         ReflectionTestUtils.setField(sugarService, "sugarEmail", "helpdesk@library.tamu.edu");
     }
 
     @Test
     public void testSubmit() throws MessagingException {
-        doNothing().when(emailService).sendEmail(any(String.class), any(String.class), any(String.class));
+        doNothing().when(emailService).sendEmail(anyString(), anyString(), anyString());
+
         String result = sugarService.submit(TEST_REQUEST);
         assertEquals(SUCCESSFUL_SUBMIT_TICKET_MESSAGE, result, "Results were not as expected!");
     }
 
     @Test
     public void testInvalidEmail() throws MessagingException {
-        doThrow(MessagingException.class).when(emailService).sendEmail(any(String.class), any(String.class), any(String.class));
+        doThrow(MessagingException.class).when(emailService).sendEmail(anyString(), anyString(), anyString());
+
         String result = sugarService.submit(TEST_REQUEST);
         assertEquals(SUBMIT_TICKET_ERROR_MESSAGE, result, "Results were not as expected!");
     }
