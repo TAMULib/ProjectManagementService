@@ -111,19 +111,19 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
     @Mock
     private GHLabel testLabel5;
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock
     private GHIssue testIssue1;
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock
     private GHIssue testIssue2;
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock
     private GHIssue testIssue3;
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock
     private GHIssue testIssue4;
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock
     private GHIssue testIssue5;
 
     @Mock
@@ -138,46 +138,46 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
     @Mock
     private GHMilestone testMilestone;
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock
     private GHProjectCard testCard1;
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock
     private GHProjectCard testCard2;
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock
     private GHProjectCard testCard3;
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock
     private GHProjectCard testCard4;
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock
     private GHProjectCard testCard5;
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock
     private GHProjectColumn testColumn1;
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock
     private GHProjectColumn testColumn2;
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock
     private GHProjectColumn testColumn3;
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock
     private GHProject testProject1;
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock
     private GHProject testProject2;
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock
     private GHProject testProject3;
 
     @Mock
     private GHRepository testRepository1;
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock
     private GHRepository testRepository2;
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock
     private GHOrganization testOrganization;
 
     @Mock
