@@ -44,8 +44,8 @@ public class ProductStatsCacheTest {
         assertFalse(remoteProductsCache.isEmpty(), "Cached products stats was empty!");
         assertEquals(1, remoteProductsCache.size(), "Cached products stats had incorrect number of products status!");
 
-        assertEquals(remoteProductsCache.get(0).getId(), "Cached product stats had incorrect id!", "0001");
-        assertEquals(remoteProductsCache.get(0).getName(), "Cached product stats had incorrect name!", "Sprint 1");
+        assertEquals("0001", remoteProductsCache.get(0).getId(), "Cached product stats had incorrect id!");
+        assertEquals("Sprint 1", remoteProductsCache.get(0).getName(), "Cached product stats had incorrect name!");
         assertEquals(2, remoteProductsCache.get(0).getRequestCount(), "Cached product stats had incorrect number of requests!");
         assertEquals(3, remoteProductsCache.get(0).getIssueCount(), "Cached product stats had incorrect number of issues!");
         assertEquals(10, remoteProductsCache.get(0).getFeatureCount(), "Cached product stats had incorrect number of features!");
