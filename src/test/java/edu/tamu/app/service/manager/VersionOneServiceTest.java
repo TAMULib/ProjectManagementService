@@ -3,6 +3,7 @@ package edu.tamu.app.service.manager;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.matches;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
@@ -10,31 +11,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.stubbing.Answer;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -51,7 +27,6 @@ import com.versionone.apiclient.interfaces.IAttributeDefinition;
 import com.versionone.apiclient.interfaces.IMetaModel;
 import com.versionone.apiclient.interfaces.IServices;
 import com.versionone.apiclient.services.QueryResult;
-
 import edu.tamu.app.cache.model.Card;
 import edu.tamu.app.cache.model.Member;
 import edu.tamu.app.cache.model.RemoteProject;
@@ -60,7 +35,6 @@ import edu.tamu.app.mapping.CardTypeMappingService;
 import edu.tamu.app.mapping.EstimateMappingService;
 import edu.tamu.app.mapping.StatusMappingService;
 import edu.tamu.app.model.CardType;
-import edu.tamu.app.model.Estimate;
 import edu.tamu.app.model.ManagementService;
 import edu.tamu.app.model.RemoteProjectManager;
 import edu.tamu.app.model.ServiceType;
@@ -70,8 +44,33 @@ import edu.tamu.app.model.repo.EstimateRepo;
 import edu.tamu.app.model.repo.StatusRepo;
 import edu.tamu.app.model.request.FeatureRequest;
 import edu.tamu.app.rest.TokenAuthRestTemplate;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Answers;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.stubbing.Answer;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
+@ExtendWith(MockitoExtension.class)
 public class VersionOneServiceTest extends CacheMockTests {
 
     private static final String TEST_PROJECT_URL1 = "http://localhost/1";
@@ -81,98 +80,35 @@ public class VersionOneServiceTest extends CacheMockTests {
     @Value("classpath:images/no_avatar.png")
     private Resource mockImage;
 
-    private VersionOneService versionOneService;
-
-    private IServices services;
-
-    private TokenAuthRestTemplate restTemplate;
-
     private List<RemoteProject> mockRemoteProjects;
 
     private List<Sprint> mockActiveSprints;
 
+    @Mock(answer = Answers.CALLS_REAL_METHODS)
+    private VersionOneService versionOneService;
+
+    @Mock
+    private TokenAuthRestTemplate restTemplate;
+
+    @Mock
+    private IServices services;
+
+    @Mock
+    private StatusRepo statusRepo;
+
+    @Mock
+    private CardTypeRepo cardTypeRepo;
+
+    @Mock
+    private EstimateRepo estimateRepo;
+
     @BeforeEach
-    @SuppressWarnings("unchecked")
     public void setup() throws JsonParseException, JsonMappingException, IOException, V1Exception {
-        MockitoAnnotations.openMocks(this);
-        
+
         ManagementService managementService = new RemoteProjectManager("Version One", ServiceType.VERSION_ONE, TEST_PROJECT_URL1, TEST_PROJECT_TOKEN1);
-
-        CardTypeRepo cardTypeRepo = mock(CardTypeRepo.class);
-        StatusRepo statusRepo = mock(StatusRepo.class);
-        EstimateRepo estimateRepo = mock(EstimateRepo.class);
-
         CardTypeMappingService cardTypeMappingService = mock(CardTypeMappingService.class, Mockito.CALLS_REAL_METHODS);
-
         StatusMappingService statusMappingService = mock(StatusMappingService.class, Mockito.CALLS_REAL_METHODS);
-
         EstimateMappingService estimateMappingService = mock(EstimateMappingService.class, Mockito.CALLS_REAL_METHODS);
-
-        versionOneService = mock(VersionOneService.class, Mockito.CALLS_REAL_METHODS);
-
-        services = mock(IServices.class);
-
-        restTemplate = mock(TokenAuthRestTemplate.class);
-
-        when(restTemplate.exchange(any(String.class), any(HttpMethod.class), any(HttpEntity.class), any(Class.class), any(Object[].class))).thenAnswer(new Answer<ResponseEntity<byte[]>>() {
-            @Override
-            public ResponseEntity<byte[]> answer(InvocationOnMock invocation) throws IOException {
-                byte[] bytes = Files.readAllBytes(mockImage.getFile().toPath());
-                return new ResponseEntity<byte[]>(bytes, HttpStatus.OK);
-            }
-        });
-
-        when(cardTypeRepo.findByMapping(any(String.class))).thenAnswer(new Answer<Optional<CardType>>() {
-            @Override
-            public Optional<CardType> answer(InvocationOnMock invocation) {
-                String identifier = (String) invocation.getArguments()[0];
-                Optional<CardType> cardType = Optional.empty();
-                switch (identifier) {
-                case "Story":
-                    cardType = Optional.of(new CardType("Feature", new HashSet<String>(Arrays.asList(new String[] { "Story" }))));
-                    break;
-                case "Defect":
-                    cardType = Optional.of(new CardType("Defect", new HashSet<String>(Arrays.asList(new String[] { "Defect" }))));
-                    break;
-                }
-                return cardType;
-            }
-        });
-
-        when(cardTypeRepo.findByIdentifier(any(String.class))).thenReturn(new CardType("Feature", new HashSet<String>(Arrays.asList(new String[] { "Story" }))));
-
-        when(statusRepo.findByMapping(any(String.class))).thenAnswer(new Answer<Optional<Status>>() {
-            @Override
-            public Optional<Status> answer(InvocationOnMock invocation) {
-                String identifier = (String) invocation.getArguments()[0];
-                Optional<Status> status = Optional.empty();
-                switch (identifier) {
-                case "None":
-                case "Feature":
-                    status = Optional.of(new Status("None", new HashSet<String>(Arrays.asList(new String[] { "None", "Future" }))));
-                    break;
-                case "In Progress":
-                    status = Optional.of(new Status("In Progress", new HashSet<String>(Arrays.asList(new String[] { "In Progress" }))));
-                    break;
-                case "Done":
-                    status = Optional.of(new Status("Done", new HashSet<String>(Arrays.asList(new String[] { "Done" }))));
-                    break;
-                case "Accepted":
-                    status = Optional.of(new Status("Accepted", new HashSet<String>(Arrays.asList(new String[] { "Accepted" }))));
-                    break;
-                }
-                return status;
-            }
-        });
-
-        when(estimateRepo.findByMapping(any(String.class))).thenAnswer(new Answer<Optional<Estimate>>() {
-            @Override
-            public Optional<Estimate> answer(InvocationOnMock invocation) {
-                return Optional.empty();
-            }
-        });
-
-        when(statusRepo.findByIdentifier(any(String.class))).thenReturn(new Status("None", new HashSet<String>(Arrays.asList(new String[] { "None", "Future" }))));
 
         setField(cardTypeMappingService, "serviceMappingRepo", cardTypeRepo);
         setField(statusMappingService, "serviceMappingRepo", statusRepo);
@@ -206,15 +142,6 @@ public class VersionOneServiceTest extends CacheMockTests {
 
         Asset[] assets = getMockRemoteProductAssets();
 
-        when(scopeType.getDisplayName()).thenReturn("AssetType'Scope");
-        when(scopeType.getToken()).thenReturn("Scope");
-
-        when(nameAttributeDefinition.getName()).thenReturn("Name");
-        when(nameAttributeDefinition.getDisplayName()).thenReturn("AttributeDefinition'Name'Scope");
-        when(nameAttributeDefinition.getToken()).thenReturn("Scope.Name");
-        when(nameAttributeDefinition.getAttributeType()).thenReturn(IAttributeDefinition.AttributeType.Text);
-        when(nameAttributeDefinition.getAssetType()).thenReturn(scopeType);
-
         when(result.getAssets()).thenReturn(assets);
 
         when(scopeType.getAttributeDefinition("Name")).thenReturn(nameAttributeDefinition);
@@ -224,10 +151,10 @@ public class VersionOneServiceTest extends CacheMockTests {
         when(services.getMeta()).thenReturn(metaModel);
         when(services.retrieve(any(Query.class))).thenReturn(result);
 
-        doReturn(2).when(versionOneService).getPrimaryWorkItemCount(matches("Request"), any(String.class));
-        doReturn(3).when(versionOneService).getPrimaryWorkItemCount(matches("Issue"), any(String.class));
-        doReturn(4).when(versionOneService).getPrimaryWorkItemCount(matches("Story"), any(String.class));
-        doReturn(1).when(versionOneService).getPrimaryWorkItemCount(matches("Defect"), any(String.class));
+        doReturn(2).when(versionOneService).getPrimaryWorkItemCount(matches("Request"), anyString());
+        doReturn(3).when(versionOneService).getPrimaryWorkItemCount(matches("Issue"), anyString());
+        doReturn(4).when(versionOneService).getPrimaryWorkItemCount(matches("Story"), anyString());
+        doReturn(1).when(versionOneService).getPrimaryWorkItemCount(matches("Defect"), anyString());
 
         assertRemoteProducts(versionOneService.getRemoteProject());
     }
@@ -243,22 +170,13 @@ public class VersionOneServiceTest extends CacheMockTests {
 
         Asset[] assets = getMockRemoteProductAssetByScopeId("1934");
 
-        when(scopeType.getDisplayName()).thenReturn("AssetType'Scope");
-        when(scopeType.getToken()).thenReturn("Scope");
-
-        when(nameAttributeDefinition.getName()).thenReturn("Name");
-        when(nameAttributeDefinition.getDisplayName()).thenReturn("AttributeDefinition'Name'Scope");
-        when(nameAttributeDefinition.getToken()).thenReturn("Scope.Name");
-        when(nameAttributeDefinition.getAttributeType()).thenReturn(IAttributeDefinition.AttributeType.Text);
-        when(nameAttributeDefinition.getAssetType()).thenReturn(scopeType);
-
         when(result.getAssets()).thenReturn(assets);
 
         when(scopeType.getAttributeDefinition("Name")).thenReturn(nameAttributeDefinition);
 
         when(metaModel.getAssetType("Scope")).thenReturn(scopeType);
 
-        when(services.getOid(any(String.class))).thenReturn(oid);
+        when(services.getOid(anyString())).thenReturn(oid);
         when(services.getMeta()).thenReturn(metaModel);
         when(services.retrieve(any(Query.class))).thenReturn(result);
 
@@ -280,43 +198,6 @@ public class VersionOneServiceTest extends CacheMockTests {
         testGetPrimaryWorkItemCount("Defect");
     }
 
-    private void testGetPrimaryWorkItemCount(String type) throws ConnectionException, APIException, OidException, JsonParseException, JsonMappingException, IOException {
-        QueryResult result = mock(QueryResult.class);
-        IMetaModel metaModel = mock(IMetaModel.class);
-        IAssetType assetType = mock(IAssetType.class);
-        IAttributeDefinition scopeAttributeDefinition = mock(IAttributeDefinition.class);
-        IAttributeDefinition assetStateAttributeDefinition = mock(IAttributeDefinition.class);
-
-        Asset[] assets = new Asset[0];
-
-        when(assetType.getDisplayName()).thenReturn("AssetType'" + type);
-        when(assetType.getToken()).thenReturn(type);
-
-        when(scopeAttributeDefinition.getName()).thenReturn("Scope");
-        when(scopeAttributeDefinition.getDisplayName()).thenReturn("AttributeDefinition'Scope'" + type);
-        when(scopeAttributeDefinition.getToken()).thenReturn(type + "Scope");
-        when(scopeAttributeDefinition.getAttributeType()).thenReturn(IAttributeDefinition.AttributeType.Relation);
-        when(scopeAttributeDefinition.getAssetType()).thenReturn(assetType);
-
-        when(assetStateAttributeDefinition.getName()).thenReturn("AssetState");
-        when(assetStateAttributeDefinition.getDisplayName()).thenReturn("AttributeDefinition'AssetState'" + type);
-        when(assetStateAttributeDefinition.getToken()).thenReturn(type + "AssetState");
-        when(assetStateAttributeDefinition.getAttributeType()).thenReturn(IAttributeDefinition.AttributeType.Relation);
-        when(assetStateAttributeDefinition.getAssetType()).thenReturn(assetType);
-
-        when(assetType.getAttributeDefinition("Scope")).thenReturn(scopeAttributeDefinition);
-        when(assetType.getAttributeDefinition("AssetState")).thenReturn(assetStateAttributeDefinition);
-
-        when(metaModel.getAssetType(type)).thenReturn(assetType);
-
-        when(result.getAssets()).thenReturn(assets);
-
-        when(services.getMeta()).thenReturn(metaModel);
-        when(services.retrieve(any(Query.class))).thenReturn(result);
-
-        assertEquals(0, versionOneService.getPrimaryWorkItemCount(type, "1934"), "Incorrect number of " + type);
-    }
-
     @Test
     public void testGetActiveSprintsByProductId() throws ConnectionException, APIException, OidException, IOException {
         QueryResult result = mock(QueryResult.class);
@@ -332,32 +213,11 @@ public class VersionOneServiceTest extends CacheMockTests {
 
         Asset[] assets = getMockActiveSprintAssets("0001");
 
-        when(timeboxType.getDisplayName()).thenReturn("AssetType'Timebox");
-        when(timeboxType.getToken()).thenReturn("Timebox");
-
         when(nameAttributeDefinition.getName()).thenReturn("Name");
-        when(nameAttributeDefinition.getDisplayName()).thenReturn("AttributeDefinition'Name'Timebox");
-        when(nameAttributeDefinition.getToken()).thenReturn("Timebox.Name");
-        when(nameAttributeDefinition.getAttributeType()).thenReturn(IAttributeDefinition.AttributeType.Text);
-        when(nameAttributeDefinition.getAssetType()).thenReturn(timeboxType);
-
-        when(stateCodeAttributeeDefinition.getName()).thenReturn("State.Code");
-        when(stateCodeAttributeeDefinition.getDisplayName()).thenReturn("AttributeDefinition'State.Code'Timebox");
-        when(stateCodeAttributeeDefinition.getToken()).thenReturn("Timebox.State.Code");
-        when(stateCodeAttributeeDefinition.getAttributeType()).thenReturn(IAttributeDefinition.AttributeType.Text);
-        when(stateCodeAttributeeDefinition.getAssetType()).thenReturn(timeboxType);
 
         when(scheduleScheduledScopesAttributeeDefinition.getName()).thenReturn("Schedule.ScheduledScopes");
-        when(scheduleScheduledScopesAttributeeDefinition.getDisplayName()).thenReturn("AttributeDefinition'Schedule.ScheduledScopes'Timebox");
-        when(scheduleScheduledScopesAttributeeDefinition.getToken()).thenReturn("Timebox.Schedule.ScheduledScopes");
-        when(scheduleScheduledScopesAttributeeDefinition.getAttributeType()).thenReturn(IAttributeDefinition.AttributeType.Relation);
-        when(scheduleScheduledScopesAttributeeDefinition.getAssetType()).thenReturn(timeboxType);
 
         when(scheduleScheduledScopesNameAttributeeDefinition.getName()).thenReturn("Schedule.ScheduledScopes.Name");
-        when(scheduleScheduledScopesNameAttributeeDefinition.getDisplayName()).thenReturn("AttributeDefinition'Schedule.ScheduledScopes.Name'Timebox");
-        when(scheduleScheduledScopesNameAttributeeDefinition.getToken()).thenReturn("Timebox.Schedule.ScheduledScopes.Name");
-        when(scheduleScheduledScopesNameAttributeeDefinition.getAttributeType()).thenReturn(IAttributeDefinition.AttributeType.Text);
-        when(scheduleScheduledScopesNameAttributeeDefinition.getAssetType()).thenReturn(timeboxType);
 
         when(timeboxType.getAttributeDefinition("Name")).thenReturn(nameAttributeDefinition);
         when(timeboxType.getAttributeDefinition("State.Code")).thenReturn(stateCodeAttributeeDefinition);
@@ -386,7 +246,6 @@ public class VersionOneServiceTest extends CacheMockTests {
         QueryResult result = mock(QueryResult.class);
 
         IMetaModel metaModel = mock(IMetaModel.class);
-
         IAssetType primaryWorkitemType = mock(IAssetType.class);
 
         IAttributeDefinition nameAttributeDefinition = mock(IAttributeDefinition.class);
@@ -400,65 +259,58 @@ public class VersionOneServiceTest extends CacheMockTests {
         IAttributeDefinition timboxAttributeDefinition = mock(IAttributeDefinition.class);
         IAttributeDefinition assetStateAttributeDefinition = mock(IAttributeDefinition.class);
 
+        when(cardTypeRepo.findByMapping(anyString())).thenAnswer(new Answer<Optional<CardType>>() {
+            @Override
+            public Optional<CardType> answer(InvocationOnMock invocation) {
+                String identifier = (String) invocation.getArguments()[0];
+                Optional<CardType> cardType = Optional.empty();
+                switch (identifier) {
+                case "Story":
+                    cardType = Optional.of(new CardType("Feature", new HashSet<String>(Arrays.asList(new String[] { "Story" }))));
+                    break;
+                case "Defect":
+                    cardType = Optional.of(new CardType("Defect", new HashSet<String>(Arrays.asList(new String[] { "Defect" }))));
+                    break;
+                }
+                return cardType;
+            }
+        });
+
+        when(statusRepo.findByMapping(anyString())).thenAnswer(new Answer<Optional<Status>>() {
+            @Override
+            public Optional<Status> answer(InvocationOnMock invocation) {
+                String identifier = (String) invocation.getArguments()[0];
+                Optional<Status> status = Optional.empty();
+                switch (identifier) {
+                case "None":
+                case "Feature":
+                    status = Optional.of(new Status("None", new HashSet<String>(Arrays.asList(new String[] { "None", "Future" }))));
+                    break;
+                case "In Progress":
+                    status = Optional.of(new Status("In Progress", new HashSet<String>(Arrays.asList(new String[] { "In Progress" }))));
+                    break;
+                case "Done":
+                    status = Optional.of(new Status("Done", new HashSet<String>(Arrays.asList(new String[] { "Done" }))));
+                    break;
+                case "Accepted":
+                    status = Optional.of(new Status("Accepted", new HashSet<String>(Arrays.asList(new String[] { "Accepted" }))));
+                    break;
+                }
+                return status;
+            }
+        });
+
         List<Card> mocKSprint1Cards = mockActiveSprints.get(0).getCards();
         Asset[] assets = getMockActiveSprintCardAssets(mocKSprint1Cards);
 
-        when(primaryWorkitemType.getDisplayName()).thenReturn("AssetType'PrimaryWorkitem");
-        when(primaryWorkitemType.getToken()).thenReturn("PrimaryWorkitem");
-
         when(nameAttributeDefinition.getName()).thenReturn("Name");
-        when(nameAttributeDefinition.getDisplayName()).thenReturn("AttributeDefinition'Name'PrimaryWorkitem");
-        when(nameAttributeDefinition.getToken()).thenReturn("PrimaryWorkitem.Name");
-        when(nameAttributeDefinition.getAttributeType()).thenReturn(IAttributeDefinition.AttributeType.Text);
-        when(nameAttributeDefinition.getAssetType()).thenReturn(primaryWorkitemType);
 
         when(numberAttributeDefinition.getName()).thenReturn("Number");
-        when(numberAttributeDefinition.getDisplayName()).thenReturn("AttributeDefinition'Number'PrimaryWorkitem");
-        when(numberAttributeDefinition.getToken()).thenReturn("PrimaryWorkitem.Number");
-        when(numberAttributeDefinition.getAttributeType()).thenReturn(IAttributeDefinition.AttributeType.Text);
-        when(numberAttributeDefinition.getAssetType()).thenReturn(primaryWorkitemType);
-
         when(assetTypeAttributeDefinition.getName()).thenReturn("AssetType");
-        when(assetTypeAttributeDefinition.getDisplayName()).thenReturn("AttributeDefinition'AssetType'PrimaryWorkitem");
-        when(assetTypeAttributeDefinition.getToken()).thenReturn("PrimaryWorkitem.AssetType");
-        when(assetTypeAttributeDefinition.getAttributeType()).thenReturn(IAttributeDefinition.AttributeType.AssetType);
-        when(assetTypeAttributeDefinition.getAssetType()).thenReturn(primaryWorkitemType);
-
         when(descriptionAttributeDefinition.getName()).thenReturn("Description");
-        when(descriptionAttributeDefinition.getDisplayName()).thenReturn("AttributeDefinition'Description'PrimaryWorkitem");
-        when(descriptionAttributeDefinition.getToken()).thenReturn("PrimaryWorkitem.Description");
-        when(descriptionAttributeDefinition.getAttributeType()).thenReturn(IAttributeDefinition.AttributeType.Text);
-        when(descriptionAttributeDefinition.getAssetType()).thenReturn(primaryWorkitemType);
-
         when(statusNameAttributeDefinition.getName()).thenReturn("Status.Name");
-        when(statusNameAttributeDefinition.getDisplayName()).thenReturn("AttributeDefinition'Status.Name'PrimaryWorkitem");
-        when(statusNameAttributeDefinition.getToken()).thenReturn("PrimaryWorkitem.Status.Name");
-        when(statusNameAttributeDefinition.getAttributeType()).thenReturn(IAttributeDefinition.AttributeType.Text);
-        when(statusNameAttributeDefinition.getAssetType()).thenReturn(primaryWorkitemType);
-
         when(estimateAttributeDefinition.getName()).thenReturn("Estimate");
-        when(estimateAttributeDefinition.getDisplayName()).thenReturn("AttributeDefinition'Estimate'PrimaryWorkitem");
-        when(estimateAttributeDefinition.getToken()).thenReturn("PrimaryWorkitem.Estimate");
-        when(estimateAttributeDefinition.getAttributeType()).thenReturn(IAttributeDefinition.AttributeType.Numeric);
-        when(estimateAttributeDefinition.getAssetType()).thenReturn(primaryWorkitemType);
-
         when(ownersAttributeDefinition.getName()).thenReturn("Owners");
-        when(ownersAttributeDefinition.getDisplayName()).thenReturn("AttributeDefinition'Owners'PrimaryWorkitem");
-        when(ownersAttributeDefinition.getToken()).thenReturn("PrimaryWorkitem.Owners");
-        when(ownersAttributeDefinition.getAttributeType()).thenReturn(IAttributeDefinition.AttributeType.Relation);
-        when(ownersAttributeDefinition.getAssetType()).thenReturn(primaryWorkitemType);
-
-        when(timboxAttributeDefinition.getName()).thenReturn("Timebox");
-        when(timboxAttributeDefinition.getDisplayName()).thenReturn("AttributeDefinition'Timebox'PrimaryWorkitem");
-        when(timboxAttributeDefinition.getToken()).thenReturn("PrimaryWorkitem.Timebox");
-        when(timboxAttributeDefinition.getAttributeType()).thenReturn(IAttributeDefinition.AttributeType.Relation);
-        when(timboxAttributeDefinition.getAssetType()).thenReturn(primaryWorkitemType);
-
-        when(assetStateAttributeDefinition.getName()).thenReturn("AssetState");
-        when(assetStateAttributeDefinition.getDisplayName()).thenReturn("AttributeDefinition'AssetState'PrimaryWorkitem");
-        when(assetStateAttributeDefinition.getToken()).thenReturn("PrimaryWorkitem.AssetState");
-        when(assetStateAttributeDefinition.getAttributeType()).thenReturn(IAttributeDefinition.AttributeType.State);
-        when(assetStateAttributeDefinition.getAssetType()).thenReturn(primaryWorkitemType);
 
         when(primaryWorkitemType.getAttributeDefinition("Name")).thenReturn(nameAttributeDefinition);
         when(primaryWorkitemType.getAttributeDefinition("Number")).thenReturn(numberAttributeDefinition);
@@ -482,10 +334,14 @@ public class VersionOneServiceTest extends CacheMockTests {
         doAnswer(new Answer<Member>() {
             @Override
             public Member answer(InvocationOnMock invocation) {
-                String memberId = (String) invocation.getArguments()[0];
-                return getMockMemberById(memberId);
+                if (invocation.getArguments().length > 0) {
+                    String memberId = (String) invocation.getArguments()[0];
+                    return getMockMemberById(memberId);
+                }
+
+                return null;
             }
-        }).when(versionOneService).getMember(any(String.class));
+        }).when(versionOneService).getMember(anyString());
 
         List<Card> cards = versionOneService.getActiveSprintsCards("0001");
 
@@ -495,7 +351,6 @@ public class VersionOneServiceTest extends CacheMockTests {
     @Test
     public void testGetMember() throws JsonParseException, JsonMappingException, APIException, IOException, OidException, ConnectionException {
         Oid oid = mock(Oid.class);
-
         QueryResult result = mock(QueryResult.class);
         IMetaModel metaModel = mock(IMetaModel.class);
         IAssetType memberType = mock(IAssetType.class);
@@ -506,29 +361,13 @@ public class VersionOneServiceTest extends CacheMockTests {
         Asset[] assets = getMockMemberAsset(mockMember, false);
 
         when(result.getAssets()).thenReturn(assets);
-
-        when(memberType.getDisplayName()).thenReturn("AssetType'Member");
-        when(memberType.getToken()).thenReturn("Member");
-
         when(nameAttributeDefinition.getName()).thenReturn("Name");
-        when(nameAttributeDefinition.getDisplayName()).thenReturn("AttributeDefinition'Name'Member");
-        when(nameAttributeDefinition.getToken()).thenReturn("Member.Name");
-        when(nameAttributeDefinition.getAttributeType()).thenReturn(IAttributeDefinition.AttributeType.Text);
-        when(nameAttributeDefinition.getAssetType()).thenReturn(memberType);
-
         when(avatarAttributeDefinition.getName()).thenReturn("Avatar");
-        when(avatarAttributeDefinition.getDisplayName()).thenReturn("AttributeDefinition'Avatar'Member");
-        when(avatarAttributeDefinition.getToken()).thenReturn("Member.Avatar");
-        when(avatarAttributeDefinition.getAttributeType()).thenReturn(IAttributeDefinition.AttributeType.Relation);
-        when(avatarAttributeDefinition.getAssetType()).thenReturn(memberType);
-
         when(memberType.getAttributeDefinition("Name")).thenReturn(nameAttributeDefinition);
         when(memberType.getAttributeDefinition("Avatar")).thenReturn(avatarAttributeDefinition);
-
         when(metaModel.getAssetType("Member")).thenReturn(memberType);
 
         when(services.getOid("Member:0001")).thenReturn(oid);
-
         when(services.getMeta()).thenReturn(metaModel);
         when(services.retrieve(any(Query.class))).thenReturn(result);
 
@@ -540,9 +379,10 @@ public class VersionOneServiceTest extends CacheMockTests {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testGetMemberWithAvatarImage() throws JsonParseException, JsonMappingException, APIException, IOException, OidException, ConnectionException {
-        Oid oid = mock(Oid.class);
 
+        Oid oid = mock(Oid.class);
         QueryResult result = mock(QueryResult.class);
         IMetaModel metaModel = mock(IMetaModel.class);
         IAssetType memberType = mock(IAssetType.class);
@@ -552,30 +392,22 @@ public class VersionOneServiceTest extends CacheMockTests {
         Member mockMember = getMockMemberById("0003");
         Asset[] assets = getMockMemberAsset(mockMember, true);
 
+        when(restTemplate.exchange(any(String.class), any(HttpMethod.class), any(HttpEntity.class), any(Class.class))).thenAnswer(new Answer<ResponseEntity<byte[]>>() {
+            @Override
+            public ResponseEntity<byte[]> answer(InvocationOnMock invocation) throws IOException {
+                byte[] bytes = Files.readAllBytes(mockImage.getFile().toPath());
+                return new ResponseEntity<byte[]>(bytes, HttpStatus.OK);
+            }
+        });
+
         when(result.getAssets()).thenReturn(assets);
-
-        when(memberType.getDisplayName()).thenReturn("AssetType'Member");
-        when(memberType.getToken()).thenReturn("Member");
-
         when(nameAttributeDefinition.getName()).thenReturn("Name");
-        when(nameAttributeDefinition.getDisplayName()).thenReturn("AttributeDefinition'Name'Member");
-        when(nameAttributeDefinition.getToken()).thenReturn("Member.Name");
-        when(nameAttributeDefinition.getAttributeType()).thenReturn(IAttributeDefinition.AttributeType.Text);
-        when(nameAttributeDefinition.getAssetType()).thenReturn(memberType);
-
         when(avatarAttributeDefinition.getName()).thenReturn("Avatar");
-        when(avatarAttributeDefinition.getDisplayName()).thenReturn("AttributeDefinition'Avatar'Member");
-        when(avatarAttributeDefinition.getToken()).thenReturn("Member.Avatar");
-        when(avatarAttributeDefinition.getAttributeType()).thenReturn(IAttributeDefinition.AttributeType.Relation);
-        when(avatarAttributeDefinition.getAssetType()).thenReturn(memberType);
-
         when(memberType.getAttributeDefinition("Name")).thenReturn(nameAttributeDefinition);
         when(memberType.getAttributeDefinition("Avatar")).thenReturn(avatarAttributeDefinition);
-
         when(metaModel.getAssetType("Member")).thenReturn(memberType);
 
         when(services.getOid("Member:0003")).thenReturn(oid);
-
         when(services.getMeta()).thenReturn(metaModel);
         when(services.retrieve(any(Query.class))).thenReturn(result);
 
@@ -597,10 +429,10 @@ public class VersionOneServiceTest extends CacheMockTests {
 
         Asset mockAsset = mock(Asset.class);
 
-        when(assetType.getAttributeDefinition(any(String.class))).thenReturn(attributeDefinition);
-        when(metaModel.getAssetType(any(String.class))).thenReturn(assetType);
+        when(assetType.getAttributeDefinition(anyString())).thenReturn(attributeDefinition);
+        when(metaModel.getAssetType(anyString())).thenReturn(assetType);
 
-        when(services.getOid(any(String.class))).thenReturn(oid);
+        when(services.getOid(anyString())).thenReturn(oid);
         when(services.getMeta()).thenReturn(metaModel);
         when(services.createNew(any(IAssetType.class), any(Oid.class))).thenReturn(mockAsset);
 
@@ -614,6 +446,28 @@ public class VersionOneServiceTest extends CacheMockTests {
         assertNotNull(request);
     }
 
+    private void testGetPrimaryWorkItemCount(String type) throws ConnectionException, APIException, OidException, JsonParseException, JsonMappingException, IOException {
+        QueryResult result = mock(QueryResult.class);
+        IMetaModel metaModel = mock(IMetaModel.class);
+        IAssetType assetType = mock(IAssetType.class);
+        IAttributeDefinition scopeAttributeDefinition = mock(IAttributeDefinition.class);
+        IAttributeDefinition assetStateAttributeDefinition = mock(IAttributeDefinition.class);
+
+        Asset[] assets = new Asset[0];
+
+        when(assetType.getAttributeDefinition("Scope")).thenReturn(scopeAttributeDefinition);
+        when(assetType.getAttributeDefinition("AssetState")).thenReturn(assetStateAttributeDefinition);
+
+        when(metaModel.getAssetType(type)).thenReturn(assetType);
+
+        when(result.getAssets()).thenReturn(assets);
+
+        when(services.getMeta()).thenReturn(metaModel);
+        when(services.retrieve(any(Query.class))).thenReturn(result);
+
+        assertEquals(0, versionOneService.getPrimaryWorkItemCount(type, "1934"), "Incorrect number of " + type);
+    }
+
     private Asset[] getMockActiveSprintAssets(String scopeId) throws JsonParseException, JsonMappingException, IOException, APIException {
         List<Asset> mockAssets = new ArrayList<Asset>();
         for (Sprint activeSprint : mockActiveSprints) {
@@ -622,46 +476,16 @@ public class VersionOneServiceTest extends CacheMockTests {
 
             Oid mockOid = mock(Oid.class);
 
-            IAssetType timeboxType = mock(IAssetType.class);
-
-            IAttributeDefinition nameAttributeDefinition = mock(IAttributeDefinition.class);
-            IAttributeDefinition scheduleScheduledScopesAttributeDefinition = mock(IAttributeDefinition.class);
-            IAttributeDefinition scheduledScopesNameAttributeDefinition = mock(IAttributeDefinition.class);
-
             Attribute mockNameAttribute = mock(Attribute.class);
             Attribute mockScheduledScopesAttribute = mock(Attribute.class);
             Attribute mockScheduledScopesNameAttribute = mock(Attribute.class);
 
             when(mockOid.toString()).thenReturn("Timebox:" + activeSprint.getId());
 
-            when(timeboxType.getDisplayName()).thenReturn("AssetType'Timebox");
-            when(timeboxType.getToken()).thenReturn("Timebox");
-
-            when(nameAttributeDefinition.getName()).thenReturn("Name");
-            when(nameAttributeDefinition.getDisplayName()).thenReturn("AttributeDefinition'Name'Timebox");
-            when(nameAttributeDefinition.getToken()).thenReturn("Timebox.Name");
-            when(nameAttributeDefinition.getAttributeType()).thenReturn(IAttributeDefinition.AttributeType.Text);
-            when(nameAttributeDefinition.getAssetType()).thenReturn(timeboxType);
-
-            when(mockNameAttribute.getDefinition()).thenReturn(nameAttributeDefinition);
             when(mockNameAttribute.getValue()).thenReturn(activeSprint.getName());
 
-            when(scheduleScheduledScopesAttributeDefinition.getName()).thenReturn("Schedule.ScheduledScopes.Name");
-            when(scheduleScheduledScopesAttributeDefinition.getDisplayName()).thenReturn("AttributeDefinition'Schedule.ScheduledScopes.Name'Timebox");
-            when(scheduleScheduledScopesAttributeDefinition.getToken()).thenReturn("Timebox.Schedule.ScheduledScopes.Name");
-            when(scheduleScheduledScopesAttributeDefinition.getAttributeType()).thenReturn(IAttributeDefinition.AttributeType.Text);
-            when(scheduleScheduledScopesAttributeDefinition.getAssetType()).thenReturn(timeboxType);
-
-            when(mockScheduledScopesAttribute.getDefinition()).thenReturn(scheduleScheduledScopesAttributeDefinition);
             when(mockScheduledScopesAttribute.getValues()).thenReturn(new String[] { "Scope:" + scopeId });
 
-            when(scheduledScopesNameAttributeDefinition.getName()).thenReturn("Schedule.ScheduledScopes.Name");
-            when(scheduledScopesNameAttributeDefinition.getDisplayName()).thenReturn("AttributeDefinition'Schedule.ScheduledScopes.Name'Timebox");
-            when(scheduledScopesNameAttributeDefinition.getToken()).thenReturn("Timebox.Schedule.ScheduledScopes.Name");
-            when(scheduledScopesNameAttributeDefinition.getAttributeType()).thenReturn(IAttributeDefinition.AttributeType.Text);
-            when(scheduledScopesNameAttributeDefinition.getAssetType()).thenReturn(timeboxType);
-
-            when(mockScheduledScopesNameAttribute.getDefinition()).thenReturn(scheduledScopesNameAttributeDefinition);
             when(mockScheduledScopesNameAttribute.getValues()).thenReturn(new String[] { activeSprint.getProduct() });
 
             when(mockAsset.getOid()).thenReturn(mockOid);
@@ -699,18 +523,9 @@ public class VersionOneServiceTest extends CacheMockTests {
         for (Card card : mockSprintCards) {
 
             Asset mockAsset = mock(Asset.class);
-
             Oid mockOid = mock(Oid.class);
 
-            IAssetType primaryWorkitemType = mock(IAssetType.class);
-
-            IAttributeDefinition nameAttributeDefinition = mock(IAttributeDefinition.class);
-            IAttributeDefinition numberAttributeDefinition = mock(IAttributeDefinition.class);
-            IAttributeDefinition assetTypeAttributeDefinition = mock(IAttributeDefinition.class);
-            IAttributeDefinition descriptionAttributeDefinition = mock(IAttributeDefinition.class);
-            IAttributeDefinition statusNameAttributeDefinition = mock(IAttributeDefinition.class);
-            IAttributeDefinition estimateAttributeDefinition = mock(IAttributeDefinition.class);
-            IAttributeDefinition ownersAttributeDefinition = mock(IAttributeDefinition.class);
+            IAssetType storyAssetType = mock(IAssetType.class);
 
             Attribute mockNameAttribute = mock(Attribute.class);
             Attribute mockNumberAttribute = mock(Attribute.class);
@@ -722,76 +537,14 @@ public class VersionOneServiceTest extends CacheMockTests {
 
             when(mockOid.toString()).thenReturn("PrimaryWorkitem:" + card.getId());
 
-            when(primaryWorkitemType.getDisplayName()).thenReturn("AssetType'PrimaryWorkitem");
-            when(primaryWorkitemType.getToken()).thenReturn("PrimaryWorkitem");
-
-            when(nameAttributeDefinition.getName()).thenReturn("Name");
-            when(nameAttributeDefinition.getDisplayName()).thenReturn("AttributeDefinition'Name'PrimaryWorkitem");
-            when(nameAttributeDefinition.getToken()).thenReturn("PrimaryWorkitem.Name");
-            when(nameAttributeDefinition.getAttributeType()).thenReturn(IAttributeDefinition.AttributeType.Text);
-            when(nameAttributeDefinition.getAssetType()).thenReturn(primaryWorkitemType);
-
-            when(mockNameAttribute.getDefinition()).thenReturn(nameAttributeDefinition);
             when(mockNameAttribute.getValue()).thenReturn(card.getName());
-
-            when(numberAttributeDefinition.getName()).thenReturn("Number");
-            when(numberAttributeDefinition.getDisplayName()).thenReturn("AttributeDefinition'Number'PrimaryWorkitem");
-            when(numberAttributeDefinition.getToken()).thenReturn("PrimaryWorkitem.Number");
-            when(numberAttributeDefinition.getAttributeType()).thenReturn(IAttributeDefinition.AttributeType.Text);
-            when(numberAttributeDefinition.getAssetType()).thenReturn(primaryWorkitemType);
-
-            when(mockNumberAttribute.getDefinition()).thenReturn(numberAttributeDefinition);
             when(mockNumberAttribute.getValue()).thenReturn(card.getNumber());
-
-            when(assetTypeAttributeDefinition.getName()).thenReturn("AssetType");
-            when(assetTypeAttributeDefinition.getDisplayName()).thenReturn("AttributeDefinition'AssetType'PrimaryWorkitem");
-            when(assetTypeAttributeDefinition.getToken()).thenReturn("PrimaryWorkitem.AssetType");
-            when(assetTypeAttributeDefinition.getAttributeType()).thenReturn(IAttributeDefinition.AttributeType.AssetType);
-            when(assetTypeAttributeDefinition.getAssetType()).thenReturn(primaryWorkitemType);
-
-            when(mockAssetTypeAttribute.getDefinition()).thenReturn(assetTypeAttributeDefinition);
-
-            IAssetType storyAssetType = mock(IAssetType.class);
-            when(storyAssetType.getDisplayName()).thenReturn("AssetType'Story");
-
             when(storyAssetType.getToken()).thenReturn(card.getStatus().equals("Feature") ? "Story" : "Defect");
 
             when(mockAssetTypeAttribute.getValue()).thenReturn(storyAssetType);
-
-            when(descriptionAttributeDefinition.getName()).thenReturn("Description");
-            when(descriptionAttributeDefinition.getDisplayName()).thenReturn("AttributeDefinition'Description'PrimaryWorkitem");
-            when(descriptionAttributeDefinition.getToken()).thenReturn("PrimaryWorkitem.Description");
-            when(descriptionAttributeDefinition.getAttributeType()).thenReturn(IAttributeDefinition.AttributeType.Text);
-            when(descriptionAttributeDefinition.getAssetType()).thenReturn(primaryWorkitemType);
-
-            when(mockDescriptionAttribute.getDefinition()).thenReturn(descriptionAttributeDefinition);
             when(mockDescriptionAttribute.getValue()).thenReturn(card.getDescription());
-
-            when(statusNameAttributeDefinition.getName()).thenReturn("Status.Name");
-            when(statusNameAttributeDefinition.getDisplayName()).thenReturn("AttributeDefinition'Status.Name'PrimaryWorkitem");
-            when(statusNameAttributeDefinition.getToken()).thenReturn("PrimaryWorkitem.Status.Name");
-            when(statusNameAttributeDefinition.getAttributeType()).thenReturn(IAttributeDefinition.AttributeType.Text);
-            when(statusNameAttributeDefinition.getAssetType()).thenReturn(primaryWorkitemType);
-
-            when(mockStatusNameAttribute.getDefinition()).thenReturn(statusNameAttributeDefinition);
             when(mockStatusNameAttribute.getValue()).thenReturn(card.getStatus());
-
-            when(estimateAttributeDefinition.getName()).thenReturn("Estimate");
-            when(estimateAttributeDefinition.getDisplayName()).thenReturn("AttributeDefinition'Estimate'PrimaryWorkitem");
-            when(estimateAttributeDefinition.getToken()).thenReturn("PrimaryWorkitem.Estimate");
-            when(estimateAttributeDefinition.getAttributeType()).thenReturn(IAttributeDefinition.AttributeType.Numeric);
-            when(estimateAttributeDefinition.getAssetType()).thenReturn(primaryWorkitemType);
-
-            when(mockEstimateAttribute.getDefinition()).thenReturn(estimateAttributeDefinition);
             when(mockEstimateAttribute.getValue()).thenReturn(card.getEstimate());
-
-            when(ownersAttributeDefinition.getName()).thenReturn("Owners");
-            when(ownersAttributeDefinition.getDisplayName()).thenReturn("AttributeDefinition'Owners'PrimaryWorkitem");
-            when(ownersAttributeDefinition.getToken()).thenReturn("PrimaryWorkitem.Owners");
-            when(ownersAttributeDefinition.getAttributeType()).thenReturn(IAttributeDefinition.AttributeType.Relation);
-            when(ownersAttributeDefinition.getAssetType()).thenReturn(primaryWorkitemType);
-
-            when(mockOwnersAttribute.getDefinition()).thenReturn(ownersAttributeDefinition);
 
             Object[] mockMemberObjects = getMockMemberAssetsWithIdOnly(card.getAssignees());
             when(mockOwnersAttribute.getValues()).thenReturn(mockMemberObjects);
@@ -867,11 +620,8 @@ public class VersionOneServiceTest extends CacheMockTests {
         for (RemoteProject remoteProject : mockRemoteProjects) {
             if (remoteProject.getId().equals(scopeId)) {
                 Asset mockAsset = mock(Asset.class);
-                Oid mockOid = mock(Oid.class);
                 Attribute mockNameAttribute = mock(Attribute.class);
                 when(mockNameAttribute.getValue()).thenReturn(remoteProject.getName());
-                when(mockOid.toString()).thenReturn("Scope:" + remoteProject.getId());
-                when(mockAsset.getOid()).thenReturn(mockOid);
                 when(mockAsset.getAttribute(any(IAttributeDefinition.class))).thenReturn(mockNameAttribute);
                 mockAssets.add(mockAsset);
                 break;
@@ -882,46 +632,13 @@ public class VersionOneServiceTest extends CacheMockTests {
 
     private Asset[] getMockMemberAsset(Member member, boolean withImage) throws APIException {
         Asset mockAsset = mock(Asset.class);
-        Oid mockOid = mock(Oid.class);
-
-        IAssetType memberType = mock(IAssetType.class);
-
-        IAttributeDefinition nameAttributeDefinition = mock(IAttributeDefinition.class);
-        IAttributeDefinition avatarAttributeDefinition = mock(IAttributeDefinition.class);
-
         Attribute mockNameAttribute = mock(Attribute.class);
         Attribute mockAvatarAttribute = mock(Attribute.class);
-
-        when(mockOid.toString()).thenReturn("Member:" + member.getId());
-
-        when(memberType.getDisplayName()).thenReturn("AssetType'Member");
-        when(memberType.getToken()).thenReturn("Member");
-
-        when(nameAttributeDefinition.getName()).thenReturn("Name");
-        when(nameAttributeDefinition.getDisplayName()).thenReturn("AttributeDefinition'Name'Member");
-        when(nameAttributeDefinition.getToken()).thenReturn("Member.Name");
-        when(nameAttributeDefinition.getAttributeType()).thenReturn(IAttributeDefinition.AttributeType.Text);
-        when(nameAttributeDefinition.getAssetType()).thenReturn(memberType);
-
-        when(mockNameAttribute.getDefinition()).thenReturn(nameAttributeDefinition);
-        when(mockNameAttribute.getValue()).thenReturn(member.getName());
-
-        when(avatarAttributeDefinition.getName()).thenReturn("Avatar");
-        when(avatarAttributeDefinition.getDisplayName()).thenReturn("AttributeDefinition'Avatar'Member");
-        when(avatarAttributeDefinition.getToken()).thenReturn("Member.Avatar");
-        when(avatarAttributeDefinition.getAttributeType()).thenReturn(IAttributeDefinition.AttributeType.Relation);
-        when(avatarAttributeDefinition.getAssetType()).thenReturn(memberType);
-
-        when(mockAvatarAttribute.getDefinition()).thenReturn(avatarAttributeDefinition);
-
         Oid oid = mock(Oid.class);
-        Oid assetOid = mock(Oid.class);
 
+        when(mockNameAttribute.getValue()).thenReturn(member.getName());
         when(oid.toString()).thenReturn(withImage ? "Image:" + member.getId() : "NULL");
         when(mockAvatarAttribute.getValue()).thenReturn(oid);
-
-        when(mockAsset.getOid()).thenReturn(assetOid);
-        when(assetOid.getToken()).thenReturn("token:assetOid");
 
         when(mockAsset.getAttribute(any(IAttributeDefinition.class))).thenAnswer(new Answer<Attribute>() {
             @Override
@@ -955,6 +672,7 @@ public class VersionOneServiceTest extends CacheMockTests {
                 }
             }
         }
+
         return null;
     }
 

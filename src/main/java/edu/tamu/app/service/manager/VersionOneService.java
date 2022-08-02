@@ -238,35 +238,34 @@ public class VersionOneService extends MappingRemoteProjectManagerBean {
     }
 
     public Member getMember(final String id) throws ConnectionException, APIException, OidException, IOException {
-        Member member;
+
         Optional<Member> cachedMember = getCachedMember(id);
         if (cachedMember.isPresent()) {
-            member = cachedMember.get();
-        } else {
-            Oid oid = services.getOid("Member:" + id);
-            IAssetType memberType = services.getMeta().getAssetType("Member");
-            IAttributeDefinition nameAttributeDefinition = memberType.getAttributeDefinition("Name");
-            IAttributeDefinition avatarAttributeDefinition = memberType.getAttributeDefinition("Avatar");
-
-            Query query = new Query(oid);
-            query.getSelection().add(nameAttributeDefinition);
-            query.getSelection().add(avatarAttributeDefinition);
-
-            QueryResult result = services.retrieve(query);
-            Asset asset = result.getAssets()[0];
-            String name = asset.getAttribute(nameAttributeDefinition).getValue().toString();
-
-            String avatarPath = parseAvatarUrlPath((Oid) asset.getAttribute(avatarAttributeDefinition).getValue());
-
-            Optional<URL> avatarUrl = Optional.ofNullable(getClass().getResource("/images/" + avatarPath));
-            if (!avatarUrl.isPresent()) {
-                storeAvatar(avatarPath);
-            }
-
-            member = new Member(id, name, avatarPath);
-
-            cacheMember(id, member);
+            return cachedMember.get();
         }
+
+        Oid oid = services.getOid("Member:" + id);
+        IAssetType memberType = services.getMeta().getAssetType("Member");
+        IAttributeDefinition nameAttributeDefinition = memberType.getAttributeDefinition("Name");
+        IAttributeDefinition avatarAttributeDefinition = memberType.getAttributeDefinition("Avatar");
+
+        Query query = new Query(oid);
+        query.getSelection().add(nameAttributeDefinition);
+        query.getSelection().add(avatarAttributeDefinition);
+
+        QueryResult result = services.retrieve(query);
+        Asset asset = result.getAssets()[0];
+        String name = asset.getAttribute(nameAttributeDefinition).getValue().toString();
+        String avatarPath = parseAvatarUrlPath((Oid) asset.getAttribute(avatarAttributeDefinition).getValue());
+
+        Optional<URL> avatarUrl = Optional.ofNullable(getClass().getResource("/images/" + avatarPath));
+        if (!avatarUrl.isPresent()) {
+            storeAvatar(avatarPath);
+        }
+
+        Member member = new Member(id, name, avatarPath);
+        cacheMember(id, member);
+
         return member;
     }
 
@@ -324,7 +323,8 @@ public class VersionOneService extends MappingRemoteProjectManagerBean {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Arrays.asList(MediaType.APPLICATION_OCTET_STREAM));
         HttpEntity<String> entity = new HttpEntity<String>(headers);
-        ResponseEntity<byte[]> response = restTemplate.exchange(getUrl() + "/image.img/" + avatarPath, HttpMethod.GET, entity, byte[].class, "1");
+        String url = getUrl() + "/image.img/" + avatarPath;
+        ResponseEntity<byte[]> response = restTemplate.exchange(url, HttpMethod.GET, entity, byte[].class);
         if (response.getStatusCode().equals(HttpStatus.OK)) {
             File file = new File(imagesPath.getFile() + "/" + avatarPath);
             Files.write(file.toPath(), response.getBody());
