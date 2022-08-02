@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,7 +47,7 @@ public class StatusControllerTest {
         when(statusRepo.findAll()).thenReturn(new ArrayList<Status>(Arrays.asList(new Status[] { noneStatus, doneStatus })));
         when(statusRepo.create(any(Status.class))).thenReturn(noneStatus);
         when(statusRepo.update(any(Status.class))).thenReturn(noneStatus);
-        when(statusRepo.getById(any(Long.class))).thenReturn(noneStatus);
+        when(statusRepo.findById(any(Long.class))).thenReturn(Optional.of(noneStatus));
 
         doNothing().when(statusRepo).delete(any(Status.class));
     }
