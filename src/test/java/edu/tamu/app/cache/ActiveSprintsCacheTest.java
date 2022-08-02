@@ -43,18 +43,18 @@ public class ActiveSprintsCacheTest {
         List<Sprint> sprints = cache.get();
         assertFalse(sprints.isEmpty(), "Cached active sprints was empty!");
         assertEquals(1, sprints.size(), "Cached active sprints had incorrect number of sprints!");
-        assertEquals(sprints.get(0).getId(), "Cached active sprint had incorrect id!", "1");
-        assertEquals(sprints.get(0).getName(), "Cached active sprint had incorrect name!", "Sprint 1");
-        assertEquals(sprints.get(0).getProduct(), "Cached active sprint had incorrect product!", "Application");
+        assertEquals("1", sprints.get(0).getId(), "Cached active sprint had incorrect id!");
+        assertEquals("Sprint 1", sprints.get(0).getName(), "Cached active sprint had incorrect name!");
+        assertEquals("Application", sprints.get(0).getProduct(), "Cached active sprint had incorrect product!");
 
         assertFalse(sprints.get(0).getCards().isEmpty());
         assertEquals(1, sprints.get(0).getCards().size());
-        assertEquals(sprints.get(0).getCards().get(0).getId(), "1");
-        assertEquals(sprints.get(0).getCards().get(0).getNumber(), "B-00001");
-        assertEquals(sprints.get(0).getCards().get(0).getType(), "Feature");
-        assertEquals(sprints.get(0).getCards().get(0).getName(), "Do the thing");
-        assertEquals(sprints.get(0).getCards().get(0).getDescription(), "Do it with these requirements");
-        assertEquals(sprints.get(0).getCards().get(0).getStatus(), "In Progress");
+        assertEquals("1", sprints.get(0).getCards().get(0).getId());
+        assertEquals("B-00001", sprints.get(0).getCards().get(0).getNumber());
+        assertEquals("Feature", sprints.get(0).getCards().get(0).getType());
+        assertEquals("Do the thing", sprints.get(0).getCards().get(0).getName());
+        assertEquals("Do it with these requirements", sprints.get(0).getCards().get(0).getDescription());
+        assertEquals("In Progress", sprints.get(0).getCards().get(0).getStatus());
         assertEquals(1.0, sprints.get(0).getCards().get(0).getEstimate(), 0);
         assertFalse(sprints.get(0).getCards().get(0).getAssignees().isEmpty());
         assertEquals(1, sprints.get(0).getCards().get(0).getAssignees().size());
