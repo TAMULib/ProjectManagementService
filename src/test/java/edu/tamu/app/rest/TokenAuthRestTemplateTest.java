@@ -15,7 +15,7 @@ public class TokenAuthRestTemplateTest {
     public void testNewTokenAuthRestTemplate() {
         TokenAuthRestTemplate basicAuthRestTemplate = new TokenAuthRestTemplate("token");
         assertNotNull(basicAuthRestTemplate, "Unable to create new basic auth rest template!");
-        assertEquals(basicAuthRestTemplate.getToken(), "Token auth rest template did not have expected token!", "token");
+        assertEquals("token", basicAuthRestTemplate.getToken(), "Token auth rest template did not have expected token!");
     }
 
     @Test
