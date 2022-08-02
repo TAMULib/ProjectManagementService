@@ -12,7 +12,6 @@ import java.util.HashSet;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
 import org.mockito.MockitoAnnotations;
@@ -20,7 +19,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import edu.tamu.app.ProductApplication;
 import edu.tamu.app.cache.service.ActiveSprintsScheduledCacheService;
@@ -31,7 +29,6 @@ import edu.tamu.app.service.manager.GitHubProjectService;
 import edu.tamu.app.service.manager.VersionOneService;
 import edu.tamu.app.service.ticketing.SugarService;
 
-@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = { ProductApplication.class }, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class CardTypeRepoTest extends AbstractRepoTest {
 
@@ -77,7 +74,7 @@ public class CardTypeRepoTest extends AbstractRepoTest {
         CardType cardType = cardTypeRepo.create(newCardType("Feature", "Story", "Feature"));
         assertNotNull(cardType, "Unable to create card type!");
         assertEquals(1, cardTypeRepo.count(), "Card type repo had incorrect number of card types!");
-        assertEquals(cardType.getIdentifier(), "Card type had incorrect identifier!", "Feature");
+        assertEquals("Feature", cardType.getIdentifier(), "Card type had incorrect identifier!");
         assertEquals(2, cardType.getMapping().size(), "Card type had incorrect number of mappings!");
     }
 
@@ -95,7 +92,7 @@ public class CardTypeRepoTest extends AbstractRepoTest {
         cardType.setIdentifier("Feature");
         cardType.setMapping(new HashSet<String>(Arrays.asList(new String[] { "Feature", "Story", "Task" })));
         cardType = cardTypeRepo.update(cardType);
-        assertEquals(cardType.getIdentifier(), "Card type had incorrect identifier!", "Feature");
+        assertEquals("Feature", cardType.getIdentifier(), "Card type had incorrect identifier!");
         assertEquals(3, cardType.getMapping().size(), "Card type had incorrect number of mappings!");
     }
 

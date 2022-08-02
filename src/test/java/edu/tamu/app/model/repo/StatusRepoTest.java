@@ -12,7 +12,6 @@ import java.util.HashSet;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
 import org.mockito.MockitoAnnotations;
@@ -20,7 +19,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import edu.tamu.app.ProductApplication;
 import edu.tamu.app.cache.service.ActiveSprintsScheduledCacheService;
@@ -31,7 +29,6 @@ import edu.tamu.app.service.manager.GitHubProjectService;
 import edu.tamu.app.service.manager.VersionOneService;
 import edu.tamu.app.service.ticketing.SugarService;
 
-@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = { ProductApplication.class }, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class StatusRepoTest extends AbstractRepoTest {
 
@@ -77,7 +74,7 @@ public class StatusRepoTest extends AbstractRepoTest {
         Status status = statusRepo.create(new Status("None", new HashSet<String>(Arrays.asList(new String[] { "None", "Future" }))));
         assertNotNull(status, "Unable to create status!");
         assertEquals(1, statusRepo.count(), "Status repo had incorrect number of statuses!");
-        assertEquals(status.getIdentifier(), "Status had incorrect identifier!", "None");
+        assertEquals("None", status.getIdentifier(), "Status had incorrect identifier!");
         assertEquals(2, status.getMapping().size(), "Status had incorrect number of mappings!");
     }
 
@@ -95,7 +92,7 @@ public class StatusRepoTest extends AbstractRepoTest {
         status.setIdentifier("None");
         status.setMapping(new HashSet<String>(Arrays.asList(new String[] { "None", "Future", "NA" })));
         status = statusRepo.update(status);
-        assertEquals(status.getIdentifier(), "Status had incorrect identifier!", "None");
+        assertEquals("None", status.getIdentifier(), "Status had incorrect identifier!");
         assertEquals(3, status.getMapping().size(), "Status had incorrect number of mappings!");
     }
 

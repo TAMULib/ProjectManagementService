@@ -12,12 +12,10 @@ import java.util.Collection;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -28,7 +26,6 @@ import edu.tamu.app.model.Role;
 import edu.tamu.app.model.User;
 import edu.tamu.weaver.auth.model.Credentials;
 
-@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = { ProductApplication.class }, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class UserRepoTest extends AuthMockTests {
 
@@ -68,10 +65,10 @@ public class UserRepoTest extends AuthMockTests {
 
         user = userRepo.update(user);
 
-        assertEquals(user.getUsername(), "User had incorrect username!", "123456781");
-        assertEquals(user.getEmail(), "User had incorrect email!", "jaggie@tamu.edu");
-        assertEquals(user.getFirstName(), "User had incorrect first name!", "John");
-        assertEquals(user.getLastName(), "User had incorrect last name!", "Agriculture");
+        assertEquals("123456781", user.getUsername(), "User had incorrect username!");
+        assertEquals("jaggie@tamu.edu", user.getEmail(), "User had incorrect email!");
+        assertEquals("John", user.getFirstName(), "User had incorrect first name!");
+        assertEquals("Agriculture", user.getLastName(), "User had incorrect last name!");
         assertEquals(Role.valueOf("ROLE_MANAGER"), user.getRole(), "User had incorrect role!");
     }
 
