@@ -9,7 +9,6 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,10 +41,12 @@ public class StatusControllerTest {
         noneStatus = new Status("None", new HashSet<String>(Arrays.asList(new String[] { "None", "Future" })));
         doneStatus = new Status("Done", new HashSet<String>(Arrays.asList(new String[] { "Done" })));
 
+        noneStatus.setId(1L);
+
         when(statusRepo.findAll()).thenReturn(new ArrayList<Status>(Arrays.asList(new Status[] { noneStatus, doneStatus })));
         when(statusRepo.create(any(Status.class))).thenReturn(noneStatus);
         when(statusRepo.update(any(Status.class))).thenReturn(noneStatus);
-        when(statusRepo.findById(any(Long.class))).thenReturn(Optional.of(noneStatus));
+        when(statusRepo.getById(any(Long.class))).thenReturn(noneStatus);
 
         doNothing().when(statusRepo).delete(any(Status.class));
     }
@@ -62,7 +63,7 @@ public class StatusControllerTest {
     public void testReadById() {
         ApiResponse apiResponse = statusController.read(noneStatus.getId());
         assertEquals(SUCCESS, apiResponse.getMeta().getStatus(), "Request for status was unsuccessful");
-        assertEquals(((Status) apiResponse.getPayload().get("Status")).getIdentifier(), "Status read was incorrect", "None");
+        assertEquals("None", ((Status) apiResponse.getPayload().get("Status")).getIdentifier(), "Status read was incorrect");
     }
 
     @Test

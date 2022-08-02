@@ -37,7 +37,7 @@ public class StatusController {
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ANONYMOUS')")
     public ApiResponse read(@PathVariable Long id) {
-        return new ApiResponse(SUCCESS, statusRepo.findById(id));
+        return new ApiResponse(SUCCESS, statusRepo.getById(id));
     }
 
     @PostMapping
