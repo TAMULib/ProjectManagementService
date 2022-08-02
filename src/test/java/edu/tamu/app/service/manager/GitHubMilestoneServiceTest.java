@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -235,6 +236,10 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
 
     @Mock
     private GitHub github;
+
+    @BeforeAll
+    public static void beforeAll() {
+    }
 
     @BeforeEach
     public void setUp() throws Exception {
