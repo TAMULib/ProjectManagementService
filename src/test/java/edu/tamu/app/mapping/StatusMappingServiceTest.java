@@ -8,17 +8,14 @@ import java.util.HashSet;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import edu.tamu.app.ProductApplication;
 import edu.tamu.app.model.Status;
 import edu.tamu.app.model.repo.StatusRepo;
 
-@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = { ProductApplication.class }, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class StatusMappingServiceTest {
 
@@ -35,12 +32,12 @@ public class StatusMappingServiceTest {
 
     @Test
     public void testMap() {
-        assertEquals(statusMappingService.map("Future"), "None");
+        assertEquals("None", statusMappingService.map("Future"));
     }
 
     @Test
     public void testHandleUnmapped() {
-        assertEquals(statusMappingService.handleUnmapped("In Progress"), "Handled unmapped incorrectly!", "In Progress");
+        assertEquals("In Progress", statusMappingService.handleUnmapped("In Progress"), "Handled unmapped incorrectly!");
     }
 
     @AfterEach
