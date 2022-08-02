@@ -40,6 +40,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -59,7 +60,6 @@ import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
 import org.mockito.Answers;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
@@ -130,7 +130,9 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
     private static final GHProject TEST_PROJECT2 = mock(GHProject.class, RETURNS_DEEP_STUBS);
     private static final GHProject TEST_PROJECT3 = mock(GHProject.class, RETURNS_DEEP_STUBS);
 
-    private static final GHRepository TEST_REPOSITORY1 = mock(GHRepository.class, RETURNS_DEEP_STUBS);
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    private GHRepository TEST_REPOSITORY1;
+    //private static final GHRepository TEST_REPOSITORY1 = mock(GHRepository.class, RETURNS_DEEP_STUBS);
     private static final GHRepository TEST_REPOSITORY2 = mock(GHRepository.class, RETURNS_DEEP_STUBS);
 
     private static final GHOrganization TEST_ORGANIZATION = mock(GHOrganization.class, RETURNS_DEEP_STUBS);
@@ -176,9 +178,7 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
     private static final List<GHProject> TEST_PROJECTS = new ArrayList<GHProject>(
             Arrays.asList(new GHProject[] { TEST_PROJECT1, TEST_PROJECT2, TEST_PROJECT3 }));
 
-    private static final Map<String, GHRepository> TEST_REPOSITORY_MAP = Stream.of(
-            new Object[][] { { TEST_REPOSITORY1_NAME, TEST_REPOSITORY1 }, { TEST_REPOSITORY2_NAME, TEST_REPOSITORY2 } })
-            .collect(Collectors.toMap(data -> (String) data[0], data -> (GHRepository) data[1]));
+    private Map<String, GHRepository> TEST_REPOSITORY_MAP;
 
     @Value("classpath:images/no_avatar.png")
     private Resource mockImage;
@@ -210,19 +210,28 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
     @Mock
     private GitHub github;
 
+    @BeforeAll
+    public static void beforeAll() {
+    }
+
     @BeforeEach
     public void setUp() throws Exception {
+
+        TEST_REPOSITORY_MAP = Stream.of(
+            new Object[][] { { TEST_REPOSITORY1_NAME, TEST_REPOSITORY1 }, { TEST_REPOSITORY2_NAME, TEST_REPOSITORY2 } })
+            .collect(Collectors.toMap(data -> (String) data[0], data -> (GHRepository) data[1]));
+
         ManagementService managementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB_MILESTONE, TEST_PROJECT_URL1, TEST_PROJECT_TOKEN1);
 
         when(TEST_ORGANIZATION.getRepositories()).thenReturn(TEST_REPOSITORY_MAP);
         when(TEST_ORGANIZATION.listProjects(any(ProjectStateFilter.class)).asList()).thenReturn(TEST_PROJECTS);
 
-        when(TEST_REPOSITORY1.getId()).thenReturn(TEST_REPOSITORY1_ID);
+        lenient().when(TEST_REPOSITORY1.getId()).thenReturn(TEST_REPOSITORY1_ID);
         when(TEST_REPOSITORY1.createIssue(any(String.class)).body(any(String.class)).create()).thenReturn(TEST_ISSUE1);
         when(TEST_REPOSITORY1.listProjects(any(ProjectStateFilter.class)).asList()).thenReturn(TEST_PROJECTS);
         when(TEST_REPOSITORY1.listProjects().asList()).thenReturn(TEST_PROJECTS);
         when(TEST_REPOSITORY1.getIssues(any(GHIssueState.class))).thenReturn(TEST_ISSUE_LIST);
-        when(TEST_REPOSITORY1.getName()).thenReturn(TEST_REPOSITORY1_NAME);
+        lenient().when(TEST_REPOSITORY1.getName()).thenReturn(TEST_REPOSITORY1_NAME);
         when(TEST_REPOSITORY2.getIssues(any(GHIssueState.class))).thenReturn(TEST_ISSUE_LIST);
         when(TEST_REPOSITORY2.listProjects().asList()).thenReturn(TEST_PROJECTS);
         when(TEST_REPOSITORY1.listLabels().asList()).thenReturn(ALL_TEST_LABELS);
