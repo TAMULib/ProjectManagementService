@@ -1,5 +1,9 @@
 package edu.tamu.app.service.manager;
 
+import edu.tamu.app.cache.model.Card;
+import edu.tamu.app.cache.model.Sprint;
+import edu.tamu.app.model.ManagementService;
+import edu.tamu.app.model.ServiceType;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -8,20 +12,18 @@ import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import org.apache.commons.lang3.tuple.Pair;
 import org.kohsuke.github.GHMilestoneState;
 import org.kohsuke.github.GHOrganization;
 import org.kohsuke.github.GHProject;
 import org.kohsuke.github.GHProject.ProjectStateFilter;
 import org.kohsuke.github.GHRepository;
-
-import edu.tamu.app.cache.model.Card;
-import edu.tamu.app.cache.model.Sprint;
-import edu.tamu.app.model.ManagementService;
-import edu.tamu.app.model.ServiceType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GitHubMilestoneService extends AbstractGitHubService {
+
+    protected static Logger logger = LoggerFactory.getLogger(GitHubMilestoneService.class);
 
     public GitHubMilestoneService(final ManagementService managementService) {
         super(managementService);
@@ -46,7 +48,6 @@ public class GitHubMilestoneService extends AbstractGitHubService {
     }
 
     private Stream<Sprint> getActiveSprintsForProject(GHProject project, String product) {
-        System.err.println("\n\n\nget: " + project + product + "\n\n\n");
         AtomicInteger count = new AtomicInteger();
         return exceptionHandlerWrapper(project, p -> getCards(p).entrySet()).stream()
             .map(e -> new Sprint(String.format("%s-%s", project.getId(), count.incrementAndGet()), e.getKey(), product,

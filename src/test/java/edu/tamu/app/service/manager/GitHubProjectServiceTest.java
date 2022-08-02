@@ -1,52 +1,17 @@
 package edu.tamu.app.service.manager;
 
-import static edu.tamu.app.service.manager.GitHubProjectService.DEFECT_LABEL;
-import static edu.tamu.app.service.manager.GitHubProjectService.FEATURE_LABEL;
-import static edu.tamu.app.service.manager.GitHubProjectService.ISSUE_LABEL;
-import static edu.tamu.app.service.manager.GitHubProjectService.REQUEST_LABEL;
+import static edu.tamu.app.service.manager.AbstractGitHubService.DEFECT_LABEL;
+import static edu.tamu.app.service.manager.AbstractGitHubService.FEATURE_LABEL;
+import static edu.tamu.app.service.manager.AbstractGitHubService.ISSUE_LABEL;
+import static edu.tamu.app.service.manager.AbstractGitHubService.REQUEST_LABEL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.kohsuke.github.GHIssue;
-import org.kohsuke.github.GHIssueState;
-import org.kohsuke.github.GHLabel;
-import org.kohsuke.github.GHOrganization;
-import org.kohsuke.github.GHProject;
-import org.kohsuke.github.GHProject.ProjectStateFilter;
-import org.kohsuke.github.GHProjectCard;
-import org.kohsuke.github.GHProjectColumn;
-import org.kohsuke.github.GHRepository;
-import org.kohsuke.github.GHUser;
-import org.kohsuke.github.GitHub;
-import org.kohsuke.github.GitHubBuilder;
-import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.web.client.RestTemplate;
 
 import edu.tamu.app.cache.model.Member;
 import edu.tamu.app.cache.model.RemoteProject;
@@ -64,9 +29,50 @@ import edu.tamu.app.model.repo.CardTypeRepo;
 import edu.tamu.app.model.repo.EstimateRepo;
 import edu.tamu.app.model.repo.StatusRepo;
 import edu.tamu.app.model.request.FeatureRequest;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.kohsuke.github.GHIssue;
+import org.kohsuke.github.GHIssueState;
+import org.kohsuke.github.GHLabel;
+import org.kohsuke.github.GHOrganization;
+import org.kohsuke.github.GHProject;
+import org.kohsuke.github.GHProject.ProjectStateFilter;
+import org.kohsuke.github.GHProjectCard;
+import org.kohsuke.github.GHProjectColumn;
+import org.kohsuke.github.GHRepository;
+import org.kohsuke.github.GHUser;
+import org.kohsuke.github.GitHub;
+import org.kohsuke.github.GitHubBuilder;
+import org.mockito.Answers;
+import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.stubbing.Answer;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.web.client.RestTemplate;
 
 @ExtendWith(SpringExtension.class)
+@ExtendWith(MockitoExtension.class)
 public class GitHubProjectServiceTest extends CacheMockTests {
+
     private static final String TEST_REPOSITORY1_NAME = "Test repository 1 name";
     private static final String TEST_REPOSITORY2_NAME = "Test repository 2 name";
     private static final String TEST_UNUSED_LABEL_NAME = "unused";
@@ -127,9 +133,6 @@ public class GitHubProjectServiceTest extends CacheMockTests {
 
     private static final RestTemplate restTemplate = mock(RestTemplate.class);
 
-    @SuppressWarnings("unchecked")
-    private ResponseEntity<byte[]> response = (ResponseEntity<byte[]>) mock(ResponseEntity.class);
-
     private static final List<GHLabel> ALL_TEST_LABELS = new ArrayList<GHLabel>(
             Arrays.asList(new GHLabel[] { TEST_LABEL1, TEST_LABEL2, TEST_LABEL3, TEST_LABEL4, TEST_LABEL5 }));
     private static final List<GHLabel> TEST_CARD1_LABELS = new ArrayList<GHLabel>(
@@ -171,39 +174,39 @@ public class GitHubProjectServiceTest extends CacheMockTests {
             new Object[][] { { TEST_REPOSITORY1_NAME, TEST_REPOSITORY1 }, { TEST_REPOSITORY2_NAME, TEST_REPOSITORY2 } })
             .collect(Collectors.toMap(data -> (String) data[0], data -> (GHRepository) data[1]));
 
+    @Value("classpath:images/no_avatar.png")
+    private Resource mockImage;
+
+    @Mock
+    private CardTypeRepo cardTypeRepo;
+
+    @Mock
+    private StatusRepo statusRepo;
+
+    @Mock
+    private EstimateRepo estimateRepo;
+
+    @Mock
     private GitHubBuilder ghBuilder;
 
+    @Mock(answer = Answers.CALLS_REAL_METHODS)
     private GitHubProjectService gitHubProjectService;
 
+    @Mock(answer = Answers.CALLS_REAL_METHODS)
+    private CardTypeMappingService cardTypeMappingService;
+
+    @Mock(answer = Answers.CALLS_REAL_METHODS)
+    private StatusMappingService statusMappingService;
+
+    @Mock(answer = Answers.CALLS_REAL_METHODS)
+    private EstimateMappingService estimateMappingService;
+
+    @Mock
     private GitHub github;
 
     @BeforeEach
     public void setUp() throws Exception {
         ManagementService managementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB_PROJECT, TEST_PROJECT_URL1, TEST_PROJECT_TOKEN1);
-
-
-        CardTypeRepo cardTypeRepo = mock(CardTypeRepo.class);
-        StatusRepo statusRepo = mock(StatusRepo.class);
-        EstimateRepo estimateRepo = mock(EstimateRepo.class);
-
-        CardTypeMappingService cardTypeMappingService = mock(CardTypeMappingService.class, Mockito.CALLS_REAL_METHODS);
-
-        StatusMappingService statusMappingService = mock(StatusMappingService.class, Mockito.CALLS_REAL_METHODS);
-
-        EstimateMappingService estimateMappingService = mock(EstimateMappingService.class, Mockito.CALLS_REAL_METHODS);
-
-        ghBuilder = mock(GitHubBuilder.class);
-
-        gitHubProjectService = mock(GitHubProjectService.class, Mockito.CALLS_REAL_METHODS);
-
-        github = mock(GitHub.class);
-
-        when(ghBuilder.withEndpoint(any(String.class))).thenReturn(ghBuilder);
-        when(ghBuilder.withOAuthToken(any(String.class))).thenReturn(ghBuilder);
-        when(ghBuilder.build()).thenReturn(github);
-
-        when(github.getOrganization(any(String.class))).thenReturn(TEST_ORGANIZATION);
-        when(github.getRepositoryById(any(String.class))).thenReturn(TEST_REPOSITORY1);
 
         when(TEST_ORGANIZATION.getRepositories()).thenReturn(TEST_REPOSITORY_MAP);
         when(TEST_ORGANIZATION.listProjects(any(ProjectStateFilter.class)).asList()).thenReturn(TEST_PROJECTS);
@@ -249,7 +252,6 @@ public class GitHubProjectServiceTest extends CacheMockTests {
         when(TEST_ISSUE4.getLabels()).thenReturn(TEST_CARD4_LABELS);
         when(TEST_ISSUE5.getLabels()).thenReturn(TEST_CARD5_LABELS);
         when(TEST_ISSUE1.getAssignees()).thenReturn(TEST_USERS1);
-        
 
         when(TEST_COLUMN1.getName()).thenReturn(TEST_COLUMN1_NAME);
 
@@ -278,17 +280,16 @@ public class GitHubProjectServiceTest extends CacheMockTests {
         when(TEST_FEATURE_REQUEST.getTitle()).thenReturn(TEST_FEATURE_REQUEST_TITLE);
         when(TEST_FEATURE_REQUEST.getDescription()).thenReturn(TEST_FEATURE_REQUEST_DESCRIPTION);
 
-        when(restTemplate.exchange(
-            any(String.class),
-            any(HttpMethod.class),
-            Mockito.<HttpEntity<String>>any(),
-            Mockito.<Class<byte[]>>any(),
-            Mockito.<Object>anyCollection()))
-                .thenReturn(response);
+        when(restTemplate.exchange(any(String.class), any(HttpMethod.class), any(HttpEntity.class), any(Class.class)))
+            .thenAnswer(new Answer<ResponseEntity<byte[]>>() {
+                @Override
+                public ResponseEntity<byte[]> answer(InvocationOnMock invocation) throws IOException {
+                    byte[] bytes = Files.readAllBytes(mockImage.getFile().toPath());
+                    return new ResponseEntity<byte[]>(bytes, HttpStatus.OK);
+                }
+            });
 
-        when(response.getStatusCode()).thenReturn(HttpStatus.NOT_FOUND);
-
-        when(cardTypeRepo.findByMapping(any(String.class))).thenAnswer(new Answer<Optional<CardType>>() {
+        lenient().when(cardTypeRepo.findByMapping(any(String.class))).thenAnswer(new Answer<Optional<CardType>>() {
             @Override
             public Optional<CardType> answer(InvocationOnMock invocation) {
                 String identifier = (String) invocation.getArguments()[0];
@@ -307,10 +308,7 @@ public class GitHubProjectServiceTest extends CacheMockTests {
             }
         });
 
-        when(cardTypeRepo.findByIdentifier(any(String.class)))
-                .thenReturn(new CardType("Feature", new HashSet<String>(Arrays.asList(new String[] { "Story" }))));
-
-        when(statusRepo.findByMapping(any(String.class))).thenAnswer(new Answer<Optional<Status>>() {
+        lenient().when(statusRepo.findByMapping(any(String.class))).thenAnswer(new Answer<Optional<Status>>() {
             @Override
             public Optional<Status> answer(InvocationOnMock invocation) {
                 String identifier = (String) invocation.getArguments()[0];
@@ -338,15 +336,15 @@ public class GitHubProjectServiceTest extends CacheMockTests {
             }
         });
 
-        when(estimateRepo.findByMapping(any(String.class))).thenAnswer(new Answer<Optional<Estimate>>() {
+        lenient().when(estimateRepo.findByMapping(any(String.class))).thenAnswer(new Answer<Optional<Estimate>>() {
             @Override
             public Optional<Estimate> answer(InvocationOnMock invocation) {
                 return Optional.empty();
             }
         });
 
-        when(statusRepo.findByIdentifier(any(String.class)))
-                .thenReturn(new Status("None", new HashSet<String>(Arrays.asList(new String[] { "None", "Future" }))));
+        lenient().when(statusRepo.findByIdentifier(any(String.class)))
+            .thenReturn(new Status("None", new HashSet<String>(Arrays.asList(new String[] { "None", "Future" }))));
 
         setField(cardTypeMappingService, "serviceMappingRepo", cardTypeRepo);
         setField(statusMappingService, "serviceMappingRepo", statusRepo);
@@ -364,6 +362,8 @@ public class GitHubProjectServiceTest extends CacheMockTests {
 
     @Test
     public void testGetRemoteProjects() throws Exception {
+        when(github.getOrganization(any(String.class))).thenReturn(TEST_ORGANIZATION);
+
         List<RemoteProject> remoteProjects = gitHubProjectService.getRemoteProject();
         assertEquals(2, remoteProjects.size(), "Didn't get all the remote projects");
         assertEquals(1, remoteProjects.get(0).getRequestCount(), "Number of Requests was incorrect");
@@ -374,6 +374,8 @@ public class GitHubProjectServiceTest extends CacheMockTests {
 
     @Test
     public void testGetRemoteProjectByScopeId() throws Exception {
+        when(github.getRepositoryById(any(String.class))).thenReturn(TEST_REPOSITORY1);
+
         RemoteProject project = gitHubProjectService.getRemoteProjectByScopeId(String.valueOf(TEST_REPOSITORY1_ID));
         assertNotNull(project, "Didn't get the remote project");
         assertEquals(String.valueOf(TEST_REPOSITORY1_ID), project.getId(), "Did not get the expected project");
@@ -385,18 +387,24 @@ public class GitHubProjectServiceTest extends CacheMockTests {
 
     @Test
     public void testGetActiveSprintsByProjectId() throws Exception {
+        when(github.getRepositoryById(any(String.class))).thenReturn(TEST_REPOSITORY1);
+
         List<Sprint> activeSprints = gitHubProjectService.getActiveSprintsByScopeId(String.valueOf(TEST_REPOSITORY1_ID));
         assertEquals(3, activeSprints.size(), "Didn't get all active sprints");
     }
 
     @Test
     public void testGetAdditionalActiveSprints() throws Exception {
+        when(github.getOrganization(any(String.class))).thenReturn(TEST_ORGANIZATION);
+
         List<Sprint> additionalSprints = gitHubProjectService.getAdditionalActiveSprints();
         assertEquals(3, additionalSprints.size(), "Didn't get all additional sprints");
     }
 
     @Test
     public void testGetActiveSprintsByProjectIdType() throws Exception {
+        when(github.getRepositoryById(any(String.class))).thenReturn(TEST_REPOSITORY1);
+
         List<Sprint> sprints = gitHubProjectService.getActiveSprintsByScopeId(String.valueOf(TEST_REPOSITORY1_ID));
 
         sprints.forEach(sprint -> {
@@ -406,6 +414,8 @@ public class GitHubProjectServiceTest extends CacheMockTests {
 
     @Test
     public void testGetAdditionalActiveSprintType() throws Exception {
+        when(github.getOrganization(any(String.class))).thenReturn(TEST_ORGANIZATION);
+
         List<Sprint> sprints = gitHubProjectService.getAdditionalActiveSprints();
 
         sprints.forEach(sprint -> {
@@ -415,6 +425,8 @@ public class GitHubProjectServiceTest extends CacheMockTests {
 
     @Test
     public void testPush() throws Exception {
+        when(github.getRepositoryById(any(String.class))).thenReturn(TEST_REPOSITORY1);
+
         String id = gitHubProjectService.push(TEST_FEATURE_REQUEST);
         assertNotNull(id);
     }
@@ -429,6 +441,10 @@ public class GitHubProjectServiceTest extends CacheMockTests {
 
     @Test
     public void testGetGitHubInstanceWithInvalidServiceEndpoint() throws IOException {
+        when(ghBuilder.withEndpoint(any(String.class))).thenReturn(ghBuilder);
+        when(ghBuilder.withOAuthToken(any(String.class))).thenReturn(ghBuilder);
+        when(ghBuilder.build()).thenReturn(github);
+
         ManagementService invalidManagementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB_PROJECT, TEST_PROJECT_URL1, TEST_PROJECT_TOKEN1);
 
         setField(gitHubProjectService, "managementService", invalidManagementService);
@@ -442,6 +458,10 @@ public class GitHubProjectServiceTest extends CacheMockTests {
 
     @Test
     public void testGetGitHubInstanceWithInvalidToken() throws IOException {
+        when(ghBuilder.withEndpoint(any(String.class))).thenReturn(ghBuilder);
+        when(ghBuilder.withOAuthToken(any(String.class))).thenReturn(ghBuilder);
+        when(ghBuilder.build()).thenReturn(github);
+
         ManagementService invalidManagementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB_PROJECT, TEST_PROJECT_URL1, TEST_PROJECT_TOKEN1);
 
         setField(gitHubProjectService, "managementService", invalidManagementService);
@@ -455,13 +475,19 @@ public class GitHubProjectServiceTest extends CacheMockTests {
 
     @Test
     public void testGetGitHubInstanceByToken() throws IOException {
+        when(ghBuilder.withEndpoint(any(String.class))).thenReturn(ghBuilder);
+        when(ghBuilder.withOAuthToken(any(String.class))).thenReturn(ghBuilder);
+        when(ghBuilder.build()).thenReturn(github);
+
         GitHub gitHubInstance = gitHubProjectService.getGitHubInstance();
         assertNotNull(gitHubInstance, "GitHub object was not created");
     }
 
     @Test
     public void testGetCardsWithNote() throws Exception {
+        when(github.getOrganization(any(String.class))).thenReturn(TEST_ORGANIZATION);
         when(TEST_CARD1.getContent()).thenReturn(null);
+
         List<Sprint> sprints = gitHubProjectService.getAdditionalActiveSprints();
         assertEquals(5, sprints.get(0).getCards().size(), "Didn't get expected number of cards");
     }

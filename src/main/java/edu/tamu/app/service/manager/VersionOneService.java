@@ -238,7 +238,6 @@ public class VersionOneService extends MappingRemoteProjectManagerBean {
     }
 
     public Member getMember(final String id) throws ConnectionException, APIException, OidException, IOException {
-
         Optional<Member> cachedMember = getCachedMember(id);
         if (cachedMember.isPresent()) {
             return cachedMember.get();
@@ -257,9 +256,9 @@ public class VersionOneService extends MappingRemoteProjectManagerBean {
         Asset asset = result.getAssets()[0];
         String name = asset.getAttribute(nameAttributeDefinition).getValue().toString();
         String avatarPath = parseAvatarUrlPath((Oid) asset.getAttribute(avatarAttributeDefinition).getValue());
-
         Optional<URL> avatarUrl = Optional.ofNullable(getClass().getResource("/images/" + avatarPath));
-        if (!avatarUrl.isPresent()) {
+
+        if (avatarUrl.isEmpty()) {
             storeAvatar(avatarPath);
         }
 
@@ -321,7 +320,9 @@ public class VersionOneService extends MappingRemoteProjectManagerBean {
     private void storeAvatar(String avatarPath) throws IOException {
         URL imagesPath = getClass().getResource("/images");
         HttpHeaders headers = new HttpHeaders();
+
         headers.setAccept(Arrays.asList(MediaType.APPLICATION_OCTET_STREAM));
+
         HttpEntity<String> entity = new HttpEntity<String>(headers);
         String url = getUrl() + "/image.img/" + avatarPath;
         ResponseEntity<byte[]> response = restTemplate.exchange(url, HttpMethod.GET, entity, byte[].class);

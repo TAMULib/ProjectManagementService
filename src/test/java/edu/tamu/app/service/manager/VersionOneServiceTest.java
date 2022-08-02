@@ -392,13 +392,14 @@ public class VersionOneServiceTest extends CacheMockTests {
         Member mockMember = getMockMemberById("0003");
         Asset[] assets = getMockMemberAsset(mockMember, true);
 
-        when(restTemplate.exchange(any(String.class), any(HttpMethod.class), any(HttpEntity.class), any(Class.class))).thenAnswer(new Answer<ResponseEntity<byte[]>>() {
-            @Override
-            public ResponseEntity<byte[]> answer(InvocationOnMock invocation) throws IOException {
-                byte[] bytes = Files.readAllBytes(mockImage.getFile().toPath());
-                return new ResponseEntity<byte[]>(bytes, HttpStatus.OK);
-            }
-        });
+        when(restTemplate.exchange(any(String.class), any(HttpMethod.class), any(HttpEntity.class), any(Class.class)))
+            .thenAnswer(new Answer<ResponseEntity<byte[]>>() {
+                @Override
+                public ResponseEntity<byte[]> answer(InvocationOnMock invocation) throws IOException {
+                    byte[] bytes = Files.readAllBytes(mockImage.getFile().toPath());
+                    return new ResponseEntity<byte[]>(bytes, HttpStatus.OK);
+                }
+            });
 
         when(result.getAssets()).thenReturn(assets);
         when(nameAttributeDefinition.getName()).thenReturn("Name");

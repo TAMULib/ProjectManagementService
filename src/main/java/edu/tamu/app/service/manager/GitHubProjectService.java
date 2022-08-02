@@ -1,21 +1,23 @@
 package edu.tamu.app.service.manager;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.tuple.Pair;
-import org.kohsuke.github.GHProject;
-import org.kohsuke.github.GHProject.ProjectStateFilter;
-import org.kohsuke.github.GHRepository;
-
 import edu.tamu.app.cache.model.Card;
 import edu.tamu.app.cache.model.Sprint;
 import edu.tamu.app.model.ManagementService;
 import edu.tamu.app.model.ServiceType;
+import java.io.IOException;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import org.apache.commons.lang3.tuple.Pair;
+import org.kohsuke.github.GHProject;
+import org.kohsuke.github.GHProject.ProjectStateFilter;
+import org.kohsuke.github.GHRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GitHubProjectService extends AbstractGitHubService {
+
+    protected static Logger logger = LoggerFactory.getLogger(GitHubMilestoneService.class);
 
     public GitHubProjectService(final ManagementService managementService) throws IOException {
         super(managementService);
