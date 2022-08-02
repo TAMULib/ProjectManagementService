@@ -17,7 +17,6 @@ import java.util.Map;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
@@ -27,7 +26,6 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
 import edu.tamu.app.ProductApplication;
@@ -40,7 +38,6 @@ import edu.tamu.app.model.repo.AbstractRepoTest;
 @SpringBootTest(classes = { ProductApplication.class }, webEnvironment=WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @AutoConfigureRestDocs(outputDir = "target/generated-snippets")
-@ExtendWith(SpringExtension.class)
 public class RemoteProjectsStatsCacheControllerIntegrationTest extends AbstractRepoTest {
     
     private static final String TEST_REMOTE_PROJECTS_ID = "0010";
@@ -107,6 +104,7 @@ public class RemoteProjectsStatsCacheControllerIntegrationTest extends AbstractR
                         fieldWithPath("payload.HashMap['1']").description("The array of Remote Project stats."),
                         fieldWithPath("payload.HashMap['1'][0].id").description("The Remote Project Scope ID."),
                         fieldWithPath("payload.HashMap['1'][0].name").description("The Remote Project Name."),
+                        fieldWithPath("payload.HashMap['1'][0].backlogItemCount").description("The Remote Project total Backlog Items."),
                         fieldWithPath("payload.HashMap['1'][0].requestCount").description("The Remote Project total Requests."),
                         fieldWithPath("payload.HashMap['1'][0].issueCount").description("The Remote Project total Issues."),
                         fieldWithPath("payload.HashMap['1'][0].featureCount").description("The Remote Project total Features."),
