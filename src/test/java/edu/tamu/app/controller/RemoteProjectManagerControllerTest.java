@@ -91,6 +91,8 @@ public class RemoteProjectManagerControllerTest {
         when(productRepo.create(any(Product.class))).thenReturn(TEST_PRODUCT1);
         when(productRepo.findById(any(Long.class))).thenReturn(null);
         doNothing().when(productRepo).delete(any(Product.class));
+
+        testRemoteProjectManagerOne.setId(1L);
     }
 
     @Test
