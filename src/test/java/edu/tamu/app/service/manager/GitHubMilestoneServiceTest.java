@@ -7,6 +7,7 @@ import static edu.tamu.app.service.manager.AbstractGitHubService.REQUEST_LABEL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
@@ -56,6 +57,7 @@ import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GHUser;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
+import org.kohsuke.github.PagedIterable;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
@@ -153,31 +155,31 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
     @Mock
     private GHProjectCard testCard5;
 
-    @Mock
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private GHProjectColumn testColumn1;
 
-    @Mock
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private GHProjectColumn testColumn2;
 
-    @Mock
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private GHProjectColumn testColumn3;
 
-    @Mock
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private GHProject testProject1;
 
-    @Mock
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private GHProject testProject2;
 
-    @Mock
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private GHProject testProject3;
 
-    @Mock
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private GHRepository testRepository1;
 
-    @Mock
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private GHRepository testRepository2;
 
-    @Mock
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private GHOrganization testOrganization;
 
     @Mock
@@ -272,7 +274,7 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
 
         lenient().when(testRepository1.getId()).thenReturn(TEST_REPOSITORY1_ID);
         lenient().when(testRepository1.getName()).thenReturn(TEST_REPOSITORY1_NAME);
-        lenient().when(testRepository1.createIssue(any(String.class)).body(any(String.class)).create()).thenReturn(testIssue1);
+        lenient().when(testRepository1.createIssue(anyString()).body(anyString()).create()).thenReturn(testIssue1);
         lenient().when(testRepository1.listProjects(any(ProjectStateFilter.class)).asList()).thenReturn(testProjects);
         lenient().when(testRepository1.listProjects().asList()).thenReturn(testProjects);
         lenient().when(testRepository1.listLabels().asList()).thenReturn(allTestLabels);
