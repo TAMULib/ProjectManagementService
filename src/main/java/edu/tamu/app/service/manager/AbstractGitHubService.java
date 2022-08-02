@@ -142,7 +142,7 @@ public abstract class AbstractGitHubService extends MappingRemoteProjectManagerB
         final Member member = new Member(memberId, name, avatarPath);
         final Optional<URL> avatarUrl = Optional.ofNullable(getClass().getResource("/images/" + avatarPath));
 
-        if (avatarUrl.isEmpty()) {
+        if (!avatarUrl.isPresent()) {
             storeAvatar(avatarUrlString);
         }
 

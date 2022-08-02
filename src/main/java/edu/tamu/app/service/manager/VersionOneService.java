@@ -258,7 +258,7 @@ public class VersionOneService extends MappingRemoteProjectManagerBean {
         String avatarPath = parseAvatarUrlPath((Oid) asset.getAttribute(avatarAttributeDefinition).getValue());
         Optional<URL> avatarUrl = Optional.ofNullable(getClass().getResource("/images/" + avatarPath));
 
-        if (avatarUrl.isEmpty()) {
+        if (!avatarUrl.isPresent()) {
             storeAvatar(avatarPath);
         }
 
