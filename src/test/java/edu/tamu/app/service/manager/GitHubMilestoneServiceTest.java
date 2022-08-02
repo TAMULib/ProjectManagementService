@@ -171,7 +171,7 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private GHProject testProject3;
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock
     private GHRepository testRepository1;
 
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
