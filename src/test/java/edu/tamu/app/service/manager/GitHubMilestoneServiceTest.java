@@ -315,14 +315,14 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
         lenient().when(issueBuilder.body(any(String.class))).thenReturn(issueBuilder);
         lenient().when(issueBuilder.create()).thenReturn(testIssue1);
 
-        lenient().when(testRepository1.getId()).thenReturn(TEST_REPOSITORY1_ID);
+        lenient().when(testRepository1.getId()).thenReturn(1L);
         lenient().when(testRepository1.getName()).thenReturn(TEST_REPOSITORY1_NAME);
         lenient().when(testRepository1.listProjects(any(ProjectStateFilter.class))).thenReturn(projectIterable);
         lenient().when(testRepository1.listProjects()).thenReturn(projectIterable);
         lenient().when(testRepository1.listLabels()).thenReturn(labelIterable);
         lenient().when(testRepository1.getIssues(any(GHIssueState.class))).thenReturn(testIssueList);
 
-        lenient().when(testRepository2.getId()).thenReturn(TEST_REPOSITORY2_ID);
+        lenient().when(testRepository2.getId()).thenReturn(2L);
         lenient().when(testRepository2.getName()).thenReturn(TEST_REPOSITORY2_NAME);
         lenient().when(testRepository2.getIssues(any(GHIssueState.class))).thenReturn(testIssueList);
         lenient().when(testRepository2.listProjects()).thenReturn(projectIterable);
