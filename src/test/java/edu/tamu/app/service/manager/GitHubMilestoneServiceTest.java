@@ -93,9 +93,9 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
 
     private static final String TEST_PROJECT_TOKEN1 = "0123456789";
 
-    private Long testRepository1Id = 1L;
-    private Long testRepository2Id = 2L;
-    private Long testUser1Id = 3L;
+    private Long testRepository1Id;
+    private Long testRepository2Id;
+    private Long testUser1Id;
 
     private List<GHLabel> allTestLabels;
     private List<GHLabel> testCard1Labels;
@@ -287,6 +287,10 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
         testIssueList = new ArrayList<GHIssue>(Arrays.asList((new GHIssue[] { testIssue1, testIssue2, testIssue3, testIssue4, testIssue5 })));
         testProjectColumns = new ArrayList<GHProjectColumn>(Arrays.asList(new GHProjectColumn[] { testColumn1, testColumn2, testColumn3 }));
         testProjects = new ArrayList<GHProject>(Arrays.asList(new GHProject[] { testProject1, testProject2, testProject3 }));
+
+        testRepository1Id = 1L;
+        testRepository2Id = 2L;
+        testUser1Id = 3L;
 
         setField(cardTypeMappingService, "serviceMappingRepo", cardTypeRepo);
         setField(statusMappingService, "serviceMappingRepo", statusRepo);
