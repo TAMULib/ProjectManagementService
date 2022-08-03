@@ -22,6 +22,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,7 +30,6 @@ import org.kohsuke.github.GHIssue;
 import org.kohsuke.github.GHIssueBuilder;
 import org.kohsuke.github.GHIssueState;
 import org.kohsuke.github.GHLabel;
-import org.kohsuke.github.GHObject;
 import org.kohsuke.github.GHOrganization;
 import org.kohsuke.github.GHProject;
 import org.kohsuke.github.GHProject.ProjectStateFilter;
@@ -68,6 +68,7 @@ import edu.tamu.app.model.repo.CardTypeRepo;
 import edu.tamu.app.model.repo.EstimateRepo;
 import edu.tamu.app.model.repo.StatusRepo;
 import edu.tamu.app.model.request.FeatureRequest;
+import net.bytebuddy.agent.ByteBuddyAgent;
 
 @ExtendWith(MockitoExtension.class)
 public class GitHubProjectServiceTest extends CacheMockTests {
@@ -201,10 +202,10 @@ public class GitHubProjectServiceTest extends CacheMockTests {
     @Mock
     private GHIssueBuilder issueBuilder;
 
-    @Mock(stubOnly = true)
+    @Mock
     private GHRepository testRepository1;
 
-    @Mock(stubOnly = true)
+    @Mock
     private GHRepository testRepository2;
 
     @Mock
@@ -248,6 +249,11 @@ public class GitHubProjectServiceTest extends CacheMockTests {
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private EstimateMappingService estimateMappingService;
+
+    @BeforeAll
+    public static void fixIt() {
+        ByteBuddyAgent.install();
+    }
 
     @BeforeEach
     public void setUp() throws Exception {
