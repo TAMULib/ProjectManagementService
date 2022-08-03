@@ -2,7 +2,7 @@ package org.kohsuke.github;
 
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.infradna.tool.bridge_method_injector.WithBridgeMethods;
-// import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.kohsuke.github.connector.GitHubConnectorResponse;
@@ -19,8 +19,8 @@ import javax.annotation.CheckForNull;
 /**
  * Most (all?) domain objects in GitHub seems to have these 4 properties.
  */
-// @SuppressFBWarnings(value = { "UWF_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD", "UWF_UNWRITTEN_FIELD", "NP_UNWRITTEN_FIELD" },
-//         justification = "JSON API")
+@SuppressFBWarnings(value = { "UWF_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD", "UWF_UNWRITTEN_FIELD", "NP_UNWRITTEN_FIELD" },
+        justification = "JSON API")
 public abstract class GHObject extends GitHubInteractiveObject {
     /**
      * Capture response HTTP headers on the state object.
@@ -80,7 +80,7 @@ public abstract class GHObject extends GitHubInteractiveObject {
         return GitHubClient.parseDate(createdAt);
     }
 
-    // @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD", justification = "Bridge method of getCreatedAt")
+    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD", justification = "Bridge method of getCreatedAt")
     private Object createdAtStr(Date id, Class type) {
         return createdAt;
     }
@@ -137,7 +137,7 @@ public abstract class GHObject extends GitHubInteractiveObject {
         return id;
     }
 
-    // @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD", justification = "Bridge method of getId")
+    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD", justification = "Bridge method of getId")
     private Object longToStringOrInt(long id, Class type) {
         if (type == String.class)
             return String.valueOf(id);
@@ -146,7 +146,7 @@ public abstract class GHObject extends GitHubInteractiveObject {
         throw new AssertionError("Unexpected type: " + type);
     }
 
-    // @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD", justification = "Bridge method of getHtmlUrl")
+    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD", justification = "Bridge method of getHtmlUrl")
     private Object urlToString(URL url, Class type) {
         return url == null ? null : url.toString();
     }
