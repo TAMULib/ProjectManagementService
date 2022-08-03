@@ -314,14 +314,14 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
         lenient().when(issueBuilder.body(any(String.class))).thenReturn(issueBuilder);
         lenient().when(issueBuilder.create()).thenReturn(testIssue1);
 
-        lenient().doReturn(TEST_REPOSITORY1_ID).when(testRepository1).getId();
+        lenient().doReturn(String.valueOf(TEST_REPOSITORY1_ID)).when(testRepository1).getId();
         lenient().when(testRepository1.getName()).thenReturn(TEST_REPOSITORY1_NAME);
         lenient().when(testRepository1.listProjects(any(ProjectStateFilter.class))).thenReturn(projectIterable);
         lenient().when(testRepository1.listProjects()).thenReturn(projectIterable);
         lenient().when(testRepository1.listLabels()).thenReturn(labelIterable);
         lenient().when(testRepository1.getIssues(any(GHIssueState.class))).thenReturn(testIssueList);
 
-        lenient().doReturn(TEST_REPOSITORY2_ID).when(testRepository2).getId();
+        lenient().doReturn(String.valueOf(TEST_REPOSITORY2_ID)).when(testRepository2).getId();
         lenient().when(testRepository2.getName()).thenReturn(TEST_REPOSITORY2_NAME);
         lenient().when(testRepository2.getIssues(any(GHIssueState.class))).thenReturn(testIssueList);
         lenient().when(testRepository2.listProjects()).thenReturn(projectIterable);
@@ -342,11 +342,11 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
         lenient().when(testMilestone.getState()).thenReturn(GHMilestoneState.OPEN);
         lenient().when(testMilestone.getTitle()).thenReturn(TEST_MILESTONE_TITLE);
 
-        lenient().doReturn(1L).when(testCard1).getId();
-        lenient().doReturn(2L).when(testCard2).getId();
-        lenient().doReturn(3L).when(testCard3).getId();
-        lenient().doReturn(4L).when(testCard4).getId();
-        lenient().doReturn(5L).when(testCard5).getId();
+        lenient().doReturn(String.valueOf(1L)).when(testCard1).getId();
+        lenient().doReturn(String.valueOf(2L)).when(testCard2).getId();
+        lenient().doReturn(String.valueOf(3L)).when(testCard3).getId();
+        lenient().doReturn(String.valueOf(4L)).when(testCard4).getId();
+        lenient().doReturn(String.valueOf(5L)).when(testCard5).getId();
 
         lenient().when(testCard1.getContent()).thenReturn(testIssue1);
         lenient().when(testCard2.getContent()).thenReturn(testIssue2);
@@ -383,7 +383,7 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
         lenient().when(testCard4.getContent().getAssignees()).thenReturn(testUsers4);
         lenient().when(testCard5.getContent().getAssignees()).thenReturn(testUsers5);
 
-        lenient().doReturn(TEST_USER1_ID).when(testUser1).getId();
+        lenient().doReturn(String.valueOf(TEST_USER1_ID)).when(testUser1).getId();
         lenient().when(testUser1.getName()).thenReturn(TEST_USER1_NAME);
         lenient().when(testUser1.getAvatarUrl()).thenReturn(TEST_USER1_AVATAR_PATH);
         lenient().when(testUser2.getAvatarUrl()).thenReturn(TEST_USER2_AVATAR_PATH);
