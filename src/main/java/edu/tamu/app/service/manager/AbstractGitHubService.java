@@ -258,12 +258,8 @@ public abstract class AbstractGitHubService extends MappingRemoteProjectManagerB
 
     static <T, R> R exceptionHandlerWrapper(T t, ExceptionHandler<T, R, Exception> f) {
         try {
-            System.out.print("\nDEBUG: f = " + f + "\n\n\n");
-            System.out.print("\nDEBUG: t = " + t + "\n\n\n");
             return f.apply(t);
         } catch (Exception e) {
-            System.out.print("\nDEBUG: (failed?) f = " + f + "\n\n\n");
-            System.out.print("\nDEBUG: (failed?) t = " + t + "\n\n\n");
             e.printStackTrace();
             throw new RuntimeException(e);
         }
