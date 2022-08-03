@@ -83,8 +83,8 @@ public class GitHubProjectServiceTest extends CacheMockTests {
     private static final String TEST_USER3_AVATAR_PATH = "https://avatars2.githubusercontent.com/u/3333333?v=4";
     private static final String TEST_USER1_AVATAR_NAME = "1234567";
     private static final String TEST_COLUMN1_NAME = "Test Column 1";
-    private static final Long TEST_REPOSITORY1_ID = 1L;
-    private static final Long TEST_USER1_ID = 3L;
+    private static final long TEST_REPOSITORY1_ID = 1L;
+    private static final long TEST_USER1_ID = 3L;
 
     private static final String TEST_PROJECT_URL1 = "http://localhost/1";
 
