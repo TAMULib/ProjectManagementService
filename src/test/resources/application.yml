@@ -131,3 +131,25 @@ shib:
   lastName: tdl-sn
   firstName: tdl-givenname
   email: tdl-mail
+
+# For unit testing.
+junit:
+  jupiter:
+
+    execution:
+      parallel:
+        enabled: false
+
+      mode:
+        default: same_thread
+        classes:
+          default: same_thread
+
+    testinstance:
+
+      # Possibilities: per_class, per_method.
+      lifecycle:default: per_method
+
+    extensions:
+      autodetection:
+        enabled: false
