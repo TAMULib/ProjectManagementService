@@ -23,13 +23,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.kohsuke.github.GHIssue;
 import org.kohsuke.github.GHIssueBuilder;
 import org.kohsuke.github.GHIssueState;
 import org.kohsuke.github.GHLabel;
+import org.kohsuke.github.GHObject;
 import org.kohsuke.github.GHOrganization;
 import org.kohsuke.github.GHProject;
 import org.kohsuke.github.GHProject.ProjectStateFilter;
@@ -306,14 +306,18 @@ public class GitHubProjectServiceTest extends CacheMockTests {
         lenient().when(issueBuilder.body(any(String.class))).thenReturn(issueBuilder);
         lenient().when(issueBuilder.create()).thenReturn(testIssue1);
 
+        setField(testRepository1, GHObject.class, "id", TEST_REPOSITORY1_ID, long.class);
         // lenient().when(testRepository1.getId()).thenReturn(TEST_REPOSITORY1_ID);
+        lenient().when(testRepository1.getId()).thenCallRealMethod();
         lenient().when(testRepository1.getName()).thenReturn(TEST_REPOSITORY1_NAME);
         lenient().when(testRepository1.listProjects(any(ProjectStateFilter.class))).thenReturn(projectIterable);
         lenient().when(testRepository1.listProjects()).thenReturn(projectIterable);
         lenient().when(testRepository1.listLabels()).thenReturn(labelIterable);
         lenient().when(testRepository1.getIssues(any(GHIssueState.class))).thenReturn(testIssueList);
 
+        setField(testRepository2, GHObject.class, "id", TEST_REPOSITORY2_ID, long.class);
         // lenient().when(testRepository2.getId()).thenReturn(TEST_REPOSITORY2_ID);
+        lenient().when(testRepository2.getId()).thenCallRealMethod();
         lenient().when(testRepository2.getName()).thenReturn(TEST_REPOSITORY2_NAME);
         lenient().when(testRepository2.getIssues(any(GHIssueState.class))).thenReturn(testIssueList);
         lenient().when(testRepository2.listProjects()).thenReturn(projectIterable);
@@ -331,11 +335,21 @@ public class GitHubProjectServiceTest extends CacheMockTests {
         lenient().when(testColumn2.listCards()).thenReturn(cardIterable2);
         lenient().when(testColumn3.listCards()).thenReturn(cardIterable3);
 
+        setField(testCard1, GHObject.class, "id", 1L, long.class);
+        setField(testCard2, GHObject.class, "id", 2L, long.class);
+        setField(testCard3, GHObject.class, "id", 3L, long.class);
+        setField(testCard4, GHObject.class, "id", 4L, long.class);
+        setField(testCard5, GHObject.class, "id", 5L, long.class);
         // lenient().when(testCard1.getId()).thenReturn(1L);
         // lenient().when(testCard2.getId()).thenReturn(2L);
         // lenient().when(testCard3.getId()).thenReturn(3L);
         // lenient().when(testCard4.getId()).thenReturn(4L);
         // lenient().when(testCard5.getId()).thenReturn(5L);
+        lenient().when(testCard1.getId()).thenCallRealMethod();
+        lenient().when(testCard2.getId()).thenCallRealMethod();
+        lenient().when(testCard3.getId()).thenCallRealMethod();
+        lenient().when(testCard4.getId()).thenCallRealMethod();
+        lenient().when(testCard5.getId()).thenCallRealMethod();
 
         lenient().when(testCard1.getContent()).thenReturn(testIssue1);
         lenient().when(testCard2.getContent()).thenReturn(testIssue2);
@@ -367,7 +381,9 @@ public class GitHubProjectServiceTest extends CacheMockTests {
         lenient().when(testCard4.getContent().getAssignees()).thenReturn(testUsers4);
         lenient().when(testCard5.getContent().getAssignees()).thenReturn(testUsers5);
 
+        setField(testUser1, GHObject.class, "id", TEST_USER1_ID, long.class);
         // lenient().when(testUser1.getId()).thenReturn(TEST_USER1_ID);
+        lenient().when(testUser1.getId()).thenCallRealMethod();
         lenient().when(testUser1.getName()).thenReturn(TEST_USER1_NAME);
         lenient().when(testUser1.getAvatarUrl()).thenReturn(TEST_USER1_AVATAR_PATH);
         lenient().when(testUser2.getAvatarUrl()).thenReturn(TEST_USER2_AVATAR_PATH);
@@ -463,7 +479,6 @@ public class GitHubProjectServiceTest extends CacheMockTests {
     }
 
     @Test
-    @Disabled
     public void testGetRemoteProjectByScopeId() throws Exception {
         when(github.getRepositoryById(any(String.class))).thenReturn(testRepository1);
 
@@ -523,7 +538,6 @@ public class GitHubProjectServiceTest extends CacheMockTests {
     }
 
     @Test
-    @Disabled
     public void testGetMember() throws IOException {
         Member member = gitHubProjectService.getMember(testUser1);
         assertEquals(String.valueOf(TEST_USER1_ID), member.getId(), "Member ID is incorrect");
