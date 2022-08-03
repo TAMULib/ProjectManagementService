@@ -239,6 +239,44 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
     public void setUp() throws Exception {
         ManagementService managementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB_MILESTONE, TEST_PROJECT_URL1, TEST_PROJECT_TOKEN1);
 
+        testRepositoryMap = Stream.of(
+            new Object[][] { { TEST_REPOSITORY1_NAME, testRepository1 }, { TEST_REPOSITORY2_NAME, testRepository2 } })
+            .collect(Collectors.toMap(data -> (String) data[0], data -> (GHRepository) data[1]));
+
+        allTestLabels = new ArrayList<GHLabel>(Arrays.asList(new GHLabel[] { testLabel1, testLabel2, testLabel3, testLabel4, testLabel5 }));
+        testCard1Labels = new ArrayList<GHLabel>(Arrays.asList(new GHLabel[] { testLabel1, testLabel5 }));
+        testCard2Labels = new ArrayList<GHLabel>(Arrays.asList(new GHLabel[] { testLabel2, testLabel5 }));
+        testCard3Labels = new ArrayList<GHLabel>(Arrays.asList(new GHLabel[] { testLabel3, testLabel5 }));
+        testCard4Labels = new ArrayList<GHLabel>(Arrays.asList(new GHLabel[] { testLabel4 }));
+        testCard5Labels = new ArrayList<GHLabel>(Arrays.asList(new GHLabel[] { testLabel5 }));
+
+        testUsers1 = new ArrayList<GHUser>(Arrays.asList(new GHUser[] { testUser1 }));
+        testUsers2 = new ArrayList<GHUser>(Arrays.asList(new GHUser[] { testUser1, testUser2 }));
+        testUsers3 = new ArrayList<GHUser>(Arrays.asList(new GHUser[] {}));
+        testUsers4 = new ArrayList<GHUser>(Arrays.asList(new GHUser[] { testUser2 }));
+        testUsers5 = new ArrayList<GHUser>(Arrays.asList(new GHUser[] { testUser3, testUser1 }));
+
+        testColumn1Cards = new ArrayList<GHProjectCard>(Arrays.asList(new GHProjectCard[] { testCard1, testCard2, testCard3 }));
+        testColumn2Cards = new ArrayList<GHProjectCard>(Arrays.asList(new GHProjectCard[] { testCard3, testCard4 }));
+        testColumn3Cards = new ArrayList<GHProjectCard>(Arrays.asList(new GHProjectCard[] { testCard5 }));
+
+        testIssueList = new ArrayList<GHIssue>(Arrays.asList((new GHIssue[] { testIssue1, testIssue2, testIssue3, testIssue4, testIssue5 })));
+        testProjectColumns = new ArrayList<GHProjectColumn>(Arrays.asList(new GHProjectColumn[] { testColumn1, testColumn2, testColumn3 }));
+        testProjects = new ArrayList<GHProject>(Arrays.asList(new GHProject[] { testProject1, testProject2, testProject3 }));
+
+        setField(cardTypeMappingService, "serviceMappingRepo", cardTypeRepo);
+        setField(statusMappingService, "serviceMappingRepo", statusRepo);
+        setField(estimateMappingService, "serviceMappingRepo", estimateRepo);
+
+        setField(gitHubMilestoneService, "ghBuilder", ghBuilder);
+        setField(gitHubMilestoneService, "managementService", managementService);
+        setField(gitHubMilestoneService, "cardTypeMappingService", cardTypeMappingService);
+        setField(gitHubMilestoneService, "statusMappingService", statusMappingService);
+        setField(gitHubMilestoneService, "estimateMappingService", estimateMappingService);
+        setField(gitHubMilestoneService, "github", github);
+        setField(gitHubMilestoneService, "members", new HashMap<String, Member>());
+        setField(gitHubMilestoneService, "restTemplate", restTemplate);
+
         lenient().when(testOrganization.getRepositories()).thenReturn(testRepositoryMap);
         lenient().when(testOrganization.listProjects(any(ProjectStateFilter.class)).asList()).thenReturn(testProjects);
 
@@ -393,44 +431,6 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
 
         lenient().when(statusRepo.findByIdentifier(any(String.class)))
             .thenReturn(new Status("None", new HashSet<String>(Arrays.asList(new String[] { "None", "Future" }))));
-
-        testRepositoryMap = Stream.of(
-            new Object[][] { { TEST_REPOSITORY1_NAME, testRepository1 }, { TEST_REPOSITORY2_NAME, testRepository2 } })
-            .collect(Collectors.toMap(data -> (String) data[0], data -> (GHRepository) data[1]));
-
-        allTestLabels = new ArrayList<GHLabel>(Arrays.asList(new GHLabel[] { testLabel1, testLabel2, testLabel3, testLabel4, testLabel5 }));
-        testCard1Labels = new ArrayList<GHLabel>(Arrays.asList(new GHLabel[] { testLabel1, testLabel5 }));
-        testCard2Labels = new ArrayList<GHLabel>(Arrays.asList(new GHLabel[] { testLabel2, testLabel5 }));
-        testCard3Labels = new ArrayList<GHLabel>(Arrays.asList(new GHLabel[] { testLabel3, testLabel5 }));
-        testCard4Labels = new ArrayList<GHLabel>(Arrays.asList(new GHLabel[] { testLabel4 }));
-        testCard5Labels = new ArrayList<GHLabel>(Arrays.asList(new GHLabel[] { testLabel5 }));
-
-        testUsers1 = new ArrayList<GHUser>(Arrays.asList(new GHUser[] { testUser1 }));
-        testUsers2 = new ArrayList<GHUser>(Arrays.asList(new GHUser[] { testUser1, testUser2 }));
-        testUsers3 = new ArrayList<GHUser>(Arrays.asList(new GHUser[] {}));
-        testUsers4 = new ArrayList<GHUser>(Arrays.asList(new GHUser[] { testUser2 }));
-        testUsers5 = new ArrayList<GHUser>(Arrays.asList(new GHUser[] { testUser3, testUser1 }));
-
-        testColumn1Cards = new ArrayList<GHProjectCard>(Arrays.asList(new GHProjectCard[] { testCard1, testCard2, testCard3 }));
-        testColumn2Cards = new ArrayList<GHProjectCard>(Arrays.asList(new GHProjectCard[] { testCard3, testCard4 }));
-        testColumn3Cards = new ArrayList<GHProjectCard>(Arrays.asList(new GHProjectCard[] { testCard5 }));
-
-        testIssueList = new ArrayList<GHIssue>(Arrays.asList((new GHIssue[] { testIssue1, testIssue2, testIssue3, testIssue4, testIssue5 })));
-        testProjectColumns = new ArrayList<GHProjectColumn>(Arrays.asList(new GHProjectColumn[] { testColumn1, testColumn2, testColumn3 }));
-        testProjects = new ArrayList<GHProject>(Arrays.asList(new GHProject[] { testProject1, testProject2, testProject3 }));
-
-        setField(cardTypeMappingService, "serviceMappingRepo", cardTypeRepo);
-        setField(statusMappingService, "serviceMappingRepo", statusRepo);
-        setField(estimateMappingService, "serviceMappingRepo", estimateRepo);
-
-        setField(gitHubMilestoneService, "ghBuilder", ghBuilder);
-        setField(gitHubMilestoneService, "managementService", managementService);
-        setField(gitHubMilestoneService, "cardTypeMappingService", cardTypeMappingService);
-        setField(gitHubMilestoneService, "statusMappingService", statusMappingService);
-        setField(gitHubMilestoneService, "estimateMappingService", estimateMappingService);
-        setField(gitHubMilestoneService, "github", github);
-        setField(gitHubMilestoneService, "members", new HashMap<String, Member>());
-        setField(gitHubMilestoneService, "restTemplate", restTemplate);
     }
 
     @Test
