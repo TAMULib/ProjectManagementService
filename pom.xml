@@ -102,6 +102,19 @@
     </dependency>
 
     <dependency>
+        <groupId>com.infradna.tool</groupId>
+        <artifactId>bridge-method-annotation</artifactId>
+        <version>1.23</version>
+        <optional>true</optional>
+    </dependency>
+
+    <dependency>
+        <groupId>com.google.code.findbugs</groupId>
+        <artifactId>jsr305</artifactId>
+        <version>3.0.2</version>
+    </dependency>
+
+    <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
       <scope>test</scope>
