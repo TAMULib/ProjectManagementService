@@ -69,7 +69,7 @@ import edu.tamu.app.model.repo.EstimateRepo;
 import edu.tamu.app.model.repo.StatusRepo;
 import edu.tamu.app.model.request.FeatureRequest;
 
-@ExtendWith(MockitoExtension.class)
+// @ExtendWith(MockitoExtension.class)
 public class GitHubProjectServiceTest extends CacheMockTests {
 
     private static final String TEST_REPOSITORY1_NAME = "Test repository 1 name";
