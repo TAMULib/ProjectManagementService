@@ -41,7 +41,7 @@ import edu.tamu.app.rest.TokenAuthRestTemplate;
 
 public abstract class AbstractGitHubService extends MappingRemoteProjectManagerBean {
 
-    protected Logger logger = LoggerFactory.getLogger(this.getClass());
+    protected static Logger logger = LoggerFactory.getLogger(AbstractGitHubService.class);
 
     static final String ORGANIZATION = "TAMULib";
     static final String SPRINT = "SPRINT";
@@ -129,24 +129,25 @@ public abstract class AbstractGitHubService extends MappingRemoteProjectManagerB
     }
 
     Member getMember(final GHUser user) throws IOException {
-        Member member;
         final String memberId = String.valueOf(user.getId());
         final Optional<Member> cachedMember = getCachedMember(memberId);
+
         if (cachedMember.isPresent()) {
-            member = cachedMember.get();
-        } else {
-            final String name = StringUtils.isEmpty(user.getName()) ? user.getLogin() : user.getName();
-            final String avatarUrlString = user.getAvatarUrl();
-            final String avatarPath = getAvatarPath(avatarUrlString);
-            member = new Member(memberId, name, avatarPath);
-
-            final Optional<URL> avatarUrl = Optional.ofNullable(getClass().getResource("/images/" + avatarPath));
-            if (!avatarUrl.isPresent()) {
-                storeAvatar(avatarUrlString);
-            }
-
-            cacheMember(memberId, member);
+            return cachedMember.get();
         }
+
+        final String name = StringUtils.isEmpty(user.getName()) ? user.getLogin() : user.getName();
+        final String avatarUrlString = user.getAvatarUrl();
+        final String avatarPath = getAvatarPath(avatarUrlString);
+        final Member member = new Member(memberId, name, avatarPath);
+        final Optional<URL> avatarUrl = Optional.ofNullable(getClass().getResource("/images/" + avatarPath));
+
+        if (!avatarUrl.isPresent()) {
+            storeAvatar(avatarUrlString);
+        }
+
+        cacheMember(memberId, member);
+
         return member;
     }
 
@@ -219,9 +220,12 @@ public abstract class AbstractGitHubService extends MappingRemoteProjectManagerB
     private void storeAvatar(final String avatarUrl) throws IOException {
         final URL imagesPath = getClass().getResource("/images/");
         final HttpHeaders headers = new HttpHeaders();
+
         headers.setAccept(Arrays.asList(MediaType.APPLICATION_OCTET_STREAM));
+
         final HttpEntity<String> entity = new HttpEntity<String>(headers);
-        final ResponseEntity<byte[]> response = restTemplate.exchange(avatarUrl, HttpMethod.GET, entity, byte[].class, "1");
+        final ResponseEntity<byte[]> response = restTemplate.exchange(avatarUrl, HttpMethod.GET, entity, byte[].class);
+
         if (response.getStatusCode().equals(HttpStatus.OK)) {
             final File file = new File(imagesPath.getFile() + getAvatarPath(avatarUrl));
             Files.write(file.toPath(), response.getBody());

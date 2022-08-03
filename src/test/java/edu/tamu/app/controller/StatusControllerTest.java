@@ -42,6 +42,8 @@ public class StatusControllerTest {
         noneStatus = new Status("None", new HashSet<String>(Arrays.asList(new String[] { "None", "Future" })));
         doneStatus = new Status("Done", new HashSet<String>(Arrays.asList(new String[] { "Done" })));
 
+        noneStatus.setId(1L);
+
         when(statusRepo.findAll()).thenReturn(new ArrayList<Status>(Arrays.asList(new Status[] { noneStatus, doneStatus })));
         when(statusRepo.create(any(Status.class))).thenReturn(noneStatus);
         when(statusRepo.update(any(Status.class))).thenReturn(noneStatus);

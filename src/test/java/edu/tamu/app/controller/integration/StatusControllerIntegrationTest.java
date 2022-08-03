@@ -25,7 +25,6 @@ import java.util.Set;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.kohsuke.github.GitHubBuilder;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +35,6 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -50,9 +48,9 @@ import edu.tamu.app.model.RemoteProjectInfo;
 import edu.tamu.app.model.RemoteProjectManager;
 import edu.tamu.app.model.ServiceType;
 import edu.tamu.app.model.Status;
+import edu.tamu.app.model.repo.AbstractRepoTest;
 import edu.tamu.app.model.repo.ProductRepo;
 import edu.tamu.app.model.repo.RemoteProjectManagerRepo;
-import edu.tamu.app.model.repo.AbstractRepoTest;
 import edu.tamu.app.model.repo.StatusRepo;
 import edu.tamu.app.service.manager.GitHubProjectService;
 import edu.tamu.app.service.manager.VersionOneService;
@@ -63,7 +61,6 @@ import edu.tamu.weaver.response.ApiStatus;
 @SpringBootTest(classes = { ProductApplication.class }, webEnvironment=WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @AutoConfigureRestDocs(outputDir = "target/generated-snippets")
-@ExtendWith(SpringExtension.class)
 public class StatusControllerIntegrationTest extends AbstractRepoTest {
 
     private static long currentId = 0L;
@@ -155,7 +152,11 @@ public class StatusControllerIntegrationTest extends AbstractRepoTest {
                         fieldWithPath("meta.action").description("Action of the request."),
                         fieldWithPath("meta.message").description("Message of the response."),
                         fieldWithPath("meta.status").description("Status of the response."),
-                        fieldWithPath("payload").description("API response payload containing the List of Status.")
+                        fieldWithPath("payload").description("Payload of the response."),
+                        fieldWithPath("payload['ArrayList<Status>']").description("List of statuses."),
+                        fieldWithPath("payload['ArrayList<Status>'][0].id").description("ID of the status."),
+                        fieldWithPath("payload['ArrayList<Status>'][0].identifier").description("Identifier of the status."),
+                        fieldWithPath("payload['ArrayList<Status>'][0].mapping").description("Mapping of the status.")
                     )
                 )
             );

@@ -66,8 +66,8 @@ public class RemoteProjectsCacheControllerTest {
         List<RemoteProject> remoteProjects = remoteProductsCache.get(1L);
         assertFalse(remoteProjects.isEmpty());
         assertEquals(1, remoteProjects.size());
-        assertEquals("0001", remoteProjects.get(0).getId());
-        assertEquals("Sprint 1", remoteProjects.get(0).getName());
+        assertEquals(remoteProjects.get(0).getId(), "0001");
+        assertEquals(remoteProjects.get(0).getName(), "Sprint 1");
         assertEquals(2, remoteProjects.get(0).getRequestCount());
         assertEquals(3, remoteProjects.get(0).getIssueCount());
         assertEquals(10, remoteProjects.get(0).getFeatureCount());

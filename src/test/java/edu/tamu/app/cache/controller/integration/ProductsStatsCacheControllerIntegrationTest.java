@@ -15,7 +15,6 @@ import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
@@ -25,7 +24,6 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
 import edu.tamu.app.ProductApplication;
@@ -38,9 +36,8 @@ import edu.tamu.app.model.repo.AbstractRepoTest;
 @SpringBootTest(classes = { ProductApplication.class }, webEnvironment=WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @AutoConfigureRestDocs(outputDir = "target/generated-snippets")
-@ExtendWith(SpringExtension.class)
 public class ProductsStatsCacheControllerIntegrationTest extends AbstractRepoTest {
-    
+
     private static final String TEST_PRODUCT_STATS_ID = "0010";
     private static final String TEST_PRODUCT_STATS_NAME = "Product Name";
 
@@ -101,6 +98,7 @@ public class ProductsStatsCacheControllerIntegrationTest extends AbstractRepoTes
                         fieldWithPath("payload['ArrayList<ProductStats>']").description("The array of Product Stats."),
                         fieldWithPath("payload['ArrayList<ProductStats>'][0].id").description("The Product Scope ID."),
                         fieldWithPath("payload['ArrayList<ProductStats>'][0].name").description("The Product Name."),
+                        fieldWithPath("payload['ArrayList<ProductStats>'][0].backlogItemCount").description("The Product total Backlog Items."),
                         fieldWithPath("payload['ArrayList<ProductStats>'][0].requestCount").description("The Product total Requests."),
                         fieldWithPath("payload['ArrayList<ProductStats>'][0].issueCount").description("The Product total Issues."),
                         fieldWithPath("payload['ArrayList<ProductStats>'][0].featureCount").description("The Product total Features."),

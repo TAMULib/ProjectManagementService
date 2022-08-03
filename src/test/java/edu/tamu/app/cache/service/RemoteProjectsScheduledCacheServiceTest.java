@@ -134,8 +134,8 @@ public class RemoteProjectsScheduledCacheServiceTest {
     }
 
     private void assertRemoteProduct(RemoteProject remoteProject) {
-        assertEquals("0001", remoteProject.getId());
-        assertEquals("Sprint 1", remoteProject.getName());
+        assertEquals(remoteProject.getId(), "0001");
+        assertEquals(remoteProject.getName(), "Sprint 1");
         assertEquals(2, remoteProject.getRequestCount());
         assertEquals(3, remoteProject.getIssueCount());
         assertEquals(10, remoteProject.getFeatureCount());

@@ -140,7 +140,7 @@ public class ProductsStatsScheduledCacheServiceTest {
     private void assertProductsStats(List<ProductStats> productStatsCache) {
         assertFalse(productStatsCache.isEmpty());
         assertEquals(1, productStatsCache.size());
-        assertEquals("1000", productStatsCache.get(0).getId());
+        assertEquals(productStatsCache.get(0).getId(), "1000");
         assertEquals(TEST_PRODUCT_NAME, productStatsCache.get(0).getName());
         assertEquals(2, productStatsCache.get(0).getRequestCount());
         assertEquals(3, productStatsCache.get(0).getIssueCount());

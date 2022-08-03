@@ -12,9 +12,9 @@ public class MemberTest {
     @Test
     public void testNewAssignee() {
         Member member = new Member("1", "Bob Boring", "http://gravatar.com/bborring");
-        assertEquals("1", member.getId());
-        assertEquals("Bob Boring", member.getName());
-        assertEquals("http://gravatar.com/bborring", member.getAvatar());
+        assertEquals(member.getId(), "1");
+        assertEquals(member.getName(), "Bob Boring");
+        assertEquals(member.getAvatar(), "http://gravatar.com/bborring");
     }
 
 }

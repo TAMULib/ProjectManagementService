@@ -12,12 +12,10 @@ import java.util.Collection;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -28,7 +26,6 @@ import edu.tamu.app.model.Role;
 import edu.tamu.app.model.User;
 import edu.tamu.weaver.auth.model.Credentials;
 
-@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = { ProductApplication.class }, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class UserRepoTest extends AuthMockTests {
 
@@ -107,7 +104,7 @@ public class UserRepoTest extends AuthMockTests {
         assertFalse(user.isAccountNonLocked(), "Account non locked was not false!");
         assertFalse(user.isCredentialsNonExpired(), "Credentials non expired was not false!");
         assertTrue(user.isEnabled(), "Enabled was not true!");
-        assertNull("Password was not null!", user.getPassword());
+        assertNull(user.getPassword(), "Password was not null!");
     }
 
     // @After and @Before cannot be safely specified inside a parent class.

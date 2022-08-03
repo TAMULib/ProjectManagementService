@@ -2,17 +2,27 @@ server:
   port: 9101
   contextPath:
 
----
+# logging
 logging:
+  file:
+    name: logs/project-management-service.log
   level:
-    edu.tamu: INFO
-    org.springframework: WARN
-  file: logs/product-management-service.log
+    edu:
+      tamu: ERROR
+    org:
+      tdl: ERROR
+      springframework: ERROR
+      hibernate: OFF
+    ro:
+      isdc:
+        wro: ERROR
+    com:
+      zaxxer: ERROR
+  encoder:
+    pattern: "%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n"
 
----
 security.basic.enabled: false
 
----
 spring:
   main:
     allow-circular-references: true
@@ -43,7 +53,6 @@ spring:
     show-sql: false
     hibernate.ddl-auto: create-drop
 
----
 app:
   cache:
     default:
@@ -97,7 +106,6 @@ app:
   # edu.tamu.weaver.utility.HttpUtility
   http.timeout: 10000
 
----
 #############################
 # Framework auth properties #
 #############################
@@ -111,7 +119,6 @@ auth:
   # edu.tamu.weaver.token.provider.controller.TokenController
   path: /auth
 
----
 #############################
 # Framework shib properties #
 #############################
@@ -124,3 +131,25 @@ shib:
   lastName: tdl-sn
   firstName: tdl-givenname
   email: tdl-mail
+
+# For unit testing.
+junit:
+  jupiter:
+
+    execution:
+      parallel:
+        enabled: false
+
+      mode:
+        default: same_thread
+        classes:
+          default: same_thread
+
+    testinstance:
+
+      # Possibilities: per_class, per_method.
+      lifecycle:default: per_method
+
+    extensions:
+      autodetection:
+        enabled: false

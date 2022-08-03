@@ -61,8 +61,8 @@ public class ProductsStatsCacheControllerTest {
     private void assertProductsStats(List<ProductStats> productsStatsCache) {
         assertFalse(productsStatsCache.isEmpty());
         assertEquals(1, productsStatsCache.size());
-        assertEquals("0001", productsStatsCache.get(0).getId());
-        assertEquals("Sprint 1", productsStatsCache.get(0).getName());
+        assertEquals(productsStatsCache.get(0).getId(), "0001");
+        assertEquals(productsStatsCache.get(0).getName(), "Sprint 1");
         assertEquals(2, productsStatsCache.get(0).getRequestCount());
         assertEquals(3, productsStatsCache.get(0).getIssueCount());
         assertEquals(10, productsStatsCache.get(0).getFeatureCount());

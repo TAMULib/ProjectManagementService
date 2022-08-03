@@ -50,6 +50,8 @@ import edu.tamu.weaver.validation.aspect.annotation.WeaverValidation;
 @RequestMapping("/products")
 public class ProductController {
 
+    private static final Logger logger = LoggerFactory.getLogger(ProductController.class);
+
     @Autowired
     private ProductRepo productRepo;
 
@@ -67,8 +69,6 @@ public class ProductController {
 
     @Autowired
     private InternalRequestRepo internalRequestRepo;
-
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @GetMapping
     @JsonView(ApiView.Partial.class)
