@@ -34,7 +34,7 @@ public class GitHubMilestoneService extends AbstractGitHubService {
         logger.info("Fetching active sprints for remote project with scope id " + scopeId);
         GHRepository repo = github.getRepositoryById(scopeId);
         String productName = repo.getName();
-        return repo.listProjects(ProjectStateFilter.OPEN).asList().stream()
+        return repo.listProjects(ProjectStateFilter.OPEN).toList().stream()
             .flatMap(project -> getActiveSprintsForProject(project, productName))
             .collect(Collectors.toList());
     }
@@ -42,7 +42,7 @@ public class GitHubMilestoneService extends AbstractGitHubService {
     @Override
     public List<Sprint> getAdditionalActiveSprints() throws Exception {
         GHOrganization organization = github.getOrganization(ORGANIZATION);
-        return organization.listProjects(ProjectStateFilter.OPEN).asList().stream()
+        return organization.listProjects(ProjectStateFilter.OPEN).toList().stream()
             .flatMap(project -> getActiveSprintsForProject(project, toProductName(project)))
             .collect(Collectors.toList());
     }
@@ -55,8 +55,8 @@ public class GitHubMilestoneService extends AbstractGitHubService {
     }
 
     private Map<String, List<Card>> getCards(GHProject project) throws IOException {
-        return project.listColumns().asList().stream()
-            .flatMap(column -> exceptionHandlerWrapper(column, c -> c.listCards().asList().stream()))
+        return project.listColumns().toList().stream()
+            .flatMap(column -> exceptionHandlerWrapper(column, c -> c.listCards().toList().stream()))
             .map(card -> Pair.of(card, exceptionHandlerWrapper(card, c -> c.getContent())))
             // Card without contents is a note
             .filter(p -> Objects.nonNull(p.getValue()))

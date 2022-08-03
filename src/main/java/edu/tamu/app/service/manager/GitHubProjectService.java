@@ -28,7 +28,7 @@ public class GitHubProjectService extends AbstractGitHubService {
         logger.info("Fetching active sprints for remote project with scope id " + scopeId);
         GHRepository repo = github.getRepositoryById(scopeId);
         String productName = repo.getName();
-        return repo.listProjects(ProjectStateFilter.OPEN).asList().stream()
+        return repo.listProjects(ProjectStateFilter.OPEN).toList().stream()
             .filter(this::isSprintProject)
             .map(p -> toSprint(p, productName))
             .collect(Collectors.toList());
@@ -37,7 +37,7 @@ public class GitHubProjectService extends AbstractGitHubService {
     @Override
     public List<Sprint> getAdditionalActiveSprints() throws Exception {
         return github.getOrganization(ORGANIZATION)
-            .listProjects(ProjectStateFilter.OPEN).asList().stream()
+            .listProjects(ProjectStateFilter.OPEN).toList().stream()
             .filter(this::isSprintProject)
             .map(p -> toSprint(p, ORGANIZATION))
             .collect(Collectors.toList());
@@ -58,8 +58,8 @@ public class GitHubProjectService extends AbstractGitHubService {
     }
 
     private List<Card> getCards(GHProject project) {
-        return exceptionHandlerWrapper(project, i -> i.listColumns().asList().stream())
-            .flatMap(c -> exceptionHandlerWrapper(c, i -> i.listCards().asList().stream()))
+        return exceptionHandlerWrapper(project, i -> i.listColumns().toList().stream())
+            .flatMap(c -> exceptionHandlerWrapper(c, i -> i.listCards().toList().stream()))
             .map(c -> Pair.of(c, exceptionHandlerWrapper(c, i -> i.getContent())))
             // Card without contents is a note
             .filter(e -> Objects.nonNull(e.getValue()))
