@@ -26,6 +26,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.kohsuke.github.GHIssue;
+import org.kohsuke.github.GHIssueBuilder;
 import org.kohsuke.github.GHIssueState;
 import org.kohsuke.github.GHLabel;
 import org.kohsuke.github.GHOrganization;
@@ -37,6 +38,7 @@ import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GHUser;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
+import org.kohsuke.github.PagedIterable;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -123,19 +125,19 @@ public class GitHubProjectServiceTest extends CacheMockTests {
     @Mock
     private GHLabel testLabel5;
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock
     private GHIssue testIssue1;
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock
     private GHIssue testIssue2;
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock
     private GHIssue testIssue3;
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock
     private GHIssue testIssue4;
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock
     private GHIssue testIssue5;
 
     @Mock
@@ -147,46 +149,67 @@ public class GitHubProjectServiceTest extends CacheMockTests {
     @Mock
     private GHUser testUser3;
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock
     private GHProjectCard testCard1;
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock
     private GHProjectCard testCard2;
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock
     private GHProjectCard testCard3;
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock
     private GHProjectCard testCard4;
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock
     private GHProjectCard testCard5;
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock
+    private PagedIterable<GHProjectCard> cardIterable1;
+
+    @Mock
+    private PagedIterable<GHProjectCard> cardIterable2;
+
+    @Mock
+    private PagedIterable<GHProjectCard> cardIterable3;
+
+    @Mock
     private GHProjectColumn testColumn1;
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock
     private GHProjectColumn testColumn2;
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock
     private GHProjectColumn testColumn3;
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock
+    private PagedIterable<GHProjectColumn> columnIterable;
+
+    @Mock
     private GHProject testProject1;
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock
     private GHProject testProject2;
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock
     private GHProject testProject3;
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock
+    private PagedIterable<GHLabel> labelIterable;
+
+    @Mock
+    private GHIssueBuilder issueBuilder;
+
+    @Mock
     private GHRepository testRepository1;
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock
     private GHRepository testRepository2;
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock
+    private PagedIterable<GHProject> projectIterable;
+
+    @Mock
     private GHOrganization testOrganization;
 
     @Mock
@@ -268,33 +291,44 @@ public class GitHubProjectServiceTest extends CacheMockTests {
         setField(gitHubProjectService, "restTemplate", restTemplate);
 
         lenient().when(testOrganization.getRepositories()).thenReturn(testRepositoryMap);
-        lenient().when(testOrganization.listProjects(any(ProjectStateFilter.class)).asList()).thenReturn(testProjects);
+
+        lenient().when(labelIterable.asList()).thenReturn(allTestLabels);
+        lenient().when(projectIterable.asList()).thenReturn(testProjects);
+        lenient().when(columnIterable.asList()).thenReturn(testProjectColumns);
+        lenient().when(cardIterable1.asList()).thenReturn(testColumn1Cards);
+        lenient().when(cardIterable2.asList()).thenReturn(testColumn2Cards);
+        lenient().when(cardIterable3.asList()).thenReturn(testColumn3Cards);
+
+        lenient().when(testOrganization.listProjects(any(ProjectStateFilter.class))).thenReturn(projectIterable);
+
+        lenient().when(testRepository1.createIssue(any(String.class))).thenReturn(issueBuilder);
+        lenient().when(issueBuilder.body(any(String.class))).thenReturn(issueBuilder);
+        lenient().when(issueBuilder.create()).thenReturn(testIssue1);
 
         lenient().when(testRepository1.getId()).thenReturn(TEST_REPOSITORY1_ID);
         lenient().when(testRepository1.getName()).thenReturn(TEST_REPOSITORY1_NAME);
-        lenient().when(testRepository1.createIssue(any(String.class)).body(any(String.class)).create()).thenReturn(testIssue1);
-        lenient().when(testRepository1.listProjects(any(ProjectStateFilter.class)).asList()).thenReturn(testProjects);
-        lenient().when(testRepository1.listProjects().asList()).thenReturn(testProjects);
-        lenient().when(testRepository1.listLabels().asList()).thenReturn(allTestLabels);
+        lenient().when(testRepository1.listProjects(any(ProjectStateFilter.class))).thenReturn(projectIterable);
+        lenient().when(testRepository1.listProjects()).thenReturn(projectIterable);
+        lenient().when(testRepository1.listLabels()).thenReturn(labelIterable);
         lenient().when(testRepository1.getIssues(any(GHIssueState.class))).thenReturn(testIssueList);
 
         lenient().when(testRepository2.getId()).thenReturn(TEST_REPOSITORY1_ID);
         lenient().when(testRepository2.getName()).thenReturn(TEST_REPOSITORY1_NAME);
         lenient().when(testRepository2.getIssues(any(GHIssueState.class))).thenReturn(testIssueList);
-        lenient().when(testRepository2.listProjects().asList()).thenReturn(testProjects);
-        lenient().when(testRepository2.listLabels().asList()).thenReturn(allTestLabels);
+        lenient().when(testRepository2.listProjects()).thenReturn(projectIterable);
+        lenient().when(testRepository2.listLabels()).thenReturn(labelIterable);
 
-        lenient().when(testProject1.listColumns().asList()).thenReturn(testProjectColumns);
-        lenient().when(testProject2.listColumns().asList()).thenReturn(testProjectColumns);
-        lenient().when(testProject3.listColumns().asList()).thenReturn(testProjectColumns);
+        lenient().when(testProject1.listColumns()).thenReturn(columnIterable);
+        lenient().when(testProject2.listColumns()).thenReturn(columnIterable);
+        lenient().when(testProject3.listColumns()).thenReturn(columnIterable);
 
         lenient().when(testProject1.getName()).thenReturn(AbstractGitHubService.SPRINT);
         lenient().when(testProject2.getName()).thenReturn(AbstractGitHubService.SPRINT);
         lenient().when(testProject3.getName()).thenReturn(AbstractGitHubService.SPRINT);
 
-        lenient().when(testColumn1.listCards().asList()).thenReturn(testColumn1Cards);
-        lenient().when(testColumn2.listCards().asList()).thenReturn(testColumn2Cards);
-        lenient().when(testColumn3.listCards().asList()).thenReturn(testColumn3Cards);
+        lenient().when(testColumn1.listCards()).thenReturn(cardIterable1);
+        lenient().when(testColumn2.listCards()).thenReturn(cardIterable2);
+        lenient().when(testColumn3.listCards()).thenReturn(cardIterable3);
 
         lenient().when(testCard1.getId()).thenReturn(1L);
         lenient().when(testCard2.getId()).thenReturn(2L);
