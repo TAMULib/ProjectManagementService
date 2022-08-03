@@ -12,24 +12,7 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
 
-import edu.tamu.app.cache.model.Member;
-import edu.tamu.app.cache.model.RemoteProject;
-import edu.tamu.app.cache.model.Sprint;
-import edu.tamu.app.mapping.CardTypeMappingService;
-import edu.tamu.app.mapping.EstimateMappingService;
-import edu.tamu.app.mapping.StatusMappingService;
-import edu.tamu.app.model.CardType;
-import edu.tamu.app.model.Estimate;
-import edu.tamu.app.model.ManagementService;
-import edu.tamu.app.model.RemoteProjectManager;
-import edu.tamu.app.model.ServiceType;
-import edu.tamu.app.model.Status;
-import edu.tamu.app.model.repo.CardTypeRepo;
-import edu.tamu.app.model.repo.EstimateRepo;
-import edu.tamu.app.model.repo.StatusRepo;
-import edu.tamu.app.model.request.FeatureRequest;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -39,7 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.junit.jupiter.api.BeforeAll;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -57,22 +40,35 @@ import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GHUser;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
-import org.kohsuke.github.PagedIterable;
 import org.mockito.Answers;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.client.RestTemplate;
 
-//@ExtendWith(SpringExtension.class)
+import edu.tamu.app.cache.model.Member;
+import edu.tamu.app.cache.model.RemoteProject;
+import edu.tamu.app.cache.model.Sprint;
+import edu.tamu.app.mapping.CardTypeMappingService;
+import edu.tamu.app.mapping.EstimateMappingService;
+import edu.tamu.app.mapping.StatusMappingService;
+import edu.tamu.app.model.CardType;
+import edu.tamu.app.model.Estimate;
+import edu.tamu.app.model.ManagementService;
+import edu.tamu.app.model.RemoteProjectManager;
+import edu.tamu.app.model.ServiceType;
+import edu.tamu.app.model.Status;
+import edu.tamu.app.model.repo.CardTypeRepo;
+import edu.tamu.app.model.repo.EstimateRepo;
+import edu.tamu.app.model.repo.StatusRepo;
+import edu.tamu.app.model.request.FeatureRequest;
+
 @ExtendWith(MockitoExtension.class)
 public class GitHubMilestoneServiceTest extends CacheMockTests {
 
@@ -209,8 +205,8 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
     private List<GHProject> testProjects;
     private Map<String, GHRepository> testRepositoryMap;
 
-    @Value("classpath:images/no_avatar.png")
-    private Resource mockImage;
+    @Mock
+    private ResponseEntity<byte[]> response;
 
     @Mock
     private CardTypeRepo cardTypeRepo;
@@ -312,7 +308,12 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
         lenient().when(testCard3.getContent()).thenReturn(testIssue3);
         lenient().when(testCard4.getContent()).thenReturn(testIssue4);
         lenient().when(testCard5.getContent()).thenReturn(testIssue5);
+
         lenient().when(testCard1.getColumn()).thenReturn(testColumn1);
+        lenient().when(testCard2.getColumn()).thenReturn(testColumn1);
+        lenient().when(testCard3.getColumn()).thenReturn(testColumn1);
+        lenient().when(testCard4.getColumn()).thenReturn(testColumn1);
+        lenient().when(testCard5.getColumn()).thenReturn(testColumn1);
 
         lenient().when(testIssue1.getLabels()).thenReturn(testCard1Labels);
         lenient().when(testIssue2.getLabels()).thenReturn(testCard2Labels);
@@ -353,14 +354,14 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
         lenient().when(testFeatureRequest.getTitle()).thenReturn(TEST_FEATURE_REQUEST_TITLE);
         lenient().when(testFeatureRequest.getDescription()).thenReturn(TEST_FEATURE_REQUEST_DESCRIPTION);
 
-        lenient().when(restTemplate.exchange(any(String.class), any(HttpMethod.class), any(HttpEntity.class), any(Class.class)))
-            .thenAnswer(new Answer<ResponseEntity<byte[]>>() {
-                @Override
-                public ResponseEntity<byte[]> answer(InvocationOnMock invocation) throws IOException {
-                    byte[] bytes = Files.readAllBytes(mockImage.getFile().toPath());
-                    return new ResponseEntity<byte[]>(bytes, HttpStatus.OK);
-                }
-            });
+        lenient().when(restTemplate.exchange(
+            any(String.class),
+            any(HttpMethod.class),
+            Mockito.<HttpEntity<String>>any(),
+            Mockito.<Class<byte[]>>any()))
+                .thenReturn(response);
+
+        lenient().when(response.getStatusCode()).thenReturn(HttpStatus.NOT_FOUND);
 
         lenient().when(cardTypeRepo.findByMapping(any(String.class))).thenAnswer(new Answer<Optional<CardType>>() {
             @Override
