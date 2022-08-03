@@ -250,7 +250,6 @@ public class GitHubProjectServiceTest extends CacheMockTests {
 
     @BeforeEach
     public void setup() throws Exception {
-        Thread.sleep(1000);
         ManagementService managementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB_PROJECT, TEST_PROJECT1_URL, TEST_PROJECT1_TOKEN);
 
         testRepositoryMap = Stream.of(
@@ -292,13 +291,6 @@ public class GitHubProjectServiceTest extends CacheMockTests {
         setField(gitHubProjectService, "restTemplate", restTemplate);
 
         lenient().when(testOrganization.getRepositories()).thenReturn(testRepositoryMap);
-
-        lenient().when(labelIterable.asList()).thenReturn(allTestLabels);
-        lenient().when(projectIterable.asList()).thenReturn(testProjects);
-        lenient().when(columnIterable.asList()).thenReturn(testProjectColumns);
-        lenient().when(cardIterable1.asList()).thenReturn(testColumn1Cards);
-        lenient().when(cardIterable2.asList()).thenReturn(testColumn2Cards);
-        lenient().when(cardIterable3.asList()).thenReturn(testColumn3Cards);
 
         lenient().when(testOrganization.listProjects(any(ProjectStateFilter.class))).thenReturn(projectIterable);
 
@@ -382,6 +374,13 @@ public class GitHubProjectServiceTest extends CacheMockTests {
         lenient().when(testFeatureRequest.getProductId()).thenReturn(TEST_PRODUCT1_ID);
         lenient().when(testFeatureRequest.getTitle()).thenReturn(TEST_FEATURE_REQUEST_TITLE);
         lenient().when(testFeatureRequest.getDescription()).thenReturn(TEST_FEATURE_REQUEST_DESCRIPTION);
+
+        lenient().when(labelIterable.asList()).thenReturn(allTestLabels);
+        lenient().when(projectIterable.asList()).thenReturn(testProjects);
+        lenient().when(columnIterable.asList()).thenReturn(testProjectColumns);
+        lenient().when(cardIterable1.asList()).thenReturn(testColumn1Cards);
+        lenient().when(cardIterable2.asList()).thenReturn(testColumn2Cards);
+        lenient().when(cardIterable3.asList()).thenReturn(testColumn3Cards);
 
         lenient().when(restTemplate.exchange(
             any(String.class),
