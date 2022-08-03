@@ -210,10 +210,10 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
     @Mock
     private GHIssueBuilder issueBuilder;
 
-    @Mock(extraInterfaces = { GHObject.class })
+    @Mock(stubOnly = true)
     private GHRepository testRepository1;
 
-    @Mock(extraInterfaces = { GHObject.class })
+    @Mock(stubOnly = true)
     private GHRepository testRepository2;
 
     @Mock
