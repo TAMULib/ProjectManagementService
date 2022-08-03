@@ -88,7 +88,7 @@ public abstract class AbstractGitHubService extends MappingRemoteProjectManagerB
     public RemoteProject getRemoteProjectByScopeId(final String scopeId) throws Exception {
         logger.info("Fetching remote project by scope id " + scopeId);
         final GHRepository repo = github.getRepositoryById(scopeId);
-        return buildRemoteProject(repo);
+        return buildRemoteProject(repo, scopeId);
     }
 
     @Override
@@ -129,7 +129,11 @@ public abstract class AbstractGitHubService extends MappingRemoteProjectManagerB
     }
 
     Member getMember(final GHUser user) throws IOException {
-        final String memberId = String.valueOf(user.getId());
+        return getMember(user, user.getId());
+    }
+
+    Member getMember(final GHUser user, final long userId) throws IOException {
+        final String memberId = String.valueOf(userId);
         final Optional<Member> cachedMember = getCachedMember(memberId);
 
         if (cachedMember.isPresent()) {
@@ -178,6 +182,10 @@ public abstract class AbstractGitHubService extends MappingRemoteProjectManagerB
 
     private RemoteProject buildRemoteProject(final GHRepository repo) throws IOException {
         final String scopeId = String.valueOf(repo.getId());
+        return buildRemoteProject(repo, scopeId);
+    }
+
+    private RemoteProject buildRemoteProject(final GHRepository repo, final String scopeId) throws IOException {
         final String name = repo.getName();
 
         final List<GHIssue> issues = repo.getIssues(GHIssueState.OPEN);
