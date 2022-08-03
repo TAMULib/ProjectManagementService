@@ -87,6 +87,27 @@ public class GitHubProjectServiceTest extends CacheMockTests {
 
     private static final String TEST_PROJECT_TOKEN1 = "0123456789";
 
+    private List<GHLabel> allTestLabels;
+    private List<GHLabel> testCard1Labels;
+    private List<GHLabel> testCard2Labels;
+    private List<GHLabel> testCard3Labels;
+    private List<GHLabel> testCard4Labels;
+    private List<GHLabel> testCard5Labels;
+
+    private List<GHUser> testUsers1;
+    private List<GHUser> testUsers2;
+    private List<GHUser> testUsers3;
+    private List<GHUser> testUsers4;
+    private List<GHUser> testUsers5;
+
+    private List<GHProjectCard> testColumn1Cards;
+    private List<GHProjectCard> testColumn2Cards;
+    private List<GHProjectCard> testColumn3Cards;
+    private List<GHIssue> testIssueList;
+    private List<GHProjectColumn> testProjectColumns;
+    private List<GHProject> testProjects;
+    private Map<String, GHRepository> testRepositoryMap;
+
     @Mock
     private GHLabel testLabel1;
 
@@ -174,27 +195,6 @@ public class GitHubProjectServiceTest extends CacheMockTests {
     @Mock
     private RestTemplate restTemplate;
 
-    private List<GHLabel> allTestLabels;
-    private List<GHLabel> testCard1Labels;
-    private List<GHLabel> testCard2Labels;
-    private List<GHLabel> testCard3Labels;
-    private List<GHLabel> testCard4Labels;
-    private List<GHLabel> testCard5Labels;
-
-    private List<GHUser> testUsers1;
-    private List<GHUser> testUsers2;
-    private List<GHUser> testUsers3;
-    private List<GHUser> testUsers4;
-    private List<GHUser> testUsers5;
-
-    private List<GHProjectCard> testColumn1Cards;
-    private List<GHProjectCard> testColumn2Cards;
-    private List<GHProjectCard> testColumn3Cards;
-    private List<GHIssue> testIssueList;
-    private List<GHProjectColumn> testProjectColumns;
-    private List<GHProject> testProjects;
-    private Map<String, GHRepository> testRepositoryMap;
-
     @Mock
     private ResponseEntity<byte[]> response;
 
@@ -210,6 +210,9 @@ public class GitHubProjectServiceTest extends CacheMockTests {
     @Mock
     private GitHubBuilder ghBuilder;
 
+    @Mock
+    private GitHub github;
+
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private GitHubProjectService gitHubProjectService;
 
@@ -221,9 +224,6 @@ public class GitHubProjectServiceTest extends CacheMockTests {
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private EstimateMappingService estimateMappingService;
-
-    @Mock
-    private GitHub github;
 
     @BeforeEach
     public void setUp() throws Exception {
