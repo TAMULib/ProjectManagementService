@@ -88,8 +88,8 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
     private static final String TEST_PROJECT2_NAME = "Test Project 2 Name";
     private static final String TEST_PROJECT3_NAME = "Test Project 3 Name";
     private static final String TEST_MILESTONE_TITLE = "Test Milestone Sprint Title";
-    private static final Long TEST_REPOSITORY1_ID = 1L;
-    private static final Long TEST_USER1_ID = 3L;
+    private static final long TEST_REPOSITORY1_ID = 1L;
+    private static final long TEST_USER1_ID = 3L;
 
     private static final String TEST_PROJECT_URL1 = "http://localhost/1";
 
