@@ -259,7 +259,7 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
 
     @BeforeEach
     public void setup() throws Exception {
-        Thread.sleep(5000);
+        Thread.sleep(1000);
         ManagementService managementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB_MILESTONE, TEST_PROJECT1_URL, TEST_PROJECT1_TOKEN);
 
         testRepositoryMap = Stream.of(
