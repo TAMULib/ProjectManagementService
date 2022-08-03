@@ -85,10 +85,9 @@ public class GitHubProjectServiceTest extends CacheMockTests {
     private static final Long TEST_REPOSITORY1_ID = 1L;
     private static final Long TEST_REPOSITORY2_ID = 2L;
     private static final Long TEST_USER1_ID = 3L;
-
-    private static final String TEST_PROJECT_URL1 = "http://localhost/1";
-
-    private static final String TEST_PROJECT_TOKEN1 = "0123456789";
+    private static final Long TEST_PRODUCT1_ID = 4L;
+    private static final String TEST_PROJECT1_URL = "http://localhost/1";
+    private static final String TEST_PROJECT1_TOKEN = "0123456789";
 
     private List<GHLabel> allTestLabels;
     private List<GHLabel> testCard1Labels;
@@ -251,7 +250,7 @@ public class GitHubProjectServiceTest extends CacheMockTests {
 
     @BeforeEach
     public void setUp() throws Exception {
-        ManagementService managementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB_PROJECT, TEST_PROJECT_URL1, TEST_PROJECT_TOKEN1);
+        ManagementService managementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB_PROJECT, TEST_PROJECT1_URL, TEST_PROJECT1_TOKEN);
 
         testRepositoryMap = Stream.of(
             new Object[][] { { TEST_REPOSITORY1_NAME, testRepository1 }, { TEST_REPOSITORY2_NAME, testRepository2 } })
@@ -381,7 +380,7 @@ public class GitHubProjectServiceTest extends CacheMockTests {
         lenient().when(testLabel4.getName()).thenReturn(DEFECT_LABEL);
         lenient().when(testLabel5.getName()).thenReturn(TEST_UNUSED_LABEL_NAME);
 
-        lenient().when(testFeatureRequest.getProductId()).thenReturn(TEST_REPOSITORY1_ID);
+        lenient().when(testFeatureRequest.getProductId()).thenReturn(TEST_PRODUCT1_ID);
         lenient().when(testFeatureRequest.getTitle()).thenReturn(TEST_FEATURE_REQUEST_TITLE);
         lenient().when(testFeatureRequest.getDescription()).thenReturn(TEST_FEATURE_REQUEST_DESCRIPTION);
 
@@ -537,7 +536,7 @@ public class GitHubProjectServiceTest extends CacheMockTests {
         when(ghBuilder.withOAuthToken(any(String.class))).thenReturn(ghBuilder);
         when(ghBuilder.build()).thenReturn(github);
 
-        ManagementService invalidManagementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB_PROJECT, TEST_PROJECT_URL1, TEST_PROJECT_TOKEN1);
+        ManagementService invalidManagementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB_PROJECT, TEST_PROJECT1_URL, TEST_PROJECT1_TOKEN);
 
         setField(gitHubProjectService, "managementService", invalidManagementService);
 
@@ -554,7 +553,7 @@ public class GitHubProjectServiceTest extends CacheMockTests {
         when(ghBuilder.withOAuthToken(any(String.class))).thenReturn(ghBuilder);
         when(ghBuilder.build()).thenReturn(github);
 
-        ManagementService invalidManagementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB_PROJECT, TEST_PROJECT_URL1, TEST_PROJECT_TOKEN1);
+        ManagementService invalidManagementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB_PROJECT, TEST_PROJECT1_URL, TEST_PROJECT1_TOKEN);
 
         setField(gitHubProjectService, "managementService", invalidManagementService);
 
