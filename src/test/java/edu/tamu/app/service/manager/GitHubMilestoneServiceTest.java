@@ -88,14 +88,13 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
     private static final String TEST_PROJECT2_NAME = "Test Project 2 Name";
     private static final String TEST_PROJECT3_NAME = "Test Project 3 Name";
     private static final String TEST_MILESTONE_TITLE = "Test Milestone Sprint Title";
+    private static final Long TEST_REPOSITORY1_ID = 1L;
+    private static final Long TEST_REPOSITORY2_ID = 2L;
+    private static final Long TEST_USER1_ID = 3L;
 
     private static final String TEST_PROJECT_URL1 = "http://localhost/1";
 
     private static final String TEST_PROJECT_TOKEN1 = "0123456789";
-
-    private Long testRepository1Id;
-    private Long testRepository2Id;
-    private Long testUser1Id;
 
     private List<GHLabel> allTestLabels;
     private List<GHLabel> testCard1Labels;
@@ -288,10 +287,6 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
         testProjectColumns = new ArrayList<GHProjectColumn>(Arrays.asList(new GHProjectColumn[] { testColumn1, testColumn2, testColumn3 }));
         testProjects = new ArrayList<GHProject>(Arrays.asList(new GHProject[] { testProject1, testProject2, testProject3 }));
 
-        testRepository1Id = 1L;
-        testRepository2Id = 2L;
-        testUser1Id = 3L;
-
         setField(cardTypeMappingService, "serviceMappingRepo", cardTypeRepo);
         setField(statusMappingService, "serviceMappingRepo", statusRepo);
         setField(estimateMappingService, "serviceMappingRepo", estimateRepo);
@@ -320,14 +315,14 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
         lenient().when(issueBuilder.body(any(String.class))).thenReturn(issueBuilder);
         lenient().when(issueBuilder.create()).thenReturn(testIssue1);
 
-        lenient().when(testRepository1.getId()).thenReturn(testRepository1Id);
+        lenient().when(testRepository1.getId()).thenReturn(TEST_REPOSITORY1_ID);
         lenient().when(testRepository1.getName()).thenReturn(TEST_REPOSITORY1_NAME);
         lenient().when(testRepository1.listProjects(any(ProjectStateFilter.class))).thenReturn(projectIterable);
         lenient().when(testRepository1.listProjects()).thenReturn(projectIterable);
         lenient().when(testRepository1.listLabels()).thenReturn(labelIterable);
         lenient().when(testRepository1.getIssues(any(GHIssueState.class))).thenReturn(testIssueList);
 
-        lenient().when(testRepository2.getId()).thenReturn(testRepository2Id);
+        lenient().when(testRepository2.getId()).thenReturn(TEST_REPOSITORY2_ID);
         lenient().when(testRepository2.getName()).thenReturn(TEST_REPOSITORY2_NAME);
         lenient().when(testRepository2.getIssues(any(GHIssueState.class))).thenReturn(testIssueList);
         lenient().when(testRepository2.listProjects()).thenReturn(projectIterable);
@@ -389,7 +384,7 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
         lenient().when(testCard4.getContent().getAssignees()).thenReturn(testUsers4);
         lenient().when(testCard5.getContent().getAssignees()).thenReturn(testUsers5);
 
-        lenient().when(testUser1.getId()).thenReturn(testUser1Id);
+        lenient().when(testUser1.getId()).thenReturn(TEST_USER1_ID);
         lenient().when(testUser1.getName()).thenReturn(TEST_USER1_NAME);
         lenient().when(testUser1.getAvatarUrl()).thenReturn(TEST_USER1_AVATAR_PATH);
         lenient().when(testUser2.getAvatarUrl()).thenReturn(TEST_USER2_AVATAR_PATH);
@@ -401,7 +396,7 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
         lenient().when(testLabel4.getName()).thenReturn(DEFECT_LABEL);
         lenient().when(testLabel5.getName()).thenReturn(TEST_UNUSED_LABEL_NAME);
 
-        lenient().when(testFeatureRequest.getProductId()).thenReturn(testRepository1Id);
+        lenient().when(testFeatureRequest.getProductId()).thenReturn(TEST_REPOSITORY1_ID);
         lenient().when(testFeatureRequest.getTitle()).thenReturn(TEST_FEATURE_REQUEST_TITLE);
         lenient().when(testFeatureRequest.getDescription()).thenReturn(TEST_FEATURE_REQUEST_DESCRIPTION);
 
@@ -488,9 +483,9 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
     public void testGetRemoteProjectByScopeId() throws Exception {
         when(github.getRepositoryById(any(String.class))).thenReturn(testRepository1);
 
-        RemoteProject project = gitHubMilestoneService.getRemoteProjectByScopeId(String.valueOf(testRepository1Id));
+        RemoteProject project = gitHubMilestoneService.getRemoteProjectByScopeId(String.valueOf(TEST_REPOSITORY1_ID));
         assertNotNull(project, "Didn't get the remote project");
-        assertEquals(String.valueOf(testRepository1Id), project.getId(), "Did not get the expected project");
+        assertEquals(String.valueOf(TEST_REPOSITORY1_ID), project.getId(), "Did not get the expected project");
         assertEquals(1, project.getRequestCount(), "Number of Requests was incorrect");
         assertEquals(2, project.getIssueCount(), "Number of Issues was incorrect");
         assertEquals(1, project.getFeatureCount(), "Number of Features was incorrect");
@@ -501,7 +496,7 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
     public void testGetActiveSprintsByProjectId() throws Exception {
         when(github.getRepositoryById(any(String.class))).thenReturn(testRepository1);
 
-        List<Sprint> activeSprints = gitHubMilestoneService.getActiveSprintsByScopeId(String.valueOf(testRepository1Id));
+        List<Sprint> activeSprints = gitHubMilestoneService.getActiveSprintsByScopeId(String.valueOf(TEST_REPOSITORY1_ID));
         assertEquals(3, activeSprints.size(), "Didn't get all active sprints");
     }
 
@@ -517,7 +512,7 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
     public void testGetActiveSprintsByProjectIdType() throws Exception {
         when(github.getRepositoryById(any(String.class))).thenReturn(testRepository1);
 
-        List<Sprint> sprints = gitHubMilestoneService.getActiveSprintsByScopeId(String.valueOf(testRepository1Id));
+        List<Sprint> sprints = gitHubMilestoneService.getActiveSprintsByScopeId(String.valueOf(TEST_REPOSITORY1_ID));
 
         sprints.forEach(sprint -> {
             assertEquals(ServiceType.GITHUB_MILESTONE.toString(), sprint.getType(), "Didn't get the correct Service Type for the Sprint");
@@ -546,7 +541,7 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
     @Test
     public void testGetMember() throws IOException {
         Member member = gitHubMilestoneService.getMember(testUser1);
-        assertEquals(String.valueOf(testUser1Id), member.getId(), "Member ID is incorrect");
+        assertEquals(String.valueOf(TEST_USER1_ID), member.getId(), "Member ID is incorrect");
         assertEquals(TEST_USER1_NAME, member.getName(), "Member Name is incorrect");
         assertEquals(TEST_USER1_AVATAR_NAME, member.getAvatar(), "Member Avatar URL is incorrect");
     }
