@@ -40,6 +40,7 @@ import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GHUser;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
+import org.kohsuke.github.PagedIterable;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
