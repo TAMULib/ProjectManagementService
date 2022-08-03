@@ -29,7 +29,6 @@ import org.kohsuke.github.GHIssue;
 import org.kohsuke.github.GHIssueBuilder;
 import org.kohsuke.github.GHIssueState;
 import org.kohsuke.github.GHLabel;
-import org.kohsuke.github.GHObject;
 import org.kohsuke.github.GHOrganization;
 import org.kohsuke.github.GHProject;
 import org.kohsuke.github.GHProject.ProjectStateFilter;
@@ -43,6 +42,7 @@ import org.kohsuke.github.PagedIterable;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
@@ -250,7 +250,9 @@ public class GitHubProjectServiceTest extends CacheMockTests {
     private EstimateMappingService estimateMappingService;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setup() throws Exception {
+        MockitoAnnotations.openMocks(this);
+
         ManagementService managementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB_PROJECT, TEST_PROJECT1_URL, TEST_PROJECT1_TOKEN);
 
         testRepositoryMap = Stream.of(
@@ -306,14 +308,14 @@ public class GitHubProjectServiceTest extends CacheMockTests {
         lenient().when(issueBuilder.body(any(String.class))).thenReturn(issueBuilder);
         lenient().when(issueBuilder.create()).thenReturn(testIssue1);
 
-        // lenient().when(testRepository1.getId()).thenReturn(TEST_REPOSITORY1_ID);
+        lenient().when(testRepository1.getId()).thenReturn(TEST_REPOSITORY1_ID);
         lenient().when(testRepository1.getName()).thenReturn(TEST_REPOSITORY1_NAME);
         lenient().when(testRepository1.listProjects(any(ProjectStateFilter.class))).thenReturn(projectIterable);
         lenient().when(testRepository1.listProjects()).thenReturn(projectIterable);
         lenient().when(testRepository1.listLabels()).thenReturn(labelIterable);
         lenient().when(testRepository1.getIssues(any(GHIssueState.class))).thenReturn(testIssueList);
 
-        // lenient().when(testRepository2.getId()).thenReturn(TEST_REPOSITORY2_ID);
+        lenient().when(testRepository2.getId()).thenReturn(TEST_REPOSITORY2_ID);
         lenient().when(testRepository2.getName()).thenReturn(TEST_REPOSITORY2_NAME);
         lenient().when(testRepository2.getIssues(any(GHIssueState.class))).thenReturn(testIssueList);
         lenient().when(testRepository2.listProjects()).thenReturn(projectIterable);
@@ -331,11 +333,11 @@ public class GitHubProjectServiceTest extends CacheMockTests {
         lenient().when(testColumn2.listCards()).thenReturn(cardIterable2);
         lenient().when(testColumn3.listCards()).thenReturn(cardIterable3);
 
-        // lenient().when(testCard1.getId()).thenReturn(1L);
-        // lenient().when(testCard2.getId()).thenReturn(2L);
-        // lenient().when(testCard3.getId()).thenReturn(3L);
-        // lenient().when(testCard4.getId()).thenReturn(4L);
-        // lenient().when(testCard5.getId()).thenReturn(5L);
+        lenient().when(testCard1.getId()).thenReturn(1L);
+        lenient().when(testCard2.getId()).thenReturn(2L);
+        lenient().when(testCard3.getId()).thenReturn(3L);
+        lenient().when(testCard4.getId()).thenReturn(4L);
+        lenient().when(testCard5.getId()).thenReturn(5L);
 
         lenient().when(testCard1.getContent()).thenReturn(testIssue1);
         lenient().when(testCard2.getContent()).thenReturn(testIssue2);
@@ -367,7 +369,7 @@ public class GitHubProjectServiceTest extends CacheMockTests {
         lenient().when(testCard4.getContent().getAssignees()).thenReturn(testUsers4);
         lenient().when(testCard5.getContent().getAssignees()).thenReturn(testUsers5);
 
-        // lenient().when(testUser1.getId()).thenReturn(TEST_USER1_ID);
+        lenient().when(testUser1.getId()).thenReturn(TEST_USER1_ID);
         lenient().when(testUser1.getName()).thenReturn(TEST_USER1_NAME);
         lenient().when(testUser1.getAvatarUrl()).thenReturn(TEST_USER1_AVATAR_PATH);
         lenient().when(testUser2.getAvatarUrl()).thenReturn(TEST_USER2_AVATAR_PATH);
@@ -524,7 +526,7 @@ public class GitHubProjectServiceTest extends CacheMockTests {
 
     @Test
     public void testGetMember() throws IOException {
-        Member member = gitHubProjectService.getMember(testUser1, TEST_USER1_ID);
+        Member member = gitHubProjectService.getMember(testUser1);
         assertEquals(String.valueOf(TEST_USER1_ID), member.getId(), "Member ID is incorrect");
         assertEquals(TEST_USER1_NAME, member.getName(), "Member Name is incorrect");
         assertEquals(TEST_USER1_AVATAR_NAME, member.getAvatar(), "Member Avatar URL is incorrect");
