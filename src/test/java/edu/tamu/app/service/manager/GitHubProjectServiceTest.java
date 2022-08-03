@@ -7,7 +7,9 @@ import static edu.tamu.app.service.manager.AbstractGitHubService.REQUEST_LABEL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
 
@@ -24,7 +26,6 @@ import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.kohsuke.github.GHIssue;
 import org.kohsuke.github.GHIssueBuilder;
 import org.kohsuke.github.GHIssueState;
@@ -39,11 +40,8 @@ import org.kohsuke.github.GHUser;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
 import org.kohsuke.github.PagedIterable;
-import org.mockito.Answers;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -68,7 +66,6 @@ import edu.tamu.app.model.repo.EstimateRepo;
 import edu.tamu.app.model.repo.StatusRepo;
 import edu.tamu.app.model.request.FeatureRequest;
 
-@ExtendWith(MockitoExtension.class)
 public class GitHubProjectServiceTest extends CacheMockTests {
 
     private static final String TEST_REPOSITORY1_NAME = "Test repository 1 name";
@@ -110,143 +107,53 @@ public class GitHubProjectServiceTest extends CacheMockTests {
     private List<GHProject> testProjects;
     private Map<String, GHRepository> testRepositoryMap;
 
-    @Mock
-    private GHLabel testLabel1;
+    private GHLabel testLabel1 = mock(GHLabel.class);
+    private GHLabel testLabel2 = mock(GHLabel.class);
+    private GHLabel testLabel3 = mock(GHLabel.class);
+    private GHLabel testLabel4 = mock(GHLabel.class);
+    private GHLabel testLabel5 = mock(GHLabel.class);
+    private GHIssue testIssue1 = mock(GHIssue.class);
+    private GHIssue testIssue2 = mock(GHIssue.class);
+    private GHIssue testIssue3 = mock(GHIssue.class);
+    private GHIssue testIssue4 = mock(GHIssue.class);
+    private GHIssue testIssue5 = mock(GHIssue.class);
+    private GHUser testUser1 = mock(GHUser.class);
+    private GHUser testUser2 = mock(GHUser.class);
+    private GHUser testUser3 = mock(GHUser.class);
+    private GHProjectCard testCard1 = mock(GHProjectCard.class);
+    private GHProjectCard testCard2 = mock(GHProjectCard.class);
+    private GHProjectCard testCard3 = mock(GHProjectCard.class);
+    private GHProjectCard testCard4 = mock(GHProjectCard.class);
+    private GHProjectCard testCard5 = mock(GHProjectCard.class);
+    private PagedIterable<GHProjectCard> cardIterable1 = mock(PagedIterable.class);
+    private PagedIterable<GHProjectCard> cardIterable2 = mock(PagedIterable.class);
+    private PagedIterable<GHProjectCard> cardIterable3 = mock(PagedIterable.class);
+    private GHProjectColumn testColumn1 = mock(GHProjectColumn.class);
+    private GHProjectColumn testColumn2 = mock(GHProjectColumn.class);
+    private GHProjectColumn testColumn3 = mock(GHProjectColumn.class);
+    private PagedIterable<GHProjectColumn> columnIterable = mock(PagedIterable.class);
+    private GHProject testProject1 = mock(GHProject.class);
+    private GHProject testProject2 = mock(GHProject.class);
+    private GHProject testProject3 = mock(GHProject.class);
+    private PagedIterable<GHLabel> labelIterable = mock(PagedIterable.class);
+    private GHIssueBuilder issueBuilder = mock(GHIssueBuilder.class);
+    private GHRepository testRepository1 = mock(GHRepository.class);
+    private GHRepository testRepository2 = mock(GHRepository.class);
+    private PagedIterable<GHProject> projectIterable = mock(PagedIterable.class);
+    private GHOrganization testOrganization = mock(GHOrganization.class);
+    private FeatureRequest testFeatureRequest = mock(FeatureRequest.class);
+    private RestTemplate restTemplate = mock(RestTemplate.class);
+    private ResponseEntity<byte[]> response = mock(ResponseEntity.class);
+    private CardTypeRepo cardTypeRepo = mock(CardTypeRepo.class);
+    private StatusRepo statusRepo = mock(StatusRepo.class);
+    private EstimateRepo estimateRepo = mock(EstimateRepo.class);
+    private GitHubBuilder ghBuilder = mock(GitHubBuilder.class);
+    private GitHub github = mock(GitHub.class);
 
-    @Mock
-    private GHLabel testLabel2;
-
-    @Mock
-    private GHLabel testLabel3;
-
-    @Mock
-    private GHLabel testLabel4;
-
-    @Mock
-    private GHLabel testLabel5;
-
-    @Mock
-    private GHIssue testIssue1;
-
-    @Mock
-    private GHIssue testIssue2;
-
-    @Mock
-    private GHIssue testIssue3;
-
-    @Mock
-    private GHIssue testIssue4;
-
-    @Mock
-    private GHIssue testIssue5;
-
-    @Mock
-    private GHUser testUser1;
-
-    @Mock
-    private GHUser testUser2;
-
-    @Mock
-    private GHUser testUser3;
-
-    @Mock
-    private GHProjectCard testCard1;
-
-    @Mock
-    private GHProjectCard testCard2;
-
-    @Mock
-    private GHProjectCard testCard3;
-
-    @Mock
-    private GHProjectCard testCard4;
-
-    @Mock
-    private GHProjectCard testCard5;
-
-    @Mock
-    private PagedIterable<GHProjectCard> cardIterable1;
-
-    @Mock
-    private PagedIterable<GHProjectCard> cardIterable2;
-
-    @Mock
-    private PagedIterable<GHProjectCard> cardIterable3;
-
-    @Mock
-    private GHProjectColumn testColumn1;
-
-    @Mock
-    private GHProjectColumn testColumn2;
-
-    @Mock
-    private GHProjectColumn testColumn3;
-
-    @Mock
-    private PagedIterable<GHProjectColumn> columnIterable;
-
-    @Mock
-    private GHProject testProject1;
-
-    @Mock
-    private GHProject testProject2;
-
-    @Mock
-    private GHProject testProject3;
-
-    @Mock
-    private PagedIterable<GHLabel> labelIterable;
-
-    @Mock
-    private GHIssueBuilder issueBuilder;
-
-    @Mock
-    private GHRepository testRepository1;
-
-    @Mock
-    private GHRepository testRepository2;
-
-    @Mock
-    private PagedIterable<GHProject> projectIterable;
-
-    @Mock
-    private GHOrganization testOrganization;
-
-    @Mock
-    private FeatureRequest testFeatureRequest;
-
-    @Mock
-    private RestTemplate restTemplate;
-
-    @Mock
-    private ResponseEntity<byte[]> response;
-
-    @Mock
-    private CardTypeRepo cardTypeRepo;
-
-    @Mock
-    private StatusRepo statusRepo;
-
-    @Mock
-    private EstimateRepo estimateRepo;
-
-    @Mock
-    private GitHubBuilder ghBuilder;
-
-    @Mock
-    private GitHub github;
-
-    @Mock(answer = Answers.CALLS_REAL_METHODS)
-    private GitHubProjectService gitHubProjectService;
-
-    @Mock(answer = Answers.CALLS_REAL_METHODS)
-    private CardTypeMappingService cardTypeMappingService;
-
-    @Mock(answer = Answers.CALLS_REAL_METHODS)
-    private StatusMappingService statusMappingService;
-
-    @Mock(answer = Answers.CALLS_REAL_METHODS)
-    private EstimateMappingService estimateMappingService;
+    private GitHubProjectService gitHubProjectService = mock(GitHubProjectService.class, CALLS_REAL_METHODS);
+    private CardTypeMappingService cardTypeMappingService = mock(CardTypeMappingService.class, CALLS_REAL_METHODS);
+    private StatusMappingService statusMappingService = mock(StatusMappingService.class, CALLS_REAL_METHODS);
+    private EstimateMappingService estimateMappingService = mock(EstimateMappingService.class, CALLS_REAL_METHODS);
 
     @BeforeEach
     public void setup() throws Exception {
