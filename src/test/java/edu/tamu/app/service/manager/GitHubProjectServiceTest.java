@@ -42,7 +42,6 @@ import org.kohsuke.github.PagedIterable;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
@@ -69,7 +68,7 @@ import edu.tamu.app.model.repo.EstimateRepo;
 import edu.tamu.app.model.repo.StatusRepo;
 import edu.tamu.app.model.request.FeatureRequest;
 
-// @ExtendWith(MockitoExtension.class)
+@ExtendWith(MockitoExtension.class)
 public class GitHubProjectServiceTest extends CacheMockTests {
 
     private static final String TEST_REPOSITORY1_NAME = "Test repository 1 name";
@@ -251,8 +250,7 @@ public class GitHubProjectServiceTest extends CacheMockTests {
 
     @BeforeEach
     public void setup() throws Exception {
-        MockitoAnnotations.openMocks(this);
-
+        Thread.sleep(5000);
         ManagementService managementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB_PROJECT, TEST_PROJECT1_URL, TEST_PROJECT1_TOKEN);
 
         testRepositoryMap = Stream.of(
