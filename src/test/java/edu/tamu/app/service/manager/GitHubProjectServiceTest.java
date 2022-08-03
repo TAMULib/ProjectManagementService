@@ -7,6 +7,7 @@ import static edu.tamu.app.service.manager.AbstractGitHubService.REQUEST_LABEL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
@@ -82,8 +83,8 @@ public class GitHubProjectServiceTest extends CacheMockTests {
     private static final String TEST_USER3_AVATAR_PATH = "https://avatars2.githubusercontent.com/u/3333333?v=4";
     private static final String TEST_USER1_AVATAR_NAME = "1234567";
     private static final String TEST_COLUMN1_NAME = "Test Column 1";
-    private static final long TEST_REPOSITORY1_ID = 1L;
-    private static final long TEST_USER1_ID = 3L;
+    private static final Long TEST_REPOSITORY1_ID = 1L;
+    private static final Long TEST_USER1_ID = 3L;
 
     private static final String TEST_PROJECT_URL1 = "http://localhost/1";
 
@@ -305,7 +306,8 @@ public class GitHubProjectServiceTest extends CacheMockTests {
         lenient().when(issueBuilder.body(any(String.class))).thenReturn(issueBuilder);
         lenient().when(issueBuilder.create()).thenReturn(testIssue1);
 
-        lenient().when(testRepository1.getId()).thenReturn(TEST_REPOSITORY1_ID);
+        lenient().doReturn(TEST_REPOSITORY1_ID).when(testRepository1).getId();
+
         lenient().when(testRepository1.getName()).thenReturn(TEST_REPOSITORY1_NAME);
         lenient().when(testRepository1.listProjects(any(ProjectStateFilter.class))).thenReturn(projectIterable);
         lenient().when(testRepository1.listProjects()).thenReturn(projectIterable);
