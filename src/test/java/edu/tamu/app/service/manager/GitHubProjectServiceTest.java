@@ -86,25 +86,6 @@ public class GitHubProjectServiceTest extends CacheMockTests {
     private static final String TEST_PROJECT1_URL = "http://localhost/1";
     private static final String TEST_PROJECT1_TOKEN = "0123456789";
 
-    private static List<GHLabel> allTestLabels;
-    private static List<GHLabel> testCard1Labels;
-    private static List<GHLabel> testCard2Labels;
-    private static List<GHLabel> testCard3Labels;
-    private static List<GHLabel> testCard4Labels;
-    private static List<GHLabel> testCard5Labels;
-    private static List<GHUser> testUsers1;
-    private static List<GHUser> testUsers2;
-    private static List<GHUser> testUsers3;
-    private static List<GHUser> testUsers4;
-    private static List<GHUser> testUsers5;
-    private static List<GHProjectCard> testColumn1Cards;
-    private static List<GHProjectCard> testColumn2Cards;
-    private static List<GHProjectCard> testColumn3Cards;
-    private static List<GHIssue> testIssueList;
-    private static List<GHProjectColumn> testProjectColumns;
-    private static List<GHProject> testProjects;
-    private static Map<String, GHRepository> testRepositoryMap;
-
     private static final GHLabel testLabel1 = mock(GHLabel.class);
     private static final GHLabel testLabel2 = mock(GHLabel.class);
     private static final GHLabel testLabel3 = mock(GHLabel.class);
@@ -155,32 +136,32 @@ public class GitHubProjectServiceTest extends CacheMockTests {
 
     @BeforeAll
     public static void setup() throws Exception {
-        ManagementService managementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB_PROJECT, TEST_PROJECT1_URL, TEST_PROJECT1_TOKEN);
+        ManagementService managementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB_MILESTONE, TEST_PROJECT1_URL, TEST_PROJECT1_TOKEN);
 
-        testRepositoryMap = Stream.of(
+        Map<String, GHRepository> testRepositoryMap = Stream.of(
             new Object[][] { { TEST_REPOSITORY1_NAME, testRepository1 }, { TEST_REPOSITORY2_NAME, testRepository2 } })
             .collect(Collectors.toMap(data -> (String) data[0], data -> (GHRepository) data[1]));
 
-        allTestLabels = new ArrayList<GHLabel>(Arrays.asList(new GHLabel[] { testLabel1, testLabel2, testLabel3, testLabel4, testLabel5 }));
-        testCard1Labels = new ArrayList<GHLabel>(Arrays.asList(new GHLabel[] { testLabel1, testLabel5 }));
-        testCard2Labels = new ArrayList<GHLabel>(Arrays.asList(new GHLabel[] { testLabel2, testLabel5 }));
-        testCard3Labels = new ArrayList<GHLabel>(Arrays.asList(new GHLabel[] { testLabel3, testLabel5 }));
-        testCard4Labels = new ArrayList<GHLabel>(Arrays.asList(new GHLabel[] { testLabel4 }));
-        testCard5Labels = new ArrayList<GHLabel>(Arrays.asList(new GHLabel[] { testLabel5 }));
+        List<GHLabel> allTestLabels = new ArrayList<GHLabel>(Arrays.asList(new GHLabel[] { testLabel1, testLabel2, testLabel3, testLabel4, testLabel5 }));
+        List<GHLabel> testCard1Labels = new ArrayList<GHLabel>(Arrays.asList(new GHLabel[] { testLabel1, testLabel5 }));
+        List<GHLabel> testCard2Labels = new ArrayList<GHLabel>(Arrays.asList(new GHLabel[] { testLabel2, testLabel5 }));
+        List<GHLabel> testCard3Labels = new ArrayList<GHLabel>(Arrays.asList(new GHLabel[] { testLabel3, testLabel5 }));
+        List<GHLabel> testCard4Labels = new ArrayList<GHLabel>(Arrays.asList(new GHLabel[] { testLabel4 }));
+        List<GHLabel> testCard5Labels = new ArrayList<GHLabel>(Arrays.asList(new GHLabel[] { testLabel5 }));
 
-        testUsers1 = new ArrayList<GHUser>(Arrays.asList(new GHUser[] { testUser1 }));
-        testUsers2 = new ArrayList<GHUser>(Arrays.asList(new GHUser[] { testUser1, testUser2 }));
-        testUsers3 = new ArrayList<GHUser>(Arrays.asList(new GHUser[] {}));
-        testUsers4 = new ArrayList<GHUser>(Arrays.asList(new GHUser[] { testUser2 }));
-        testUsers5 = new ArrayList<GHUser>(Arrays.asList(new GHUser[] { testUser3, testUser1 }));
+        List<GHUser> testUsers1 = new ArrayList<GHUser>(Arrays.asList(new GHUser[] { testUser1 }));
+        List<GHUser> testUsers2 = new ArrayList<GHUser>(Arrays.asList(new GHUser[] { testUser1, testUser2 }));
+        List<GHUser> testUsers3 = new ArrayList<GHUser>(Arrays.asList(new GHUser[] {}));
+        List<GHUser> testUsers4 = new ArrayList<GHUser>(Arrays.asList(new GHUser[] { testUser2 }));
+        List<GHUser> testUsers5 = new ArrayList<GHUser>(Arrays.asList(new GHUser[] { testUser3, testUser1 }));
 
-        testColumn1Cards = new ArrayList<GHProjectCard>(Arrays.asList(new GHProjectCard[] { testCard1, testCard2, testCard3 }));
-        testColumn2Cards = new ArrayList<GHProjectCard>(Arrays.asList(new GHProjectCard[] { testCard3, testCard4 }));
-        testColumn3Cards = new ArrayList<GHProjectCard>(Arrays.asList(new GHProjectCard[] { testCard5 }));
+        List<GHProjectCard> testColumn1Cards = new ArrayList<GHProjectCard>(Arrays.asList(new GHProjectCard[] { testCard1, testCard2, testCard3 }));
+        List<GHProjectCard> testColumn2Cards = new ArrayList<GHProjectCard>(Arrays.asList(new GHProjectCard[] { testCard3, testCard4 }));
+        List<GHProjectCard> testColumn3Cards = new ArrayList<GHProjectCard>(Arrays.asList(new GHProjectCard[] { testCard5 }));
 
-        testIssueList = new ArrayList<GHIssue>(Arrays.asList((new GHIssue[] { testIssue1, testIssue2, testIssue3, testIssue4, testIssue5 })));
-        testProjectColumns = new ArrayList<GHProjectColumn>(Arrays.asList(new GHProjectColumn[] { testColumn1, testColumn2, testColumn3 }));
-        testProjects = new ArrayList<GHProject>(Arrays.asList(new GHProject[] { testProject1, testProject2, testProject3 }));
+        List<GHIssue> testIssueList = new ArrayList<GHIssue>(Arrays.asList((new GHIssue[] { testIssue1, testIssue2, testIssue3, testIssue4, testIssue5 })));
+        List<GHProjectColumn> testProjectColumns = new ArrayList<GHProjectColumn>(Arrays.asList(new GHProjectColumn[] { testColumn1, testColumn2, testColumn3 }));
+        List<GHProject> testProjects = new ArrayList<GHProject>(Arrays.asList(new GHProject[] { testProject1, testProject2, testProject3 }));
 
         setField(cardTypeMappingService, "serviceMappingRepo", cardTypeRepo);
         setField(statusMappingService, "serviceMappingRepo", statusRepo);
