@@ -261,12 +261,12 @@ public class GitHubProjectServiceTest extends CacheMockTests {
         lenient().when(testFeatureRequest.getTitle()).thenReturn(TEST_FEATURE_REQUEST_TITLE);
         lenient().when(testFeatureRequest.getDescription()).thenReturn(TEST_FEATURE_REQUEST_DESCRIPTION);
 
-        lenient().when(labelIterable.asList()).thenReturn(allTestLabels);
-        lenient().when(projectIterable.asList()).thenReturn(testProjects);
-        lenient().when(columnIterable.asList()).thenReturn(testProjectColumns);
-        lenient().when(cardIterable1.asList()).thenReturn(testColumn1Cards);
-        lenient().when(cardIterable2.asList()).thenReturn(testColumn2Cards);
-        lenient().when(cardIterable3.asList()).thenReturn(testColumn3Cards);
+        lenient().when(labelIterable.toList()).thenReturn(allTestLabels);
+        lenient().when(projectIterable.toList()).thenReturn(testProjects);
+        lenient().when(columnIterable.toList()).thenReturn(testProjectColumns);
+        lenient().when(cardIterable1.toList()).thenReturn(testColumn1Cards);
+        lenient().when(cardIterable2.toList()).thenReturn(testColumn2Cards);
+        lenient().when(cardIterable3.toList()).thenReturn(testColumn3Cards);
 
         lenient().when(restTemplate.exchange(
             any(String.class),
