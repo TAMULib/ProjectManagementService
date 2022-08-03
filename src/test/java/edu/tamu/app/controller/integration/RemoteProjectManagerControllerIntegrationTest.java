@@ -17,7 +17,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.kohsuke.github.GitHubBuilder;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +27,6 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -40,8 +38,8 @@ import edu.tamu.app.cache.service.ProductsStatsScheduledCacheService;
 import edu.tamu.app.cache.service.RemoteProjectsScheduledCacheService;
 import edu.tamu.app.model.RemoteProjectManager;
 import edu.tamu.app.model.ServiceType;
-import edu.tamu.app.model.repo.RemoteProjectManagerRepo;
 import edu.tamu.app.model.repo.AbstractRepoTest;
+import edu.tamu.app.model.repo.RemoteProjectManagerRepo;
 import edu.tamu.app.service.manager.GitHubProjectService;
 import edu.tamu.app.service.manager.VersionOneService;
 import edu.tamu.weaver.response.ApiResponse;
@@ -50,7 +48,6 @@ import edu.tamu.weaver.response.ApiStatus;
 @SpringBootTest(classes = { ProductApplication.class }, webEnvironment=WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @AutoConfigureRestDocs(outputDir = "target/generated-snippets")
-@ExtendWith(SpringExtension.class)
 public class RemoteProjectManagerControllerIntegrationTest extends AbstractRepoTest {
 
     private static long currentId = 0L;
