@@ -1,14 +1,14 @@
 package edu.tamu.app.model;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import edu.tamu.app.model.ServiceType.Setting;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class ServiceTypeTest {
 
     private static final String TEST_TYPE = "text";
@@ -22,21 +22,21 @@ public class ServiceTypeTest {
 
     @Test
     public void testGetGloss() {
-        assertEquals("Gloss did not start out as 'Version One'", "Version One", type.getGloss());
+        assertEquals("Version One", type.getGloss(), "Gloss did not start out as 'Version One'");
     }
 
     @Test
     public void testSetGloss() {
         type.setGloss(TEST_GLOSS);
-        assertEquals("Gloss value is not what was expected", TEST_GLOSS, type.getGloss());
+        assertEquals(TEST_GLOSS, type.getGloss(), "Gloss value is not what was expected");
     }
 
     @Test
     public void testSettingsValues() {
-        assertEquals("Settings did not have the correct type!", TEST_TYPE, setting.getType());
-        assertEquals("Settings did not have the correct gloss!", TEST_GLOSS, setting.getGloss());
-        assertEquals("Settings did not have the correct key!", TEST_KEY, setting.getKey());
-        assertEquals("Settings did not have the correct visible flag!", TEST_VISIBLE, setting.isVisible());
+        assertEquals(TEST_TYPE, setting.getType(), "Settings did not have the correct type!");
+        assertEquals(TEST_GLOSS, setting.getGloss(), "Settings did not have the correct gloss!");
+        assertEquals(TEST_KEY, setting.getKey(), "Settings did not have the correct key!");
+        assertEquals(TEST_VISIBLE, setting.isVisible(), "Settings did not have the correct visible flag!");
     }
 
 }

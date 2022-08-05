@@ -1,6 +1,6 @@
 package edu.tamu.app.controller.integration;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
@@ -19,12 +19,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.kohsuke.github.GitHubBuilder;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +35,6 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -49,9 +48,9 @@ import edu.tamu.app.model.RemoteProjectInfo;
 import edu.tamu.app.model.RemoteProjectManager;
 import edu.tamu.app.model.ServiceType;
 import edu.tamu.app.model.Status;
+import edu.tamu.app.model.repo.AbstractRepoTest;
 import edu.tamu.app.model.repo.ProductRepo;
 import edu.tamu.app.model.repo.RemoteProjectManagerRepo;
-import edu.tamu.app.model.repo.AbstractRepoTest;
 import edu.tamu.app.model.repo.StatusRepo;
 import edu.tamu.app.service.manager.GitHubProjectService;
 import edu.tamu.app.service.manager.VersionOneService;
@@ -62,7 +61,6 @@ import edu.tamu.weaver.response.ApiStatus;
 @SpringBootTest(classes = { ProductApplication.class }, webEnvironment=WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @AutoConfigureRestDocs(outputDir = "target/generated-snippets")
-@RunWith(SpringRunner.class)
 public class StatusControllerIntegrationTest extends AbstractRepoTest {
 
     private static long currentId = 0L;
@@ -115,9 +113,9 @@ public class StatusControllerIntegrationTest extends AbstractRepoTest {
     private ProductsStatsScheduledCacheService productsStatsScheduledCacheService;
 
     // @After and @Before cannot be safely specified inside a parent class.
-    @Before
+    @BeforeEach
     public void setup() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
 
         mockSugarService(sugarService);
         mockGitHubService(gitHubService, ghBuilder);
@@ -125,11 +123,11 @@ public class StatusControllerIntegrationTest extends AbstractRepoTest {
         mockActiveSprintsScheduledCacheService(activeSprintsScheduledCacheService);
         mockProductsStatsScheduledCacheService(productsStatsScheduledCacheService);
 
-        when(remoteProjectManagerRepo.findOne(any(Long.class))).thenReturn(TEST_REMOTE_PROJECT_MANAGER);
+        when(remoteProjectManagerRepo.findById(any(Long.class))).thenReturn(Optional.of(TEST_REMOTE_PROJECT_MANAGER));
         when(remoteProjectManagerRepo.findAll()).thenReturn(TEST_REMOTE_PROJECT_MANAGER_LIST);
 
         when(productRepo.findAll()).thenReturn(TEST_PRODUCT_LIST);
-        when(productRepo.findOne(any(Long.class))).thenReturn(TEST_PRODUCT);
+        when(productRepo.findById(any(Long.class))).thenReturn(Optional.of(TEST_PRODUCT));
     }
 
     @Test
@@ -140,11 +138,11 @@ public class StatusControllerIntegrationTest extends AbstractRepoTest {
         // @formatter:off
         mockMvc.perform(
             get("/status")
-                .accept(MediaType.APPLICATION_JSON_UTF8)
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andDo(
                 document(
                     "status/get-all",
@@ -154,7 +152,11 @@ public class StatusControllerIntegrationTest extends AbstractRepoTest {
                         fieldWithPath("meta.action").description("Action of the request."),
                         fieldWithPath("meta.message").description("Message of the response."),
                         fieldWithPath("meta.status").description("Status of the response."),
-                        fieldWithPath("payload").description("API response payload containing the List of Status.")
+                        fieldWithPath("payload").description("Payload of the response."),
+                        fieldWithPath("payload['ArrayList<Status>']").description("List of statuses."),
+                        fieldWithPath("payload['ArrayList<Status>'][0].id").description("ID of the status."),
+                        fieldWithPath("payload['ArrayList<Status>'][0].identifier").description("Identifier of the status."),
+                        fieldWithPath("payload['ArrayList<Status>'][0].mapping").description("Mapping of the status.")
                     )
                 )
             );
@@ -169,11 +171,11 @@ public class StatusControllerIntegrationTest extends AbstractRepoTest {
         // @formatter:off
         mockMvc.perform(
             get("/status/{id}", currentId)
-                .accept(MediaType.APPLICATION_JSON_UTF8)
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andDo(
                 document(
                     "status/get",
@@ -230,7 +232,7 @@ public class StatusControllerIntegrationTest extends AbstractRepoTest {
     @WithMockUser(roles = "ADMIN")
     public void testUpdateStatus() throws JsonProcessingException, Exception {
         performCreateStatus();
-        Status status = statusRepo.findOne(currentId);
+        Status status = statusRepo.findById(currentId).get();
         Status updated = getMockUpdatedStatus();
 
         status.setIdentifier(updated.getIdentifier());
@@ -241,11 +243,11 @@ public class StatusControllerIntegrationTest extends AbstractRepoTest {
         // @formatter:off
         mockMvc.perform(
             put("/status")
-                .accept(MediaType.APPLICATION_JSON_UTF8)
+                .accept(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(status))
-                .contentType(MediaType.APPLICATION_JSON_UTF8))
+                .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                     .andExpect(content().json(objectMapper.writeValueAsString(expectedResponse))
             ).andDo(
                 document(
@@ -276,16 +278,16 @@ public class StatusControllerIntegrationTest extends AbstractRepoTest {
     public void testDeleteStatus() throws JsonProcessingException, Exception {
         performCreateStatus();
 
-        Status status = statusRepo.findOne(currentId);
+        Status status = statusRepo.findById(currentId).get();
 
         // @formatter:off
         mockMvc.perform(
             delete("/status")
-                .accept(MediaType.APPLICATION_JSON_UTF8)
+                .accept(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(status))
-                .contentType(MediaType.APPLICATION_JSON_UTF8))
+                .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andDo(
                 document(
                     "status/delete",
@@ -316,18 +318,18 @@ public class StatusControllerIntegrationTest extends AbstractRepoTest {
         // @formatter:off
         return mockMvc.perform(
             post("/status")
-                .accept(MediaType.APPLICATION_JSON_UTF8)
+                .accept(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(status))
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(content().json(objectMapper.writeValueAsString(expectedResponse)));
         // @formatter:on
     }
 
     // @After and @Before cannot be safely specified inside a parent class.
-    @After
+    @AfterEach
     public void cleanup() {
         cleanupRepos();
     }

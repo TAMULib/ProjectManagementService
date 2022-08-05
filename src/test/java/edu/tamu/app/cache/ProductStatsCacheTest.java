@@ -1,37 +1,37 @@
 package edu.tamu.app.cache;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import edu.tamu.app.cache.model.ProductStats;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class ProductStatsCacheTest {
 
     @Test
     public void testNewProductStatsCache() {
         ProductsStatsCache cache = new ProductsStatsCache();
-        assertNotNull("New products stats cache was not created!", cache);
-        assertNotNull("New products stats cache products stats were not created!", cache.get());
+        assertNotNull(cache, "New products stats cache was not created!");
+        assertNotNull(cache.get(), "New products stats cache products stats were not created!");
     }
 
     @Test
     public void testSetCache() {
         ProductsStatsCache cache = new ProductsStatsCache();
-        assertTrue("Cached products stats was not empty!", cache.get().isEmpty());
+        assertTrue(cache.get().isEmpty(), "Cached products stats was not empty!");
         List<ProductStats> productsStats = new ArrayList<ProductStats>();
         productsStats.add(getMockProductStats());
         cache.set(productsStats);
-        assertFalse("Cached remoteProducts was empty!", cache.get().isEmpty());
+        assertFalse(cache.get().isEmpty(), "Cached remoteProducts was empty!");
     }
 
     @Test
@@ -41,17 +41,17 @@ public class ProductStatsCacheTest {
         productsStats.add(getMockProductStats());
         cache.set(productsStats);
         List<ProductStats> remoteProductsCache = cache.get();
-        assertFalse("Cached products statss was empty!", remoteProductsCache.isEmpty());
-        assertEquals("Cached products statss had incorrect number of products statss!", 1, remoteProductsCache.size());
+        assertFalse(remoteProductsCache.isEmpty(), "Cached products stats was empty!");
+        assertEquals(1, remoteProductsCache.size(), "Cached products stats had incorrect number of products status!");
 
-        assertEquals("Cached product stats had incorrect id!", "0001", remoteProductsCache.get(0).getId());
-        assertEquals("Cached product stats had incorrect name!", "Sprint 1", remoteProductsCache.get(0).getName());
-        assertEquals("Cached product stats had incorrect number of requests!", 2, remoteProductsCache.get(0).getRequestCount());
-        assertEquals("Cached product stats had incorrect number of issues!", 3, remoteProductsCache.get(0).getIssueCount());
-        assertEquals("Cached product stats had incorrect number of features!", 10, remoteProductsCache.get(0).getFeatureCount());
-        assertEquals("Cached product stats had incorrect number of defects!", 3, remoteProductsCache.get(0).getDefectCount());
-        assertEquals("Cached product stats had incorrect number of internals!", 1, remoteProductsCache.get(0).getInternalCount());
-        assertEquals("Cached product stats had incorrect total backlog items!", 13, remoteProductsCache.get(0).getBacklogItemCount());
+        assertEquals("0001", remoteProductsCache.get(0).getId(), "Cached product stats had incorrect id!");
+        assertEquals("Sprint 1", remoteProductsCache.get(0).getName(), "Cached product stats had incorrect name!");
+        assertEquals(2, remoteProductsCache.get(0).getRequestCount(), "Cached product stats had incorrect number of requests!");
+        assertEquals(3, remoteProductsCache.get(0).getIssueCount(), "Cached product stats had incorrect number of issues!");
+        assertEquals(10, remoteProductsCache.get(0).getFeatureCount(), "Cached product stats had incorrect number of features!");
+        assertEquals(3, remoteProductsCache.get(0).getDefectCount(), "Cached product stats had incorrect number of defects!");
+        assertEquals(1, remoteProductsCache.get(0).getInternalCount(), "Cached product stats had incorrect number of internals!");
+        assertEquals(13, remoteProductsCache.get(0).getBacklogItemCount(), "Cached product stats had incorrect total backlog items!");
     }
 
     private ProductStats getMockProductStats() {

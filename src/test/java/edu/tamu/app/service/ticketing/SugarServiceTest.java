@@ -1,23 +1,25 @@
 package edu.tamu.app.service.ticketing;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
-
-import javax.mail.MessagingException;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import edu.tamu.app.model.request.TicketRequest;
 import edu.tamu.weaver.auth.model.Credentials;
 import edu.tamu.weaver.email.service.EmailSender;
+import javax.mail.MessagingException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.util.ReflectionTestUtils;
 
-@RunWith(SpringRunner.class)
+@TestPropertySource
+@ExtendWith(MockitoExtension.class)
 public class SugarServiceTest {
 
     private static final Credentials TEST_CREDENTIALS_1 = new Credentials();
@@ -44,17 +46,24 @@ public class SugarServiceTest {
     @InjectMocks
     private SugarService sugarService;
 
+    @BeforeEach
+    public void setup() {
+        ReflectionTestUtils.setField(sugarService, "sugarEmail", "helpdesk@library.tamu.edu");
+    }
+
     @Test
     public void testSubmit() throws MessagingException {
-        doNothing().when(emailService).sendEmail(any(String.class), any(String.class), any(String.class));
+        doNothing().when(emailService).sendEmail(anyString(), anyString(), anyString());
+
         String result = sugarService.submit(TEST_REQUEST);
-        assertEquals("Results were not as expected!", SUCCESSFUL_SUBMIT_TICKET_MESSAGE, result);
+        assertEquals(SUCCESSFUL_SUBMIT_TICKET_MESSAGE, result, "Results were not as expected!");
     }
 
     @Test
     public void testInvalidEmail() throws MessagingException {
-        doThrow(MessagingException.class).when(emailService).sendEmail(any(String.class), any(String.class), any(String.class));
+        doThrow(MessagingException.class).when(emailService).sendEmail(anyString(), anyString(), anyString());
+
         String result = sugarService.submit(TEST_REQUEST);
-        assertEquals("Results were not as expected!", SUBMIT_TICKET_ERROR_MESSAGE, result);
+        assertEquals(SUBMIT_TICKET_ERROR_MESSAGE, result, "Results were not as expected!");
     }
 }

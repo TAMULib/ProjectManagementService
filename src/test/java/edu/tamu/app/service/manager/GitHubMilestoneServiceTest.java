@@ -1,14 +1,13 @@
 package edu.tamu.app.service.manager;
 
-import static edu.tamu.app.service.manager.GitHubMilestoneService.DEFECT_LABEL;
-import static edu.tamu.app.service.manager.GitHubMilestoneService.FEATURE_LABEL;
-import static edu.tamu.app.service.manager.GitHubMilestoneService.ISSUE_LABEL;
-import static edu.tamu.app.service.manager.GitHubMilestoneService.REQUEST_LABEL;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Answers.RETURNS_DEEP_STUBS;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
+import static edu.tamu.app.service.manager.AbstractGitHubService.DEFECT_LABEL;
+import static edu.tamu.app.service.manager.AbstractGitHubService.FEATURE_LABEL;
+import static edu.tamu.app.service.manager.AbstractGitHubService.ISSUE_LABEL;
+import static edu.tamu.app.service.manager.AbstractGitHubService.REQUEST_LABEL;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
 
@@ -23,10 +22,11 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.kohsuke.github.GHIssue;
+import org.kohsuke.github.GHIssueBuilder;
 import org.kohsuke.github.GHIssueState;
 import org.kohsuke.github.GHLabel;
 import org.kohsuke.github.GHMilestone;
@@ -40,14 +40,17 @@ import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GHUser;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
+import org.kohsuke.github.PagedIterable;
+import org.mockito.Answers;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestTemplate;
 
 import edu.tamu.app.cache.model.Member;
@@ -67,8 +70,9 @@ import edu.tamu.app.model.repo.EstimateRepo;
 import edu.tamu.app.model.repo.StatusRepo;
 import edu.tamu.app.model.request.FeatureRequest;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class GitHubMilestoneServiceTest extends CacheMockTests {
+
     private static final String TEST_REPOSITORY1_NAME = "Test repository 1 name";
     private static final String TEST_REPOSITORY2_NAME = "Test repository 2 name";
     private static final String TEST_UNUSED_LABEL_NAME = "unused";
@@ -85,222 +89,213 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
     private static final String TEST_PROJECT3_NAME = "Test Project 3 Name";
     private static final String TEST_MILESTONE_TITLE = "Test Milestone Sprint Title";
     private static final Long TEST_REPOSITORY1_ID = 1L;
+    private static final Long TEST_REPOSITORY2_ID = 2L;
     private static final Long TEST_USER1_ID = 3L;
+    private static final Long TEST_PRODUCT1_ID = 4L;
+    private static final String TEST_PROJECT1_URL = "http://localhost/1";
+    private static final String TEST_PROJECT1_TOKEN = "0123456789";
 
-    private static final String TEST_PROJECT_URL1 = "http://localhost/1";
+    @Mock private GHLabel testLabel1;
+    @Mock private GHLabel testLabel2;
+    @Mock private GHLabel testLabel3;
+    @Mock private GHLabel testLabel4;
+    @Mock private GHLabel testLabel5;
+    @Mock private GHIssue testIssue1;
+    @Mock private GHIssue testIssue2;
+    @Mock private GHIssue testIssue3;
+    @Mock private GHIssue testIssue4;
+    @Mock private GHIssue testIssue5;
+    @Mock private GHUser testUser1;
+    @Mock private GHUser testUser2;
+    @Mock private GHUser testUser3;
+    @Mock private GHMilestone testMilestone;
+    @Mock private GHProjectCard testCard1;
+    @Mock private GHProjectCard testCard2;
+    @Mock private GHProjectCard testCard3;
+    @Mock private GHProjectCard testCard4;
+    @Mock private GHProjectCard testCard5;
+    @Mock private PagedIterable<GHProjectCard> cardIterable1;
+    @Mock private PagedIterable<GHProjectCard> cardIterable2;
+    @Mock private PagedIterable<GHProjectCard> cardIterable3;
+    @Mock private GHProjectColumn testColumn1;
+    @Mock private GHProjectColumn testColumn2;
+    @Mock private GHProjectColumn testColumn3;
+    @Mock private PagedIterable<GHProjectColumn> columnIterable;
+    @Mock private GHProject testProject1;
+    @Mock private GHProject testProject2;
+    @Mock private GHProject testProject3;
+    @Mock private PagedIterable<GHLabel> labelIterable;
+    @Mock private GHIssueBuilder issueBuilder;
+    @Mock private GHRepository testRepository1;
+    @Mock private GHRepository testRepository2;
+    @Mock private PagedIterable<GHProject> projectIterable;
+    @Mock private GHOrganization testOrganization;
+    @Mock private FeatureRequest testFeatureRequest;
+    @Mock private RestTemplate restTemplate;
+    @Mock private ResponseEntity<byte[]> response;
+    @Mock private CardTypeRepo cardTypeRepo;
+    @Mock private StatusRepo statusRepo;
+    @Mock private EstimateRepo estimateRepo;
+    @Mock private GitHubBuilder ghBuilder;
+    @Mock private GitHub github;
 
-    private static final String TEST_PROJECT_TOKEN1 = "0123456789";
+    @Mock(answer = Answers.CALLS_REAL_METHODS) private GitHubMilestoneService gitHubMilestoneService;
+    @Mock(answer = Answers.CALLS_REAL_METHODS) private CardTypeMappingService cardTypeMappingService;
+    @Mock(answer = Answers.CALLS_REAL_METHODS) private StatusMappingService statusMappingService;
+    @Mock(answer = Answers.CALLS_REAL_METHODS) private EstimateMappingService estimateMappingService;
 
-    private static final GHLabel TEST_LABEL1 = mock(GHLabel.class);
-    private static final GHLabel TEST_LABEL2 = mock(GHLabel.class);
-    private static final GHLabel TEST_LABEL3 = mock(GHLabel.class);
-    private static final GHLabel TEST_LABEL4 = mock(GHLabel.class);
-    private static final GHLabel TEST_LABEL5 = mock(GHLabel.class);
+    @BeforeEach
+    public void setup() throws Exception {
+        ManagementService managementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB_MILESTONE, TEST_PROJECT1_URL, TEST_PROJECT1_TOKEN);
 
-    private static final GHIssue TEST_ISSUE1 = mock(GHIssue.class, RETURNS_DEEP_STUBS.get());
-    private static final GHIssue TEST_ISSUE2 = mock(GHIssue.class, RETURNS_DEEP_STUBS.get());
-    private static final GHIssue TEST_ISSUE3 = mock(GHIssue.class, RETURNS_DEEP_STUBS.get());
-    private static final GHIssue TEST_ISSUE4 = mock(GHIssue.class, RETURNS_DEEP_STUBS.get());
-    private static final GHIssue TEST_ISSUE5 = mock(GHIssue.class, RETURNS_DEEP_STUBS.get());
-
-    private static final GHUser TEST_USER1 = mock(GHUser.class);
-    private static final GHUser TEST_USER2 = mock(GHUser.class);
-    private static final GHUser TEST_USER3 = mock(GHUser.class);
-
-    private static final GHMilestone TEST_MILESTONE = mock(GHMilestone.class);
-
-    private static final GHProjectCard TEST_CARD1 = mock(GHProjectCard.class, RETURNS_DEEP_STUBS.get());
-    private static final GHProjectCard TEST_CARD2 = mock(GHProjectCard.class, RETURNS_DEEP_STUBS.get());
-    private static final GHProjectCard TEST_CARD3 = mock(GHProjectCard.class, RETURNS_DEEP_STUBS.get());
-    private static final GHProjectCard TEST_CARD4 = mock(GHProjectCard.class, RETURNS_DEEP_STUBS.get());
-    private static final GHProjectCard TEST_CARD5 = mock(GHProjectCard.class, RETURNS_DEEP_STUBS.get());
-
-    private static final GHProjectColumn TEST_COLUMN1 = mock(GHProjectColumn.class, RETURNS_DEEP_STUBS.get());
-    private static final GHProjectColumn TEST_COLUMN2 = mock(GHProjectColumn.class, RETURNS_DEEP_STUBS.get());
-    private static final GHProjectColumn TEST_COLUMN3 = mock(GHProjectColumn.class, RETURNS_DEEP_STUBS.get());
-
-    private static final GHProject TEST_PROJECT1 = mock(GHProject.class, RETURNS_DEEP_STUBS.get());
-    private static final GHProject TEST_PROJECT2 = mock(GHProject.class, RETURNS_DEEP_STUBS.get());
-    private static final GHProject TEST_PROJECT3 = mock(GHProject.class, RETURNS_DEEP_STUBS.get());
-
-    private static final GHRepository TEST_REPOSITORY1 = mock(GHRepository.class, RETURNS_DEEP_STUBS.get());
-    private static final GHRepository TEST_REPOSITORY2 = mock(GHRepository.class, RETURNS_DEEP_STUBS.get());
-
-    private static final GHOrganization TEST_ORGANIZATION = mock(GHOrganization.class, RETURNS_DEEP_STUBS.get());
-
-    private static final FeatureRequest TEST_FEATURE_REQUEST = mock(FeatureRequest.class);
-
-    private static final RestTemplate restTemplate = mock(RestTemplate.class);
-
-    @SuppressWarnings("unchecked")
-    private ResponseEntity<byte[]> response = (ResponseEntity<byte[]>) mock(ResponseEntity.class);
-
-    private static final List<GHLabel> ALL_TEST_LABELS = new ArrayList<GHLabel>(
-            Arrays.asList(new GHLabel[] { TEST_LABEL1, TEST_LABEL2, TEST_LABEL3, TEST_LABEL4, TEST_LABEL5 }));
-    private static final List<GHLabel> TEST_CARD1_LABELS = new ArrayList<GHLabel>(
-            Arrays.asList(new GHLabel[] { TEST_LABEL1, TEST_LABEL5 }));
-    private static final List<GHLabel> TEST_CARD2_LABELS = new ArrayList<GHLabel>(
-            Arrays.asList(new GHLabel[] { TEST_LABEL2, TEST_LABEL5 }));
-    private static final List<GHLabel> TEST_CARD3_LABELS = new ArrayList<GHLabel>(
-            Arrays.asList(new GHLabel[] { TEST_LABEL3, TEST_LABEL5 }));
-    private static final List<GHLabel> TEST_CARD4_LABELS = new ArrayList<GHLabel>(
-            Arrays.asList(new GHLabel[] { TEST_LABEL4 }));
-    private static final List<GHLabel> TEST_CARD5_LABELS = new ArrayList<GHLabel>(
-            Arrays.asList(new GHLabel[] { TEST_LABEL5 }));
-
-    private static final List<GHUser> TEST_USERS1 = new ArrayList<GHUser>(Arrays.asList(new GHUser[] { TEST_USER1 }));
-    private static final List<GHUser> TEST_USERS2 = new ArrayList<GHUser>(
-            Arrays.asList(new GHUser[] { TEST_USER1, TEST_USER2 }));
-    private static final List<GHUser> TEST_USERS3 = new ArrayList<GHUser>(Arrays.asList(new GHUser[] {}));
-    private static final List<GHUser> TEST_USERS4 = new ArrayList<GHUser>(Arrays.asList(new GHUser[] { TEST_USER2 }));
-    private static final List<GHUser> TEST_USERS5 = new ArrayList<GHUser>(
-            Arrays.asList(new GHUser[] { TEST_USER3, TEST_USER1 }));
-
-    private static final List<GHProjectCard> TEST_COLUMN1_CARDS = new ArrayList<GHProjectCard>(
-            Arrays.asList(new GHProjectCard[] { TEST_CARD1, TEST_CARD2, TEST_CARD3 }));
-    private static final List<GHProjectCard> TEST_COLUMN2_CARDS = new ArrayList<GHProjectCard>(
-            Arrays.asList(new GHProjectCard[] { TEST_CARD3, TEST_CARD4 }));
-    private static final List<GHProjectCard> TEST_COLUMN3_CARDS = new ArrayList<GHProjectCard>(
-            Arrays.asList(new GHProjectCard[] { TEST_CARD5 }));
-
-    private static final List<GHIssue> TEST_ISSUE_LIST = new ArrayList<GHIssue>(
-            Arrays.asList((new GHIssue[] { TEST_ISSUE1, TEST_ISSUE2, TEST_ISSUE3, TEST_ISSUE4, TEST_ISSUE5 })));
-
-    private static final List<GHProjectColumn> TEST_PROJECT_COLUMNS = new ArrayList<GHProjectColumn>(
-            Arrays.asList(new GHProjectColumn[] { TEST_COLUMN1, TEST_COLUMN2, TEST_COLUMN3 }));
-
-    private static final List<GHProject> TEST_PROJECTS = new ArrayList<GHProject>(
-            Arrays.asList(new GHProject[] { TEST_PROJECT1, TEST_PROJECT2, TEST_PROJECT3 }));
-
-    private static final Map<String, GHRepository> TEST_REPOSITORY_MAP = Stream.of(
-            new Object[][] { { TEST_REPOSITORY1_NAME, TEST_REPOSITORY1 }, { TEST_REPOSITORY2_NAME, TEST_REPOSITORY2 } })
+        Map<String, GHRepository> testRepositoryMap = Stream.of(
+            new Object[][] { { TEST_REPOSITORY1_NAME, testRepository1 }, { TEST_REPOSITORY2_NAME, testRepository2 } })
             .collect(Collectors.toMap(data -> (String) data[0], data -> (GHRepository) data[1]));
 
-    private GitHubBuilder ghBuilder;
+        List<GHLabel> allTestLabels = new ArrayList<GHLabel>(Arrays.asList(new GHLabel[] { testLabel1, testLabel2, testLabel3, testLabel4, testLabel5 }));
+        List<GHLabel> testCard1Labels = new ArrayList<GHLabel>(Arrays.asList(new GHLabel[] { testLabel1, testLabel5 }));
+        List<GHLabel> testCard2Labels = new ArrayList<GHLabel>(Arrays.asList(new GHLabel[] { testLabel2, testLabel5 }));
+        List<GHLabel> testCard3Labels = new ArrayList<GHLabel>(Arrays.asList(new GHLabel[] { testLabel3, testLabel5 }));
+        List<GHLabel> testCard4Labels = new ArrayList<GHLabel>(Arrays.asList(new GHLabel[] { testLabel4 }));
+        List<GHLabel> testCard5Labels = new ArrayList<GHLabel>(Arrays.asList(new GHLabel[] { testLabel5 }));
 
-    private GitHubMilestoneService gitHubMilestoneService;
+        List<GHUser> testUsers1 = new ArrayList<GHUser>(Arrays.asList(new GHUser[] { testUser1 }));
+        List<GHUser> testUsers2 = new ArrayList<GHUser>(Arrays.asList(new GHUser[] { testUser1, testUser2 }));
+        List<GHUser> testUsers3 = new ArrayList<GHUser>(Arrays.asList(new GHUser[] {}));
+        List<GHUser> testUsers4 = new ArrayList<GHUser>(Arrays.asList(new GHUser[] { testUser2 }));
+        List<GHUser> testUsers5 = new ArrayList<GHUser>(Arrays.asList(new GHUser[] { testUser3, testUser1 }));
 
-    private GitHub github;
+        List<GHProjectCard> testColumn1Cards = new ArrayList<GHProjectCard>(Arrays.asList(new GHProjectCard[] { testCard1, testCard2, testCard3 }));
+        List<GHProjectCard> testColumn2Cards = new ArrayList<GHProjectCard>(Arrays.asList(new GHProjectCard[] { testCard3, testCard4 }));
+        List<GHProjectCard> testColumn3Cards = new ArrayList<GHProjectCard>(Arrays.asList(new GHProjectCard[] { testCard5 }));
 
-    @Before
-    public void setUp() throws Exception {
-        ManagementService managementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB_MILESTONE, TEST_PROJECT_URL1, TEST_PROJECT_TOKEN1);
+        List<GHIssue> testIssueList = new ArrayList<GHIssue>(Arrays.asList((new GHIssue[] { testIssue1, testIssue2, testIssue3, testIssue4, testIssue5 })));
+        List<GHProjectColumn> testProjectColumns = new ArrayList<GHProjectColumn>(Arrays.asList(new GHProjectColumn[] { testColumn1, testColumn2, testColumn3 }));
+        List<GHProject> testProjects = new ArrayList<GHProject>(Arrays.asList(new GHProject[] { testProject1, testProject2, testProject3 }));
 
+        setField(cardTypeMappingService, "serviceMappingRepo", cardTypeRepo);
+        setField(statusMappingService, "serviceMappingRepo", statusRepo);
+        setField(estimateMappingService, "serviceMappingRepo", estimateRepo);
 
-        CardTypeRepo cardTypeRepo = mock(CardTypeRepo.class);
-        StatusRepo statusRepo = mock(StatusRepo.class);
-        EstimateRepo estimateRepo = mock(EstimateRepo.class);
+        setField(gitHubMilestoneService, "ghBuilder", ghBuilder);
+        setField(gitHubMilestoneService, "managementService", managementService);
+        setField(gitHubMilestoneService, "cardTypeMappingService", cardTypeMappingService);
+        setField(gitHubMilestoneService, "statusMappingService", statusMappingService);
+        setField(gitHubMilestoneService, "estimateMappingService", estimateMappingService);
+        setField(gitHubMilestoneService, "github", github);
+        setField(gitHubMilestoneService, "members", new HashMap<String, Member>());
+        setField(gitHubMilestoneService, "restTemplate", restTemplate);
 
-        CardTypeMappingService cardTypeMappingService = mock(CardTypeMappingService.class, Mockito.CALLS_REAL_METHODS);
+        lenient().when(testOrganization.getRepositories()).thenReturn(testRepositoryMap);
 
-        StatusMappingService statusMappingService = mock(StatusMappingService.class, Mockito.CALLS_REAL_METHODS);
+        lenient().when(testOrganization.listProjects(any(ProjectStateFilter.class))).thenReturn(projectIterable);
 
-        EstimateMappingService estimateMappingService = mock(EstimateMappingService.class, Mockito.CALLS_REAL_METHODS);
+        lenient().when(testRepository1.getId()).thenReturn(TEST_REPOSITORY1_ID);
+        lenient().when(testRepository1.getName()).thenReturn(TEST_REPOSITORY1_NAME);
+        lenient().when(testRepository1.listProjects(any(ProjectStateFilter.class))).thenReturn(projectIterable);
+        lenient().when(testRepository1.listProjects()).thenReturn(projectIterable);
+        lenient().when(testRepository1.listLabels()).thenReturn(labelIterable);
+        lenient().when(testRepository1.getIssues(any(GHIssueState.class))).thenReturn(testIssueList);
 
-        ghBuilder = mock(GitHubBuilder.class);
+        lenient().when(testRepository1.createIssue(any(String.class))).thenReturn(issueBuilder);
+        lenient().when(issueBuilder.body(any(String.class))).thenReturn(issueBuilder);
+        lenient().when(issueBuilder.create()).thenReturn(testIssue1);
 
-        gitHubMilestoneService = mock(GitHubMilestoneService.class, Mockito.CALLS_REAL_METHODS);
+        lenient().when(testRepository2.getId()).thenReturn(TEST_REPOSITORY2_ID);
+        lenient().when(testRepository2.getName()).thenReturn(TEST_REPOSITORY2_NAME);
+        lenient().when(testRepository2.getIssues(any(GHIssueState.class))).thenReturn(testIssueList);
+        lenient().when(testRepository2.listProjects()).thenReturn(projectIterable);
+        lenient().when(testRepository2.listLabels()).thenReturn(labelIterable);
 
-        github = mock(GitHub.class);
+        lenient().when(testProject1.listColumns()).thenReturn(columnIterable);
+        lenient().when(testProject2.listColumns()).thenReturn(columnIterable);
+        lenient().when(testProject3.listColumns()).thenReturn(columnIterable);
 
-        when(ghBuilder.withEndpoint(any(String.class))).thenReturn(ghBuilder);
-        when(ghBuilder.withOAuthToken(any(String.class))).thenReturn(ghBuilder);
-        when(ghBuilder.build()).thenReturn(github);
+        lenient().when(testProject1.getName()).thenReturn(TEST_PROJECT1_NAME);
+        lenient().when(testProject2.getName()).thenReturn(TEST_PROJECT2_NAME);
+        lenient().when(testProject3.getName()).thenReturn(TEST_PROJECT3_NAME);
 
-        when(github.getOrganization(any(String.class))).thenReturn(TEST_ORGANIZATION);
-        when(github.getRepositoryById(any(String.class))).thenReturn(TEST_REPOSITORY1);
+        lenient().when(testColumn1.listCards()).thenReturn(cardIterable1);
+        lenient().when(testColumn2.listCards()).thenReturn(cardIterable2);
+        lenient().when(testColumn3.listCards()).thenReturn(cardIterable3);
 
-        when(TEST_ORGANIZATION.getRepositories()).thenReturn(TEST_REPOSITORY_MAP);
-        when(TEST_ORGANIZATION.listProjects(any(ProjectStateFilter.class)).asList()).thenReturn(TEST_PROJECTS);
+        lenient().when(testMilestone.getState()).thenReturn(GHMilestoneState.OPEN);
+        lenient().when(testMilestone.getTitle()).thenReturn(TEST_MILESTONE_TITLE);
 
-        when(TEST_REPOSITORY1.getId()).thenReturn(TEST_REPOSITORY1_ID);
-        when(TEST_REPOSITORY1.createIssue(any(String.class)).body(any(String.class)).create()).thenReturn(TEST_ISSUE1);
-        when(TEST_REPOSITORY1.listProjects(any(ProjectStateFilter.class)).asList()).thenReturn(TEST_PROJECTS);
-        when(TEST_REPOSITORY1.listProjects().asList()).thenReturn(TEST_PROJECTS);
-        when(TEST_REPOSITORY1.getIssues(any(GHIssueState.class))).thenReturn(TEST_ISSUE_LIST);
-        when(TEST_REPOSITORY2.getIssues(any(GHIssueState.class))).thenReturn(TEST_ISSUE_LIST);
-        when(TEST_REPOSITORY2.listProjects().asList()).thenReturn(TEST_PROJECTS);
-        when(TEST_REPOSITORY1.listLabels().asList()).thenReturn(ALL_TEST_LABELS);
-        when(TEST_REPOSITORY2.listLabels().asList()).thenReturn(ALL_TEST_LABELS);
+        lenient().when(testCard1.getId()).thenReturn(1L);
+        lenient().when(testCard2.getId()).thenReturn(2L);
+        lenient().when(testCard3.getId()).thenReturn(3L);
+        lenient().when(testCard4.getId()).thenReturn(4L);
+        lenient().when(testCard5.getId()).thenReturn(5L);
 
-        when(TEST_PROJECT1.listColumns().asList()).thenReturn(TEST_PROJECT_COLUMNS);
-        when(TEST_PROJECT2.listColumns().asList()).thenReturn(TEST_PROJECT_COLUMNS);
-        when(TEST_PROJECT3.listColumns().asList()).thenReturn(TEST_PROJECT_COLUMNS);
+        lenient().when(testCard1.getContent()).thenReturn(testIssue1);
+        lenient().when(testCard2.getContent()).thenReturn(testIssue2);
+        lenient().when(testCard3.getContent()).thenReturn(testIssue3);
+        lenient().when(testCard4.getContent()).thenReturn(testIssue4);
+        lenient().when(testCard5.getContent()).thenReturn(testIssue5);
 
-        when(TEST_PROJECT1.getName()).thenReturn(TEST_PROJECT1_NAME);
-        when(TEST_PROJECT2.getName()).thenReturn(TEST_PROJECT2_NAME);
-        when(TEST_PROJECT3.getName()).thenReturn(TEST_PROJECT3_NAME);
+        lenient().when(testCard1.getColumn()).thenReturn(testColumn1);
+        lenient().when(testCard2.getColumn()).thenReturn(testColumn1);
+        lenient().when(testCard3.getColumn()).thenReturn(testColumn1);
+        lenient().when(testCard4.getColumn()).thenReturn(testColumn1);
+        lenient().when(testCard5.getColumn()).thenReturn(testColumn1);
 
-        when(TEST_COLUMN1.listCards().asList()).thenReturn(TEST_COLUMN1_CARDS);
-        when(TEST_COLUMN2.listCards().asList()).thenReturn(TEST_COLUMN2_CARDS);
-        when(TEST_COLUMN3.listCards().asList()).thenReturn(TEST_COLUMN3_CARDS);
+        lenient().when(testIssue1.getLabels()).thenReturn(testCard1Labels);
+        lenient().when(testIssue2.getLabels()).thenReturn(testCard2Labels);
+        lenient().when(testIssue3.getLabels()).thenReturn(testCard3Labels);
+        lenient().when(testIssue4.getLabels()).thenReturn(testCard4Labels);
+        lenient().when(testIssue5.getLabels()).thenReturn(testCard5Labels);
+        lenient().when(testIssue1.getAssignees()).thenReturn(testUsers1);
+        lenient().when(testIssue1.getMilestone()).thenReturn(testMilestone);
+        lenient().when(testIssue2.getMilestone()).thenReturn(testMilestone);
+        lenient().when(testIssue3.getMilestone()).thenReturn(testMilestone);
+        lenient().when(testIssue4.getMilestone()).thenReturn(testMilestone);
+        lenient().when(testIssue5.getMilestone()).thenReturn(testMilestone);
 
-        when(TEST_MILESTONE.getState()).thenReturn(GHMilestoneState.OPEN);
-        when(TEST_MILESTONE.getTitle()).thenReturn(TEST_MILESTONE_TITLE);
+        lenient().when(testColumn1.getName()).thenReturn(TEST_COLUMN1_NAME);
 
-        when(TEST_CARD1.getId()).thenReturn(1L);
-        when(TEST_CARD2.getId()).thenReturn(2L);
-        when(TEST_CARD3.getId()).thenReturn(3L);
-        when(TEST_CARD4.getId()).thenReturn(4L);
-        when(TEST_CARD5.getId()).thenReturn(5L);
+        lenient().when(testCard2.getContent().getLabels()).thenReturn(testCard2Labels);
+        lenient().when(testCard3.getContent().getLabels()).thenReturn(testCard3Labels);
+        lenient().when(testCard4.getContent().getLabels()).thenReturn(testCard4Labels);
+        lenient().when(testCard5.getContent().getLabels()).thenReturn(testCard5Labels);
+        lenient().when(testCard2.getContent().getAssignees()).thenReturn(testUsers2);
+        lenient().when(testCard3.getContent().getAssignees()).thenReturn(testUsers3);
+        lenient().when(testCard4.getContent().getAssignees()).thenReturn(testUsers4);
+        lenient().when(testCard5.getContent().getAssignees()).thenReturn(testUsers5);
 
-        when(TEST_CARD1.getContent()).thenReturn(TEST_ISSUE1);
-        when(TEST_CARD2.getContent()).thenReturn(TEST_ISSUE2);
-        when(TEST_CARD3.getContent()).thenReturn(TEST_ISSUE3);
-        when(TEST_CARD4.getContent()).thenReturn(TEST_ISSUE4);
-        when(TEST_CARD5.getContent()).thenReturn(TEST_ISSUE5);
-        when(TEST_CARD1.getColumn()).thenReturn(TEST_COLUMN1);
+        lenient().when(testUser1.getId()).thenReturn(TEST_USER1_ID);
+        lenient().when(testUser1.getName()).thenReturn(TEST_USER1_NAME);
+        lenient().when(testUser1.getAvatarUrl()).thenReturn(TEST_USER1_AVATAR_PATH);
+        lenient().when(testUser2.getAvatarUrl()).thenReturn(TEST_USER2_AVATAR_PATH);
+        lenient().when(testUser3.getAvatarUrl()).thenReturn(TEST_USER3_AVATAR_PATH);
 
-        when(TEST_ISSUE1.getLabels()).thenReturn(TEST_CARD1_LABELS);
-        when(TEST_ISSUE2.getLabels()).thenReturn(TEST_CARD2_LABELS);
-        when(TEST_ISSUE3.getLabels()).thenReturn(TEST_CARD3_LABELS);
-        when(TEST_ISSUE4.getLabels()).thenReturn(TEST_CARD4_LABELS);
-        when(TEST_ISSUE5.getLabels()).thenReturn(TEST_CARD5_LABELS);
-        when(TEST_ISSUE1.getAssignees()).thenReturn(TEST_USERS1);
-        when(TEST_ISSUE1.getMilestone()).thenReturn(TEST_MILESTONE);
-        when(TEST_ISSUE2.getMilestone()).thenReturn(TEST_MILESTONE);
-        when(TEST_ISSUE3.getMilestone()).thenReturn(TEST_MILESTONE);
-        when(TEST_ISSUE4.getMilestone()).thenReturn(TEST_MILESTONE);
-        when(TEST_ISSUE5.getMilestone()).thenReturn(TEST_MILESTONE);
+        lenient().when(testLabel1.getName()).thenReturn(REQUEST_LABEL);
+        lenient().when(testLabel2.getName()).thenReturn(ISSUE_LABEL);
+        lenient().when(testLabel3.getName()).thenReturn(FEATURE_LABEL);
+        lenient().when(testLabel4.getName()).thenReturn(DEFECT_LABEL);
+        lenient().when(testLabel5.getName()).thenReturn(TEST_UNUSED_LABEL_NAME);
 
-        when(TEST_COLUMN1.getName()).thenReturn(TEST_COLUMN1_NAME);
+        lenient().when(testFeatureRequest.getProductId()).thenReturn(TEST_PRODUCT1_ID);
+        lenient().when(testFeatureRequest.getTitle()).thenReturn(TEST_FEATURE_REQUEST_TITLE);
+        lenient().when(testFeatureRequest.getDescription()).thenReturn(TEST_FEATURE_REQUEST_DESCRIPTION);
 
-        when(TEST_CARD2.getContent().getLabels()).thenReturn(TEST_CARD2_LABELS);
-        when(TEST_CARD3.getContent().getLabels()).thenReturn(TEST_CARD3_LABELS);
-        when(TEST_CARD4.getContent().getLabels()).thenReturn(TEST_CARD4_LABELS);
-        when(TEST_CARD5.getContent().getLabels()).thenReturn(TEST_CARD5_LABELS);
-        when(TEST_CARD2.getContent().getAssignees()).thenReturn(TEST_USERS2);
-        when(TEST_CARD3.getContent().getAssignees()).thenReturn(TEST_USERS3);
-        when(TEST_CARD4.getContent().getAssignees()).thenReturn(TEST_USERS4);
-        when(TEST_CARD5.getContent().getAssignees()).thenReturn(TEST_USERS5);
+        lenient().when(labelIterable.toList()).thenReturn(allTestLabels);
+        lenient().when(projectIterable.toList()).thenReturn(testProjects);
+        lenient().when(columnIterable.toList()).thenReturn(testProjectColumns);
+        lenient().when(cardIterable1.toList()).thenReturn(testColumn1Cards);
+        lenient().when(cardIterable2.toList()).thenReturn(testColumn2Cards);
+        lenient().when(cardIterable3.toList()).thenReturn(testColumn3Cards);
 
-        when(TEST_USER1.getId()).thenReturn(TEST_USER1_ID);
-        when(TEST_USER1.getName()).thenReturn(TEST_USER1_NAME);
-        when(TEST_USER1.getAvatarUrl()).thenReturn(TEST_USER1_AVATAR_PATH);
-        when(TEST_USER2.getAvatarUrl()).thenReturn(TEST_USER2_AVATAR_PATH);
-        when(TEST_USER3.getAvatarUrl()).thenReturn(TEST_USER3_AVATAR_PATH);
-
-        when(TEST_LABEL1.getName()).thenReturn(REQUEST_LABEL);
-        when(TEST_LABEL2.getName()).thenReturn(ISSUE_LABEL);
-        when(TEST_LABEL3.getName()).thenReturn(FEATURE_LABEL);
-        when(TEST_LABEL4.getName()).thenReturn(DEFECT_LABEL);
-        when(TEST_LABEL5.getName()).thenReturn(TEST_UNUSED_LABEL_NAME);
-
-        when(TEST_FEATURE_REQUEST.getProductId()).thenReturn(TEST_REPOSITORY1_ID);
-        when(TEST_FEATURE_REQUEST.getTitle()).thenReturn(TEST_FEATURE_REQUEST_TITLE);
-        when(TEST_FEATURE_REQUEST.getDescription()).thenReturn(TEST_FEATURE_REQUEST_DESCRIPTION);
-
-        when(restTemplate.exchange(
+        lenient().when(restTemplate.exchange(
             any(String.class),
             any(HttpMethod.class),
             Mockito.<HttpEntity<String>>any(),
-            Mockito.<Class<byte[]>>any(),
-            Mockito.<Object>anyVararg()))
+            Mockito.<Class<byte[]>>any()))
                 .thenReturn(response);
 
-        when(response.getStatusCode()).thenReturn(HttpStatus.NOT_FOUND);
+        lenient().when(response.getStatusCode()).thenReturn(HttpStatus.NOT_FOUND);
 
-        when(cardTypeRepo.findByMapping(any(String.class))).thenAnswer(new Answer<Optional<CardType>>() {
+        lenient().when(cardTypeRepo.findByMapping(any(String.class))).thenAnswer(new Answer<Optional<CardType>>() {
             @Override
             public Optional<CardType> answer(InvocationOnMock invocation) {
                 String identifier = (String) invocation.getArguments()[0];
@@ -319,10 +314,7 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
             }
         });
 
-        when(cardTypeRepo.findByIdentifier(any(String.class)))
-                .thenReturn(new CardType("Feature", new HashSet<String>(Arrays.asList(new String[] { "Story" }))));
-
-        when(statusRepo.findByMapping(any(String.class))).thenAnswer(new Answer<Optional<Status>>() {
+        lenient().when(statusRepo.findByMapping(any(String.class))).thenAnswer(new Answer<Optional<Status>>() {
             @Override
             public Optional<Status> answer(InvocationOnMock invocation) {
                 String identifier = (String) invocation.getArguments()[0];
@@ -350,98 +342,103 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
             }
         });
 
-        when(estimateRepo.findByMapping(any(String.class))).thenAnswer(new Answer<Optional<Estimate>>() {
+        lenient().when(estimateRepo.findByMapping(any(String.class))).thenAnswer(new Answer<Optional<Estimate>>() {
             @Override
             public Optional<Estimate> answer(InvocationOnMock invocation) {
                 return Optional.empty();
             }
         });
 
-        when(statusRepo.findByIdentifier(any(String.class)))
-                .thenReturn(new Status("None", new HashSet<String>(Arrays.asList(new String[] { "None", "Future" }))));
-
-        setField(cardTypeMappingService, "serviceMappingRepo", cardTypeRepo);
-        setField(statusMappingService, "serviceMappingRepo", statusRepo);
-        setField(estimateMappingService, "serviceMappingRepo", estimateRepo);
-
-        setField(gitHubMilestoneService, "ghBuilder", ghBuilder);
-        setField(gitHubMilestoneService, "managementService", managementService);
-        setField(gitHubMilestoneService, "cardTypeMappingService", cardTypeMappingService);
-        setField(gitHubMilestoneService, "statusMappingService", statusMappingService);
-        setField(gitHubMilestoneService, "estimateMappingService", estimateMappingService);
-        setField(gitHubMilestoneService, "github", github);
-        setField(gitHubMilestoneService, "members", new HashMap<String, Member>());
-        setField(gitHubMilestoneService, "restTemplate", restTemplate);
+        lenient().when(statusRepo.findByIdentifier(any(String.class)))
+            .thenReturn(new Status("None", new HashSet<String>(Arrays.asList(new String[] { "None", "Future" }))));
     }
 
     @Test
     public void testGetRemoteProjects() throws Exception {
+        when(github.getOrganization(any(String.class))).thenReturn(testOrganization);
+
         List<RemoteProject> remoteProjects = gitHubMilestoneService.getRemoteProject();
-        assertEquals("Didn't get all the remote projects", 2, remoteProjects.size());
-        assertEquals("Number of Requests was incorrect", 1, remoteProjects.get(0).getRequestCount());
-        assertEquals("Number of Issues was incorrect", 2, remoteProjects.get(0).getIssueCount());
-        assertEquals("Number of Features was incorrect", 1, remoteProjects.get(0).getFeatureCount());
-        assertEquals("Number of Defects was incorrect", 1, remoteProjects.get(0).getDefectCount());
+        assertEquals(2, remoteProjects.size(), "Didn't get all the remote projects");
+        assertEquals(1, remoteProjects.get(0).getRequestCount(), "Number of Requests was incorrect");
+        assertEquals(2, remoteProjects.get(0).getIssueCount(), "Number of Issues was incorrect");
+        assertEquals(1, remoteProjects.get(0).getFeatureCount(), "Number of Features was incorrect");
+        assertEquals(1, remoteProjects.get(0).getDefectCount(), "Number of Defects was incorrect");
     }
 
     @Test
     public void testGetRemoteProjectByScopeId() throws Exception {
+        when(github.getRepositoryById(any(String.class))).thenReturn(testRepository1);
+
         RemoteProject project = gitHubMilestoneService.getRemoteProjectByScopeId(String.valueOf(TEST_REPOSITORY1_ID));
-        assertNotNull("Didn't get the remote project", project);
-        assertEquals("Did not get the expected project", String.valueOf(TEST_REPOSITORY1_ID), project.getId());
-        assertEquals("Number of Requests was incorrect", 1, project.getRequestCount());
-        assertEquals("Number of Issues was incorrect", 2, project.getIssueCount());
-        assertEquals("Number of Features was incorrect", 1, project.getFeatureCount());
-        assertEquals("Number of Defects was incorrect", 1, project.getDefectCount());
+        assertNotNull(project, "Didn't get the remote project");
+        assertEquals(String.valueOf(TEST_REPOSITORY1_ID), project.getId(), "Did not get the expected project");
+        assertEquals(1, project.getRequestCount(), "Number of Requests was incorrect");
+        assertEquals(2, project.getIssueCount(), "Number of Issues was incorrect");
+        assertEquals(1, project.getFeatureCount(), "Number of Features was incorrect");
+        assertEquals(1, project.getDefectCount(), "Number of Defects was incorrect");
     }
 
     @Test
     public void testGetActiveSprintsByProjectId() throws Exception {
+        when(github.getRepositoryById(any(String.class))).thenReturn(testRepository1);
+
         List<Sprint> activeSprints = gitHubMilestoneService.getActiveSprintsByScopeId(String.valueOf(TEST_REPOSITORY1_ID));
-        assertEquals("Didn't get all active sprints", 3, activeSprints.size());
+        assertEquals(3, activeSprints.size(), "Didn't get all active sprints");
     }
 
     @Test
     public void testGetAdditionalActiveSprints() throws Exception {
+        when(github.getOrganization(any(String.class))).thenReturn(testOrganization);
+
         List<Sprint> additionalSprints = gitHubMilestoneService.getAdditionalActiveSprints();
-        assertEquals("Didn't get all additional sprints", 3, additionalSprints.size());
+        assertEquals(3, additionalSprints.size(), "Didn't get all additional sprints");
     }
 
     @Test
     public void testGetActiveSprintsByProjectIdType() throws Exception {
+        when(github.getRepositoryById(any(String.class))).thenReturn(testRepository1);
+
         List<Sprint> sprints = gitHubMilestoneService.getActiveSprintsByScopeId(String.valueOf(TEST_REPOSITORY1_ID));
 
         sprints.forEach(sprint -> {
-            assertEquals("Didn't get the correct Service Type for the Sprint", ServiceType.GITHUB_MILESTONE.toString(), sprint.getType());
+            assertEquals(ServiceType.GITHUB_MILESTONE.toString(), sprint.getType(), "Didn't get the correct Service Type for the Sprint");
         });
     }
 
     @Test
     public void testGetAdditionalActiveSprintsType() throws Exception {
+        when(github.getOrganization(any(String.class))).thenReturn(testOrganization);
+
         List<Sprint> sprints = gitHubMilestoneService.getAdditionalActiveSprints();
 
         sprints.forEach(sprint -> {
-            assertEquals("Didn't get the correct Service Type for the Sprint", ServiceType.GITHUB_MILESTONE.toString(), sprint.getType());
+            assertEquals(ServiceType.GITHUB_MILESTONE.toString(), sprint.getType(), "Didn't get the correct Service Type for the Sprint");
         });
     }
 
     @Test
     public void testPush() throws Exception {
-        String id = gitHubMilestoneService.push(TEST_FEATURE_REQUEST);
+        when(github.getRepositoryById(any(String.class))).thenReturn(testRepository1);
+
+        String id = gitHubMilestoneService.push(testFeatureRequest);
         assertNotNull(id);
     }
 
     @Test
     public void testGetMember() throws IOException {
-        Member member = gitHubMilestoneService.getMember(TEST_USER1);
-        assertEquals("Member ID is incorrect", String.valueOf(TEST_USER1_ID), member.getId());
-        assertEquals("Member Name is incorrect", TEST_USER1_NAME, member.getName());
-        assertEquals("Member Avatar URL is incorrect", TEST_USER1_AVATAR_NAME, member.getAvatar());
+        Member member = gitHubMilestoneService.getMember(testUser1);
+        assertEquals(String.valueOf(TEST_USER1_ID), member.getId(), "Member ID is incorrect");
+        assertEquals(TEST_USER1_NAME, member.getName(), "Member Name is incorrect");
+        assertEquals(TEST_USER1_AVATAR_NAME, member.getAvatar(), "Member Avatar URL is incorrect");
     }
 
     @Test
     public void testGetGitHubInstanceWithInvalidServiceEndpoint() throws IOException {
-        ManagementService invalidManagementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB_MILESTONE, TEST_PROJECT_URL1, TEST_PROJECT_TOKEN1);
+        when(ghBuilder.withEndpoint(any(String.class))).thenReturn(ghBuilder);
+        when(ghBuilder.withOAuthToken(any(String.class))).thenReturn(ghBuilder);
+        when(ghBuilder.build()).thenReturn(github);
+
+        ManagementService invalidManagementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB_MILESTONE, TEST_PROJECT1_URL, TEST_PROJECT1_TOKEN);
 
         setField(gitHubMilestoneService, "managementService", invalidManagementService);
 
@@ -454,7 +451,11 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
 
     @Test
     public void testGetGitHubInstanceWithInvalidToken() throws IOException {
-        ManagementService invalidManagementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB_MILESTONE, TEST_PROJECT_URL1, TEST_PROJECT_TOKEN1);
+        when(ghBuilder.withEndpoint(any(String.class))).thenReturn(ghBuilder);
+        when(ghBuilder.withOAuthToken(any(String.class))).thenReturn(ghBuilder);
+        when(ghBuilder.build()).thenReturn(github);
+
+        ManagementService invalidManagementService = new RemoteProjectManager("GitHub", ServiceType.GITHUB_MILESTONE, TEST_PROJECT1_URL, TEST_PROJECT1_TOKEN);
 
         setField(gitHubMilestoneService, "managementService", invalidManagementService);
 
@@ -467,14 +468,20 @@ public class GitHubMilestoneServiceTest extends CacheMockTests {
 
     @Test
     public void testGetGitHubInstanceByToken() throws IOException {
+        when(ghBuilder.withEndpoint(any(String.class))).thenReturn(ghBuilder);
+        when(ghBuilder.withOAuthToken(any(String.class))).thenReturn(ghBuilder);
+        when(ghBuilder.build()).thenReturn(github);
+
         GitHub gitHubInstance = gitHubMilestoneService.getGitHubInstance();
-        assertNotNull("GitHub object was not created", gitHubInstance);
+        assertNotNull(gitHubInstance, "GitHub object was not created");
     }
 
     @Test
     public void testGetCardsWithNote() throws Exception {
-        when(TEST_CARD1.getContent()).thenReturn(null);
+        when(github.getOrganization(any(String.class))).thenReturn(testOrganization);
+        when(testCard1.getContent()).thenReturn(null);
+
         List<Sprint> sprints = gitHubMilestoneService.getAdditionalActiveSprints();
-        assertEquals("Didn't get expected number of cards", 5, sprints.get(0).getCards().size());
+        assertEquals(5, sprints.get(0).getCards().size(), "Didn't get expected number of cards");
     }
 }

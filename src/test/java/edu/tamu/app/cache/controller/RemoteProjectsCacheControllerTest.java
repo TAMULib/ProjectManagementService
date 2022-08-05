@@ -1,8 +1,8 @@
 package edu.tamu.app.cache.controller;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -12,20 +12,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import edu.tamu.app.cache.model.RemoteProject;
 import edu.tamu.app.cache.service.RemoteProjectsScheduledCacheService;
 import edu.tamu.weaver.response.ApiResponse;
 import edu.tamu.weaver.response.ApiStatus;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class RemoteProjectsCacheControllerTest {
 
     @Mock
@@ -34,9 +34,9 @@ public class RemoteProjectsCacheControllerTest {
     @InjectMocks
     private RemoteProjectsCacheController remoteProjectsCacheController;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
         when(remoteProjectsScheduledCacheService.get()).thenReturn(getMockRemoteProductsCache());
     }
 
@@ -44,10 +44,10 @@ public class RemoteProjectsCacheControllerTest {
     @SuppressWarnings("unchecked")
     public void testGet() {
         ApiResponse response = remoteProjectsCacheController.get();
-        assertNotNull("Reponse was null!", response);
-        assertEquals("Reponse was not successfull!", ApiStatus.SUCCESS, response.getMeta().getStatus());
+        assertNotNull(response, "Response was null!");
+        assertEquals(ApiStatus.SUCCESS, response.getMeta().getStatus(), "Response was not successful!");
 
-        assertNotNull("Reponse payload did not have expected property!", response.getPayload().get("HashMap"));
+        assertNotNull(response.getPayload().get("HashMap"), "Response payload did not have expected property!");
         assertRemoteProducts((Map<Long, List<RemoteProject>>) response.getPayload().get("HashMap"));
     }
 
@@ -66,8 +66,8 @@ public class RemoteProjectsCacheControllerTest {
         List<RemoteProject> remoteProjects = remoteProductsCache.get(1L);
         assertFalse(remoteProjects.isEmpty());
         assertEquals(1, remoteProjects.size());
-        assertEquals("0001", remoteProjects.get(0).getId());
-        assertEquals("Sprint 1", remoteProjects.get(0).getName());
+        assertEquals(remoteProjects.get(0).getId(), "0001");
+        assertEquals(remoteProjects.get(0).getName(), "Sprint 1");
         assertEquals(2, remoteProjects.get(0).getRequestCount());
         assertEquals(3, remoteProjects.get(0).getIssueCount());
         assertEquals(10, remoteProjects.get(0).getFeatureCount());

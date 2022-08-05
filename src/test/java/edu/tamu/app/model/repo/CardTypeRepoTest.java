@@ -1,17 +1,17 @@
 package edu.tamu.app.model.repo;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.HashSet;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
 import org.mockito.MockitoAnnotations;
@@ -19,7 +19,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import edu.tamu.app.ProductApplication;
 import edu.tamu.app.cache.service.ActiveSprintsScheduledCacheService;
@@ -30,7 +29,6 @@ import edu.tamu.app.service.manager.GitHubProjectService;
 import edu.tamu.app.service.manager.VersionOneService;
 import edu.tamu.app.service.ticketing.SugarService;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest(classes = { ProductApplication.class }, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class CardTypeRepoTest extends AbstractRepoTest {
 
@@ -59,9 +57,9 @@ public class CardTypeRepoTest extends AbstractRepoTest {
     private GitHub github;
 
     // @After and @Before cannot be safely specified inside a parent class.
-    @Before
+    @BeforeEach
     public void setup() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
 
         mockSugarService(sugarService);
         mockGitHubService(gitHubService, ghBuilder);
@@ -74,18 +72,18 @@ public class CardTypeRepoTest extends AbstractRepoTest {
     @Test
     public void testCreate() {
         CardType cardType = cardTypeRepo.create(newCardType("Feature", "Story", "Feature"));
-        assertNotNull("Unable to create card type!", cardType);
-        assertEquals("Card type repo had incorrect number of card types!", 1, cardTypeRepo.count());
-        assertEquals("Card type had incorrect identifier!", "Feature", cardType.getIdentifier());
-        assertEquals("Card type had incorrect number of mappings!", 2, cardType.getMapping().size());
+        assertNotNull(cardType, "Unable to create card type!");
+        assertEquals(1, cardTypeRepo.count(), "Card type repo had incorrect number of card types!");
+        assertEquals("Feature", cardType.getIdentifier(), "Card type had incorrect identifier!");
+        assertEquals(2, cardType.getMapping().size(), "Card type had incorrect number of mappings!");
     }
 
     @Test
     public void testRead() {
         cardTypeRepo.create(newCardType("Feature", "None", "Future"));
-        assertNotNull("Unable to find card type by identifier!", cardTypeRepo.findByIdentifier("Feature"));
-        assertTrue("Unable to find card type by mapping!", cardTypeRepo.findByMapping("None").isPresent());
-        assertTrue("Unable to find card type by mapping!", cardTypeRepo.findByMapping("Future").isPresent());
+        assertNotNull(cardTypeRepo.findByIdentifier("Feature"), "Unable to find card type by identifier!");
+        assertTrue(cardTypeRepo.findByMapping("None").isPresent(), "Unable to find card type by mapping!");
+        assertTrue(cardTypeRepo.findByMapping("Future").isPresent(), "Unable to find card type by mapping!");
     }
 
     @Test
@@ -94,26 +92,28 @@ public class CardTypeRepoTest extends AbstractRepoTest {
         cardType.setIdentifier("Feature");
         cardType.setMapping(new HashSet<String>(Arrays.asList(new String[] { "Feature", "Story", "Task" })));
         cardType = cardTypeRepo.update(cardType);
-        assertEquals("Card type had incorrect identifier!", "Feature", cardType.getIdentifier());
-        assertEquals("Card type had incorrect number of mappings!", 3, cardType.getMapping().size());
+        assertEquals("Feature", cardType.getIdentifier(), "Card type had incorrect identifier!");
+        assertEquals(3, cardType.getMapping().size(), "Card type had incorrect number of mappings!");
     }
 
     @Test
     public void testDelete() {
         CardType cardType = cardTypeRepo.create(newCardType("Feature", "Story", "Feature"));
         cardTypeRepo.delete(cardType);
-        assertNull("Unable to delete card type!", cardTypeRepo.findByIdentifier("Feature"));
-        assertEquals("Card type repo had incorrect number of card types!", 0, cardTypeRepo.count());
+        assertNull(cardTypeRepo.findByIdentifier("Feature"), "Unable to delete card type!");
+        assertEquals(0, cardTypeRepo.count(), "Card type repo had incorrect number of card types!");
     }
 
-    @Test(expected = DataIntegrityViolationException.class)
+    @Test
     public void testDuplicate() {
-        cardTypeRepo.create(newCardType("Feature", "Story", "Feature"));
-        cardTypeRepo.create(newCardType("Feature", "Story"));
+        assertThrows(DataIntegrityViolationException.class, () -> {
+            cardTypeRepo.create(newCardType("Feature", "Story", "Feature"));
+            cardTypeRepo.create(newCardType("Feature", "Story"));
+        });
     }
 
     // @After and @Before cannot be safely specified inside a parent class.
-    @After
+    @AfterEach
     public void cleanup() {
         cleanupRepos();
     }

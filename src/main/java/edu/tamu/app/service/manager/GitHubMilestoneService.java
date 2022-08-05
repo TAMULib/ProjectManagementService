@@ -1,5 +1,9 @@
 package edu.tamu.app.service.manager;
 
+import edu.tamu.app.cache.model.Card;
+import edu.tamu.app.cache.model.Sprint;
+import edu.tamu.app.model.ManagementService;
+import edu.tamu.app.model.ServiceType;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -8,22 +12,20 @@ import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import org.apache.commons.lang3.tuple.Pair;
 import org.kohsuke.github.GHMilestoneState;
 import org.kohsuke.github.GHOrganization;
 import org.kohsuke.github.GHProject;
 import org.kohsuke.github.GHProject.ProjectStateFilter;
 import org.kohsuke.github.GHRepository;
-
-import edu.tamu.app.cache.model.Card;
-import edu.tamu.app.cache.model.Sprint;
-import edu.tamu.app.model.ManagementService;
-import edu.tamu.app.model.ServiceType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GitHubMilestoneService extends AbstractGitHubService {
 
-    public GitHubMilestoneService(final ManagementService managementService) throws IOException {
+    protected static Logger logger = LoggerFactory.getLogger(GitHubMilestoneService.class);
+
+    public GitHubMilestoneService(final ManagementService managementService) {
         super(managementService);
     }
 
@@ -32,7 +34,7 @@ public class GitHubMilestoneService extends AbstractGitHubService {
         logger.info("Fetching active sprints for remote project with scope id " + scopeId);
         GHRepository repo = github.getRepositoryById(scopeId);
         String productName = repo.getName();
-        return repo.listProjects(ProjectStateFilter.OPEN).asList().stream()
+        return repo.listProjects(ProjectStateFilter.OPEN).toList().stream()
             .flatMap(project -> getActiveSprintsForProject(project, productName))
             .collect(Collectors.toList());
     }
@@ -40,7 +42,7 @@ public class GitHubMilestoneService extends AbstractGitHubService {
     @Override
     public List<Sprint> getAdditionalActiveSprints() throws Exception {
         GHOrganization organization = github.getOrganization(ORGANIZATION);
-        return organization.listProjects(ProjectStateFilter.OPEN).asList().stream()
+        return organization.listProjects(ProjectStateFilter.OPEN).toList().stream()
             .flatMap(project -> getActiveSprintsForProject(project, toProductName(project)))
             .collect(Collectors.toList());
     }
@@ -53,8 +55,8 @@ public class GitHubMilestoneService extends AbstractGitHubService {
     }
 
     private Map<String, List<Card>> getCards(GHProject project) throws IOException {
-        return project.listColumns().asList().stream()
-            .flatMap(column -> exceptionHandlerWrapper(column, c -> c.listCards().asList().stream()))
+        return project.listColumns().toList().stream()
+            .flatMap(column -> exceptionHandlerWrapper(column, c -> c.listCards().toList().stream()))
             .map(card -> Pair.of(card, exceptionHandlerWrapper(card, c -> c.getContent())))
             // Card without contents is a note
             .filter(p -> Objects.nonNull(p.getValue()))

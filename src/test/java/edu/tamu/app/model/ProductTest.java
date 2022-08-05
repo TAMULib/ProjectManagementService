@@ -1,21 +1,19 @@
 package edu.tamu.app.model;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
 import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import edu.tamu.app.ProductApplication;
 import edu.tamu.app.cache.service.ActiveSprintsScheduledCacheService;
@@ -25,7 +23,6 @@ import edu.tamu.app.service.manager.GitHubProjectService;
 import edu.tamu.app.service.manager.VersionOneService;
 import edu.tamu.app.service.ticketing.SugarService;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest(classes = { ProductApplication.class }, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class ProductTest extends AbstractModelTest {
 
@@ -68,9 +65,9 @@ public class ProductTest extends AbstractModelTest {
     @MockBean
     private GitHub github;
 
-    @Before
+    @BeforeEach
     public void setup() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
 
         mockSugarService(sugarService);
         mockGitHubService(gitHubService, ghBuilder);
@@ -83,92 +80,92 @@ public class ProductTest extends AbstractModelTest {
     @Test
     public void testGetName() {
         Product product = new Product(TEST_PRODUCT_NAME1, TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST1);
-        assertEquals("Product did not return the correct name!", TEST_PRODUCT_NAME1, product.getName());
+        assertEquals(TEST_PRODUCT_NAME1, product.getName(), "Product did not return the correct name!");
     }
 
     @Test
     public void testGetScopeId() {
         Product product = new Product(TEST_PRODUCT_NAME1, TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST1, TEST_PROJECT_SCOPE1, "", "", "", "", null);
-        assertEquals("Product did not return the correct scope id!", TEST_PROJECT_SCOPE1, product.getScopeId());
+        assertEquals(TEST_PROJECT_SCOPE1, product.getScopeId(), "Product did not return the correct scope id!");
     }
 
     @Test
     public void testGetDevUri() {
         Product product = new Product(TEST_PRODUCT_NAME1, TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST1, TEST_PROJECT_SCOPE1, TEST_URL_1, "", "", "", null);
-        assertEquals("Product did not return the correct dev URL!", TEST_URL_1, product.getDevUrl());
+        assertEquals(TEST_URL_1, product.getDevUrl(), "Product did not return the correct dev URL!");
     }
 
     @Test
     public void testGetPreUri() {
         Product product = new Product(TEST_PRODUCT_NAME1, TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST1, TEST_PROJECT_SCOPE1, "", TEST_URL_1, "", "", null);
-        assertEquals("Product did not return the correct pre URL!", TEST_URL_1, product.getPreUrl());
+        assertEquals(TEST_URL_1, product.getPreUrl(), "Product did not return the correct pre URL!");
     }
 
     @Test
     public void testGetProductionUrl() {
         Product product = new Product(TEST_PRODUCT_NAME1, TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST1, TEST_PROJECT_SCOPE1, "", "", TEST_URL_1, "", null);
-        assertEquals("Product did not return the correct production URL!", TEST_URL_1, product.getProductionUrl());
+        assertEquals(TEST_URL_1, product.getProductionUrl(), "Product did not return the correct production URL!");
     }
 
     @Test
     public void testGetWikiUrl() {
         Product product = new Product(TEST_PRODUCT_NAME1, TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST1, TEST_PROJECT_SCOPE1, "", "", "", TEST_URL_1, null);
-        assertEquals("Product did not return the correct wiki URL!", TEST_URL_1, product.getWikiUrl());
+        assertEquals(TEST_URL_1, product.getWikiUrl(), "Product did not return the correct wiki URL!");
     }
 
     @Test
     public void testGetRemoteProducts() {
         Product product = new Product(TEST_PRODUCT_NAME1, TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST1);
-        assertEquals("Product did not return the correct remote project info!", TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST1, product.getRemoteProjectInfo());
+        assertEquals(TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST1, product.getRemoteProjectInfo(), "Product did not return the correct remote project info!");
     }
 
     @Test
     public void testSetName() {
         Product product = new Product(TEST_PRODUCT_NAME1, TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST1);
         product.setName(TEST_PROJECT_SCOPE2);
-        assertEquals("Product did not correctly update the scope id!", TEST_PROJECT_SCOPE2, product.getName());
+        assertEquals(TEST_PROJECT_SCOPE2, product.getName(), "Product did not correctly update the scope id!");
     }
 
     @Test
     public void testSetDevUrl() {
         Product product = new Product(TEST_PRODUCT_NAME1, TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST1, TEST_PROJECT_SCOPE1, TEST_URL_1, "", "", "", null);
         product.setDevUrl(TEST_URL_2);
-        assertEquals("Product did not correctly update the dev URL!", TEST_URL_2, product.getDevUrl());
+        assertEquals(TEST_URL_2, product.getDevUrl(), "Product did not correctly update the dev URL!");
     }
 
     @Test
     public void testSetPreUrl() {
         Product product = new Product(TEST_PRODUCT_NAME1, TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST1, TEST_PROJECT_SCOPE1, "", TEST_URL_1, "", "", null);
         product.setPreUrl(TEST_URL_2);
-        assertEquals("Product did not correctly update the pre URL!", TEST_URL_2, product.getPreUrl());
+        assertEquals(TEST_URL_2, product.getPreUrl(), "Product did not correctly update the pre URL!");
     }
 
     @Test
     public void testSetProductionUrl() {
         Product product = new Product(TEST_PRODUCT_NAME1, TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST1, TEST_PROJECT_SCOPE1, "", "", TEST_URL_1, "", null);
         product.setProductionUrl(TEST_URL_2);
-        assertEquals("Product did not correctly update the production URL!", TEST_URL_2, product.getProductionUrl());
+        assertEquals(TEST_URL_2, product.getProductionUrl(), "Product did not correctly update the production URL!");
     }
 
     @Test
     public void testSetWikiUrl() {
         Product product = new Product(TEST_PRODUCT_NAME1, TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST1, TEST_PROJECT_SCOPE1, "", "", "", TEST_URL_1, null);
         product.setWikiUrl(TEST_URL_2);
-        assertEquals("Product did not correctly update the Wiki URL!", TEST_URL_2, product.getWikiUrl());
+        assertEquals(TEST_URL_2, product.getWikiUrl(), "Product did not correctly update the Wiki URL!");
     }
 
     @Test
     public void testSetScopeId() {
         Product product = new Product(TEST_PRODUCT_NAME1, TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST1, TEST_PROJECT_SCOPE1, "", "", "", "", null);
         product.setScopeId(TEST_PROJECT_SCOPE2);
-        assertEquals("Product did not correctly update the scope id!", TEST_PROJECT_SCOPE2, product.getScopeId());
+        assertEquals(TEST_PROJECT_SCOPE2, product.getScopeId(), "Product did not correctly update the scope id!");
     }
 
     @Test
     public void testSetRemoteProducts() {
         Product product = new Product(TEST_PRODUCT_NAME1, TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST1);
         product.setRemoteProductInfo(TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST2);
-        assertEquals("Product did not return the correct remote project info!", TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST2, product.getRemoteProjectInfo());
+        assertEquals(TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST2, product.getRemoteProjectInfo(), "Product did not return the correct remote project info!");
     }
 
     @Test
@@ -176,7 +173,7 @@ public class ProductTest extends AbstractModelTest {
         Product product = new Product(TEST_PRODUCT_NAME1, TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST1);
         product.addRemoteProductInfo(TEST_REMOTE_PROJECT_INFO3);
         List<RemoteProjectInfo> remoteProjectInfo = product.getRemoteProjectInfo();
-        assertEquals("Product did not correctly add the remote project!", true, remoteProjectInfo.contains(TEST_REMOTE_PROJECT_INFO3));
+        assertEquals(true, remoteProjectInfo.contains(TEST_REMOTE_PROJECT_INFO3), "Product did not correctly add the remote project!");
     }
 
     @Test
@@ -184,29 +181,29 @@ public class ProductTest extends AbstractModelTest {
         Product product = new Product(TEST_PRODUCT_NAME1, TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST1);
         product.removeRemoteProduct(TEST_REMOTE_PROJECT_INFO1);
         List<RemoteProjectInfo> remoteProjectInfo = product.getRemoteProjectInfo();
-        assertEquals("Product did not correctly add the remote project!", false, remoteProjectInfo.contains(TEST_REMOTE_PROJECT_INFO1));
+        assertEquals(false, remoteProjectInfo.contains(TEST_REMOTE_PROJECT_INFO1), "Product did not correctly add the remote project!");
     }
 
     @Test
     public void testSetOtherUrls() {
         Product product = new Product(TEST_PRODUCT_NAME1, TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST1);
         product.setOtherUrls(TEST_OTHER_URLS1);
-        assertEquals("Product did not correctly set the other URLs", 2, product.getOtherUrls().size());
+        assertEquals(2, product.getOtherUrls().size(), "Product did not correctly set the other URLs");
     }
 
     @Test
     public void testAddOtherUrl() {
         Product product = new Product(TEST_PRODUCT_NAME1, TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST1, TEST_PROJECT_SCOPE1, "", "", "", "", new ArrayList<String>(Arrays.asList(TEST_OTHER_URL1)));
         product.addOtherUrl(TEST_OTHER_URL2);
-        assertEquals("Product did not correctly add the second URL", 2, product.getOtherUrls().size());
+        assertEquals(2, product.getOtherUrls().size(), "Product did not correctly add the second URL");
     }
 
     @Test
     public void testRemoveOtherUrl() {
         Product product = new Product(TEST_PRODUCT_NAME1, TEST_PRODUCT_REMOTE_PROJECT_INFO_LIST1, TEST_PROJECT_SCOPE1, "", "", "", "", TEST_OTHER_URLS1);
         product.removeOtherUrl(TEST_OTHER_URL1);
-        assertEquals("Product did not remove other URL", 1, product.getOtherUrls().size());
-        assertEquals("Product did not remove correct other URL", TEST_OTHER_URL2, product.getOtherUrls().get(0));
+        assertEquals(1, product.getOtherUrls().size(), "Product did not remove other URL");
+        assertEquals(TEST_OTHER_URL2, product.getOtherUrls().get(0), "Product did not remove correct other URL");
     }
 
 }

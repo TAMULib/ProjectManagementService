@@ -1,19 +1,19 @@
 package edu.tamu.app.service;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import edu.tamu.app.model.ManagementService;
 import edu.tamu.app.model.ServiceType;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class ManagementServiceTest {
 
     private static final String TEST_NAME = "Test Name";
@@ -26,37 +26,37 @@ public class ManagementServiceTest {
 
     private ManagementService managementService;
 
-    @Before
+    @BeforeEach
     public void setup() {
         managementService = mock(ManagementService.class, Mockito.CALLS_REAL_METHODS);
     }
 
     @Test
     public void testSetName() {
-        assertNull("Name was already set", managementService.getName());
+        assertNull(managementService.getName(), "Name was already set");
         managementService.setName(TEST_NAME);
-        assertEquals("Name was not set correctly", TEST_NAME, managementService.getName());
+        assertEquals(TEST_NAME, managementService.getName(), "Name was not set correctly");
     }
 
     @Test
     public void testSetType() {
-        assertNull("Type was already set", managementService.getType());
+        assertNull(managementService.getType(), "Type was already set");
         managementService.setType(TEST_TYPE);
-        assertEquals("Type was not set correctly", TEST_TYPE, managementService.getType());
+        assertEquals(TEST_TYPE, managementService.getType(), "Type was not set correctly");
     }
 
     @Test
     public void testSetUrl() {
-        assertNull("URL was already set", managementService.getUrl());
+        assertNull(managementService.getUrl(), "URL was already set");
         managementService.setUrl(TEST_URL1);
-        assertEquals("URL was not set correctly", TEST_URL1, managementService.getUrl());
+        assertEquals(TEST_URL1, managementService.getUrl(), "URL was not set correctly");
     }
 
     @Test
     public void testSetToken() {
-        assertNull("Token was already set", managementService.getToken());
+        assertNull(managementService.getToken(), "Token was already set");
         managementService.setToken(TEST_TOKEN1);
-        assertEquals("Token was not set correctly", TEST_TOKEN1, managementService.getToken());
+        assertEquals(TEST_TOKEN1, managementService.getToken(), "Token was not set correctly");
     }
 
 }

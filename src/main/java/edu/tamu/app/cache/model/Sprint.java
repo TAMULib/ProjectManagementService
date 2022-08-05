@@ -4,8 +4,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.tamu.app.model.ServiceType;
-
 public class Sprint implements Serializable {
 
     private static final long serialVersionUID = -1490373427353614907L;

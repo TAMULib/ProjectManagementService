@@ -12,7 +12,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.kohsuke.github.GHIssue;
 import org.kohsuke.github.GHIssueState;
 import org.kohsuke.github.GHLabel;
@@ -40,7 +41,7 @@ import edu.tamu.app.rest.TokenAuthRestTemplate;
 
 public abstract class AbstractGitHubService extends MappingRemoteProjectManagerBean {
 
-    protected static final Logger logger = Logger.getLogger(GitHubProjectService.class);
+    protected static Logger logger = LoggerFactory.getLogger(AbstractGitHubService.class);
 
     static final String ORGANIZATION = "TAMULib";
     static final String SPRINT = "SPRINT";
@@ -66,7 +67,7 @@ public abstract class AbstractGitHubService extends MappingRemoteProjectManagerB
 
     private final Map<String, Member> members;
 
-    protected AbstractGitHubService(final ManagementService managementService) throws IOException {
+    protected AbstractGitHubService(final ManagementService managementService) {
         this.managementService = managementService;
         this.restTemplate = getRestTemplate();
         this.ghBuilder = new GitHubBuilder();
@@ -102,7 +103,7 @@ public abstract class AbstractGitHubService extends MappingRemoteProjectManagerB
         return Long.toString(repo.createIssue(title).body(body).create().getId());
     }
 
-    GitHub getGitHubInstance() throws IOException {
+    GitHub getGitHubInstance() {
         final Optional<String> endpoint = Optional.of(managementService.getUrl());
         final Optional<String> token = Optional.of(managementService.getToken());
 
@@ -114,31 +115,39 @@ public abstract class AbstractGitHubService extends MappingRemoteProjectManagerB
             throw new RuntimeException("GitHub token was not defined");
         }
 
-        return ghBuilder
-            .withEndpoint(endpoint.get())
-            .withOAuthToken(token.get())
-            .build();
+        GitHub github;
+        try {
+            github = ghBuilder
+                .withEndpoint(endpoint.get())
+                .withOAuthToken(token.get())
+                .build();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        return github;
     }
 
     Member getMember(final GHUser user) throws IOException {
-        Member member;
         final String memberId = String.valueOf(user.getId());
         final Optional<Member> cachedMember = getCachedMember(memberId);
+
         if (cachedMember.isPresent()) {
-            member = cachedMember.get();
-        } else {
-            final String name = StringUtils.isEmpty(user.getName()) ? user.getLogin() : user.getName();
-            final String avatarUrlString = user.getAvatarUrl();
-            final String avatarPath = getAvatarPath(avatarUrlString);
-            member = new Member(memberId, name, avatarPath);
-
-            final Optional<URL> avatarUrl = Optional.ofNullable(getClass().getResource("/images/" + avatarPath));
-            if (!avatarUrl.isPresent()) {
-                storeAvatar(avatarUrlString);
-            }
-
-            cacheMember(memberId, member);
+            return cachedMember.get();
         }
+
+        final String name = StringUtils.isEmpty(user.getName()) ? user.getLogin() : user.getName();
+        final String avatarUrlString = user.getAvatarUrl();
+        final String avatarPath = getAvatarPath(avatarUrlString);
+        final Member member = new Member(memberId, name, avatarPath);
+        final Optional<URL> avatarUrl = Optional.ofNullable(getClass().getResource("/images/" + avatarPath));
+
+        if (!avatarUrl.isPresent()) {
+            storeAvatar(avatarUrlString);
+        }
+
+        cacheMember(memberId, member);
+
         return member;
     }
 
@@ -211,9 +220,12 @@ public abstract class AbstractGitHubService extends MappingRemoteProjectManagerB
     private void storeAvatar(final String avatarUrl) throws IOException {
         final URL imagesPath = getClass().getResource("/images/");
         final HttpHeaders headers = new HttpHeaders();
+
         headers.setAccept(Arrays.asList(MediaType.APPLICATION_OCTET_STREAM));
+
         final HttpEntity<String> entity = new HttpEntity<String>(headers);
-        final ResponseEntity<byte[]> response = restTemplate.exchange(avatarUrl, HttpMethod.GET, entity, byte[].class, "1");
+        final ResponseEntity<byte[]> response = restTemplate.exchange(avatarUrl, HttpMethod.GET, entity, byte[].class);
+
         if (response.getStatusCode().equals(HttpStatus.OK)) {
             final File file = new File(imagesPath.getFile() + getAvatarPath(avatarUrl));
             Files.write(file.toPath(), response.getBody());
@@ -248,6 +260,7 @@ public abstract class AbstractGitHubService extends MappingRemoteProjectManagerB
         try {
             return f.apply(t);
         } catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }

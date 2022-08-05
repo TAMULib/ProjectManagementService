@@ -1,20 +1,20 @@
 package edu.tamu.app.cache.model;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class MemberTest {
 
     @Test
     public void testNewAssignee() {
         Member member = new Member("1", "Bob Boring", "http://gravatar.com/bborring");
-        assertEquals("1", member.getId());
-        assertEquals("Bob Boring", member.getName());
-        assertEquals("http://gravatar.com/bborring", member.getAvatar());
+        assertEquals(member.getId(), "1");
+        assertEquals(member.getName(), "Bob Boring");
+        assertEquals(member.getAvatar(), "http://gravatar.com/bborring");
     }
 
 }

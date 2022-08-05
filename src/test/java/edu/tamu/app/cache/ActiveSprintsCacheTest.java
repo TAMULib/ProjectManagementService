@@ -1,39 +1,39 @@
 package edu.tamu.app.cache;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import edu.tamu.app.cache.model.Card;
 import edu.tamu.app.cache.model.Member;
 import edu.tamu.app.cache.model.Sprint;
 import edu.tamu.app.model.ServiceType;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class ActiveSprintsCacheTest {
 
     @Test
     public void testNewActiveSprintsCache() {
         ActiveSprintsCache cache = new ActiveSprintsCache();
-        assertNotNull("New active sprint cache was not created!", cache);
-        assertNotNull("New active sprint cache sprints were not created!", cache.get());
+        assertNotNull(cache, "New active sprint cache was not created!");
+        assertNotNull(cache.get(), "New active sprint cache sprints were not created!");
     }
 
     @Test
     public void testSetCache() {
         ActiveSprintsCache cache = new ActiveSprintsCache();
         Sprint sprint = getMockSprint();
-        assertTrue("Cached active sprints was not empty!", cache.get().isEmpty());
+        assertTrue(cache.get().isEmpty(), "Cached active sprints was not empty!");
         cache.set(Arrays.asList(new Sprint[] { sprint }));
-        assertFalse("Cached active sprints was empty!", cache.get().isEmpty());
+        assertFalse(cache.get().isEmpty(), "Cached active sprints was empty!");
     }
 
     @Test
@@ -41,11 +41,11 @@ public class ActiveSprintsCacheTest {
         ActiveSprintsCache cache = new ActiveSprintsCache();
         cache.set(Arrays.asList(new Sprint[] { getMockSprint() }));
         List<Sprint> sprints = cache.get();
-        assertFalse("Cached active sprints was empty!", sprints.isEmpty());
-        assertEquals("Cached active sprints had incorrect number of sprints!", 1, sprints.size());
-        assertEquals("Cached active sprint had incorrect id!", "1", sprints.get(0).getId());
-        assertEquals("Cached active sprint had incorrect name!", "Sprint 1", sprints.get(0).getName());
-        assertEquals("Cached active sprint had incorrect product!", "Application", sprints.get(0).getProduct());
+        assertFalse(sprints.isEmpty(), "Cached active sprints was empty!");
+        assertEquals(1, sprints.size(), "Cached active sprints had incorrect number of sprints!");
+        assertEquals("1", sprints.get(0).getId(), "Cached active sprint had incorrect id!");
+        assertEquals("Sprint 1", sprints.get(0).getName(), "Cached active sprint had incorrect name!");
+        assertEquals("Application", sprints.get(0).getProduct(), "Cached active sprint had incorrect product!");
 
         assertFalse(sprints.get(0).getCards().isEmpty());
         assertEquals(1, sprints.get(0).getCards().size());

@@ -1,9 +1,9 @@
 package edu.tamu.app.cache.service;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -12,14 +12,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.versionone.apiclient.exceptions.APIException;
 import com.versionone.apiclient.exceptions.ConnectionException;
@@ -36,7 +36,7 @@ import edu.tamu.app.model.repo.ProductRepo;
 import edu.tamu.app.service.manager.VersionOneService;
 import edu.tamu.app.service.registry.ManagementBeanRegistry;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class ActiveSprintsScheduledCacheServiceTest {
     private static final String TEST_PROJECT_SCOPE1 = "0010";
     private static final String TEST_PROJECT_SCOPE2 = "0020";
@@ -68,9 +68,9 @@ public class ActiveSprintsScheduledCacheServiceTest {
     @InjectMocks
     private ActiveSprintsScheduledCacheService activeSprintsScheduledCacheService;
 
-    @Before
+    @BeforeEach
     public void setup() throws ConnectionException, APIException, OidException, IOException {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
         VersionOneService versionOneService = mock(VersionOneService.class);
         when(productRepo.findAll()).thenReturn(Arrays.asList(new Product[] { getMockProduct() }));
         when(managementBeanRegistry.getService(any(String.class))).thenReturn(versionOneService);
@@ -144,18 +144,18 @@ public class ActiveSprintsScheduledCacheServiceTest {
     private void assertSprints(List<Sprint> sprints) {
         assertFalse(sprints.isEmpty());
         assertEquals(1, sprints.size());
-        assertEquals("2000", sprints.get(0).getId());
-        assertEquals("Sprint 1", sprints.get(0).getName());
-        assertEquals("Test Product", sprints.get(0).getProduct());
+        assertEquals(sprints.get(0).getId(), "2000");
+        assertEquals(sprints.get(0).getName(), "Sprint 1");
+        assertEquals(sprints.get(0).getProduct(), "Test Product");
         assertEquals(ServiceType.GITHUB_MILESTONE.toString(), sprints.get(0).getType());
         assertFalse(sprints.get(0).getCards().isEmpty());
         assertEquals(1, sprints.get(0).getCards().size());
-        assertEquals("3000", sprints.get(0).getCards().get(0).getId());
-        assertEquals("B-00001", sprints.get(0).getCards().get(0).getNumber());
-        assertEquals("Feature", sprints.get(0).getCards().get(0).getType());
-        assertEquals("Do the thing", sprints.get(0).getCards().get(0).getName());
-        assertEquals("Do it with these requirements", sprints.get(0).getCards().get(0).getDescription());
-        assertEquals("In Progress", sprints.get(0).getCards().get(0).getStatus());
+        assertEquals(sprints.get(0).getCards().get(0).getId(), "3000");
+        assertEquals(sprints.get(0).getCards().get(0).getNumber(), "B-00001");
+        assertEquals(sprints.get(0).getCards().get(0).getType(), "Feature");
+        assertEquals(sprints.get(0).getCards().get(0).getName(), "Do the thing");
+        assertEquals(sprints.get(0).getCards().get(0).getDescription(), "Do it with these requirements");
+        assertEquals(sprints.get(0).getCards().get(0).getStatus(), "In Progress");
         assertEquals(1.0, sprints.get(0).getCards().get(0).getEstimate(), 0);
         assertFalse(sprints.get(0).getCards().get(0).getAssignees().isEmpty());
         assertEquals(1, sprints.get(0).getCards().get(0).getAssignees().size());

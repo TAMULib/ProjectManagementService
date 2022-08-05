@@ -10,9 +10,9 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
-import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.lang.NonNull;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
@@ -23,12 +23,12 @@ import edu.tamu.weaver.validation.model.ValidatingBaseEntity;
 @Entity
 public class InternalRequest extends ValidatingBaseEntity {
 
-    @NotNull
+    @NonNull
     @Column(nullable = false)
     @JsonView(ApiView.Partial.class)
     private String title;
 
-    @NotNull
+    @NonNull
     @Column(nullable = false)
     @JsonView(ApiView.Partial.class)
     private String description;
@@ -37,7 +37,7 @@ public class InternalRequest extends ValidatingBaseEntity {
     @ManyToOne(targetEntity = Product.class, fetch = EAGER, cascade = { DETACH, REFRESH, MERGE }, optional = true)
     private Product product;
 
-    @NotNull
+    @NonNull
     @Column(nullable = false, updatable = false)
     @CreationTimestamp
     private Date createdOn;
