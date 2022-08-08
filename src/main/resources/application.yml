@@ -1,6 +1,7 @@
 server:
   port: 9001
-  contextPath:
+  servlet:
+    context-path: /products
 
 # logging
 logging:
@@ -95,7 +96,7 @@ app:
     # edu.tamu.weaver.auth.service.CryptoService
     secret: verysecretsecret
     # edu.tamu.weaver.filter.CorsFilter
-    allow-access: "*"
+    allow-access: http://localhost,http://localhost:8080,http://machuff.tamu.edu,http://savell.evans.tamu.edu,http://jmicah.tamu.edu,http://laddusaw.tamu.edu,http://muninn.evans.tamu.edu:8080
   # edu.tamu.weaver.email.config.WeaverEmailConfig
   email:
     host: relay.tamu.edu
