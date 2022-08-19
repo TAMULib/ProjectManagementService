@@ -1,15 +1,15 @@
 <a name="readme-top"></a>
-# Contributing to Project Management UI
+# Contributing to Project Management Service
 
-Though *Project Management UI* is developed and maintained by Texas A&M University Libraries, we welcome community contributions.
-Involvement in *Project Management UI* can take many forms.
+Though *Project Management Service* is developed and maintained by Texas A&M University Libraries, we welcome community contributions.
+Involvement in *Project Management Service* can take many forms.
 
 <div align="right">(<a href="#readme-top">back to top</a>)</div>
 
 
 ## Using
 
-Deploying *Project Management UI* and trying it out at your own institution is itself a way of contributing to the development process.
+Deploying *Project Management Service* and trying it out at your own institution is itself a way of contributing to the development process.
 For more information on deployment strategies please see the [Deployment Guide][deployment-guide].
 
 <div align="right">(<a href="#readme-top">back to top</a>)</div>
@@ -17,7 +17,7 @@ For more information on deployment strategies please see the [Deployment Guide][
 
 ## Filing Issues
 
-Once you are using *Project Management UI* the creation of new issues through GitHub is a major method of contribution towards *Project Management UI* development.
+Once you are using *Project Management Service* the creation of new issues through GitHub is a major method of contribution towards *Project Management Service* development.
 Issues can be motivated by the discovery of a bug in the software, or by the desire to see either new features added or see changes to existing features.
 
 There are two primary types of issues:
@@ -34,7 +34,7 @@ A **Feature** involves new functionality or behavior.
 ## Creating a Pull Request
 
 Community code and documentation contributions are welcome and should take the form of a **GitHub Pull Request** (*PR*).
-Each *PR* will need to be reviewed by a *Project Management UI* developer.
+Each *PR* will need to be reviewed by a *Project Management Service* developer.
 A review will result in the *PR* being accepted and merged, a descriptive request for changes, or the *PR* being closed along with a detailed explanation.
 
 It is our intention to maintain labeling on issues that are deemed to be low difficulty in order to provide a good point of entry for those looking to begin contributing code or documentation.
@@ -55,7 +55,7 @@ In general keep in mind:
 ## Good Luck!
 
 We look forward to seeing your contributions.
-If you have any additional questions please contact the *Project Management UI* developers at helpdesk@library.tamu.edu.
+If you have any additional questions please contact the *Project Management Service* developers at helpdesk@library.tamu.edu.
 
 <div align="right">(<a href="#readme-top">back to top</a>)</div>
 
