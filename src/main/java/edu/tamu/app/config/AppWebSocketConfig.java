@@ -49,7 +49,7 @@ public class AppWebSocketConfig implements WebSocketMessageBrokerConfigurer {
      */
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/connect").setAllowedOrigins("*").withSockJS();
+        registry.addEndpoint("/connect").setAllowedOriginPatterns("*").withSockJS();
     }
 
 }
