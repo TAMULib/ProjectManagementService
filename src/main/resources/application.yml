@@ -1,7 +1,7 @@
 server:
   port: 9000
   servlet:
-    context-path: /products
+    context-path:
 
 # logging
 logging:
@@ -29,17 +29,19 @@ spring:
   # profiles: production, development, test
   profiles.active: production
 
+  sql.init.platform: h2
+  # sql.init.platform: postgresql
+
   datasource:
-    platform: h2
     driverClassName: org.h2.Driver
     url: jdbc:h2:mem:AZ;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    # platform: postgres
+
     # driverClassName: org.postgresql.Driver
     # url: jdbc:postgresql://localhost:5432/product_management_service
 
     username: spring
     password: spring
-    
+
     max-active: 100
     max-idle: 8
     min-idle: 8
@@ -52,7 +54,7 @@ spring:
 
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
-    # database-platform: org.hibernate.dialect.PostgreSQLDialect
+    # database-platform: org.hibernate.dialect.PostgreSQL10Dialect
 
     show-sql: false
     hibernate.ddl-auto: create-drop
