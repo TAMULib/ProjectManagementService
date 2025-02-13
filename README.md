@@ -3,7 +3,7 @@
 
 # Project Management Service
 
-Copyright © 2016-2025 Texas A&M University Libraries under the [MIT](LICENSE).
+Copyright © 2016-2025 Texas A&M University Libraries under the [MIT license](LICENSE).
 
 A *Spring* backend for the *Project Management Service* developed and maintained by [Texas A&M University Libraries][tamu-library].
 
